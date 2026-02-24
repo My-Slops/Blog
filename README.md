@@ -1,0 +1,2 @@
+# Blog
+Daily blog repository
