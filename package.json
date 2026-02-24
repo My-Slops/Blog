@@ -1,0 +1,10 @@
+{
+  "name": "blog",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Daily blog optimized for humans and LLMs",
+  "scripts": {
+    "build:index": "node scripts/generate-index.mjs",
+    "build": "npm run build:index"
+  }
+}
