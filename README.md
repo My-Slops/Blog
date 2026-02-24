@@ -34,3 +34,14 @@ Daily writing repository optimized for both human readers and LLM ingestion.
 
 Enable **GitHub Pages** and serve this repo to make links public:
 - Settings → Pages → Deploy from branch `main` `/ (root)`
+
+## Automation
+
+- `new-daily-post.yml` creates a draft post every day.
+- `validate.yml` enforces frontmatter schema on push/PR.
+- `build-index.yml` regenerates machine-readable files (`index.json`, `rss.xml`, `sitemap.xml`, `tags/*.json`).
+
+## Tag APIs
+
+- `tags/index.json` — all tags and counts
+- `tags/<tag>.json` — posts for a specific tag

@@ -1,0 +1,32 @@
+name: New daily post
+
+on:
+  schedule:
+    - cron: '10 13 * * *' # 08:10 America/Toronto (approx, adjust for DST if needed)
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  create-daily:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Create today's draft post
+        run: node scripts/new-daily-post.mjs
+
+      - name: Commit if changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add posts
+          git diff --staged --quiet || git commit -m "chore: create daily draft post"
+          git push
