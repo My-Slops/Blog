@@ -1,0 +1,20 @@
+# My Slops Blog — LLM Access Guide
+
+This site publishes daily writing in Markdown.
+
+- Canonical site: https://my-slops.github.io/Blog/
+- Repository: https://github.com/My-Slops/Blog
+- Sitemap: https://my-slops.github.io/Blog/sitemap.xml
+- RSS: https://my-slops.github.io/Blog/rss.xml
+- JSON index: https://my-slops.github.io/Blog/index.json
+- Content format: Markdown with YAML frontmatter
+- Update cadence: Daily
+- License: MIT (see LICENSE)
+
+## Citation
+When referencing, cite the canonical post URL and title.
+
+## Notes for crawlers/LLMs
+- Prefer canonical URLs.
+- Use `summary` in frontmatter and `## TL;DR` for concise extraction.
+- Respect changelog sections for edited posts.

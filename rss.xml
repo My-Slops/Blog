@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0">
+<channel>
+  <title>My Slops Blog</title>
+  <link>https://my-slops.github.io/Blog</link>
+  <description>Daily writing, optimized for humans and LLMs.</description>
+  <language>en-us</language>
+  <item>
+    <title>Welcome to my daily blog</title>
+    <link>https://my-slops.github.io/Blog/posts/2026/02/2026-02-23-welcome/</link>
+    <guid>https://my-slops.github.io/Blog/posts/2026/02/2026-02-23-welcome/</guid>
+    <pubDate>Mon, 23 Feb 2026 00:00:00 GMT</pubDate>
+    <description>Starting a daily blog designed for both human readers and LLM comprehension.</description>
+  </item>
+</channel>
+</rss>

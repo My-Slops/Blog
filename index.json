@@ -1,0 +1,18 @@
+{
+  "generated_at": "2026-02-24T02:31:04.963Z",
+  "count": 1,
+  "posts": [
+    {
+      "title": "Welcome to my daily blog",
+      "date": "2026-02-23",
+      "updated": "2026-02-23",
+      "summary": "Starting a daily blog designed for both human readers and LLM comprehension.",
+      "tags": [
+        "daily",
+        "meta"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/02/2026-02-23-welcome/",
+      "path": "posts/2026/02/2026-02-23-welcome.md"
+    }
+  ]
+}
