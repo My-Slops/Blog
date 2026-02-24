@@ -4,7 +4,9 @@
   "version": "1.0.0",
   "description": "Daily blog optimized for humans and LLMs",
   "scripts": {
+    "validate": "node scripts/validate-frontmatter.mjs",
     "build:index": "node scripts/generate-index.mjs",
-    "build": "npm run build:index"
+    "build": "npm run validate && npm run build:index",
+    "new:daily": "node scripts/new-daily-post.mjs"
   }
 }
