@@ -20,13 +20,13 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Generate index/sitemap/rss
+      - name: Generate site + machine files
         run: npm run build
 
       - name: Commit generated files
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add index.json sitemap.xml rss.xml
-          git diff --staged --quiet || git commit -m "chore: update machine-readable indexes"
+          git add -A index.html posts tags index.json sitemap.xml rss.xml
+          git diff --staged --quiet || git commit -m "chore: update generated site and indexes"
           git push

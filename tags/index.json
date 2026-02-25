@@ -1,15 +1,45 @@
 {
-  "generated_at": "2026-02-24T02:33:21.864Z",
+  "generated_at": "2026-02-25T14:35:04.588Z",
   "tags": [
     {
-      "tag": "daily",
+      "tag": "blogging",
+      "count": 2,
+      "url": "https://my-slops.github.io/Blog/tags/blogging.json"
+    },
+    {
+      "tag": "consistency",
+      "count": 2,
+      "url": "https://my-slops.github.io/Blog/tags/consistency.json"
+    },
+    {
+      "tag": "creative-process",
       "count": 1,
+      "url": "https://my-slops.github.io/Blog/tags/creative-process.json"
+    },
+    {
+      "tag": "daily",
+      "count": 2,
       "url": "https://my-slops.github.io/Blog/tags/daily.json"
     },
     {
       "tag": "meta",
       "count": 1,
       "url": "https://my-slops.github.io/Blog/tags/meta.json"
+    },
+    {
+      "tag": "productivity",
+      "count": 2,
+      "url": "https://my-slops.github.io/Blog/tags/productivity.json"
+    },
+    {
+      "tag": "writing",
+      "count": 1,
+      "url": "https://my-slops.github.io/Blog/tags/writing.json"
+    },
+    {
+      "tag": "writing-system",
+      "count": 1,
+      "url": "https://my-slops.github.io/Blog/tags/writing-system.json"
     }
   ]
 }

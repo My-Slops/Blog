@@ -1,0 +1,20 @@
+{
+  "tag": "writing-system",
+  "count": 1,
+  "posts": [
+    {
+      "title": "The Daily Shipping System: Publish One Useful Post Every Day Without Burning Out",
+      "date": "2026-02-24",
+      "updated": "2026-02-24",
+      "summary": "A practical, repeatable system for publishing one useful post every day using constraints, a clear ship gate, and fallback formats for low-energy days.",
+      "tags": [
+        "writing-system",
+        "consistency",
+        "blogging",
+        "productivity"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/02/daily-shipping-system/",
+      "path": "posts/2026/02/2026-02-24-daily-shipping-system.md"
+    }
+  ]
+}

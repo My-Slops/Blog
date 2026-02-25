@@ -27,8 +27,15 @@ Daily writing repository optimized for both human readers and LLM ingestion.
 ## Publish
 
 1. Add a new Markdown file under `posts/YYYY/MM/`.
-2. Commit and push.
-3. GitHub Actions auto-updates `index.json`, `rss.xml`, and `sitemap.xml`.
+2. Run `npm run build` (validates frontmatter, regenerates machine files, and renders HTML pages).
+3. Commit and push.
+4. GitHub Actions keeps generated files in sync on `main`.
+
+## Rendering
+
+- Markdown remains the source of truth in `posts/**/*.md`.
+- `npm run build:site` renders each post to `posts/YYYY/MM/<slug>/index.html`.
+- Root `index.html` is regenerated to link to rendered post pages.
 
 ## Optional next step
 

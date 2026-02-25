@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-02-25T14:35:04.585Z",
-  "count": 4,
+  "tag": "productivity",
+  "count": 2,
   "posts": [
     {
       "title": "What to Write When You Have No Idea (Daily Blogging Reset)",
@@ -30,29 +30,6 @@
       ],
       "url": "https://my-slops.github.io/Blog/posts/2026/02/daily-shipping-system/",
       "path": "posts/2026/02/2026-02-24-daily-shipping-system.md"
-    },
-    {
-      "title": "Daily entry: 2026-02-24",
-      "date": "2026-02-24",
-      "updated": "2026-02-24",
-      "summary": "Daily notes and reflections for 2026-02-24.",
-      "tags": [
-        "daily"
-      ],
-      "url": "https://my-slops.github.io/Blog/posts/2026/02/2026-02-24-daily-entry/",
-      "path": "posts/2026/02/2026-02-24-daily-entry.md"
-    },
-    {
-      "title": "Welcome to my daily blog",
-      "date": "2026-02-23",
-      "updated": "2026-02-23",
-      "summary": "Starting a daily blog designed for both human readers and LLM comprehension.",
-      "tags": [
-        "daily",
-        "meta"
-      ],
-      "url": "https://my-slops.github.io/Blog/posts/2026/02/2026-02-23-welcome/",
-      "path": "posts/2026/02/2026-02-23-welcome.md"
     }
   ]
 }

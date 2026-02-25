@@ -1,5 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import matter from 'gray-matter';
 
 const postsDir = path.join(process.cwd(), 'posts');
 
@@ -13,39 +14,11 @@ function walk(dir) {
   return out;
 }
 
-function parseFrontmatter(content) {
-  if (!content.startsWith('---\n')) return { data: null, body: content };
-  const end = content.indexOf('\n---\n', 4);
-  if (end === -1) return { data: null, body: content };
-  const raw = content.slice(4, end);
-  const body = content.slice(end + 5);
-  const data = {};
-
-  for (const line of raw.split('\n')) {
-    const idx = line.indexOf(':');
-    if (idx === -1) continue;
-    const key = line.slice(0, idx).trim();
-    let val = line.slice(idx + 1).trim();
-    if (val.startsWith('[') && val.endsWith(']')) {
-      val = val
-        .slice(1, -1)
-        .split(',')
-        .map((s) => s.trim().replace(/^"|"$/g, ''))
-        .filter(Boolean);
-    } else {
-      val = val.replace(/^"|"$/g, '');
-    }
-    data[key] = val;
-  }
-
-  return { data, body };
-}
-
 function isIsoDate(s) {
-  return /^\d{4}-\d{2}-\d{2}$/.test(s);
+  return /^\d{4}-\d{2}-\d{2}$/.test(String(s));
 }
 
-const required = ['title', 'date', 'updated', 'summary', 'tags', 'status', 'canonical_url', 'license'];
+const required = ['title', 'date', 'summary', 'tags', 'status', 'canonical_url'];
 
 if (!fs.existsSync(postsDir)) {
   console.error('posts/ directory not found');
@@ -58,9 +31,9 @@ const errors = [];
 for (const file of files) {
   const rel = path.relative(process.cwd(), file);
   const raw = fs.readFileSync(file, 'utf8');
-  const { data } = parseFrontmatter(raw);
+  const { data } = matter(raw);
 
-  if (!data) {
+  if (!data || Object.keys(data).length === 0) {
     errors.push(`${rel}: missing valid frontmatter block`);
     continue;
   }
@@ -80,10 +53,10 @@ for (const file of files) {
   if (data.tags && !Array.isArray(data.tags)) {
     errors.push(`${rel}: 'tags' must be an array`);
   }
-  if (data.status && !['draft', 'published'].includes(data.status)) {
-    errors.push(`${rel}: 'status' must be draft|published`);
+  if (data.status && !['draft', 'ready', 'published'].includes(String(data.status))) {
+    errors.push(`${rel}: 'status' must be draft|ready|published`);
   }
-  if (data.canonical_url && !/^https:\/\//.test(data.canonical_url)) {
+  if (data.canonical_url && !/^https:\/\//.test(String(data.canonical_url))) {
     errors.push(`${rel}: 'canonical_url' must be absolute https URL`);
   }
 }

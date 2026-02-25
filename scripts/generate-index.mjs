@@ -1,5 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import matter from 'gray-matter';
 
 const root = process.cwd();
 const postsDir = path.join(root, 'posts');
@@ -15,35 +16,12 @@ function walk(dir) {
   return out;
 }
 
-function parseFrontmatter(content) {
-  if (!content.startsWith('---\n')) return { data: {}, body: content };
-  const end = content.indexOf('\n---\n', 4);
-  if (end === -1) return { data: {}, body: content };
-  const raw = content.slice(4, end);
-  const body = content.slice(end + 5);
-  const data = {};
-
-  for (const line of raw.split('\n')) {
-    const idx = line.indexOf(':');
-    if (idx === -1) continue;
-    const key = line.slice(0, idx).trim();
-    let val = line.slice(idx + 1).trim();
-    if (val.startsWith('[') && val.endsWith(']')) {
-      val = val
-        .slice(1, -1)
-        .split(',')
-        .map((s) => s.trim().replace(/^"|"$/g, ''))
-        .filter(Boolean);
-    } else {
-      val = val.replace(/^"|"$/g, '');
-    }
-    data[key] = val;
-  }
-  return { data, body };
+function ensureDir(dir) {
+  fs.mkdirSync(dir, { recursive: true });
 }
 
 function escapeXml(str = '') {
-  return str
+  return String(str)
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;')
@@ -51,8 +29,15 @@ function escapeXml(str = '') {
     .replace(/'/g, '&apos;');
 }
 
-function ensureDir(dir) {
-  fs.mkdirSync(dir, { recursive: true });
+function getSlug(relPath, data) {
+  if (data.slug) return String(data.slug);
+  return path.basename(relPath, '.md');
+}
+
+function getPostUrl(relPath, data) {
+  const dirRel = path.posix.dirname(relPath);
+  const slug = getSlug(relPath, data);
+  return `${siteBase}/${dirRel}/${slug}/`;
 }
 
 if (!fs.existsSync(postsDir)) {
@@ -63,17 +48,16 @@ if (!fs.existsSync(postsDir)) {
 const files = walk(postsDir);
 const posts = files
   .map((file) => {
-    const rel = path.relative(root, file).replaceAll(path.sep, '/');
+    const relPath = path.relative(root, file).replaceAll(path.sep, '/');
     const raw = fs.readFileSync(file, 'utf8');
-    const { data, body } = parseFrontmatter(raw);
-    const slug = rel.replace(/^posts\//, '').replace(/\.md$/, '');
-    const url = `${siteBase}/posts/${slug}/`;
-    const title = data.title || path.basename(file, '.md');
-    const date = data.date || '1970-01-01';
-    const updated = data.updated || date;
-    const summary = data.summary || body.trim().split('\n').slice(0, 2).join(' ');
+    const { data, content } = matter(raw);
+    const title = String(data.title || path.basename(file, '.md'));
+    const date = String(data.date || '1970-01-01');
+    const updated = String(data.updated || date);
+    const summary = String(data.summary || content.trim().split('\n').slice(0, 2).join(' '));
     const tags = Array.isArray(data.tags) ? data.tags : [];
-    return { title, date, updated, summary, tags, url, path: rel };
+    const url = getPostUrl(relPath, data);
+    return { title, date, updated, summary, tags, url, path: relPath };
   })
   .sort((a, b) => (a.date < b.date ? 1 : -1));
 
