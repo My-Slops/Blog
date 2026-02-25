@@ -133,32 +133,43 @@ if (!fs.existsSync(postsDir)) {
 }
 
 const files = walk(postsDir);
-const posts = files.map((file) => {
-  const relPath = path.relative(root, file).replaceAll(path.sep, '/');
-  const raw = fs.readFileSync(file, 'utf8');
-  const { data, content } = matter(raw);
-  const title = String(data.title || path.basename(file, '.md'));
-  const date = String(data.date || '');
-  const summary = String(data.summary || '');
-  const tags = Array.isArray(data.tags) ? data.tags : [];
-  const slug = getSlug(relPath, data);
-  const dir = path.dirname(file);
-  const outDir = path.join(dir, slug);
-  ensureDir(outDir);
-  const outPath = path.join(outDir, 'index.html');
+const posts = files
+  .map((file) => {
+    const relPath = path.relative(root, file).replaceAll(path.sep, '/');
+    const raw = fs.readFileSync(file, 'utf8');
+    const { data, content } = matter(raw);
+    const status = String(data.status || '').toLowerCase();
 
-  const canonicalUrl = getPostUrl(relPath, data);
-  const bodyHtml = marked.parse(content);
-  const html = postTemplate({ title, summary, date, tags, bodyHtml, canonicalUrl });
-  fs.writeFileSync(outPath, html);
+    if (status === 'draft') {
+      const draftSlug = getSlug(relPath, data);
+      const draftDir = path.join(path.dirname(file), draftSlug);
+      fs.rmSync(draftDir, { recursive: true, force: true });
+      return null;
+    }
 
-  return {
-    title,
-    date,
-    summary,
-    relativeUrl: `./${path.posix.dirname(relPath)}/${slug}/`,
-  };
-});
+    const title = String(data.title || path.basename(file, '.md'));
+    const date = String(data.date || '');
+    const summary = String(data.summary || '');
+    const tags = Array.isArray(data.tags) ? data.tags : [];
+    const slug = getSlug(relPath, data);
+    const dir = path.dirname(file);
+    const outDir = path.join(dir, slug);
+    ensureDir(outDir);
+    const outPath = path.join(outDir, 'index.html');
+
+    const canonicalUrl = getPostUrl(relPath, data);
+    const bodyHtml = marked.parse(content);
+    const html = postTemplate({ title, summary, date, tags, bodyHtml, canonicalUrl });
+    fs.writeFileSync(outPath, html);
+
+    return {
+      title,
+      date,
+      summary,
+      relativeUrl: `./${path.posix.dirname(relPath)}/${slug}/`,
+    };
+  })
+  .filter(Boolean);
 
 posts.sort((a, b) => (a.date < b.date ? 1 : -1));
 fs.writeFileSync(path.join(root, 'index.html'), homeTemplate(posts));

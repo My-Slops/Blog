@@ -51,6 +51,9 @@ const posts = files
     const relPath = path.relative(root, file).replaceAll(path.sep, '/');
     const raw = fs.readFileSync(file, 'utf8');
     const { data, content } = matter(raw);
+    const status = String(data.status || '').toLowerCase();
+    if (status === 'draft') return null;
+
     const title = String(data.title || path.basename(file, '.md'));
     const date = String(data.date || '1970-01-01');
     const updated = String(data.updated || date);
@@ -59,6 +62,7 @@ const posts = files
     const url = getPostUrl(relPath, data);
     return { title, date, updated, summary, tags, url, path: relPath };
   })
+  .filter(Boolean)
   .sort((a, b) => (a.date < b.date ? 1 : -1));
 
 fs.writeFileSync(

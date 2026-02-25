@@ -1,18 +1,7 @@
 {
   "tag": "daily",
-  "count": 2,
+  "count": 1,
   "posts": [
-    {
-      "title": "Daily entry: 2026-02-24",
-      "date": "2026-02-24",
-      "updated": "2026-02-24",
-      "summary": "Daily notes and reflections for 2026-02-24.",
-      "tags": [
-        "daily"
-      ],
-      "url": "https://my-slops.github.io/Blog/posts/2026/02/2026-02-24-daily-entry/",
-      "path": "posts/2026/02/2026-02-24-daily-entry.md"
-    },
     {
       "title": "Welcome to my daily blog",
       "date": "2026-02-23",
