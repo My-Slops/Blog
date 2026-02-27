@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-04-15T14:02:15.405Z",
-  "count": 44,
+  "generated_at": "2026-04-27T01:52:57.389Z",
+  "count": 45,
   "posts": [
     {
       "title": "Release Override Logs Are the Missing Layer in LLM Governance",
@@ -597,6 +597,21 @@
       ],
       "url": "https://my-slops.github.io/Blog/posts/2026/02/15-minute-daily-system-for-non-generic-blog-ideas/",
       "path": "posts/2026/02/2026-02-28-15-minute-daily-system-for-non-generic-blog-ideas.md"
+    },
+    {
+      "title": "The Friction Log for AI Drafts",
+      "date": "2026-02-27",
+      "updated": "2026-02-27",
+      "summary": "Most weak AI drafts fail in recurring ways, but vague annoyance hides the pattern. A friction log turns revision pain into a usable system for better prompts, better editing, and more reliable posts.",
+      "tags": [
+        "ai writing",
+        "workflow",
+        "editing",
+        "clarity",
+        "content quality"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/02/the-friction-log-for-ai-drafts/",
+      "path": "posts/2026/02/2026-02-27-the-friction-log-for-ai-drafts.md"
     },
     {
       "title": "Most AI Writing Feels Generic. Here’s the 5-Step Method I Use to Make It Useful",

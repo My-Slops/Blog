@@ -1,6 +1,6 @@
 {
   "tag": "clarity",
-  "count": 1,
+  "count": 2,
   "posts": [
     {
       "title": "Scope Locks: Stop AI Drafts from Overgeneralizing",
@@ -16,6 +16,21 @@
       ],
       "url": "https://my-slops.github.io/Blog/posts/2026/03/scope-locks-for-ai-assisted-writing/",
       "path": "posts/2026/03/2026-03-05-scope-locks-for-ai-assisted-writing.md"
+    },
+    {
+      "title": "The Friction Log for AI Drafts",
+      "date": "2026-02-27",
+      "updated": "2026-02-27",
+      "summary": "Most weak AI drafts fail in recurring ways, but vague annoyance hides the pattern. A friction log turns revision pain into a usable system for better prompts, better editing, and more reliable posts.",
+      "tags": [
+        "ai writing",
+        "workflow",
+        "editing",
+        "clarity",
+        "content quality"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/02/the-friction-log-for-ai-drafts/",
+      "path": "posts/2026/02/2026-02-27-the-friction-log-for-ai-drafts.md"
     }
   ]
 }
