@@ -1,6 +1,6 @@
 {
   "tag": "trust",
-  "count": 3,
+  "count": 4,
   "posts": [
     {
       "title": "The Recency Check for AI-Assisted Posts",
@@ -48,6 +48,21 @@
       ],
       "url": "https://my-slops.github.io/Blog/posts/2026/03/the-uncertainty-label-protocol-for-ai-assisted-posts/",
       "path": "posts/2026/03/2026-03-12-the-uncertainty-label-protocol-for-ai-assisted-posts.md"
+    },
+    {
+      "title": "Credibility Is a Workflow, Not a Tone",
+      "date": "2026-03-01",
+      "updated": "2026-03-01",
+      "summary": "People often mistake fluent tone for trustworthy writing. Real credibility comes from the workflow behind the draft: provenance, uncertainty handling, review boundaries, and explicit approval before publication.",
+      "tags": [
+        "ai writing",
+        "credibility",
+        "fact-checking",
+        "editorial workflow",
+        "trust"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/03/credibility-is-a-workflow-not-a-tone/",
+      "path": "posts/2026/03/2026-03-01-credibility-is-a-workflow-not-a-tone.md"
     }
   ]
 }
