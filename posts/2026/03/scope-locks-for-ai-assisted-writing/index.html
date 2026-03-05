@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Scope Locks: Stop AI Drafts from Overgeneralizing | Blog</title>
+    <meta name="description" content="Use three scope locks—who, where/when, and confidence—to keep drafts concise, honest, and useful." />
+    <link rel="canonical" href="https://my-slops.github.io/Blog/posts/2026/03/scope-locks-for-ai-assisted-writing/" />
+    <style>
+      :root { color-scheme: light dark; }
+      body { font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; line-height: 1.7; max-width: 760px; margin: 40px auto; padding: 0 16px; }
+      a { color: #0a58ca; text-decoration: none; }
+      a:hover { text-decoration: underline; }
+      .meta { color: #666; font-size: 0.95rem; margin-bottom: 1rem; }
+      .tags { display: flex; gap: 0.5rem; list-style: none; padding: 0; margin: 0.75rem 0 1.25rem; flex-wrap: wrap; }
+      .tags li { background: #eef2ff; color: #3730a3; border-radius: 999px; padding: 0.2rem 0.6rem; font-size: 0.8rem; }
+      article h1, article h2, article h3 { line-height: 1.3; }
+      article pre { overflow-x: auto; background: #111827; color: #f9fafb; padding: 0.9rem; border-radius: 8px; }
+      article code { font-family: ui-monospace,SFMono-Regular,Menlo,monospace; }
+      article blockquote { border-left: 4px solid #d1d5db; margin: 1rem 0; padding: 0.2rem 0.9rem; color: #4b5563; }
+      hr { border: 0; border-top: 1px solid #e5e7eb; margin: 2rem 0; }
+    </style>
+  </head>
+  <body>
+    <p><a href="https://my-slops.github.io/Blog/">← Home</a></p>
+    <article>
+      <h1>Scope Locks: Stop AI Drafts from Overgeneralizing</h1>
+      <p class="meta">Mar 5, 2026</p>
+      <ul class="tags"><li>ai writing</li><li>blogging</li><li>editing</li><li>clarity</li><li>credibility</li></ul>
+      <h2>TL;DR</h2>
+<p>AI drafts often begin specific and end universal.</p>
+<p>Use three <strong>scope locks</strong> on important claims:</p>
+<ol>
+<li><strong>Who</strong> is this for?</li>
+<li><strong>Where/when</strong> does it hold?</li>
+<li><strong>How sure</strong> am I?</li>
+</ol>
+<p>This &lt;10-minute pass catches most over-broad claims before publish.</p>
+<h2>Context</h2>
+<p>Overgeneralization is a common AI-writing failure mode.</p>
+<p>Example drift:</p>
+<ul>
+<li>Scoped: “For solo creators publishing weekly, checklists reduce edit time.”</li>
+<li>Drifted: “Checklists reduce edit time.”</li>
+</ul>
+<p>The second line reads cleaner but drops the conditions that made it true.</p>
+<h2>Key Points</h2>
+<h3>1) Treat overgeneralization as an editing bug</h3>
+<p>Most overstatement happens during compression edits, not initial research.</p>
+<p>Typical drift:</p>
+<ul>
+<li>“often” → “always”</li>
+<li>“in early-stage teams” → “for teams”</li>
+<li>“in my tests” → “it works”</li>
+</ul>
+<h3>2) Add three scope locks to high-impact claims</h3>
+<ul>
+<li><strong>Population lock:</strong> who is this about?</li>
+<li><strong>Context lock:</strong> what constraints/timeframe apply?</li>
+<li><strong>Confidence lock:</strong> fact, inference, or hypothesis?</li>
+</ul>
+<p>If a claim fails any lock, narrow it or label uncertainty.</p>
+<h3>3) Keep truth-carrying qualifiers</h3>
+<p>Don’t remove qualifiers that define boundaries.</p>
+<p>Keep:</p>
+<ul>
+<li>“for first-time founders”</li>
+<li>“in low-traffic blogs”</li>
+<li>“based on the last 30 days”</li>
+</ul>
+<p>Trim vague hedges:</p>
+<ul>
+<li>“somewhat,” “kind of,” “probably” (without context)</li>
+</ul>
+<h3>4) Precision improves usefulness</h3>
+<p>Specific advice is easier to apply than universal advice.</p>
+<ul>
+<li>Broad: “Publish every day.”</li>
+<li>Actionable: “Ship daily using fallback modes when time is tight.”</li>
+</ul>
+<h3>5) Pair scope locks with a claim register</h3>
+<ul>
+<li><strong>Claim register:</strong> Is this supported?</li>
+<li><strong>Scope lock:</strong> Are we claiming too much?</li>
+</ul>
+<p>Use both to reduce unsupported and inflated statements.</p>
+<h2>Steps / Code</h2>
+<h3>9-minute scope-lock pass</h3>
+<pre><code class="language-text">0-2   Highlight high-impact claims
+2-5   Check population + context + confidence locks
+5-7   Narrow broad claims
+7-9   Final qualifier/boundary read
+</code></pre>
+<h3>Scope-lock template</h3>
+<pre><code class="language-md">## Scope Lock Check
+
+Claim:
+Population lock (who):
+Context lock (when/where/constraints):
+Confidence lock (fact/inference/hypothesis):
+Action: Keep / Narrow / Label uncertainty / Remove
+</code></pre>
+<h3>Mini rewrites</h3>
+<ul>
+<li><p><strong>Before:</strong> &quot;Detailed prompts produce better output.&quot;</p>
+</li>
+<li><p><strong>After:</strong> &quot;For complex drafting tasks, prompts with explicit constraints usually reduce revision cycles.&quot;</p>
+</li>
+<li><p><strong>Before:</strong> &quot;AI tools save time for writers.&quot;</p>
+</li>
+<li><p><strong>After:</strong> &quot;AI can speed up first drafts; final quality still depends on human editing and source checks.&quot;</p>
+</li>
+</ul>
+<h2>Trade-offs</h2>
+<p><strong>Costs</strong></p>
+<ul>
+<li>One extra QA pass.</li>
+<li>Slightly less punchy prose.</li>
+</ul>
+<p><strong>Benefits</strong></p>
+<ul>
+<li>Fewer inflated claims.</li>
+<li>Higher reader trust.</li>
+<li>More actionable advice.</li>
+</ul>
+<h2>References</h2>
+<ul>
+<li>Google Search Central, <em>Creating helpful, reliable, people-first content</em>: <a href="https://developers.google.com/search/docs/fundamentals/creating-helpful-content">https://developers.google.com/search/docs/fundamentals/creating-helpful-content</a></li>
+<li>GOV.UK, <em>The Aqua Book</em>: <a href="https://www.gov.uk/government/publications/the-aqua-book-guidance-on-producing-quality-analysis-for-government">https://www.gov.uk/government/publications/the-aqua-book-guidance-on-producing-quality-analysis-for-government</a></li>
+<li>Nielsen Norman Group, <em>How Users Read on the Web</em>: <a href="https://www.nngroup.com/articles/how-users-read-on-the-web/">https://www.nngroup.com/articles/how-users-read-on-the-web/</a></li>
+</ul>
+<h2>Final Take</h2>
+<p>Fluent writing is easy; bounded writing is trustworthy.</p>
+<p>Scope locks are a small editorial habit that keeps AI-assisted posts precise without slowing daily publishing.</p>
+<h2>Changelog</h2>
+<ul>
+<li>2026-03-05: Tightened for concision; reduced repetition; kept scope-lock workflow.</li>
+</ul>
+
+    </article>
+  </body>
+</html>

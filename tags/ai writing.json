@@ -1,6 +1,6 @@
 {
-  "tag": "blogging",
-  "count": 8,
+  "tag": "ai writing",
+  "count": 6,
   "posts": [
     {
       "title": "Scope Locks: Stop AI Drafts from Overgeneralizing",
@@ -91,35 +91,6 @@
       ],
       "url": "https://my-slops.github.io/Blog/posts/2026/02/most-ai-writing-feels-generic-contrarian-specificity-method/",
       "path": "posts/2026/02/2026-02-26-most-ai-writing-feels-generic-contrarian-specificity-method.md"
-    },
-    {
-      "title": "What to Write When You Have No Idea (Daily Blogging Reset)",
-      "date": "2026-02-25",
-      "updated": "2026-02-25",
-      "summary": "A practical writer’s block method: use ordinary moments (food, movies, conversations) to extract one useful lesson and publish consistently.",
-      "tags": [
-        "blogging",
-        "writing",
-        "consistency",
-        "creative-process",
-        "productivity"
-      ],
-      "url": "https://my-slops.github.io/Blog/posts/2026/02/what-to-write-when-you-have-no-idea/",
-      "path": "posts/2026/02/2026-02-25-what-to-write-when-you-have-no-idea.md"
-    },
-    {
-      "title": "The Daily Shipping System: Publish One Useful Post Every Day Without Burning Out",
-      "date": "2026-02-24",
-      "updated": "2026-02-24",
-      "summary": "A practical, repeatable system for publishing one useful post every day using constraints, a clear ship gate, and fallback formats for low-energy days.",
-      "tags": [
-        "writing-system",
-        "consistency",
-        "blogging",
-        "productivity"
-      ],
-      "url": "https://my-slops.github.io/Blog/posts/2026/02/daily-shipping-system/",
-      "path": "posts/2026/02/2026-02-24-daily-shipping-system.md"
     }
   ]
 }

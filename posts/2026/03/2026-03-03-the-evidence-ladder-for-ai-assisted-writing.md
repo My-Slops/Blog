@@ -3,6 +3,7 @@ title: "The Evidence Ladder for AI-Assisted Writing"
 date: "2026-03-03"
 slug: "the-evidence-ladder-for-ai-assisted-writing"
 description: "A simple evidence ladder to decide which claims in AI-assisted blog posts need links, examples, or caveats before publishing."
+canonical_url: "https://my-slops.github.io/Blog/posts/2026/03/2026-03-03-the-evidence-ladder-for-ai-assisted-writing/"
 summary: "Use a 5-level evidence ladder to quickly classify claims and apply the right proof standard, so your posts stay fast to publish without losing credibility."
 tags:
   - ai writing

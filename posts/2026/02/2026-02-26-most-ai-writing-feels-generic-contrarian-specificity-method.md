@@ -3,6 +3,8 @@ title: "Most AI Writing Feels Generic. Here’s the 5-Step Method I Use to Make 
 date: "2026-02-26"
 slug: "most-ai-writing-feels-generic-contrarian-specificity-method"
 description: "A practical method for turning AI-assisted drafts into specific, credible, high-signal writing."
+summary: "A 5-step editing method to turn fluent AI drafts into specific, decision-useful writing with examples, trade-offs, and clear implementation steps."
+canonical_url: "https://my-slops.github.io/Blog/posts/2026/02/2026-02-26-most-ai-writing-feels-generic-contrarian-specificity-method/"
 tags:
   - ai writing
   - content strategy

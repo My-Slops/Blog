@@ -6,6 +6,48 @@
   <description>Daily writing, optimized for humans and LLMs.</description>
   <language>en-us</language>
   <item>
+    <title>Scope Locks: Stop AI Drafts from Overgeneralizing</title>
+    <link>https://my-slops.github.io/Blog/posts/2026/03/scope-locks-for-ai-assisted-writing/</link>
+    <guid>https://my-slops.github.io/Blog/posts/2026/03/scope-locks-for-ai-assisted-writing/</guid>
+    <pubDate>Thu, 05 Mar 2026 00:00:00 GMT</pubDate>
+    <description>Use three scope locks—who, where/when, and confidence—to keep drafts concise, honest, and useful.</description>
+  </item>
+  <item>
+    <title>The Claim Register: A 12-Minute Guardrail for AI-Assisted Writing</title>
+    <link>https://my-slops.github.io/Blog/posts/2026/03/the-claim-register-for-ai-assisted-writing/</link>
+    <guid>https://my-slops.github.io/Blog/posts/2026/03/the-claim-register-for-ai-assisted-writing/</guid>
+    <pubDate>Wed, 04 Mar 2026 00:00:00 GMT</pubDate>
+    <description>Use a lightweight claim register while drafting to track claim type, confidence, and proof requirements. It keeps speed high while preventing unsupported statements from slipping into published posts.</description>
+  </item>
+  <item>
+    <title>The Evidence Ladder for AI-Assisted Writing</title>
+    <link>https://my-slops.github.io/Blog/posts/2026/03/the-evidence-ladder-for-ai-assisted-writing/</link>
+    <guid>https://my-slops.github.io/Blog/posts/2026/03/the-evidence-ladder-for-ai-assisted-writing/</guid>
+    <pubDate>Tue, 03 Mar 2026 00:00:00 GMT</pubDate>
+    <description>Use a 5-level evidence ladder to quickly classify claims and apply the right proof standard, so your posts stay fast to publish without losing credibility.</description>
+  </item>
+  <item>
+    <title>Polished but Generic? A 30-Minute Specificity Pass for AI Drafts</title>
+    <link>https://my-slops.github.io/Blog/posts/2026/03/the-30-minute-specificity-pass-for-ai-drafts/</link>
+    <guid>https://my-slops.github.io/Blog/posts/2026/03/the-30-minute-specificity-pass-for-ai-drafts/</guid>
+    <pubDate>Mon, 02 Mar 2026 00:00:00 GMT</pubDate>
+    <description>If an AI draft sounds polished but forgettable, run a 30-minute specificity pass: add one real scenario, measurable details, decision guidance, and citations.</description>
+  </item>
+  <item>
+    <title>Stop Writing Generic Posts: A 15-Minute Daily Idea Filter</title>
+    <link>https://my-slops.github.io/Blog/posts/2026/02/15-minute-daily-system-for-non-generic-blog-ideas/</link>
+    <guid>https://my-slops.github.io/Blog/posts/2026/02/15-minute-daily-system-for-non-generic-blog-ideas/</guid>
+    <pubDate>Sat, 28 Feb 2026 00:00:00 GMT</pubDate>
+    <description>Use a 15-minute signal→score→decision workflow to pick one sharp, specific blog topic every day.</description>
+  </item>
+  <item>
+    <title>Most AI Writing Feels Generic. Here’s the 5-Step Method I Use to Make It Useful</title>
+    <link>https://my-slops.github.io/Blog/posts/2026/02/most-ai-writing-feels-generic-contrarian-specificity-method/</link>
+    <guid>https://my-slops.github.io/Blog/posts/2026/02/most-ai-writing-feels-generic-contrarian-specificity-method/</guid>
+    <pubDate>Thu, 26 Feb 2026 00:00:00 GMT</pubDate>
+    <description>A 5-step editing method to turn fluent AI drafts into specific, decision-useful writing with examples, trade-offs, and clear implementation steps.</description>
+  </item>
+  <item>
     <title>What to Write When You Have No Idea (Daily Blogging Reset)</title>
     <link>https://my-slops.github.io/Blog/posts/2026/02/what-to-write-when-you-have-no-idea/</link>
     <guid>https://my-slops.github.io/Blog/posts/2026/02/what-to-write-when-you-have-no-idea/</guid>

@@ -17,5 +17,8 @@ jobs:
         with:
           node-version: '20'
 
+      - name: Install dependencies
+        run: npm ci
+
       - name: Validate frontmatter schema
         run: npm run validate
