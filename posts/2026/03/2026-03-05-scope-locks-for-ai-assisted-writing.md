@@ -3,6 +3,7 @@ title: "Scope Locks: Stop AI Drafts from Overgeneralizing"
 date: "2026-03-05"
 slug: "scope-locks-for-ai-assisted-writing"
 description: "A lightweight scope-lock workflow to keep AI-assisted claims precise and avoid unsupported generalizations."
+canonical_url: "https://my-slops.github.io/Blog/posts/2026/03/2026-03-05-scope-locks-for-ai-assisted-writing/"
 summary: "Use three scope locks—who, where/when, and confidence—to keep drafts concise, honest, and useful."
 tags:
   - ai writing

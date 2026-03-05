@@ -1,0 +1,21 @@
+{
+  "tag": "clarity",
+  "count": 1,
+  "posts": [
+    {
+      "title": "Scope Locks: Stop AI Drafts from Overgeneralizing",
+      "date": "2026-03-05",
+      "updated": "2026-03-05",
+      "summary": "Use three scope locks—who, where/when, and confidence—to keep drafts concise, honest, and useful.",
+      "tags": [
+        "ai writing",
+        "blogging",
+        "editing",
+        "clarity",
+        "credibility"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/03/scope-locks-for-ai-assisted-writing/",
+      "path": "posts/2026/03/2026-03-05-scope-locks-for-ai-assisted-writing.md"
+    }
+  ]
+}

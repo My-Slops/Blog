@@ -3,6 +3,7 @@ title: "Stop Writing Generic Posts: A 15-Minute Daily Idea Filter"
 date: "2026-02-28"
 slug: "15-minute-daily-system-for-non-generic-blog-ideas"
 description: "A repeatable 15-minute workflow to turn messy daily inputs into specific, useful blog topics you can publish consistently."
+canonical_url: "https://my-slops.github.io/Blog/posts/2026/02/2026-02-28-15-minute-daily-system-for-non-generic-blog-ideas/"
 summary: "Use a 15-minute signal→score→decision workflow to pick one sharp, specific blog topic every day."
 tags:
   - blogging

@@ -1,0 +1,66 @@
+{
+  "tag": "editing",
+  "count": 4,
+  "posts": [
+    {
+      "title": "Scope Locks: Stop AI Drafts from Overgeneralizing",
+      "date": "2026-03-05",
+      "updated": "2026-03-05",
+      "summary": "Use three scope locks—who, where/when, and confidence—to keep drafts concise, honest, and useful.",
+      "tags": [
+        "ai writing",
+        "blogging",
+        "editing",
+        "clarity",
+        "credibility"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/03/scope-locks-for-ai-assisted-writing/",
+      "path": "posts/2026/03/2026-03-05-scope-locks-for-ai-assisted-writing.md"
+    },
+    {
+      "title": "The Claim Register: A 12-Minute Guardrail for AI-Assisted Writing",
+      "date": "2026-03-04",
+      "updated": "2026-03-04",
+      "summary": "Use a lightweight claim register while drafting to track claim type, confidence, and proof requirements. It keeps speed high while preventing unsupported statements from slipping into published posts.",
+      "tags": [
+        "ai writing",
+        "blogging",
+        "editing",
+        "research",
+        "credibility"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/03/the-claim-register-for-ai-assisted-writing/",
+      "path": "posts/2026/03/2026-03-04-the-claim-register-for-ai-assisted-writing.md"
+    },
+    {
+      "title": "The Evidence Ladder for AI-Assisted Writing",
+      "date": "2026-03-03",
+      "updated": "2026-03-03",
+      "summary": "Use a 5-level evidence ladder to quickly classify claims and apply the right proof standard, so your posts stay fast to publish without losing credibility.",
+      "tags": [
+        "ai writing",
+        "blogging",
+        "research",
+        "editing",
+        "credibility"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/03/the-evidence-ladder-for-ai-assisted-writing/",
+      "path": "posts/2026/03/2026-03-03-the-evidence-ladder-for-ai-assisted-writing.md"
+    },
+    {
+      "title": "Polished but Generic? A 30-Minute Specificity Pass for AI Drafts",
+      "date": "2026-03-02",
+      "updated": "2026-03-02",
+      "summary": "If an AI draft sounds polished but forgettable, run a 30-minute specificity pass: add one real scenario, measurable details, decision guidance, and citations.",
+      "tags": [
+        "ai writing",
+        "editing",
+        "blogging",
+        "content quality",
+        "creator workflow"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/03/the-30-minute-specificity-pass-for-ai-drafts/",
+      "path": "posts/2026/03/2026-03-02-the-30-minute-specificity-pass-for-ai-drafts.md"
+    }
+  ]
+}

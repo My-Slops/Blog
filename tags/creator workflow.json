@@ -1,0 +1,36 @@
+{
+  "tag": "creator workflow",
+  "count": 2,
+  "posts": [
+    {
+      "title": "Polished but Generic? A 30-Minute Specificity Pass for AI Drafts",
+      "date": "2026-03-02",
+      "updated": "2026-03-02",
+      "summary": "If an AI draft sounds polished but forgettable, run a 30-minute specificity pass: add one real scenario, measurable details, decision guidance, and citations.",
+      "tags": [
+        "ai writing",
+        "editing",
+        "blogging",
+        "content quality",
+        "creator workflow"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/03/the-30-minute-specificity-pass-for-ai-drafts/",
+      "path": "posts/2026/03/2026-03-02-the-30-minute-specificity-pass-for-ai-drafts.md"
+    },
+    {
+      "title": "Stop Writing Generic Posts: A 15-Minute Daily Idea Filter",
+      "date": "2026-02-28",
+      "updated": "2026-02-28",
+      "summary": "Use a 15-minute signal→score→decision workflow to pick one sharp, specific blog topic every day.",
+      "tags": [
+        "blogging",
+        "idea generation",
+        "writing systems",
+        "ai writing",
+        "creator workflow"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/02/15-minute-daily-system-for-non-generic-blog-ideas/",
+      "path": "posts/2026/02/2026-02-28-15-minute-daily-system-for-non-generic-blog-ideas.md"
+    }
+  ]
+}

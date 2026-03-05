@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>The Claim Register: A 12-Minute Guardrail for AI-Assisted Writing | Blog</title>
+    <meta name="description" content="Use a lightweight claim register while drafting to track claim type, confidence, and proof requirements. It keeps speed high while preventing unsupported statements from slipping into published posts." />
+    <link rel="canonical" href="https://my-slops.github.io/Blog/posts/2026/03/the-claim-register-for-ai-assisted-writing/" />
+    <style>
+      :root { color-scheme: light dark; }
+      body { font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; line-height: 1.7; max-width: 760px; margin: 40px auto; padding: 0 16px; }
+      a { color: #0a58ca; text-decoration: none; }
+      a:hover { text-decoration: underline; }
+      .meta { color: #666; font-size: 0.95rem; margin-bottom: 1rem; }
+      .tags { display: flex; gap: 0.5rem; list-style: none; padding: 0; margin: 0.75rem 0 1.25rem; flex-wrap: wrap; }
+      .tags li { background: #eef2ff; color: #3730a3; border-radius: 999px; padding: 0.2rem 0.6rem; font-size: 0.8rem; }
+      article h1, article h2, article h3 { line-height: 1.3; }
+      article pre { overflow-x: auto; background: #111827; color: #f9fafb; padding: 0.9rem; border-radius: 8px; }
+      article code { font-family: ui-monospace,SFMono-Regular,Menlo,monospace; }
+      article blockquote { border-left: 4px solid #d1d5db; margin: 1rem 0; padding: 0.2rem 0.9rem; color: #4b5563; }
+      hr { border: 0; border-top: 1px solid #e5e7eb; margin: 2rem 0; }
+    </style>
+  </head>
+  <body>
+    <p><a href="https://my-slops.github.io/Blog/">← Home</a></p>
+    <article>
+      <h1>The Claim Register: A 12-Minute Guardrail for AI-Assisted Writing</h1>
+      <p class="meta">Mar 4, 2026</p>
+      <ul class="tags"><li>ai writing</li><li>blogging</li><li>editing</li><li>research</li><li>credibility</li></ul>
+      <h2>TL;DR</h2>
+<p>If you draft with AI, your biggest quality risk is not grammar—it’s <strong>citation drift</strong> (claims losing evidence as the draft evolves).</p>
+<p>A simple fix is a “claim register”: a small table that tracks each material claim, its confidence level, and required proof before publish. It adds ~12 minutes and catches most credibility errors.</p>
+<h2>Context</h2>
+<p>Yesterday’s evidence ladder solves one problem: matching claim impact to proof strength.</p>
+<p>But there’s a second failure mode in real workflows: even when you start with sources, claims get rewritten, merged, or generalized during editing. By final draft, references may no longer support the exact sentence.</p>
+<p>That is citation drift. It quietly erodes trust.</p>
+<p>A claim register prevents this by treating claims like versioned artifacts, not loose prose.</p>
+<h2>Key Points</h2>
+<h3>1) Separate “writing flow” from “truth tracking”</h3>
+<p>Trying to fact-check every sentence while drafting kills momentum.</p>
+<p>Instead:</p>
+<ul>
+<li>Draft in flow mode.</li>
+<li>Run a short truth-tracking pass with a claim register.</li>
+</ul>
+<p>This preserves speed while improving reliability.</p>
+<h3>2) Use a claim register with five fields</h3>
+<p>For each non-trivial claim, track:</p>
+<ol>
+<li><strong>Claim text</strong> (exact sentence or paraphrase)</li>
+<li><strong>Type</strong> (fact / inference / recommendation)</li>
+<li><strong>Evidence requirement</strong> (based on your evidence ladder level)</li>
+<li><strong>Source(s)</strong> (URLs, notes, dataset, personal log)</li>
+<li><strong>Publish status</strong> (keep / soften / remove)</li>
+</ol>
+<p>Non-obvious benefit: this creates an audit trail for future updates, so revising old posts becomes much faster.</p>
+<h3>3) Add a “drift check” after line edits</h3>
+<p>After your final line edit, sample-check high-impact claims:</p>
+<ul>
+<li>Does this exact sentence still match the source?</li>
+<li>Did quantifiers change (&quot;some&quot; → &quot;most&quot;)?</li>
+<li>Did scope change (&quot;in this context&quot; → universal statement)?</li>
+</ul>
+<p>Most credibility bugs appear in these tiny wording shifts.</p>
+<h3>4) Treat unsupported claims as product bugs, not style issues</h3>
+<p>If a claim cannot meet required evidence:</p>
+<ul>
+<li>downgrade confidence,</li>
+<li>narrow scope,</li>
+<li>or delete it.</li>
+</ul>
+<p>The right move is not to write around uncertainty, but to expose it clearly.</p>
+<h3>5) Keep one reusable register template per post</h3>
+<p>Over time, this becomes part of your editorial infrastructure:</p>
+<ul>
+<li>faster reviews,</li>
+<li>easier collaboration,</li>
+<li>cleaner handoffs to future-you.</li>
+</ul>
+<p>In practice, reliability compounds more than raw writing speed.</p>
+<h2>Steps / Code</h2>
+<h3>12-minute claim register pass</h3>
+<pre><code class="language-text">Minute 0-2   Mark non-trivial claims in the draft
+Minute 2-5   Fill register rows (claim, type, evidence, source, status)
+Minute 5-8   Verify level 3-5 claims against sources
+Minute 8-10  Soften or remove unsupported claims
+Minute 10-12 Run drift check after final wording edits
+</code></pre>
+<h3>Copy/paste register template</h3>
+<pre><code class="language-md">## Claim Register
+
+| # | Claim | Type | Evidence level | Source(s) | Status |
+|---|-------|------|----------------|-----------|--------|
+| 1 |       |      |                |           | Keep / Soften / Remove |
+</code></pre>
+<h3>Example row</h3>
+<pre><code class="language-md">| 3 | Specific examples improve comprehension in practical guides | Inference | 3 | https://www.nngroup.com/articles/how-users-read-on-the-web/ | Keep (scope: web usability context) |
+</code></pre>
+<h2>Trade-offs</h2>
+<p><strong>Costs</strong></p>
+<ul>
+<li>Adds an explicit pre-publish QA step.</li>
+<li>Feels bureaucratic at first.</li>
+<li>Requires discipline when deadlines are tight.</li>
+</ul>
+<p><strong>Benefits</strong></p>
+<ul>
+<li>Fewer unsupported statements.</li>
+<li>Better long-term reader trust.</li>
+<li>Easier updates when sources change.</li>
+<li>Clear distinction between evidence and opinion.</li>
+</ul>
+<h2>References</h2>
+<ul>
+<li>Google Search Central, <em>Creating helpful, reliable, people-first content</em>: <a href="https://developers.google.com/search/docs/fundamentals/creating-helpful-content">https://developers.google.com/search/docs/fundamentals/creating-helpful-content</a></li>
+<li>Nielsen Norman Group, <em>How Users Read on the Web</em>: <a href="https://www.nngroup.com/articles/how-users-read-on-the-web/">https://www.nngroup.com/articles/how-users-read-on-the-web/</a></li>
+<li>UK Government, <em>The Aqua Book: guidance on producing quality analysis for government</em>: <a href="https://www.gov.uk/government/publications/the-aqua-book-guidance-on-producing-quality-analysis-for-government">https://www.gov.uk/government/publications/the-aqua-book-guidance-on-producing-quality-analysis-for-government</a></li>
+</ul>
+<h2>Final Take</h2>
+<p>For AI-assisted writing, quality is mostly a systems problem.</p>
+<p>A claim register is a small system upgrade with outsized returns: you keep drafting speed, but stop shipping confidence that your evidence can’t carry.</p>
+<h2>Changelog</h2>
+<ul>
+<li>2026-03-04: Initial version drafted with claim register workflow and drift-check pass.</li>
+</ul>
+
+    </article>
+  </body>
+</html>

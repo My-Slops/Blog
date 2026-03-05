@@ -3,6 +3,7 @@ title: "Polished but Generic? A 30-Minute Specificity Pass for AI Drafts"
 date: "2026-03-02"
 slug: "the-30-minute-specificity-pass-for-ai-drafts"
 description: "A practical 30-minute editing workflow that turns fluent but generic AI drafts into specific, credible posts."
+canonical_url: "https://my-slops.github.io/Blog/posts/2026/03/2026-03-02-the-30-minute-specificity-pass-for-ai-drafts/"
 summary: "If an AI draft sounds polished but forgettable, run a 30-minute specificity pass: add one real scenario, measurable details, decision guidance, and citations."
 tags:
   - ai writing

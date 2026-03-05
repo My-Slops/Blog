@@ -3,6 +3,7 @@ title: "The Claim Register: A 12-Minute Guardrail for AI-Assisted Writing"
 date: "2026-03-04"
 slug: "the-claim-register-for-ai-assisted-writing"
 description: "A practical claim register workflow that keeps evidence attached to AI-generated drafts, reducing citation drift and overconfident claims before publishing."
+canonical_url: "https://my-slops.github.io/Blog/posts/2026/03/2026-03-04-the-claim-register-for-ai-assisted-writing/"
 summary: "Use a lightweight claim register while drafting to track claim type, confidence, and proof requirements. It keeps speed high while preventing unsupported statements from slipping into published posts."
 tags:
   - ai writing
