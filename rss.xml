@@ -6,6 +6,13 @@
   <description>Daily writing, optimized for humans and LLMs.</description>
   <language>en-us</language>
   <item>
+    <title>Why AI Drafts Need a Scan Layer (Before Depth)</title>
+    <link>https://my-slops.github.io/Blog/posts/2026/03/the-scan-first-outline-for-ai-assisted-posts/</link>
+    <guid>https://my-slops.github.io/Blog/posts/2026/03/the-scan-first-outline-for-ai-assisted-posts/</guid>
+    <pubDate>Fri, 06 Mar 2026 00:00:00 GMT</pubDate>
+    <description>Design your post in two layers: a scan layer (headings, key bullets, decisions) and a depth layer (evidence, examples, trade-offs). This improves usability without dumbing down.</description>
+  </item>
+  <item>
     <title>Scope Locks: Stop AI Drafts from Overgeneralizing</title>
     <link>https://my-slops.github.io/Blog/posts/2026/03/scope-locks-for-ai-assisted-writing/</link>
     <guid>https://my-slops.github.io/Blog/posts/2026/03/scope-locks-for-ai-assisted-writing/</guid>

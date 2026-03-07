@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Why AI Drafts Need a Scan Layer (Before Depth) | Blog</title>
+    <meta name="description" content="Design your post in two layers: a scan layer (headings, key bullets, decisions) and a depth layer (evidence, examples, trade-offs). This improves usability without dumbing down." />
+    <link rel="canonical" href="https://my-slops.github.io/Blog/posts/2026/03/the-scan-first-outline-for-ai-assisted-posts/" />
+    <style>
+      :root { color-scheme: light dark; }
+      body { font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; line-height: 1.7; max-width: 760px; margin: 40px auto; padding: 0 16px; }
+      a { color: #0a58ca; text-decoration: none; }
+      a:hover { text-decoration: underline; }
+      .meta { color: #666; font-size: 0.95rem; margin-bottom: 1rem; }
+      .tags { display: flex; gap: 0.5rem; list-style: none; padding: 0; margin: 0.75rem 0 1.25rem; flex-wrap: wrap; }
+      .tags li { background: #eef2ff; color: #3730a3; border-radius: 999px; padding: 0.2rem 0.6rem; font-size: 0.8rem; }
+      article h1, article h2, article h3 { line-height: 1.3; }
+      article pre { overflow-x: auto; background: #111827; color: #f9fafb; padding: 0.9rem; border-radius: 8px; }
+      article code { font-family: ui-monospace,SFMono-Regular,Menlo,monospace; }
+      article blockquote { border-left: 4px solid #d1d5db; margin: 1rem 0; padding: 0.2rem 0.9rem; color: #4b5563; }
+      hr { border: 0; border-top: 1px solid #e5e7eb; margin: 2rem 0; }
+    </style>
+  </head>
+  <body>
+    <p><a href="https://my-slops.github.io/Blog/">← Home</a></p>
+    <article>
+      <h1>Why AI Drafts Need a Scan Layer (Before Depth)</h1>
+      <p class="meta">Mar 6, 2026</p>
+      <ul class="tags"><li>ai writing</li><li>blogging</li><li>content strategy</li><li>readability</li><li>editing</li></ul>
+      <h2>TL;DR</h2>
+<p>Readers scan before they commit.</p>
+<p>Write posts in two layers:</p>
+<ul>
+<li><strong>Scan layer:</strong> title, TL;DR, headings, key bullets.</li>
+<li><strong>Depth layer:</strong> evidence, examples, trade-offs.</li>
+</ul>
+<p>If the scan layer alone explains your core argument, more people will read the post — and AI systems will parse it more reliably.</p>
+<h2>Context</h2>
+<p>AI makes it easy to produce long, fluent drafts. The failure mode is not grammar; it’s structure.</p>
+<p>When every section has equal visual weight, readers can’t quickly extract:</p>
+<ol>
+<li>what this post is about,</li>
+<li>what they should do,</li>
+<li>what evidence supports it.</li>
+</ol>
+<p>This is a usability issue before it is a writing issue.</p>
+<h2>Key Points</h2>
+<h3>1) Treat reading as a two-stage behavior</h3>
+<p>Many people do a fast relevance pass before committing to detailed reading.</p>
+<p>So your post should answer, at a glance:</p>
+<ul>
+<li>What problem are we solving?</li>
+<li>What is the core recommendation?</li>
+<li>Why should I trust this?</li>
+</ul>
+<p>If those answers are hidden in paragraph four, you lose the reader early.</p>
+<h3>2) Build a deliberate scan layer</h3>
+<p>Your scan layer should stand on its own, even if someone reads only:</p>
+<ul>
+<li>Title</li>
+<li>TL;DR</li>
+<li>H2/H3 headings</li>
+<li>First bullet in each section</li>
+<li>Final Take</li>
+</ul>
+<p>A good test: if someone screenshots just those lines, the post should still make sense.</p>
+<h3>3) Put complexity in the depth layer, not the interface</h3>
+<p>Depth is valuable. Confusing structure is not.</p>
+<p>Keep nuance, but place it under clear section labels so people can choose where to go deeper:</p>
+<ul>
+<li>assumptions,</li>
+<li>evidence,</li>
+<li>implementation,</li>
+<li>caveats.</li>
+</ul>
+<p>This preserves rigor without forcing everyone through the same reading path.</p>
+<h3>4) Prompt AI for layered output from the start</h3>
+<p>If you ask AI for “a complete article,” you often get a wall of text.</p>
+<p>Instead, prompt for structure first:</p>
+<ul>
+<li>one-sentence thesis,</li>
+<li>5–7 section headings,</li>
+<li>one decision-grade takeaway per section,</li>
+<li>then deeper explanation and references.</li>
+</ul>
+<p>Structure first, prose second.</p>
+<h3>5) Layered posts age better</h3>
+<p>When new evidence arrives, you can update specific depth sections without rewriting the whole post.</p>
+<p>Your scan layer remains stable (problem, recommendation, key trade-off), while detail layers evolve.</p>
+<h2>Steps / Code</h2>
+<h3>15-minute Scan-First pass for any draft</h3>
+<pre><code class="language-text">Minute 0-3  Extract one-sentence thesis and move it into TL;DR
+Minute 3-6  Rewrite headings as decisions/questions (not vague labels)
+Minute 6-9  Add one high-signal bullet under each heading
+Minute 9-12 Move evidence/examples into depth paragraphs under those bullets
+Minute 12-15 Tighten Final Take into one actionable next step
+</code></pre>
+<h3>Prompt template: layered draft generation</h3>
+<pre><code class="language-text">You are helping me draft a blog post.
+
+Topic: &lt;topic&gt;
+Audience: &lt;audience&gt;
+Goal: &lt;goal&gt;
+
+Output in 2 layers:
+
+Layer 1 (Scan Layer):
+- Title options (3)
+- TL;DR (max 80 words)
+- H2 outline (6-8 sections)
+- 1 key bullet per section
+- Final Take (2-3 sentences)
+
+Layer 2 (Depth Layer):
+- Expand each section with:
+  - concrete example
+  - trade-off or limitation
+  - reference link where factual claims are made
+
+Constraints:
+- plain language
+- avoid generic filler
+- mark uncertain claims explicitly
+</code></pre>
+<h3>Quick before/after</h3>
+<ul>
+<li><strong>Before heading:</strong> “Additional Considerations”</li>
+<li><strong>After heading:</strong> “When this method fails (and what to do instead)”</li>
+</ul>
+<p>The second heading is scannable and decision-relevant.</p>
+<h2>Trade-offs</h2>
+<p><strong>Costs</strong></p>
+<ul>
+<li>Requires upfront outline discipline.</li>
+<li>May feel less “literary” if over-optimized for scanning.</li>
+<li>Forces you to make a clear claim early.</li>
+</ul>
+<p><strong>Benefits</strong></p>
+<ul>
+<li>Faster comprehension for busy readers.</li>
+<li>Better information scent (readers know where value is).</li>
+<li>Easier updates and repurposing.</li>
+<li>Stronger compatibility with AI retrieval/summarization workflows.</li>
+</ul>
+<h2>References</h2>
+<ul>
+<li>Nielsen Norman Group, <em>How Users Read on the Web</em>: <a href="https://www.nngroup.com/articles/how-users-read-on-the-web/">https://www.nngroup.com/articles/how-users-read-on-the-web/</a></li>
+<li>Google Search Central, <em>Creating helpful, reliable, people-first content</em>: <a href="https://developers.google.com/search/docs/fundamentals/creating-helpful-content">https://developers.google.com/search/docs/fundamentals/creating-helpful-content</a></li>
+<li>Digital.gov, <em>Plain Language Guide Series</em>: <a href="https://digital.gov/guides/plain-language">https://digital.gov/guides/plain-language</a></li>
+</ul>
+<h2>Final Take</h2>
+<p>Don’t ask readers to “find” your insight in a long AI draft.</p>
+<p>Design for scan first, depth second.</p>
+<p>If a reader can understand your core argument in under a minute, your post is more likely to be read, trusted, and reused.</p>
+<h2>Changelog</h2>
+<ul>
+<li>2026-03-06: Initial version with the Scan-First framework, 15-minute edit pass, and layered prompting template.</li>
+</ul>
+
+    </article>
+  </body>
+</html>
