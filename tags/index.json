@@ -1,14 +1,14 @@
 {
-  "generated_at": "2026-03-05T22:28:14.065Z",
+  "generated_at": "2026-03-07T02:03:00.559Z",
   "tags": [
     {
       "tag": "ai writing",
-      "count": 6,
+      "count": 7,
       "url": "https://my-slops.github.io/Blog/tags/ai writing.json"
     },
     {
       "tag": "blogging",
-      "count": 8,
+      "count": 9,
       "url": "https://my-slops.github.io/Blog/tags/blogging.json"
     },
     {
@@ -28,7 +28,7 @@
     },
     {
       "tag": "content strategy",
-      "count": 1,
+      "count": 2,
       "url": "https://my-slops.github.io/Blog/tags/content strategy.json"
     },
     {
@@ -53,7 +53,7 @@
     },
     {
       "tag": "editing",
-      "count": 4,
+      "count": 5,
       "url": "https://my-slops.github.io/Blog/tags/editing.json"
     },
     {
@@ -80,6 +80,11 @@
       "tag": "productivity",
       "count": 2,
       "url": "https://my-slops.github.io/Blog/tags/productivity.json"
+    },
+    {
+      "tag": "readability",
+      "count": 1,
+      "url": "https://my-slops.github.io/Blog/tags/readability.json"
     },
     {
       "tag": "research",

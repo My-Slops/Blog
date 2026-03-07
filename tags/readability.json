@@ -1,0 +1,21 @@
+{
+  "tag": "readability",
+  "count": 1,
+  "posts": [
+    {
+      "title": "Why AI Drafts Need a Scan Layer (Before Depth)",
+      "date": "2026-03-06",
+      "updated": "2026-03-06",
+      "summary": "Design your post in two layers: a scan layer (headings, key bullets, decisions) and a depth layer (evidence, examples, trade-offs). This improves usability without dumbing down.",
+      "tags": [
+        "ai writing",
+        "blogging",
+        "content strategy",
+        "readability",
+        "editing"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/03/the-scan-first-outline-for-ai-assisted-posts/",
+      "path": "posts/2026/03/2026-03-06-the-scan-first-outline-for-ai-assisted-posts.md"
+    }
+  ]
+}
