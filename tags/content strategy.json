@@ -1,7 +1,23 @@
 {
   "tag": "content strategy",
-  "count": 2,
+  "count": 3,
   "posts": [
+    {
+      "title": "The Decision-Density Edit: How to Turn Fluent AI Drafts into Decision-Grade Writing",
+      "date": "2026-03-07",
+      "updated": "2026-03-07",
+      "summary": "Most AI writing sounds good but decides little. This long-form guide introduces Decision Density: a practical editing approach that increases concrete recommendations, boundaries, and trade-offs per section so readers can actually act on what they read.",
+      "tags": [
+        "ai writing",
+        "blogging",
+        "editing",
+        "content strategy",
+        "decision making",
+        "knowledge work"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/03/the-decision-density-edit-for-ai-writing/",
+      "path": "posts/2026/03/2026-03-07-the-decision-density-edit-for-ai-writing.md"
+    },
     {
       "title": "Why AI Drafts Need a Scan Layer (Before Depth)",
       "date": "2026-03-06",
