@@ -1,7 +1,23 @@
 {
-  "generated_at": "2026-03-08T03:43:25.897Z",
-  "count": 11,
+  "generated_at": "2026-03-09T14:31:15.560Z",
+  "count": 12,
   "posts": [
+    {
+      "title": "The Claim-Risk Matrix: A 20-Minute Fact-Check System for AI-Assisted Posts",
+      "date": "2026-03-08",
+      "updated": "2026-03-08",
+      "summary": "Most AI draft errors are not evenly dangerous. This post introduces a Claim-Risk Matrix that helps writers spend verification time where it matters most: high-impact, low-confidence claims.",
+      "tags": [
+        "ai writing",
+        "fact checking",
+        "blogging",
+        "editing",
+        "content quality",
+        "knowledge work"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/03/the-claim-risk-matrix-for-ai-assisted-posts/",
+      "path": "posts/2026/03/2026-03-08-the-claim-risk-matrix-for-ai-assisted-posts.md"
+    },
     {
       "title": "The Decision-Density Edit: How to Turn Fluent AI Drafts into Decision-Grade Writing",
       "date": "2026-03-07",
