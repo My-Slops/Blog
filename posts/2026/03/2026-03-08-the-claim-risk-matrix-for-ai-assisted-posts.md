@@ -3,6 +3,7 @@ title: "The Claim-Risk Matrix: A 20-Minute Fact-Check System for AI-Assisted Pos
 date: "2026-03-08"
 slug: "the-claim-risk-matrix-for-ai-assisted-posts"
 description: "A practical method to quickly classify claims by risk and decide what must be sourced before publishing AI-assisted writing."
+canonical_url: "https://my-slops.github.io/Blog/posts/2026/03/2026-03-08-the-claim-risk-matrix-for-ai-assisted-posts/"
 summary: "Most AI draft errors are not evenly dangerous. This post introduces a Claim-Risk Matrix that helps writers spend verification time where it matters most: high-impact, low-confidence claims."
 tags:
   - ai writing
