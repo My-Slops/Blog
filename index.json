@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-04-27T01:52:59.900Z",
-  "count": 46,
+  "generated_at": "2026-04-27T01:53:02.303Z",
+  "count": 47,
   "posts": [
     {
       "title": "Release Override Logs Are the Missing Layer in LLM Governance",
@@ -459,6 +459,21 @@
       ],
       "url": "https://my-slops.github.io/Blog/posts/2026/03/the-instruction-contract-for-ai-assisted-posts/",
       "path": "posts/2026/03/2026-03-11-the-instruction-contract-for-ai-assisted-posts.md"
+    },
+    {
+      "title": "The Revision Boundary for AI-Assisted Posts",
+      "date": "2026-03-10",
+      "updated": "2026-03-10",
+      "summary": "Most editing damage in AI-assisted writing happens during 'small' rewrites that strengthen a claim without rechecking support. A revision boundary separates prose cleanup from factual modification.",
+      "tags": [
+        "ai writing",
+        "editing",
+        "fact checking",
+        "workflow design",
+        "credibility"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/03/the-revision-boundary-for-ai-assisted-posts/",
+      "path": "posts/2026/03/2026-03-10-the-revision-boundary-for-ai-assisted-posts.md"
     },
     {
       "title": "The Verification-Debt Loop in AI-Assisted Writing",

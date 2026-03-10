@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>The Revision Boundary for AI-Assisted Posts | Blog</title>
+    <meta name="description" content="Most editing damage in AI-assisted writing happens during &#39;small&#39; rewrites that strengthen a claim without rechecking support. A revision boundary separates prose cleanup from factual modification." />
+    <link rel="canonical" href="https://my-slops.github.io/Blog/posts/2026/03/the-revision-boundary-for-ai-assisted-posts/" />
+    <style>
+      :root { color-scheme: light dark; }
+      body { font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; line-height: 1.7; max-width: 760px; margin: 40px auto; padding: 0 16px; }
+      a { color: #0a58ca; text-decoration: none; }
+      a:hover { text-decoration: underline; }
+      .meta { color: #666; font-size: 0.95rem; margin-bottom: 1rem; }
+      .tags { display: flex; gap: 0.5rem; list-style: none; padding: 0; margin: 0.75rem 0 1.25rem; flex-wrap: wrap; }
+      .tags li { background: #eef2ff; color: #3730a3; border-radius: 999px; padding: 0.2rem 0.6rem; font-size: 0.8rem; }
+      article h1, article h2, article h3 { line-height: 1.3; }
+      article pre { overflow-x: auto; background: #111827; color: #f9fafb; padding: 0.9rem; border-radius: 8px; }
+      article code { font-family: ui-monospace,SFMono-Regular,Menlo,monospace; }
+      article blockquote { border-left: 4px solid #d1d5db; margin: 1rem 0; padding: 0.2rem 0.9rem; color: #4b5563; }
+      hr { border: 0; border-top: 1px solid #e5e7eb; margin: 2rem 0; }
+    </style>
+  </head>
+  <body>
+    <p><a href="https://my-slops.github.io/Blog/">← Home</a></p>
+    <article>
+      <h1>The Revision Boundary for AI-Assisted Posts</h1>
+      <p class="meta">Mar 10, 2026</p>
+      <ul class="tags"><li>ai writing</li><li>editing</li><li>fact checking</li><li>workflow design</li><li>credibility</li></ul>
+      <h2>TL;DR</h2>
+<p>Not all revisions are equal.</p>
+<p>Changing a clumsy sentence into a cleaner sentence is usually fine. Changing a tentative sentence into a stronger sentence is a different kind of action.</p>
+<p>A <strong>revision boundary</strong> treats these separately:</p>
+<ul>
+<li>readability edits can move fast,</li>
+<li>factual-strength edits trigger re-verification.</li>
+</ul>
+<p>That prevents final polish from becoming silent distortion.</p>
+<h2>Context</h2>
+<p>AI-assisted writing has made revision cheaper, but it has also made it easier to blur categories of change.</p>
+<p>In older workflows, human effort naturally limited how many times a claim got restated. With AI, you can rewrite a paragraph ten times in two minutes. That is useful for clarity, but risky for precision. Each rewrite is another chance for support and wording to drift apart.</p>
+<p>This is a direct cousin of the problem described in OpenAI’s hallucination work: systems often optimize for plausible completion when the workflow rewards smooth answers over calibrated restraint. In editorial terms, the danger is not only the first draft. The danger is the last polished version of the draft, after caveats have been rounded off by &quot;cleanup.&quot;</p>
+<h2>Key Points</h2>
+<h3>1) A cleaner sentence can be a less honest sentence</h3>
+<p>Many edits that improve rhythm or brevity also increase certainty by accident.</p>
+<p>Common examples:</p>
+<ul>
+<li>&quot;may reduce&quot; becomes &quot;reduces&quot;</li>
+<li>&quot;in this sample&quot; becomes invisible</li>
+<li>&quot;one explanation is&quot; becomes &quot;the reason is&quot;</li>
+<li>&quot;some teams&quot; becomes &quot;teams&quot;</li>
+</ul>
+<p>The sentence reads better. It may also now claim more than the evidence can carry.</p>
+<h3>2) Separate surface edits from truth-condition edits</h3>
+<p>A useful editorial distinction:</p>
+<ul>
+<li><strong>surface edits</strong>: shorten, clarify, de-duplicate, improve flow</li>
+<li><strong>truth-condition edits</strong>: alter scope, certainty, causality, universality, or factual content</li>
+</ul>
+<p>Surface edits are mostly local.</p>
+<p>Truth-condition edits are evidence edits, even if they only change one word.</p>
+<h3>3) AI makes truth-condition drift easier to miss</h3>
+<p>Because the rewritten paragraph usually sounds coherent, reviewers often scan for style and skip semantic comparison.</p>
+<p>That is backwards.</p>
+<p>The more fluent the rewrite, the more important it is to ask:</p>
+<ul>
+<li>what changed,</li>
+<li>what got stronger,</li>
+<li>what assumption got smuggled in.</li>
+</ul>
+<h3>4) Mark certainty-increasing changes explicitly</h3>
+<p>You do not need a heavy process for every sentence. You do need a bright line for edits that raise confidence or widen scope.</p>
+<p>If an edit does any of the following, re-check support:</p>
+<ul>
+<li>removes a caveat,</li>
+<li>upgrades weak verbs to strong verbs,</li>
+<li>broadens the population or timeframe,</li>
+<li>turns an example into a pattern.</li>
+</ul>
+<h3>5) The final polish pass should be allowed to fail</h3>
+<p>If the draft is only readable when caveats disappear, the problem is not the caveat. The problem is the draft structure.</p>
+<p>Sometimes the right output of a final pass is:</p>
+<ul>
+<li>restore the hedge,</li>
+<li>split the sentence,</li>
+<li>add the source note back,</li>
+<li>leave the awkward precision intact.</li>
+</ul>
+<p>That is a better trade than false smoothness.</p>
+<h2>Steps / Code</h2>
+<h3>Revision boundary rule</h3>
+<pre><code class="language-text">If an edit changes certainty, scope, causality, or support requirements,
+it is no longer &quot;just editing.&quot;
+Re-check the evidence before keeping it.
+</code></pre>
+<h3>Practical edit labels</h3>
+<pre><code class="language-markdown">[surface] tighten repetition in opening paragraph
+[surface] replace vague transition
+[factual] &quot;suggests&quot; -&gt; &quot;shows&quot; requires source re-check
+[factual] remove &quot;in this dataset&quot; requires scope review
+</code></pre>
+<h2>Trade-offs</h2>
+<h3>Costs</h3>
+<ol>
+<li>Slower final editing on claim-heavy posts.</li>
+<li>More explicit judgment about what counts as a factual change.</li>
+<li>Slightly less elegant prose in some paragraphs.</li>
+</ol>
+<h3>Benefits</h3>
+<ol>
+<li>Lower risk of accidental overclaiming.</li>
+<li>Cleaner separation between writing quality and evidence quality.</li>
+<li>Easier review handoff between drafter and editor.</li>
+<li>More trustworthy final copy.</li>
+</ol>
+<h2>References</h2>
+<ul>
+<li>OpenAI, <em>Why language models hallucinate</em>: <a href="https://openai.com/index/why-language-models-hallucinate">https://openai.com/index/why-language-models-hallucinate</a></li>
+<li>OpenAI, <em>Teaching models to express their uncertainty in words</em>: <a href="https://openai.com/index/teaching-models-to-express-their-uncertainty-in-words/">https://openai.com/index/teaching-models-to-express-their-uncertainty-in-words/</a></li>
+<li>NIST, <em>Artificial Intelligence Risk Management Framework: Generative Artificial Intelligence Profile</em>: <a href="https://doi.org/10.6028/NIST.AI.600-1">https://doi.org/10.6028/NIST.AI.600-1</a></li>
+</ul>
+<h2>Final Take</h2>
+<p>The last edit pass should make writing clearer, not truer than it has any right to be.</p>
+<p>That requires a revision boundary.</p>
+<p>Without one, polish becomes a quiet source of hallucination.</p>
+<h2>Changelog</h2>
+<ul>
+<li>2026-03-10: Initial publish on separating readability edits from evidence-changing revisions.</li>
+</ul>
+
+    </article>
+  </body>
+</html>
