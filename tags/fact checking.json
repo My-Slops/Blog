@@ -1,7 +1,23 @@
 {
   "tag": "fact checking",
-  "count": 1,
+  "count": 2,
   "posts": [
+    {
+      "title": "The Verification-Debt Loop in AI-Assisted Writing",
+      "date": "2026-03-09",
+      "updated": "2026-03-09",
+      "summary": "AI drafting speed can hide an accumulating backlog of unchecked claims. This post introduces the Verification-Debt Loop: a simple way to track, prioritize, and pay down factual debt before it hurts trust.",
+      "tags": [
+        "ai writing",
+        "fact checking",
+        "editing",
+        "content quality",
+        "creator workflow",
+        "credibility"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/03/the-verification-debt-loop-in-ai-assisted-writing/",
+      "path": "posts/2026/03/2026-03-09-the-verification-debt-loop-in-ai-assisted-writing.md"
+    },
     {
       "title": "The Claim-Risk Matrix: A 20-Minute Fact-Check System for AI-Assisted Posts",
       "date": "2026-03-08",

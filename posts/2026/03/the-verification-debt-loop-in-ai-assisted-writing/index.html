@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>The Verification-Debt Loop in AI-Assisted Writing | Blog</title>
+    <meta name="description" content="AI drafting speed can hide an accumulating backlog of unchecked claims. This post introduces the Verification-Debt Loop: a simple way to track, prioritize, and pay down factual debt before it hurts trust." />
+    <link rel="canonical" href="https://my-slops.github.io/Blog/posts/2026/03/the-verification-debt-loop-in-ai-assisted-writing/" />
+    <style>
+      :root { color-scheme: light dark; }
+      body { font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; line-height: 1.7; max-width: 760px; margin: 40px auto; padding: 0 16px; }
+      a { color: #0a58ca; text-decoration: none; }
+      a:hover { text-decoration: underline; }
+      .meta { color: #666; font-size: 0.95rem; margin-bottom: 1rem; }
+      .tags { display: flex; gap: 0.5rem; list-style: none; padding: 0; margin: 0.75rem 0 1.25rem; flex-wrap: wrap; }
+      .tags li { background: #eef2ff; color: #3730a3; border-radius: 999px; padding: 0.2rem 0.6rem; font-size: 0.8rem; }
+      article h1, article h2, article h3 { line-height: 1.3; }
+      article pre { overflow-x: auto; background: #111827; color: #f9fafb; padding: 0.9rem; border-radius: 8px; }
+      article code { font-family: ui-monospace,SFMono-Regular,Menlo,monospace; }
+      article blockquote { border-left: 4px solid #d1d5db; margin: 1rem 0; padding: 0.2rem 0.9rem; color: #4b5563; }
+      hr { border: 0; border-top: 1px solid #e5e7eb; margin: 2rem 0; }
+    </style>
+  </head>
+  <body>
+    <p><a href="https://my-slops.github.io/Blog/">← Home</a></p>
+    <article>
+      <h1>The Verification-Debt Loop in AI-Assisted Writing</h1>
+      <p class="meta">Mar 9, 2026</p>
+      <ul class="tags"><li>ai writing</li><li>fact checking</li><li>editing</li><li>content quality</li><li>creator workflow</li><li>credibility</li></ul>
+      <h2>TL;DR</h2>
+<p>Most writing teams track publishing velocity. Almost none track <strong>verification debt</strong>.</p>
+<p>Verification debt is the backlog of claims you have not properly checked yet.</p>
+<p>In AI-assisted writing, this debt grows silently because fluent drafts make uncertainty look finished.</p>
+<p>Use a simple loop before publishing:</p>
+<ol>
+<li>log unresolved claims,</li>
+<li>label each claim’s risk,</li>
+<li>either verify, downgrade, or delete,</li>
+<li>carry forward only explicit, bounded uncertainty.</li>
+</ol>
+<p>If you publish daily, managing verification debt is not optional — it is how you protect long-term trust.</p>
+<h2>Context</h2>
+<p>Yesterday’s Claim-Risk Matrix solves a key problem: where to focus checking effort <strong>inside one post</strong>.</p>
+<p>But daily publishing introduces a second problem: unresolved claims spill over from one draft to the next.</p>
+<p>That spillover creates a debt pattern:</p>
+<ul>
+<li>you skip validating one claim because time is short,</li>
+<li>you reuse the same statement later as if it were settled,</li>
+<li>the statement gets repeated across posts,</li>
+<li>eventually a reader (or client, or teammate) finds it wrong.</li>
+</ul>
+<p>At that point, the cost is not one correction. It is accumulated credibility drag.</p>
+<p>This is exactly how “good enough today” becomes “hard to trust tomorrow.”</p>
+<h2>Key Points</h2>
+<h3>1) Verification debt behaves like technical debt</h3>
+<p>Technical debt is not just bad code. It is postponed quality work that increases future cost.</p>
+<p>Verification debt is the same pattern for writing:</p>
+<ul>
+<li><strong>Principal</strong> = unresolved factual uncertainty,</li>
+<li><strong>Interest</strong> = extra re-checking, corrections, and trust recovery later.</li>
+</ul>
+<p>When you ignore it, the interest compounds through copy-paste, memory drift, and repeated claims.</p>
+<h3>2) AI fluency lowers your discomfort signal</h3>
+<p>In manual writing, uncertainty often feels obvious while drafting.</p>
+<p>In AI-assisted writing, polished language hides uncertainty. The text sounds complete before the thinking is complete.</p>
+<p>That means you cannot rely on “this feels finished.”
+You need explicit process signals:</p>
+<ul>
+<li>what is verified,</li>
+<li>what is provisional,</li>
+<li>what must not be reused yet.</li>
+</ul>
+<h3>3) Use a Verification Ledger, not mental notes</h3>
+<p>Mental reminders fail under daily output pressure.</p>
+<p>Create a tiny ledger for each post with three buckets:</p>
+<ol>
+<li><strong>Verified</strong> (source checked),</li>
+<li><strong>Provisional</strong> (kept with explicit uncertainty),</li>
+<li><strong>Dropped</strong> (removed because support was weak).</li>
+</ol>
+<p>If a claim remains provisional at publish time, tag it clearly and set an expiry rule (re-check before reuse).</p>
+<h3>4) Separate “publishable” from “reusable”</h3>
+<p>A claim can be publishable with uncertainty language but still not reusable as a base fact.</p>
+<p>Example:</p>
+<ul>
+<li>Publishable: “Early reports suggest X, but documentation is still changing.”</li>
+<li>Reusable later as fact: only after primary-source confirmation.</li>
+</ul>
+<p>This one distinction prevents many repeated errors in multi-post series.</p>
+<h3>5) Treat old claims as liabilities until revalidated</h3>
+<p>In fast-moving domains (AI tools, APIs, pricing, policies), an old verified claim can expire quickly.</p>
+<p>Practical rule:</p>
+<ul>
+<li>high-impact operational claims (pricing, policy, security, compliance) need freshness checks before reuse,</li>
+<li>evergreen conceptual claims can be reused with lighter review.</li>
+</ul>
+<p>Stale certainty is still uncertainty.</p>
+<h3>6) A weekly debt sweep prevents silent drift</h3>
+<p>Daily pass catches urgent risks. Weekly sweep catches accumulated drift.</p>
+<p>Once a week:</p>
+<ul>
+<li>list all provisional claims that survived publication,</li>
+<li>verify or retire them,</li>
+<li>update your “trusted source list” by domain.</li>
+</ul>
+<p>This keeps your content system compounding in quality instead of compounding in fragility.</p>
+<h2>Steps / Code</h2>
+<h3>15-minute Verification-Debt Loop (before publish)</h3>
+<pre><code class="language-text">Minute 0-3   Extract unresolved or weakly sourced claims
+Minute 3-6   Score each by impact if wrong (1-3)
+Minute 6-10  Resolve top risks: verify, downgrade language, or delete
+Minute 10-13 Mark any remaining provisional claims with explicit uncertainty
+Minute 13-15 Record carry-forward items and expiry checks
+</code></pre>
+<h3>Minimal Verification Ledger template</h3>
+<pre><code class="language-markdown">| Claim | Risk (1-3) | Status | Source | Reuse Rule |
+|------|------------|--------|--------|------------|
+| &quot;Tool X supports SSO on basic plan&quot; | 3 | Provisional | (none) | Do not reuse until docs checked |
+| &quot;Readers scan before deep reading&quot; | 2 | Verified | NNGroup | Recheck yearly |
+| &quot;This workflow saved me time&quot; | 1 | Verified (personal) | own notes | Reuse only as anecdote |
+</code></pre>
+<h3>Reuse gate checklist</h3>
+<pre><code class="language-text">Before reusing any prior claim:
+- Is it high-impact if wrong?
+- Is the source primary and still current?
+- Did context change (pricing, policy, model behavior, API)?
+- If uncertain, can I state limits explicitly?
+If any answer fails, re-verify or avoid reuse.
+</code></pre>
+<h2>Trade-offs</h2>
+<h3>Costs</h3>
+<ol>
+<li><p><strong>Small process overhead</strong></p>
+<ul>
+<li>You add a ledger step to writing.</li>
+</ul>
+</li>
+<li><p><strong>Fewer dramatic claims</strong></p>
+<ul>
+<li>Unsupported certainty gets removed.</li>
+</ul>
+</li>
+<li><p><strong>More visible caveats</strong></p>
+<ul>
+<li>Some posts look less absolute.</li>
+</ul>
+</li>
+</ol>
+<h3>Benefits</h3>
+<ol>
+<li><p><strong>Lower correction burden later</strong></p>
+<ul>
+<li>Fewer avoidable follow-up fixes.</li>
+</ul>
+</li>
+<li><p><strong>Stronger long-term credibility</strong></p>
+<ul>
+<li>Readers see consistent epistemic discipline.</li>
+</ul>
+</li>
+<li><p><strong>Faster future drafting</strong></p>
+<ul>
+<li>Verified claims become a trustworthy base layer.</li>
+</ul>
+</li>
+<li><p><strong>Cleaner knowledge compounding</strong></p>
+<ul>
+<li>You build a reusable library of validated assertions.</li>
+</ul>
+</li>
+</ol>
+<h2>References</h2>
+<ul>
+<li>Google Search Central, <em>Creating helpful, reliable, people-first content</em>: <a href="https://developers.google.com/search/docs/fundamentals/creating-helpful-content">https://developers.google.com/search/docs/fundamentals/creating-helpful-content</a></li>
+<li>GOV.UK Service Manual, <em>Use plain English</em>: <a href="https://www.gov.uk/guidance/content-design/writing-for-gov-uk">https://www.gov.uk/guidance/content-design/writing-for-gov-uk</a></li>
+<li>Nielsen Norman Group, <em>How Users Read on the Web</em>: <a href="https://www.nngroup.com/articles/how-users-read-on-the-web/">https://www.nngroup.com/articles/how-users-read-on-the-web/</a></li>
+</ul>
+<h2>Final Take</h2>
+<p>The real risk in AI-assisted publishing is not one bad sentence.</p>
+<p>It is the quiet accumulation of unchecked claims that later get repeated as truth.</p>
+<p>If you run a daily writing system, track verification debt like you would track technical debt: make it visible, prioritize it by risk, and pay it down continuously.</p>
+<p>That discipline is what turns fast publishing into reliable publishing.</p>
+<h2>Changelog</h2>
+<ul>
+<li>2026-03-09: Created first version introducing the Verification-Debt Loop, 15-minute process, ledger template, and reuse gate checklist.</li>
+</ul>
+
+    </article>
+  </body>
+</html>
