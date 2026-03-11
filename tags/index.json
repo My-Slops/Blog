@@ -1,14 +1,14 @@
 {
-  "generated_at": "2026-03-10T06:37:13.673Z",
+  "generated_at": "2026-03-11T06:30:12.314Z",
   "tags": [
     {
       "tag": "ai writing",
-      "count": 10,
+      "count": 11,
       "url": "https://my-slops.github.io/Blog/tags/ai writing.json"
     },
     {
       "tag": "blogging",
-      "count": 11,
+      "count": 12,
       "url": "https://my-slops.github.io/Blog/tags/blogging.json"
     },
     {
@@ -23,7 +23,7 @@
     },
     {
       "tag": "content quality",
-      "count": 3,
+      "count": 4,
       "url": "https://my-slops.github.io/Blog/tags/content quality.json"
     },
     {
@@ -62,6 +62,11 @@
       "url": "https://my-slops.github.io/Blog/tags/editing.json"
     },
     {
+      "tag": "editorial workflow",
+      "count": 1,
+      "url": "https://my-slops.github.io/Blog/tags/editorial workflow.json"
+    },
+    {
       "tag": "fact checking",
       "count": 2,
       "url": "https://my-slops.github.io/Blog/tags/fact checking.json"
@@ -78,7 +83,7 @@
     },
     {
       "tag": "knowledge work",
-      "count": 3,
+      "count": 4,
       "url": "https://my-slops.github.io/Blog/tags/knowledge work.json"
     },
     {
@@ -90,6 +95,11 @@
       "tag": "productivity",
       "count": 2,
       "url": "https://my-slops.github.io/Blog/tags/productivity.json"
+    },
+    {
+      "tag": "prompting",
+      "count": 1,
+      "url": "https://my-slops.github.io/Blog/tags/prompting.json"
     },
     {
       "tag": "readability",

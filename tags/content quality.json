@@ -1,7 +1,23 @@
 {
   "tag": "content quality",
-  "count": 3,
+  "count": 4,
   "posts": [
+    {
+      "title": "The Instruction Contract: A Simple Way to Get More Reliable AI-Assisted Posts",
+      "date": "2026-03-11",
+      "updated": "2026-03-11",
+      "summary": "Most weak AI drafts come from ambiguous instructions, not weak models. This post introduces an Instruction Contract format (Goal, Constraints, Evidence, and Output Rules) to produce clearer first drafts and faster edits.",
+      "tags": [
+        "ai writing",
+        "prompting",
+        "blogging",
+        "editorial workflow",
+        "knowledge work",
+        "content quality"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/03/the-instruction-contract-for-ai-assisted-posts/",
+      "path": "posts/2026/03/2026-03-11-the-instruction-contract-for-ai-assisted-posts.md"
+    },
     {
       "title": "The Verification-Debt Loop in AI-Assisted Writing",
       "date": "2026-03-09",

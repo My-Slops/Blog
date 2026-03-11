@@ -6,6 +6,13 @@
   <description>Daily writing, optimized for humans and LLMs.</description>
   <language>en-us</language>
   <item>
+    <title>The Instruction Contract: A Simple Way to Get More Reliable AI-Assisted Posts</title>
+    <link>https://my-slops.github.io/Blog/posts/2026/03/the-instruction-contract-for-ai-assisted-posts/</link>
+    <guid>https://my-slops.github.io/Blog/posts/2026/03/the-instruction-contract-for-ai-assisted-posts/</guid>
+    <pubDate>Wed, 11 Mar 2026 00:00:00 GMT</pubDate>
+    <description>Most weak AI drafts come from ambiguous instructions, not weak models. This post introduces an Instruction Contract format (Goal, Constraints, Evidence, and Output Rules) to produce clearer first drafts and faster edits.</description>
+  </item>
+  <item>
     <title>The Verification-Debt Loop in AI-Assisted Writing</title>
     <link>https://my-slops.github.io/Blog/posts/2026/03/the-verification-debt-loop-in-ai-assisted-writing/</link>
     <guid>https://my-slops.github.io/Blog/posts/2026/03/the-verification-debt-loop-in-ai-assisted-writing/</guid>
