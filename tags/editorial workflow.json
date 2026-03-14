@@ -1,7 +1,22 @@
 {
   "tag": "editorial workflow",
-  "count": 1,
+  "count": 2,
   "posts": [
+    {
+      "title": "The Uncertainty Label Protocol for AI-Assisted Posts",
+      "date": "2026-03-12",
+      "updated": "2026-03-12",
+      "summary": "Most AI-assisted posts fail trust not because they are unreadable, but because certainty is unclear. This post introduces a simple uncertainty-label protocol you can apply during drafting and editing.",
+      "tags": [
+        "ai writing",
+        "editorial workflow",
+        "trust",
+        "fact checking",
+        "blogging"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/03/the-uncertainty-label-protocol-for-ai-assisted-posts/",
+      "path": "posts/2026/03/2026-03-12-the-uncertainty-label-protocol-for-ai-assisted-posts.md"
+    },
     {
       "title": "The Instruction Contract: A Simple Way to Get More Reliable AI-Assisted Posts",
       "date": "2026-03-11",

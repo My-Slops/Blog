@@ -1,14 +1,14 @@
 {
-  "generated_at": "2026-03-11T06:30:28.513Z",
+  "generated_at": "2026-03-14T01:36:31.949Z",
   "tags": [
     {
       "tag": "ai writing",
-      "count": 11,
+      "count": 13,
       "url": "https://my-slops.github.io/Blog/tags/ai writing.json"
     },
     {
       "tag": "blogging",
-      "count": 12,
+      "count": 14,
       "url": "https://my-slops.github.io/Blog/tags/blogging.json"
     },
     {
@@ -23,7 +23,7 @@
     },
     {
       "tag": "content quality",
-      "count": 4,
+      "count": 5,
       "url": "https://my-slops.github.io/Blog/tags/content quality.json"
     },
     {
@@ -47,6 +47,11 @@
       "url": "https://my-slops.github.io/Blog/tags/credibility.json"
     },
     {
+      "tag": "critical thinking",
+      "count": 1,
+      "url": "https://my-slops.github.io/Blog/tags/critical thinking.json"
+    },
+    {
       "tag": "daily",
       "count": 1,
       "url": "https://my-slops.github.io/Blog/tags/daily.json"
@@ -58,17 +63,17 @@
     },
     {
       "tag": "editing",
-      "count": 8,
+      "count": 9,
       "url": "https://my-slops.github.io/Blog/tags/editing.json"
     },
     {
       "tag": "editorial workflow",
-      "count": 1,
+      "count": 2,
       "url": "https://my-slops.github.io/Blog/tags/editorial workflow.json"
     },
     {
       "tag": "fact checking",
-      "count": 2,
+      "count": 4,
       "url": "https://my-slops.github.io/Blog/tags/fact checking.json"
     },
     {
@@ -110,6 +115,11 @@
       "tag": "research",
       "count": 2,
       "url": "https://my-slops.github.io/Blog/tags/research.json"
+    },
+    {
+      "tag": "trust",
+      "count": 1,
+      "url": "https://my-slops.github.io/Blog/tags/trust.json"
     },
     {
       "tag": "writing systems",

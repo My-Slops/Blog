@@ -1,7 +1,23 @@
 {
   "tag": "content quality",
-  "count": 4,
+  "count": 5,
   "posts": [
+    {
+      "title": "The Counterexample Pass for AI-Assisted Posts",
+      "date": "2026-03-13",
+      "updated": "2026-03-13",
+      "summary": "AI-assisted drafts often sound convincing while hiding brittle claims. This post introduces a 15-minute Counterexample Pass: deliberately search for situations where your main claim fails, then tighten scope and language before publishing.",
+      "tags": [
+        "ai writing",
+        "editing",
+        "fact checking",
+        "blogging",
+        "critical thinking",
+        "content quality"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/03/the-counterexample-pass-for-ai-assisted-posts/",
+      "path": "posts/2026/03/2026-03-13-the-counterexample-pass-for-ai-assisted-posts.md"
+    },
     {
       "title": "The Instruction Contract: A Simple Way to Get More Reliable AI-Assisted Posts",
       "date": "2026-03-11",

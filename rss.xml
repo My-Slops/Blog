@@ -6,6 +6,20 @@
   <description>Daily writing, optimized for humans and LLMs.</description>
   <language>en-us</language>
   <item>
+    <title>The Counterexample Pass for AI-Assisted Posts</title>
+    <link>https://my-slops.github.io/Blog/posts/2026/03/the-counterexample-pass-for-ai-assisted-posts/</link>
+    <guid>https://my-slops.github.io/Blog/posts/2026/03/the-counterexample-pass-for-ai-assisted-posts/</guid>
+    <pubDate>Fri, 13 Mar 2026 00:00:00 GMT</pubDate>
+    <description>AI-assisted drafts often sound convincing while hiding brittle claims. This post introduces a 15-minute Counterexample Pass: deliberately search for situations where your main claim fails, then tighten scope and language before publishing.</description>
+  </item>
+  <item>
+    <title>The Uncertainty Label Protocol for AI-Assisted Posts</title>
+    <link>https://my-slops.github.io/Blog/posts/2026/03/the-uncertainty-label-protocol-for-ai-assisted-posts/</link>
+    <guid>https://my-slops.github.io/Blog/posts/2026/03/the-uncertainty-label-protocol-for-ai-assisted-posts/</guid>
+    <pubDate>Thu, 12 Mar 2026 00:00:00 GMT</pubDate>
+    <description>Most AI-assisted posts fail trust not because they are unreadable, but because certainty is unclear. This post introduces a simple uncertainty-label protocol you can apply during drafting and editing.</description>
+  </item>
+  <item>
     <title>The Instruction Contract: A Simple Way to Get More Reliable AI-Assisted Posts</title>
     <link>https://my-slops.github.io/Blog/posts/2026/03/the-instruction-contract-for-ai-assisted-posts/</link>
     <guid>https://my-slops.github.io/Blog/posts/2026/03/the-instruction-contract-for-ai-assisted-posts/</guid>
