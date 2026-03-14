@@ -3,6 +3,7 @@ title: "The Uncertainty Label Protocol for AI-Assisted Posts"
 date: "2026-03-12"
 slug: "the-uncertainty-label-protocol-for-ai-assisted-posts"
 description: "A practical method to label confidence in AI-assisted writing so readers can quickly separate verified facts from inference and opinion."
+canonical_url: "https://my-slops.github.io/Blog/posts/2026/03/2026-03-12-the-uncertainty-label-protocol-for-ai-assisted-posts/"
 summary: "Most AI-assisted posts fail trust not because they are unreadable, but because certainty is unclear. This post introduces a simple uncertainty-label protocol you can apply during drafting and editing."
 tags:
   - ai writing
