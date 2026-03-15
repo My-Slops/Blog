@@ -1,7 +1,23 @@
 {
   "tag": "editorial workflow",
-  "count": 3,
+  "count": 4,
   "posts": [
+    {
+      "title": "The Evidence-Weighting Pass for AI-Assisted Posts",
+      "date": "2026-03-15",
+      "updated": "2026-03-15",
+      "summary": "Most AI-assisted writing failures are not grammar failures; they are evidence failures. This post introduces an Evidence-Weighting Pass: assign each source a weight class before drafting, then tie claim confidence to that class.",
+      "tags": [
+        "ai writing",
+        "research",
+        "blogging",
+        "credibility",
+        "editorial workflow",
+        "verification"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/03/the-evidence-weighting-pass-for-ai-assisted-posts/",
+      "path": "posts/2026/03/2026-03-15-the-evidence-weighting-pass-for-ai-assisted-posts.md"
+    },
     {
       "title": "The Reproducibility Note for AI-Assisted Posts",
       "date": "2026-03-14",
