@@ -6,6 +6,13 @@
   <description>Daily writing, optimized for humans and LLMs.</description>
   <language>en-us</language>
   <item>
+    <title>The Reproducibility Note for AI-Assisted Posts</title>
+    <link>https://my-slops.github.io/Blog/posts/2026/03/the-reproducibility-note-for-ai-assisted-posts/</link>
+    <guid>https://my-slops.github.io/Blog/posts/2026/03/the-reproducibility-note-for-ai-assisted-posts/</guid>
+    <pubDate>Sat, 14 Mar 2026 00:00:00 GMT</pubDate>
+    <description>If readers cannot see how a claim was produced and checked, trust depends on tone instead of process. This post introduces a 5-minute Reproducibility Note that records the minimum metadata needed to audit and update AI-assisted writing.</description>
+  </item>
+  <item>
     <title>The Counterexample Pass for AI-Assisted Posts</title>
     <link>https://my-slops.github.io/Blog/posts/2026/03/the-counterexample-pass-for-ai-assisted-posts/</link>
     <guid>https://my-slops.github.io/Blog/posts/2026/03/the-counterexample-pass-for-ai-assisted-posts/</guid>
