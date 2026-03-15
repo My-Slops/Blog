@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>The Evidence-Weighting Pass for AI-Assisted Posts | Blog</title>
+    <meta name="description" content="Most AI-assisted writing failures are not grammar failures; they are evidence failures. This post introduces an Evidence-Weighting Pass: assign each source a weight class before drafting, then tie claim confidence to that class." />
+    <link rel="canonical" href="https://my-slops.github.io/Blog/posts/2026/03/the-evidence-weighting-pass-for-ai-assisted-posts/" />
+    <style>
+      :root { color-scheme: light dark; }
+      body { font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; line-height: 1.7; max-width: 760px; margin: 40px auto; padding: 0 16px; }
+      a { color: #0a58ca; text-decoration: none; }
+      a:hover { text-decoration: underline; }
+      .meta { color: #666; font-size: 0.95rem; margin-bottom: 1rem; }
+      .tags { display: flex; gap: 0.5rem; list-style: none; padding: 0; margin: 0.75rem 0 1.25rem; flex-wrap: wrap; }
+      .tags li { background: #eef2ff; color: #3730a3; border-radius: 999px; padding: 0.2rem 0.6rem; font-size: 0.8rem; }
+      article h1, article h2, article h3 { line-height: 1.3; }
+      article pre { overflow-x: auto; background: #111827; color: #f9fafb; padding: 0.9rem; border-radius: 8px; }
+      article code { font-family: ui-monospace,SFMono-Regular,Menlo,monospace; }
+      article blockquote { border-left: 4px solid #d1d5db; margin: 1rem 0; padding: 0.2rem 0.9rem; color: #4b5563; }
+      hr { border: 0; border-top: 1px solid #e5e7eb; margin: 2rem 0; }
+    </style>
+  </head>
+  <body>
+    <p><a href="https://my-slops.github.io/Blog/">← Home</a></p>
+    <article>
+      <h1>The Evidence-Weighting Pass for AI-Assisted Posts</h1>
+      <p class="meta">Mar 15, 2026</p>
+      <ul class="tags"><li>ai writing</li><li>research</li><li>blogging</li><li>credibility</li><li>editorial workflow</li><li>verification</li></ul>
+      <h2>TL;DR</h2>
+<p>Before drafting, run a 7-minute <strong>Evidence-Weighting Pass</strong>:</p>
+<ul>
+<li>classify each source as <strong>A (primary/official)</strong>, <strong>B (credible secondary analysis)</strong>, or <strong>C (anecdotal/opinion)</strong>,</li>
+<li>let A-sources anchor your claims,</li>
+<li>use B-sources for interpretation,</li>
+<li>use C-sources for examples only,</li>
+<li>explicitly label uncertainty when claims rely on weaker evidence.</li>
+</ul>
+<p>This keeps AI-assisted posts fast <strong>without</strong> letting confidence outrun evidence.</p>
+<h2>Context</h2>
+<p>In AI-assisted workflows, the model can blend sources into a smooth narrative regardless of source quality. That is useful for drafting but risky for truthfulness: weak evidence can be phrased with the same confidence as strong evidence.</p>
+<p>The result is a common failure mode: posts that sound definitive but are built on mixed-quality inputs.</p>
+<p>Most fixes focus on prompt wording (&quot;be accurate,&quot; &quot;cite sources&quot;). That helps, but the bigger leverage is upstream: decide what evidence deserves more weight <strong>before</strong> generating conclusions.</p>
+<p>That is what the Evidence-Weighting Pass does.</p>
+<h2>Key Points</h2>
+<h3>1) Separate source quality from writing quality</h3>
+<p>A clean paragraph can still carry a weak claim. Editorial quality and evidential quality are different dimensions.</p>
+<p>Treat source evaluation as its own step:</p>
+<ul>
+<li>first rank evidence,</li>
+<li>then draft,</li>
+<li>then calibrate language to match evidence strength.</li>
+</ul>
+<p>If you skip this, the model&#39;s fluency can hide epistemic gaps.</p>
+<h3>2) Use a simple A/B/C weighting model</h3>
+<p>You do not need a complex scoring system for daily publishing.</p>
+<p>Use this:</p>
+<ul>
+<li><strong>A — Primary/official</strong>: standards, official docs, original datasets, direct policy texts.</li>
+<li><strong>B — Credible secondary</strong>: expert analyses or summaries that reference primary material.</li>
+<li><strong>C — Anecdotal/opinion</strong>: personal blogs, unsourced threads, or illustrative takes.</li>
+</ul>
+<p>Rule of thumb:</p>
+<ul>
+<li>Main conclusions should be supported primarily by A (or A+B).</li>
+<li>If a conclusion depends mostly on C, rewrite as a hypothesis or observation.</li>
+</ul>
+<h3>3) Tie claim language to evidence class</h3>
+<p>Confidence language should be a function of evidence weight.</p>
+<ul>
+<li><strong>A-backed claim</strong> → stronger wording is acceptable.</li>
+<li><strong>B-backed claim</strong> → moderate wording with scope boundaries.</li>
+<li><strong>C-backed claim</strong> → explicitly tentative wording.</li>
+</ul>
+<p>This avoids the common mismatch where tentative evidence is presented as settled truth.</p>
+<h3>4) Force one counter-source check for high-impact claims</h3>
+<p>For the top 1–3 claims in a post, require one opposing or limiting source check.</p>
+<p>Ask:</p>
+<ul>
+<li>What would weaken this claim?</li>
+<li>Is there a context where this breaks?</li>
+<li>Is the source outdated or domain-specific?</li>
+</ul>
+<p>This small step catches overgeneralization early.</p>
+<h3>5) Preserve the weighting decision in your changelog</h3>
+<p>If readers challenge a claim later, your update speed depends on traceability.</p>
+<p>Record:</p>
+<ul>
+<li>evidence class used for each major claim,</li>
+<li>whether the claim was upgraded/downgraded during review,</li>
+<li>what changed after re-checking sources.</li>
+</ul>
+<p>This improves correction quality and keeps your archive maintainable.</p>
+<h2>Steps / Code</h2>
+<h3>7-minute Evidence-Weighting Pass</h3>
+<pre><code class="language-text">Minute 0-2  Gather source links you plan to use
+Minute 2-4  Label each A / B / C
+Minute 4-5  Map major claims to source classes
+Minute 5-6  Downgrade wording where evidence is weak
+Minute 6-7  Run one counter-source check on top claims
+</code></pre>
+<h3>Lightweight worksheet template</h3>
+<pre><code class="language-markdown">### Evidence-Weighting Pass
+- Claim 1: &quot;...&quot;
+  - Sources: [A] ..., [B] ...
+  - Confidence label: High / Medium / Low
+  - Counter-source check: ...
+
+- Claim 2: &quot;...&quot;
+  - Sources: [A] ..., [C] ...
+  - Confidence label: Medium
+  - Rewrite note: Narrowed scope to X context
+
+- Claim 3: &quot;...&quot;
+  - Sources: [C] ...
+  - Confidence label: Low
+  - Rewrite note: Reframed as hypothesis/opinion
+</code></pre>
+<h3>Language calibration cheat sheet</h3>
+<pre><code class="language-text">High confidence (A-backed): &quot;evidence indicates&quot;, &quot;official guidance states&quot;
+Medium confidence (B-backed): &quot;likely&quot;, &quot;in many cases&quot;, &quot;suggests&quot;
+Low confidence (C-backed): &quot;anecdotally&quot;, &quot;may&quot;, &quot;hypothesis&quot;
+</code></pre>
+<h2>Trade-offs</h2>
+<h3>Costs</h3>
+<ol>
+<li><p><strong>Slight process overhead</strong><br>Adds ~5–10 minutes before drafting.</p>
+</li>
+<li><p><strong>Less dramatic writing</strong><br>Calibrated wording can feel less punchy than absolute claims.</p>
+</li>
+<li><p><strong>More visible uncertainty</strong><br>You may publish narrower conclusions than your first draft impulse.</p>
+</li>
+</ol>
+<h3>Benefits</h3>
+<ol>
+<li><p><strong>Lower overclaim risk</strong><br>Strong language is reserved for strong evidence.</p>
+</li>
+<li><p><strong>Faster fact-checking</strong><br>You already know which claims rely on fragile sources.</p>
+</li>
+<li><p><strong>Better long-term trust</strong><br>Readers can see that confidence is earned, not stylistic.</p>
+</li>
+<li><p><strong>Easier updates</strong><br>Evidence classes make revisions and corrections systematic.</p>
+</li>
+</ol>
+<h2>References</h2>
+<ul>
+<li>NIST, <em>AI Risk Management Framework (AI RMF 1.0)</em>: <a href="https://www.nist.gov/itl/ai-risk-management-framework">https://www.nist.gov/itl/ai-risk-management-framework</a></li>
+<li>Google Search Central, <em>Creating helpful, reliable, people-first content</em>: <a href="https://developers.google.com/search/docs/fundamentals/creating-helpful-content">https://developers.google.com/search/docs/fundamentals/creating-helpful-content</a></li>
+<li>Stanford Encyclopedia of Philosophy, <em>Scientific Method</em>: <a href="https://plato.stanford.edu/entries/scientific-method/">https://plato.stanford.edu/entries/scientific-method/</a></li>
+</ul>
+<h2>Final Take</h2>
+<p>AI can draft at high speed, but it cannot decide evidential standards for you.</p>
+<p>The Evidence-Weighting Pass is a compact control system: assign source weight first, then let confidence follow evidence. For daily publishing, this is one of the simplest ways to stay fast and stay credible.</p>
+<h2>Changelog</h2>
+<ul>
+<li>2026-03-15: Initial publish with A/B/C evidence model, confidence calibration rules, and 7-minute workflow.</li>
+</ul>
+
+    </article>
+  </body>
+</html>
