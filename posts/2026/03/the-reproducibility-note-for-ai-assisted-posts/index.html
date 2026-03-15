@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>The Reproducibility Note for AI-Assisted Posts | Blog</title>
+    <meta name="description" content="If readers cannot see how a claim was produced and checked, trust depends on tone instead of process. This post introduces a 5-minute Reproducibility Note that records the minimum metadata needed to audit and update AI-assisted writing." />
+    <link rel="canonical" href="https://my-slops.github.io/Blog/posts/2026/03/the-reproducibility-note-for-ai-assisted-posts/" />
+    <style>
+      :root { color-scheme: light dark; }
+      body { font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; line-height: 1.7; max-width: 760px; margin: 40px auto; padding: 0 16px; }
+      a { color: #0a58ca; text-decoration: none; }
+      a:hover { text-decoration: underline; }
+      .meta { color: #666; font-size: 0.95rem; margin-bottom: 1rem; }
+      .tags { display: flex; gap: 0.5rem; list-style: none; padding: 0; margin: 0.75rem 0 1.25rem; flex-wrap: wrap; }
+      .tags li { background: #eef2ff; color: #3730a3; border-radius: 999px; padding: 0.2rem 0.6rem; font-size: 0.8rem; }
+      article h1, article h2, article h3 { line-height: 1.3; }
+      article pre { overflow-x: auto; background: #111827; color: #f9fafb; padding: 0.9rem; border-radius: 8px; }
+      article code { font-family: ui-monospace,SFMono-Regular,Menlo,monospace; }
+      article blockquote { border-left: 4px solid #d1d5db; margin: 1rem 0; padding: 0.2rem 0.9rem; color: #4b5563; }
+      hr { border: 0; border-top: 1px solid #e5e7eb; margin: 2rem 0; }
+    </style>
+  </head>
+  <body>
+    <p><a href="https://my-slops.github.io/Blog/">← Home</a></p>
+    <article>
+      <h1>The Reproducibility Note for AI-Assisted Posts</h1>
+      <p class="meta">Mar 14, 2026</p>
+      <ul class="tags"><li>ai writing</li><li>credibility</li><li>research</li><li>blogging</li><li>editorial workflow</li><li>trust</li></ul>
+      <h2>TL;DR</h2>
+<p>AI-assisted posts become more trustworthy when readers can inspect <strong>how</strong> conclusions were formed, not just what was written.</p>
+<p>Add a short <strong>Reproducibility Note</strong> to your draft or changelog:</p>
+<ol>
+<li>what question you asked,</li>
+<li>what sources were included,</li>
+<li>what model/output was used,</li>
+<li>what you verified manually,</li>
+<li>what uncertainty remains.</li>
+</ol>
+<p>This adds ~5 minutes and dramatically improves maintainability and reader trust.</p>
+<h2>Context</h2>
+<p>AI writing workflows are fast, but they are often opaque. A polished paragraph hides:</p>
+<ul>
+<li>which source claims were copied vs. synthesized,</li>
+<li>what assumptions the model made,</li>
+<li>whether contradictory evidence was considered,</li>
+<li>what was actually verified by the author.</li>
+</ul>
+<p>That opacity creates a practical problem: when a claim is challenged later, the writer must reverse-engineer their own process.</p>
+<p>In software, reproducibility is normal: we keep version history, dependency manifests, and test results. In AI-assisted writing, we usually ship conclusions without the build metadata.</p>
+<p>A lightweight reproducibility layer fixes this without turning every post into a research paper.</p>
+<h2>Key Points</h2>
+<h3>1) Reproducibility is a writing quality feature, not academic overhead</h3>
+<p>People often hear &quot;reproducibility&quot; and imagine heavy process. But for blog workflows, the goal is modest: preserve enough context so future-you (or a skeptical reader) can audit major claims.</p>
+<p>If your post includes external assertions, a reproducibility note does three things:</p>
+<ul>
+<li>lowers correction time,</li>
+<li>reduces hidden hallucination risk,</li>
+<li>separates confident claims from provisional ones.</li>
+</ul>
+<h3>2) The minimum viable note is short and structured</h3>
+<p>A useful note is not a transcript dump. It is a compact record of high-signal decisions.</p>
+<p>Use five fields:</p>
+<ul>
+<li><strong>Prompt intent</strong>: What exact question were you trying to answer?</li>
+<li><strong>Source set</strong>: Which links or datasets informed the draft?</li>
+<li><strong>Generation context</strong>: Which model/tool generated candidate text?</li>
+<li><strong>Verification actions</strong>: What did you check manually before publishing?</li>
+<li><strong>Open uncertainties</strong>: What might still be wrong or context-dependent?</li>
+</ul>
+<p>This keeps the process inspectable without cluttering the post body.</p>
+<h3>3) Reproducibility notes improve updates and corrections</h3>
+<p>When you revise a post weeks later, memory is the bottleneck. A reproducibility note turns edits from guesswork into targeted updates.</p>
+<p>Instead of redoing all research, you can:</p>
+<ul>
+<li>re-check only the fragile claims,</li>
+<li>replace stale links systematically,</li>
+<li>update assumptions explicitly in changelog entries.</li>
+</ul>
+<p>This is especially useful for fast-moving topics where facts change but core frameworks remain useful.</p>
+<h3>4) Show process proportional to claim risk</h3>
+<p>Not every post needs full evidence logging. Match process depth to risk:</p>
+<ul>
+<li><strong>Low risk</strong> (personal workflow notes): minimal note is enough.</li>
+<li><strong>Medium risk</strong> (operational recommendations): include stronger source and verification detail.</li>
+<li><strong>High risk</strong> (health/legal/financial implications): either elevate rigor significantly or avoid making definitive claims.</li>
+</ul>
+<p>This preserves speed while avoiding false confidence.</p>
+<h3>5) “Readers only care about outcomes” is incomplete</h3>
+<p>A common objection is that reproducibility details are unnecessary because most readers skim for takeaways. That is partly true, but incomplete.</p>
+<p>Outcomes matter for first-pass reading. Process matters when:</p>
+<ul>
+<li>readers try to apply advice in different contexts,</li>
+<li>experts challenge your assumptions,</li>
+<li>you need to correct or extend the post later.</li>
+</ul>
+<p>Trust compounds when outcomes and process align.</p>
+<h2>Steps / Code</h2>
+<h3>5-minute Reproducibility Note workflow</h3>
+<pre><code class="language-text">Minute 0-1  Write prompt intent in one sentence
+Minute 1-2  Paste canonical source links used in draft
+Minute 2-3  Record model/tool + date used
+Minute 3-4  List manual verification actions taken
+Minute 4-5  Note uncertainties and boundary conditions
+</code></pre>
+<h3>Reproducibility Note template</h3>
+<pre><code class="language-markdown">### Reproducibility Note
+- Prompt intent: &quot;...&quot;
+- Source set:
+  - https://...
+  - https://...
+- Generation context: Model/tool + date
+- Verification actions:
+  - Checked quote against original source
+  - Recomputed numeric example manually
+  - Confirmed policy wording on official docs
+- Open uncertainties:
+  - ...
+</code></pre>
+<h3>Example (for an AI-writing workflow post)</h3>
+<pre><code class="language-markdown">### Reproducibility Note
+- Prompt intent: &quot;Find methods to reduce overclaim risk in AI-assisted blog writing.&quot;
+- Source set:
+  - https://www.nist.gov/itl/ai-risk-management-framework
+  - https://developers.google.com/search/docs/fundamentals/creating-helpful-content
+  - https://plato.stanford.edu/entries/scientific-method/
+- Generation context: LLM-assisted outline and phrasing (2026-03-14)
+- Verification actions:
+  - Verified wording for trust/reliability guidance in source docs
+  - Replaced broad claims with scoped claims after counterexample pass
+  - Marked unsourced heuristics as opinion
+- Open uncertainties:
+  - Time-cost estimates vary by writing skill and domain complexity
+</code></pre>
+<h2>Trade-offs</h2>
+<h3>Costs</h3>
+<ol>
+<li><p><strong>Slightly slower publishing</strong><br>Adds 5–10 minutes per post.</p>
+</li>
+<li><p><strong>Visible incompleteness</strong><br>Explicit uncertainty can feel less performative than absolute confidence.</p>
+</li>
+<li><p><strong>Process discipline required</strong><br>You must record decisions while drafting, not after memory fades.</p>
+</li>
+</ol>
+<h3>Benefits</h3>
+<ol>
+<li><p><strong>Faster corrections and updates</strong><br>You can trace decisions quickly when facts change.</p>
+</li>
+<li><p><strong>Higher trust under scrutiny</strong><br>Readers can inspect your method, not just your rhetoric.</p>
+</li>
+<li><p><strong>Lower hallucination carry-over</strong><br>Verification actions are explicit instead of implied.</p>
+</li>
+<li><p><strong>Better long-term archive quality</strong><br>Older posts remain editable and interpretable.</p>
+</li>
+</ol>
+<h2>References</h2>
+<ul>
+<li>NIST, <em>AI Risk Management Framework (AI RMF 1.0)</em>: <a href="https://www.nist.gov/itl/ai-risk-management-framework">https://www.nist.gov/itl/ai-risk-management-framework</a></li>
+<li>Google Search Central, <em>Creating helpful, reliable, people-first content</em>: <a href="https://developers.google.com/search/docs/fundamentals/creating-helpful-content">https://developers.google.com/search/docs/fundamentals/creating-helpful-content</a></li>
+<li>Stanford Encyclopedia of Philosophy, <em>Scientific Method</em>: <a href="https://plato.stanford.edu/entries/scientific-method/">https://plato.stanford.edu/entries/scientific-method/</a></li>
+</ul>
+<h2>Final Take</h2>
+<p>If AI helps you draft, your edge is not just speed; it is <strong>auditable judgment</strong>.</p>
+<p>A short Reproducibility Note turns your post from &quot;sounds right&quot; to &quot;can be checked and improved.&quot; For daily publishing, that shift is one of the highest-leverage quality upgrades you can make.</p>
+<h2>Changelog</h2>
+<ul>
+<li>2026-03-14: Initial publish with reproducibility framework, 5-minute workflow, and reusable note template.</li>
+</ul>
+
+    </article>
+  </body>
+</html>

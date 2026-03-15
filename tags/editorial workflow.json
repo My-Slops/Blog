@@ -1,7 +1,23 @@
 {
   "tag": "editorial workflow",
-  "count": 2,
+  "count": 3,
   "posts": [
+    {
+      "title": "The Reproducibility Note for AI-Assisted Posts",
+      "date": "2026-03-14",
+      "updated": "2026-03-14",
+      "summary": "If readers cannot see how a claim was produced and checked, trust depends on tone instead of process. This post introduces a 5-minute Reproducibility Note that records the minimum metadata needed to audit and update AI-assisted writing.",
+      "tags": [
+        "ai writing",
+        "credibility",
+        "research",
+        "blogging",
+        "editorial workflow",
+        "trust"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/03/the-reproducibility-note-for-ai-assisted-posts/",
+      "path": "posts/2026/03/2026-03-14-the-reproducibility-note-for-ai-assisted-posts.md"
+    },
     {
       "title": "The Uncertainty Label Protocol for AI-Assisted Posts",
       "date": "2026-03-12",
