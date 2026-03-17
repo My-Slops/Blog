@@ -1,6 +1,6 @@
 {
   "tag": "workflow",
-  "count": 4,
+  "count": 5,
   "posts": [
     {
       "title": "Deadline Budgets Are the Missing Guardrail for AI Agents",
@@ -46,6 +46,21 @@
       ],
       "url": "https://my-slops.github.io/Blog/posts/2026/03/the-dry-run-idempotency-approval-ladder-for-ai-agents/",
       "path": "posts/2026/03/2026-03-23-the-dry-run-idempotency-approval-ladder-for-ai-agents.md"
+    },
+    {
+      "title": "The Evidence Freeze Before Final Polish",
+      "date": "2026-03-17",
+      "updated": "2026-03-17",
+      "summary": "AI-assisted writing often gets less reliable during the final cleanup pass. An evidence freeze keeps the approved claim set stable so clarity edits do not silently rewrite what is actually supported.",
+      "tags": [
+        "ai writing",
+        "verification",
+        "workflow",
+        "evidence",
+        "consistency"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/03/the-evidence-freeze-before-final-polish/",
+      "path": "posts/2026/03/2026-03-17-the-evidence-freeze-before-final-polish.md"
     },
     {
       "title": "The Friction Log for AI Drafts",

@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-04-27T01:53:02.303Z",
-  "count": 47,
+  "generated_at": "2026-04-27T01:53:04.946Z",
+  "count": 48,
   "posts": [
     {
       "title": "Release Override Logs Are the Missing Layer in LLM Governance",
@@ -364,6 +364,21 @@
       ],
       "url": "https://my-slops.github.io/Blog/posts/2026/03/the-claim-trace-table-for-ai-assisted-writing/",
       "path": "posts/2026/03/2026-03-18-the-claim-trace-table-for-ai-assisted-writing.md"
+    },
+    {
+      "title": "The Evidence Freeze Before Final Polish",
+      "date": "2026-03-17",
+      "updated": "2026-03-17",
+      "summary": "AI-assisted writing often gets less reliable during the final cleanup pass. An evidence freeze keeps the approved claim set stable so clarity edits do not silently rewrite what is actually supported.",
+      "tags": [
+        "ai writing",
+        "verification",
+        "workflow",
+        "evidence",
+        "consistency"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/03/the-evidence-freeze-before-final-polish/",
+      "path": "posts/2026/03/2026-03-17-the-evidence-freeze-before-final-polish.md"
     },
     {
       "title": "The Recency Check for AI-Assisted Posts",
