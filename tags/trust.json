@@ -1,7 +1,23 @@
 {
   "tag": "trust",
-  "count": 2,
+  "count": 3,
   "posts": [
+    {
+      "title": "The Recency Check for AI-Assisted Posts",
+      "date": "2026-03-16",
+      "updated": "2026-03-17",
+      "summary": "AI writing often fails quietly when outdated information is presented as current. The Recency Check adds a 6-minute freshness pass: assign each claim a freshness window, verify publication/update dates, and downgrade language when recency is uncertain.",
+      "tags": [
+        "ai writing",
+        "research",
+        "blogging",
+        "verification",
+        "editorial workflow",
+        "trust"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/03/the-recency-check-for-ai-assisted-posts/",
+      "path": "posts/2026/03/2026-03-16-the-recency-check-for-ai-assisted-posts.md"
+    },
     {
       "title": "The Reproducibility Note for AI-Assisted Posts",
       "date": "2026-03-14",

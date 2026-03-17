@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>The Recency Check for AI-Assisted Posts | Blog</title>
+    <meta name="description" content="AI writing often fails quietly when outdated information is presented as current. The Recency Check adds a 6-minute freshness pass: assign each claim a freshness window, verify publication/update dates, and downgrade language when recency is uncertain." />
+    <link rel="canonical" href="https://my-slops.github.io/Blog/posts/2026/03/the-recency-check-for-ai-assisted-posts/" />
+    <style>
+      :root { color-scheme: light dark; }
+      body { font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; line-height: 1.7; max-width: 760px; margin: 40px auto; padding: 0 16px; }
+      a { color: #0a58ca; text-decoration: none; }
+      a:hover { text-decoration: underline; }
+      .meta { color: #666; font-size: 0.95rem; margin-bottom: 1rem; }
+      .tags { display: flex; gap: 0.5rem; list-style: none; padding: 0; margin: 0.75rem 0 1.25rem; flex-wrap: wrap; }
+      .tags li { background: #eef2ff; color: #3730a3; border-radius: 999px; padding: 0.2rem 0.6rem; font-size: 0.8rem; }
+      article h1, article h2, article h3 { line-height: 1.3; }
+      article pre { overflow-x: auto; background: #111827; color: #f9fafb; padding: 0.9rem; border-radius: 8px; }
+      article code { font-family: ui-monospace,SFMono-Regular,Menlo,monospace; }
+      article blockquote { border-left: 4px solid #d1d5db; margin: 1rem 0; padding: 0.2rem 0.9rem; color: #4b5563; }
+      hr { border: 0; border-top: 1px solid #e5e7eb; margin: 2rem 0; }
+    </style>
+  </head>
+  <body>
+    <p><a href="https://my-slops.github.io/Blog/">← Home</a></p>
+    <article>
+      <h1>The Recency Check for AI-Assisted Posts</h1>
+      <p class="meta">Mar 16, 2026</p>
+      <ul class="tags"><li>ai writing</li><li>research</li><li>blogging</li><li>verification</li><li>editorial workflow</li><li>trust</li></ul>
+      <h2>TL;DR</h2>
+<p>Before publishing an AI-assisted post, run a <strong>Recency Check</strong>:</p>
+<ul>
+<li>mark each key claim with a freshness window (e.g., 30 days, 6 months, evergreen),</li>
+<li>verify source publish/update dates,</li>
+<li>replace stale numbers or explicitly time-scope them,</li>
+<li>downgrade confidence when recency is unclear.</li>
+</ul>
+<p>This catches one of the most common credibility failures: old facts written in present tense.</p>
+<h2>Context</h2>
+<p>AI systems are great at producing coherent drafts from mixed sources. But they are weak at automatically enforcing time relevance. A 2021 number and a 2026 number can be blended into the same polished paragraph.</p>
+<p>Readers rarely forgive this. Even if your reasoning is good, one stale metric can make the whole post feel unreliable.</p>
+<p>The fix is not &quot;research forever.&quot; The fix is a short, explicit recency protocol before finalizing the draft.</p>
+<h2>Key Points</h2>
+<h3>1) Treat recency as a first-class quality signal</h3>
+<p>Most writers check for correctness but forget freshness.</p>
+<p>For time-sensitive topics (tools, policy, benchmarks, pricing, market share), freshness is part of correctness. If the data is old, the claim is effectively wrong for decision-making.</p>
+<h3>2) Assign freshness windows per claim</h3>
+<p>Not all claims age at the same rate.</p>
+<p>Use a simple windowing rule:</p>
+<ul>
+<li><strong>Fast-changing claims</strong> (pricing, model releases, API limits): 7–30 days</li>
+<li><strong>Medium-changing claims</strong> (industry trends, adoption stats): 3–12 months</li>
+<li><strong>Slow-changing claims</strong> (foundational methods, principles): evergreen with periodic checks</li>
+</ul>
+<p>Without this, writers over-verify stable claims and under-verify volatile ones.</p>
+<h3>3) Check both published date and last updated date</h3>
+<p>A source can be old but maintained, or new but unsourced.</p>
+<p>Minimum check:</p>
+<ul>
+<li>publication date,</li>
+<li>last updated date (if available),</li>
+<li>whether the claim cites primary data.</li>
+</ul>
+<p>If you cannot confirm update status for a volatile claim, label uncertainty instead of asserting certainty.</p>
+<h3>4) Time-scope language reduces accidental overclaiming</h3>
+<p>Small wording shifts dramatically improve honesty:</p>
+<ul>
+<li>&quot;As of March 2026...&quot;</li>
+<li>&quot;In Q1 2026 benchmarks...&quot;</li>
+<li>&quot;At the time of writing...&quot;</li>
+</ul>
+<p>This protects the post from becoming silently wrong as the ecosystem changes.</p>
+<h3>5) Track freshness decisions in the changelog</h3>
+<p>Your future self will need to update old posts quickly.</p>
+<p>If you log which claims had tight freshness windows, refresh cycles become targeted instead of full rewrites.</p>
+<h2>Steps / Code</h2>
+<h3>6-minute Recency Check</h3>
+<pre><code class="language-text">Minute 0-1  List top 3-5 decision-critical claims
+Minute 1-2  Assign freshness windows (30d / 6m / evergreen)
+Minute 2-4  Verify publish + updated dates for sources
+Minute 4-5  Replace stale facts or time-scope wording
+Minute 5-6  Downgrade confidence where freshness is unknown
+</code></pre>
+<h3>Lightweight worksheet</h3>
+<pre><code class="language-markdown">### Recency Check
+- Claim: &quot;...&quot;
+  - Window: 30d / 6m / evergreen
+  - Source date: YYYY-MM-DD
+  - Last updated: YYYY-MM-DD / unknown
+  - Action: keep / replace / time-scope / downgrade
+
+- Claim: &quot;...&quot;
+  - Window: ...
+  - Source date: ...
+  - Action: ...
+</code></pre>
+<h3>Language calibration for freshness</h3>
+<pre><code class="language-text">Fresh + verified: &quot;current data indicates...&quot;
+Partially fresh: &quot;recently reported...&quot;
+Unclear recency: &quot;previous reports suggested...&quot;
+</code></pre>
+<h2>Trade-offs</h2>
+<h3>Costs</h3>
+<ol>
+<li><p><strong>Adds a small pre-publish step</strong><br>Usually 5–10 extra minutes.</p>
+</li>
+<li><p><strong>Can reduce headline punch</strong><br>Time-scoped language is less dramatic than timeless claims.</p>
+</li>
+<li><p><strong>Requires source discipline</strong><br>You need links with visible dates when possible.</p>
+</li>
+</ol>
+<h3>Benefits</h3>
+<ol>
+<li><p><strong>Lower stale-fact risk</strong><br>Fewer embarrassing &quot;this changed months ago&quot; misses.</p>
+</li>
+<li><p><strong>Higher reader trust</strong><br>Claims feel grounded in reality, not just fluent writing.</p>
+</li>
+<li><p><strong>Faster updates later</strong><br>Logged freshness windows make maintenance easier.</p>
+</li>
+<li><p><strong>Better editorial judgment</strong><br>You learn which claim types decay fastest in your niche.</p>
+</li>
+</ol>
+<h2>References</h2>
+<ul>
+<li>NIST, <em>AI Risk Management Framework (AI RMF 1.0)</em>: <a href="https://www.nist.gov/itl/ai-risk-management-framework">https://www.nist.gov/itl/ai-risk-management-framework</a></li>
+<li>Google Search Central, <em>Creating helpful, reliable, people-first content</em>: <a href="https://developers.google.com/search/docs/fundamentals/creating-helpful-content">https://developers.google.com/search/docs/fundamentals/creating-helpful-content</a></li>
+<li>AP Stylebook, <em>Include dates that matter for clarity and context</em> (style guidance overview): <a href="https://www.apstylebook.com/">https://www.apstylebook.com/</a></li>
+</ul>
+<h2>Final Take</h2>
+<p>In AI-assisted writing, factuality is not enough; <strong>fresh factuality</strong> is the real standard.</p>
+<p>A Recency Check is a tiny protocol with outsized impact: define claim windows, verify dates, and calibrate confidence to freshness. If you do this daily, your posts stay useful longer and age more gracefully.</p>
+<h2>Changelog</h2>
+<ul>
+<li>2026-03-17: Editorial review pass before publication; updated metadata and wording polish.</li>
+<li>2026-03-16: Initial publish with Recency Check framework, window model, and 6-minute workflow.</li>
+</ul>
+
+    </article>
+  </body>
+</html>
