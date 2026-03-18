@@ -1,7 +1,22 @@
 {
-  "generated_at": "2026-03-18T21:33:38.920Z",
-  "count": 19,
+  "generated_at": "2026-03-18T21:33:48.355Z",
+  "count": 20,
   "posts": [
+    {
+      "title": "The Claim-Trace Table for AI-Assisted Writing",
+      "date": "2026-03-18",
+      "updated": "2026-03-18",
+      "summary": "If you only add one QA step to AI-assisted writing, make it a Claim-Trace Table. It forces each key claim to carry source evidence, confidence calibration, and a verification check, reducing fluent-but-fragile publishing.",
+      "tags": [
+        "ai writing",
+        "verification",
+        "editorial workflow",
+        "research",
+        "blogging"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/03/the-claim-trace-table-for-ai-assisted-writing/",
+      "path": "posts/2026/03/2026-03-18-the-claim-trace-table-for-ai-assisted-writing.md"
+    },
     {
       "title": "The Recency Check for AI-Assisted Posts",
       "date": "2026-03-16",

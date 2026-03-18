@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>The Claim-Trace Table for AI-Assisted Writing | Blog</title>
+    <meta name="description" content="If you only add one QA step to AI-assisted writing, make it a Claim-Trace Table. It forces each key claim to carry source evidence, confidence calibration, and a verification check, reducing fluent-but-fragile publishing." />
+    <link rel="canonical" href="https://my-slops.github.io/Blog/posts/2026/03/the-claim-trace-table-for-ai-assisted-writing/" />
+    <style>
+      :root { color-scheme: light dark; }
+      body { font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; line-height: 1.7; max-width: 760px; margin: 40px auto; padding: 0 16px; }
+      a { color: #0a58ca; text-decoration: none; }
+      a:hover { text-decoration: underline; }
+      .meta { color: #666; font-size: 0.95rem; margin-bottom: 1rem; }
+      .tags { display: flex; gap: 0.5rem; list-style: none; padding: 0; margin: 0.75rem 0 1.25rem; flex-wrap: wrap; }
+      .tags li { background: #eef2ff; color: #3730a3; border-radius: 999px; padding: 0.2rem 0.6rem; font-size: 0.8rem; }
+      article h1, article h2, article h3 { line-height: 1.3; }
+      article pre { overflow-x: auto; background: #111827; color: #f9fafb; padding: 0.9rem; border-radius: 8px; }
+      article code { font-family: ui-monospace,SFMono-Regular,Menlo,monospace; }
+      article blockquote { border-left: 4px solid #d1d5db; margin: 1rem 0; padding: 0.2rem 0.9rem; color: #4b5563; }
+      hr { border: 0; border-top: 1px solid #e5e7eb; margin: 2rem 0; }
+    </style>
+  </head>
+  <body>
+    <p><a href="https://my-slops.github.io/Blog/">← Home</a></p>
+    <article>
+      <h1>The Claim-Trace Table for AI-Assisted Writing</h1>
+      <p class="meta">Mar 18, 2026</p>
+      <ul class="tags"><li>ai writing</li><li>verification</li><li>editorial workflow</li><li>research</li><li>blogging</li></ul>
+      <h2>TL;DR</h2>
+<p>Before publishing an AI-assisted post, create a <strong>Claim-Trace Table</strong> with 3–7 key claims. For each claim, record:</p>
+<ol>
+<li>the exact source URL,</li>
+<li>the evidence tier (primary vs secondary),</li>
+<li>confidence wording (high/medium/low), and</li>
+<li>verification state (checked/unresolved).</li>
+</ol>
+<p>This adds about 10 minutes and catches the most expensive failure: confident prose with weak or unverified evidence.</p>
+<h2>Context</h2>
+<p>The core risk in AI-assisted writing is not always obvious hallucinations. It is often <strong>confidence mismatch</strong>: text sounds definitive while the evidence is thin.</p>
+<p>That matters for both trust and distribution:</p>
+<ul>
+<li>NIST’s AI RMF emphasizes trustworthy AI practices and risk management discipline across design, development, and use.</li>
+<li>Google’s people-first guidance explicitly asks for clear sourcing and substantial original value.</li>
+<li>Hallucination research shows that language models can produce plausible but fabricated references, which means citation-looking text is not enough.</li>
+</ul>
+<p>So the practical question is: what is the smallest repeatable control that improves reliability without slowing daily publishing to a crawl?</p>
+<p>My answer: the Claim-Trace Table.</p>
+<h2>Key Points</h2>
+<h3>1) Treat claims (not paragraphs) as the unit of verification</h3>
+<p>Most reviews are paragraph-level (“this reads fine”). But factual risk lives at the claim level.</p>
+<p>A claim-level pass forces precision:</p>
+<ul>
+<li>What exactly is being asserted?</li>
+<li>What source supports it?</li>
+<li>How strong is that support?</li>
+</ul>
+<p>If a claim cannot be traced, it should be downgraded or removed.</p>
+<h3>2) Separate evidence strength from writing confidence</h3>
+<p>Use a simple mapping:</p>
+<ul>
+<li><strong>Tier A (primary/official):</strong> standards, official docs, first-party data.</li>
+<li><strong>Tier B (credible secondary):</strong> expert analyses summarizing primary material.</li>
+<li><strong>Tier C (anecdotal/illustrative):</strong> useful examples, weak for conclusions.</li>
+</ul>
+<p>Then align wording:</p>
+<ul>
+<li>Tier A → stronger phrasing is acceptable.</li>
+<li>Tier B → scoped wording (“in many cases,” “suggests”).</li>
+<li>Tier C → tentative framing (“anecdotally,” “hypothesis”).</li>
+</ul>
+<p>This prevents “polished overclaiming.”</p>
+<h3>3) Add a verification state column</h3>
+<p>For each claim, set one status:</p>
+<ul>
+<li><strong>Checked</strong>: source opened and claim matches source text.</li>
+<li><strong>Partially checked</strong>: source supports part of claim; scope narrowed.</li>
+<li><strong>Unresolved</strong>: source missing/ambiguous/outdated.</li>
+</ul>
+<p>Unresolved claims do not ship as hard conclusions.</p>
+<h3>4) Use one contradiction probe on top claims</h3>
+<p>For your top 1–2 claims, ask: “What would make this claim false or narrower?”</p>
+<p>This catches common misses:</p>
+<ul>
+<li>outdated documentation,</li>
+<li>context-bound findings presented as universal,</li>
+<li>source-category confusion (opinion framed as fact).</li>
+</ul>
+<h3>5) Keep the table in the post repo (not in your head)</h3>
+<p>The table creates an audit trail for future edits:</p>
+<ul>
+<li>faster corrections,</li>
+<li>cleaner changelogs,</li>
+<li>less rework when updating old posts.</li>
+</ul>
+<h2>Steps / Code</h2>
+<h3>10-minute Claim-Trace pass</h3>
+<pre><code class="language-text">Minute 0-2: List 3-7 key claims from your draft
+Minute 2-5: Attach one source URL per claim (minimum)
+Minute 5-7: Label evidence tier (A/B/C) + confidence wording
+Minute 7-9: Mark verification state (checked/partial/unresolved)
+Minute 9-10: Rewrite or remove unresolved high-impact claims
+</code></pre>
+<h3>Copy/paste template</h3>
+<pre><code class="language-markdown">| Claim | Source URL | Evidence Tier | Confidence | Verification | Rewrite Note |
+|---|---|---|---|---|---|
+| &quot;...&quot; | https://... | A | High | Checked | - |
+| &quot;...&quot; | https://... | B | Medium | Partial | narrowed to X context |
+| &quot;...&quot; | https://... | C | Low | Unresolved | reframed as hypothesis |
+</code></pre>
+<h3>Ship rule</h3>
+<pre><code class="language-text">If a major claim is unresolved, either:
+1) downgrade wording + scope, or
+2) cut it.
+Never publish unresolved claims as settled fact.
+</code></pre>
+<h2>Trade-offs</h2>
+<h3>Costs</h3>
+<ol>
+<li><strong>Adds process overhead</strong> (~10 minutes).</li>
+<li><strong>May reduce rhetorical punch</strong> because certainty is calibrated.</li>
+<li><strong>Forces fewer but stronger claims</strong> (which can feel less “comprehensive”).</li>
+</ol>
+<h3>Benefits</h3>
+<ol>
+<li><strong>Lower hallucination leakage</strong> into published posts.</li>
+<li><strong>Faster QA</strong> because weak points are explicit.</li>
+<li><strong>Higher reader trust</strong> via consistent confidence calibration.</li>
+<li><strong>Better maintainability</strong> when revising old posts.</li>
+</ol>
+<h2>References</h2>
+<ul>
+<li>NIST, <em>AI Risk Management Framework (AI RMF 1.0)</em>: <a href="https://www.nist.gov/itl/ai-risk-management-framework">https://www.nist.gov/itl/ai-risk-management-framework</a></li>
+<li>Google Search Central, <em>Creating helpful, reliable, people-first content</em>: <a href="https://developers.google.com/search/docs/fundamentals/creating-helpful-content">https://developers.google.com/search/docs/fundamentals/creating-helpful-content</a></li>
+<li>Dziri et al., <em>Do Language Models Know When They’re Hallucinating References?</em> (arXiv:2305.18248): <a href="https://arxiv.org/abs/2305.18248">https://arxiv.org/abs/2305.18248</a></li>
+</ul>
+<h2>Final Take</h2>
+<p>If you want one durable improvement to AI-assisted writing, make claims traceable.</p>
+<p>A Claim-Trace Table is small enough for daily use and strong enough to prevent the most common reliability failure: confident writing that outruns evidence.</p>
+<h2>Changelog</h2>
+<ul>
+<li>2026-03-18: Initial publish with Claim-Trace Table method, verification states, and a 10-minute workflow.</li>
+</ul>
+
+    </article>
+  </body>
+</html>
