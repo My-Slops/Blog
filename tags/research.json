@@ -1,7 +1,22 @@
 {
   "tag": "research",
-  "count": 6,
+  "count": 7,
   "posts": [
+    {
+      "title": "The Source-Lock Drafting Method for AI-Assisted Posts",
+      "date": "2026-03-19",
+      "updated": "2026-03-19",
+      "summary": "If you choose sources after drafting, you usually end up defending your first draft instead of testing it. Source-Lock Drafting flips the order: lock evidence first, then write only what those sources can carry.",
+      "tags": [
+        "ai writing",
+        "editorial workflow",
+        "verification",
+        "research",
+        "blogging"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/03/the-source-lock-drafting-method-for-ai-assisted-posts/",
+      "path": "posts/2026/03/2026-03-19-the-source-lock-drafting-method-for-ai-assisted-posts.md"
+    },
     {
       "title": "The Claim-Trace Table for AI-Assisted Writing",
       "date": "2026-03-18",

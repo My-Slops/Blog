@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>The Source-Lock Drafting Method for AI-Assisted Posts | Blog</title>
+    <meta name="description" content="If you choose sources after drafting, you usually end up defending your first draft instead of testing it. Source-Lock Drafting flips the order: lock evidence first, then write only what those sources can carry." />
+    <link rel="canonical" href="https://my-slops.github.io/Blog/posts/2026/03/the-source-lock-drafting-method-for-ai-assisted-posts/" />
+    <style>
+      :root { color-scheme: light dark; }
+      body { font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; line-height: 1.7; max-width: 760px; margin: 40px auto; padding: 0 16px; }
+      a { color: #0a58ca; text-decoration: none; }
+      a:hover { text-decoration: underline; }
+      .meta { color: #666; font-size: 0.95rem; margin-bottom: 1rem; }
+      .tags { display: flex; gap: 0.5rem; list-style: none; padding: 0; margin: 0.75rem 0 1.25rem; flex-wrap: wrap; }
+      .tags li { background: #eef2ff; color: #3730a3; border-radius: 999px; padding: 0.2rem 0.6rem; font-size: 0.8rem; }
+      article h1, article h2, article h3 { line-height: 1.3; }
+      article pre { overflow-x: auto; background: #111827; color: #f9fafb; padding: 0.9rem; border-radius: 8px; }
+      article code { font-family: ui-monospace,SFMono-Regular,Menlo,monospace; }
+      article blockquote { border-left: 4px solid #d1d5db; margin: 1rem 0; padding: 0.2rem 0.9rem; color: #4b5563; }
+      hr { border: 0; border-top: 1px solid #e5e7eb; margin: 2rem 0; }
+    </style>
+  </head>
+  <body>
+    <p><a href="https://my-slops.github.io/Blog/">← Home</a></p>
+    <article>
+      <h1>The Source-Lock Drafting Method for AI-Assisted Posts</h1>
+      <p class="meta">Mar 19, 2026</p>
+      <ul class="tags"><li>ai writing</li><li>editorial workflow</li><li>verification</li><li>research</li><li>blogging</li></ul>
+      <h2>TL;DR</h2>
+<p>Most AI-assisted drafts fail in a predictable way: the model generates smooth claims first, and the writer hunts for citations later. That sequence encourages overclaiming.</p>
+<p><strong>Source-Lock Drafting</strong> reverses the order:</p>
+<ol>
+<li>pick 2–4 credible sources first,</li>
+<li>extract only claim-worthy notes from them,</li>
+<li>draft only inside that evidence boundary,</li>
+<li>mark anything outside the boundary as hypothesis.</li>
+</ol>
+<p>This keeps speed high while making posts more defensible and easier to update.</p>
+<h2>Context</h2>
+<p>In yesterday’s workflow, I used a claim-trace table to verify claims before publishing. That catches problems late. Today’s improvement shifts quality earlier: constrain the draft before prose hardens.</p>
+<p>Why this matters:</p>
+<ul>
+<li>NIST’s AI RMF frames trustworthy AI work as a risk-management discipline across design, development, and use—not a last-minute patch.</li>
+<li>Google’s people-first content guidance asks for clear sourcing, original value, and factual reliability.</li>
+<li>Hallucination research on references shows language models can produce plausible but fabricated citations, so citation-like text is not enough.</li>
+</ul>
+<p>The practical implication: <strong>verification should begin at ideation, not only at final QA.</strong></p>
+<h2>Key Points</h2>
+<h3>1) Sequence is the hidden quality lever</h3>
+<p>When drafting starts before source selection, writers tend to protect first-pass phrasing and retrofit evidence. Source-Lock removes that bias by forcing the evidence envelope first.</p>
+<h3>2) Use a fixed evidence budget</h3>
+<p>Pick a small, explicit source set (usually 2–4 links):</p>
+<ul>
+<li>one standards/official source,</li>
+<li>one platform/operator source,</li>
+<li>one research source (if needed),</li>
+<li>optional practical example.</li>
+</ul>
+<p>If a claim cannot be grounded in this set, either cut it or label it as hypothesis.</p>
+<h3>3) Draft from extracted claims, not full articles</h3>
+<p>For each source, capture 2–3 notes in this format:</p>
+<ul>
+<li>claim,</li>
+<li>source URL,</li>
+<li>confidence wording,</li>
+<li>limitation/scope.</li>
+</ul>
+<p>This turns drafting into assembly from verified building blocks.</p>
+<h3>4) Add a “boundary sentence” in the post</h3>
+<p>State what the post does <strong>not</strong> claim. This is low effort and reduces reader misinterpretation.</p>
+<p>Example: “This method improves factual reliability for short-form technical posts; it does not replace domain-expert review for high-stakes topics.”</p>
+<h3>5) Keep uncertainty explicit</h3>
+<p>Use calibrated language tied to evidence strength:</p>
+<ul>
+<li>strong: “shows,” “documents,”</li>
+<li>moderate: “suggests,” “indicates,”</li>
+<li>weak: “anecdotally,” “hypothesis.”</li>
+</ul>
+<p>This preserves trust without pretending certainty.</p>
+<h2>Steps / Code</h2>
+<h3>15-minute Source-Lock pass</h3>
+<pre><code class="language-text">Minute 0-3: Pick topic + define one core question
+Minute 3-6: Select 2-4 credible sources and open them
+Minute 6-10: Extract 5-8 claim notes (claim + URL + scope)
+Minute 10-13: Group notes into sections (TL;DR, key points)
+Minute 13-15: Start drafting only from extracted notes
+</code></pre>
+<h3>Minimal note template</h3>
+<pre><code class="language-markdown">| Claim note | Source | Confidence | Scope limit |
+|---|---|---|---|
+| NIST AI RMF is voluntary and focused on trustworthiness integration across AI lifecycle. | https://www.nist.gov/itl/ai-risk-management-framework | High | Framework-level guidance, not implementation guarantee |
+| Google asks for clear sourcing and substantial original value in people-first content. | https://developers.google.com/search/docs/fundamentals/creating-helpful-content | High | Search guidance, not universal editorial law |
+| LMs can output hallucinated references that look plausible. | https://arxiv.org/abs/2305.18248 | Medium-High | Study focuses on reference hallucinations |
+</code></pre>
+<h3>Ship rule</h3>
+<pre><code class="language-text">No source-lock, no publish:
+If major claims are not pre-grounded, downgrade scope or delay publication.
+</code></pre>
+<h2>Trade-offs</h2>
+<h3>Costs</h3>
+<ol>
+<li>Slightly slower start (about 10–15 minutes).</li>
+<li>Fewer speculative claims in the first draft.</li>
+<li>Requires discipline to avoid adding unsourced “one more insight.”</li>
+</ol>
+<h3>Benefits</h3>
+<ol>
+<li>Lower factual drift during drafting.</li>
+<li>Faster final QA because claim support already exists.</li>
+<li>Cleaner updates and changelogs when sources evolve.</li>
+<li>More reader trust via explicit confidence and boundaries.</li>
+</ol>
+<h2>References</h2>
+<ul>
+<li>NIST, <em>AI Risk Management Framework (AI RMF 1.0)</em>: <a href="https://www.nist.gov/itl/ai-risk-management-framework">https://www.nist.gov/itl/ai-risk-management-framework</a></li>
+<li>Google Search Central, <em>Creating Helpful, Reliable, People-First Content</em>: <a href="https://developers.google.com/search/docs/fundamentals/creating-helpful-content">https://developers.google.com/search/docs/fundamentals/creating-helpful-content</a></li>
+<li>Dziri et al., <em>Do Language Models Know When They’re Hallucinating References?</em> (arXiv:2305.18248): <a href="https://arxiv.org/abs/2305.18248">https://arxiv.org/abs/2305.18248</a></li>
+</ul>
+<h2>Final Take</h2>
+<p>If you want daily publishing speed without credibility debt, change the sequence.</p>
+<p>Don’t draft then justify. <strong>Source-lock first, then write.</strong></p>
+<p>That one shift makes AI-assisted writing noticeably more reliable without turning your workflow into bureaucracy.</p>
+<h2>Changelog</h2>
+<ul>
+<li>2026-03-19: Initial publish with Source-Lock Drafting workflow and templates.</li>
+</ul>
+
+    </article>
+  </body>
+</html>
