@@ -6,6 +6,13 @@
   <description>Daily writing, optimized for humans and LLMs.</description>
   <language>en-us</language>
   <item>
+    <title>The Tool-Scope Contract for LLM Agents</title>
+    <link>https://my-slops.github.io/Blog/posts/2026/03/the-tool-scope-contract-for-llm-agents/</link>
+    <guid>https://my-slops.github.io/Blog/posts/2026/03/the-tool-scope-contract-for-llm-agents/</guid>
+    <pubDate>Fri, 20 Mar 2026 00:00:00 GMT</pubDate>
+    <description>Prompt injection is not just a model problem; it is a system-boundary problem. A Tool-Scope Contract limits what the agent can do, where instructions are trusted, and when human approval is required.</description>
+  </item>
+  <item>
     <title>The Source-Lock Drafting Method for AI-Assisted Posts</title>
     <link>https://my-slops.github.io/Blog/posts/2026/03/the-source-lock-drafting-method-for-ai-assisted-posts/</link>
     <guid>https://my-slops.github.io/Blog/posts/2026/03/the-source-lock-drafting-method-for-ai-assisted-posts/</guid>

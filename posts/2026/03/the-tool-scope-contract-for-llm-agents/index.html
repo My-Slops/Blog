@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>The Tool-Scope Contract for LLM Agents | Blog</title>
+    <meta name="description" content="Prompt injection is not just a model problem; it is a system-boundary problem. A Tool-Scope Contract limits what the agent can do, where instructions are trusted, and when human approval is required." />
+    <link rel="canonical" href="https://my-slops.github.io/Blog/posts/2026/03/the-tool-scope-contract-for-llm-agents/" />
+    <style>
+      :root { color-scheme: light dark; }
+      body { font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; line-height: 1.7; max-width: 760px; margin: 40px auto; padding: 0 16px; }
+      a { color: #0a58ca; text-decoration: none; }
+      a:hover { text-decoration: underline; }
+      .meta { color: #666; font-size: 0.95rem; margin-bottom: 1rem; }
+      .tags { display: flex; gap: 0.5rem; list-style: none; padding: 0; margin: 0.75rem 0 1.25rem; flex-wrap: wrap; }
+      .tags li { background: #eef2ff; color: #3730a3; border-radius: 999px; padding: 0.2rem 0.6rem; font-size: 0.8rem; }
+      article h1, article h2, article h3 { line-height: 1.3; }
+      article pre { overflow-x: auto; background: #111827; color: #f9fafb; padding: 0.9rem; border-radius: 8px; }
+      article code { font-family: ui-monospace,SFMono-Regular,Menlo,monospace; }
+      article blockquote { border-left: 4px solid #d1d5db; margin: 1rem 0; padding: 0.2rem 0.9rem; color: #4b5563; }
+      hr { border: 0; border-top: 1px solid #e5e7eb; margin: 2rem 0; }
+    </style>
+  </head>
+  <body>
+    <p><a href="https://my-slops.github.io/Blog/">← Home</a></p>
+    <article>
+      <h1>The Tool-Scope Contract for LLM Agents</h1>
+      <p class="meta">Mar 20, 2026</p>
+      <ul class="tags"><li>ai agents</li><li>security</li><li>prompt injection</li><li>engineering</li><li>editorial workflow</li></ul>
+      <h2>TL;DR</h2>
+<p>If your LLM agent can call tools, the key security question is not “can we block all prompt injection?” but “what is the worst thing an injected prompt can make the system do?”</p>
+<p>A <strong>Tool-Scope Contract</strong> is a lightweight control layer with three rules:</p>
+<ol>
+<li><strong>Default deny</strong>: no tool call unless explicitly allowed by task policy.</li>
+<li><strong>Least privilege inputs/outputs</strong>: tools get only the minimum fields needed.</li>
+<li><strong>Approval gates for high-impact actions</strong>: destructive/external actions require human confirmation.</li>
+</ol>
+<p>This does not eliminate prompt injection, but it sharply reduces blast radius.</p>
+<h2>Context</h2>
+<p>Yesterday’s Source-Lock method focused on writing reliability. Today’s layer is system reliability: what happens when models are connected to external data and real actions.</p>
+<p>Current guidance from security and risk standards converges on the same theme:</p>
+<ul>
+<li>OWASP lists prompt injection as a top LLM risk, including direct and indirect attacks and unauthorized tool usage.</li>
+<li>Microsoft’s Prompt Shields documentation treats hidden instructions in third-party content as first-class attack paths and highlights interception points.</li>
+<li>NIST AI RMF and the Generative AI Profile emphasize operational risk management rather than one-shot “silver bullet” defenses.</li>
+</ul>
+<p>The practical takeaway: treat agent behavior as a <strong>policy-enforced workflow</strong>, not pure model judgment.</p>
+<h2>Key Points</h2>
+<h3>1) Prompt injection is a boundary failure, not only a prompt failure</h3>
+<p>If instructions and untrusted content are mixed, the model may treat hostile text as authority. Even strong prompting cannot guarantee perfect separation.</p>
+<p>So the control plane must live outside prose prompts:</p>
+<ul>
+<li>explicit trust zones (system policy vs user input vs retrieved content),</li>
+<li>explicit tool authorization,</li>
+<li>explicit execution constraints.</li>
+</ul>
+<h3>2) Define a Tool-Scope Contract per task type</h3>
+<p>Each task should have a short policy object:</p>
+<ul>
+<li>allowed tools,</li>
+<li>allowed parameter schemas,</li>
+<li>disallowed side effects,</li>
+<li>escalation rules.</li>
+</ul>
+<p>Example:</p>
+<ul>
+<li>“Summarize docs” task may read URLs and local files,</li>
+<li>but cannot send messages, mutate repositories, or run shell commands.</li>
+</ul>
+<p>If a task requests out-of-scope behavior, fail closed and ask for approval.</p>
+<h3>3) Add approval gates where reversibility is low</h3>
+<p>Use human confirmation for actions that are:</p>
+<ul>
+<li>destructive (delete, overwrite, force-push),</li>
+<li>external (email/message/send money),</li>
+<li>privileged (secrets, production changes).</li>
+</ul>
+<p>This gives you a reliable stop point when model confidence and real-world risk diverge.</p>
+<h3>4) Validate tool arguments, not just model intent</h3>
+<p>Even if intent looks benign, argument payloads can be harmful.</p>
+<p>Minimum checks:</p>
+<ul>
+<li>strict schema validation,</li>
+<li>path/domain allowlists,</li>
+<li>length and character constraints,</li>
+<li>explicit blocking of ambiguous wildcards.</li>
+</ul>
+<p>This blocks many accidental and adversarial misuse paths before execution.</p>
+<h3>5) Log policy decisions as first-class telemetry</h3>
+<p>Store:</p>
+<ul>
+<li>requested action,</li>
+<li>policy decision (allow/deny/escalate),</li>
+<li>reason code,</li>
+<li>actor (model/human).</li>
+</ul>
+<p>These logs make postmortems and policy iteration far easier than inspecting model text alone.</p>
+<h2>Steps / Code</h2>
+<h3>12-minute Tool-Scope Contract pass</h3>
+<pre><code class="language-text">Minute 0-2: List all tools an agent can call for this workflow
+Minute 2-4: Mark each tool as read-only, write, external, or destructive
+Minute 4-6: Set default-deny + explicit allowlist by task type
+Minute 6-8: Add schema/path/domain validation to allowed tools
+Minute 8-10: Add human approval for high-impact categories
+Minute 10-12: Add decision logging (allow/deny/escalate + reason)
+</code></pre>
+<h3>Minimal policy sketch</h3>
+<pre><code class="language-json">{
+  &quot;task&quot;: &quot;summarize_external_articles&quot;,
+  &quot;default&quot;: &quot;deny&quot;,
+  &quot;allow&quot;: {
+    &quot;web_fetch&quot;: { &quot;domains&quot;: [&quot;docs.example.com&quot;, &quot;nist.gov&quot;, &quot;owasp.org&quot;] },
+    &quot;read&quot;: { &quot;paths&quot;: [&quot;/workspace/notes/&quot;] }
+  },
+  &quot;escalate&quot;: [&quot;message.send&quot;, &quot;exec&quot;, &quot;delete&quot;],
+  &quot;deny&quot;: [&quot;secrets.read&quot;, &quot;repo.force_push&quot;]
+}
+</code></pre>
+<h3>Ship rule</h3>
+<pre><code class="language-text">If an action is out of scope and no human approval exists:
+DENY, log reason, and return a safe alternative.
+</code></pre>
+<h2>Trade-offs</h2>
+<h3>Costs</h3>
+<ol>
+<li>Extra engineering overhead to define and maintain policies.</li>
+<li>More user friction on high-impact actions due to approval prompts.</li>
+<li>Initial false denies while policy coverage matures.</li>
+</ol>
+<h3>Benefits</h3>
+<ol>
+<li>Lower blast radius from direct/indirect prompt injection.</li>
+<li>Better operational auditability and incident response.</li>
+<li>Clearer team ownership of risk decisions.</li>
+<li>More predictable agent behavior in production.</li>
+</ol>
+<h2>References</h2>
+<ul>
+<li>OWASP GenAI, <em>LLM01:2025 Prompt Injection</em>: <a href="https://genai.owasp.org/llmrisk/llm01-prompt-injection/">https://genai.owasp.org/llmrisk/llm01-prompt-injection/</a></li>
+<li>OWASP Cheat Sheet, <em>LLM Prompt Injection Prevention</em>: <a href="https://cheatsheetseries.owasp.org/cheatsheets/LLM_Prompt_Injection_Prevention_Cheat_Sheet.html">https://cheatsheetseries.owasp.org/cheatsheets/LLM_Prompt_Injection_Prevention_Cheat_Sheet.html</a></li>
+<li>Microsoft Learn, <em>Prompt Shields in Microsoft Foundry</em>: <a href="https://learn.microsoft.com/en-us/azure/foundry/openai/concepts/content-filter-prompt-shields">https://learn.microsoft.com/en-us/azure/foundry/openai/concepts/content-filter-prompt-shields</a></li>
+<li>NIST, <em>AI Risk Management Framework (AI RMF 1.0)</em>: <a href="https://doi.org/10.6028/NIST.AI.100-1">https://doi.org/10.6028/NIST.AI.100-1</a></li>
+<li>NIST, <em>AI RMF: Generative AI Profile</em>: <a href="https://doi.org/10.6028/NIST.AI.600-1">https://doi.org/10.6028/NIST.AI.600-1</a></li>
+</ul>
+<h2>Final Take</h2>
+<p>You probably won’t “solve” prompt injection at the model layer alone.</p>
+<p>But you can make it much less dangerous by treating tool use as a contract: default deny, minimal scope, and explicit human gates for high-impact moves.</p>
+<p>That is a practical security posture you can apply today without waiting for perfect models.</p>
+<h2>Changelog</h2>
+<ul>
+<li>2026-03-20: Initial publish with Tool-Scope Contract pattern for tool-using LLM agents.</li>
+</ul>
+
+    </article>
+  </body>
+</html>

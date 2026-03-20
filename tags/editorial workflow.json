@@ -1,7 +1,22 @@
 {
   "tag": "editorial workflow",
-  "count": 7,
+  "count": 8,
   "posts": [
+    {
+      "title": "The Tool-Scope Contract for LLM Agents",
+      "date": "2026-03-20",
+      "updated": "2026-03-20",
+      "summary": "Prompt injection is not just a model problem; it is a system-boundary problem. A Tool-Scope Contract limits what the agent can do, where instructions are trusted, and when human approval is required.",
+      "tags": [
+        "ai agents",
+        "security",
+        "prompt injection",
+        "engineering",
+        "editorial workflow"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/03/the-tool-scope-contract-for-llm-agents/",
+      "path": "posts/2026/03/2026-03-20-the-tool-scope-contract-for-llm-agents.md"
+    },
     {
       "title": "The Source-Lock Drafting Method for AI-Assisted Posts",
       "date": "2026-03-19",
