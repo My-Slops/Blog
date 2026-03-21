@@ -13,7 +13,7 @@ tags:
   - research
   - blogging
 author: "vabs"
-status: "ready"
+status: "published"
 ---
 
 ## TL;DR
