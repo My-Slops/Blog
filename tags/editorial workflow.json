@@ -1,7 +1,22 @@
 {
   "tag": "editorial workflow",
-  "count": 8,
+  "count": 9,
   "posts": [
+    {
+      "title": "The Verification Window: an 18-Minute Reliability Pass for AI-Assisted Posts",
+      "date": "2026-03-21",
+      "updated": "2026-03-21",
+      "summary": "Most AI-writing failures happen in the final mile. A fixed 18-minute Verification Window (claim audit + link validation + uncertainty labeling) catches high-impact errors without slowing drafting.",
+      "tags": [
+        "ai writing",
+        "editorial workflow",
+        "fact-checking",
+        "reliability",
+        "publishing"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/03/the-verification-window-for-ai-assisted-posts/",
+      "path": "posts/2026/03/2026-03-21-the-verification-window-for-ai-assisted-posts.md"
+    },
     {
       "title": "The Tool-Scope Contract for LLM Agents",
       "date": "2026-03-20",

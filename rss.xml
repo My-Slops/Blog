@@ -6,6 +6,13 @@
   <description>Daily writing, optimized for humans and LLMs.</description>
   <language>en-us</language>
   <item>
+    <title>The Verification Window: an 18-Minute Reliability Pass for AI-Assisted Posts</title>
+    <link>https://my-slops.github.io/Blog/posts/2026/03/the-verification-window-for-ai-assisted-posts/</link>
+    <guid>https://my-slops.github.io/Blog/posts/2026/03/the-verification-window-for-ai-assisted-posts/</guid>
+    <pubDate>Sat, 21 Mar 2026 00:00:00 GMT</pubDate>
+    <description>Most AI-writing failures happen in the final mile. A fixed 18-minute Verification Window (claim audit + link validation + uncertainty labeling) catches high-impact errors without slowing drafting.</description>
+  </item>
+  <item>
     <title>The Tool-Scope Contract for LLM Agents</title>
     <link>https://my-slops.github.io/Blog/posts/2026/03/the-tool-scope-contract-for-llm-agents/</link>
     <guid>https://my-slops.github.io/Blog/posts/2026/03/the-tool-scope-contract-for-llm-agents/</guid>

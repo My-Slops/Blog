@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>The Verification Window: an 18-Minute Reliability Pass for AI-Assisted Posts | Blog</title>
+    <meta name="description" content="Most AI-writing failures happen in the final mile. A fixed 18-minute Verification Window (claim audit + link validation + uncertainty labeling) catches high-impact errors without slowing drafting." />
+    <link rel="canonical" href="https://my-slops.github.io/Blog/posts/2026/03/the-verification-window-for-ai-assisted-posts/" />
+    <style>
+      :root { color-scheme: light dark; }
+      body { font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; line-height: 1.7; max-width: 760px; margin: 40px auto; padding: 0 16px; }
+      a { color: #0a58ca; text-decoration: none; }
+      a:hover { text-decoration: underline; }
+      .meta { color: #666; font-size: 0.95rem; margin-bottom: 1rem; }
+      .tags { display: flex; gap: 0.5rem; list-style: none; padding: 0; margin: 0.75rem 0 1.25rem; flex-wrap: wrap; }
+      .tags li { background: #eef2ff; color: #3730a3; border-radius: 999px; padding: 0.2rem 0.6rem; font-size: 0.8rem; }
+      article h1, article h2, article h3 { line-height: 1.3; }
+      article pre { overflow-x: auto; background: #111827; color: #f9fafb; padding: 0.9rem; border-radius: 8px; }
+      article code { font-family: ui-monospace,SFMono-Regular,Menlo,monospace; }
+      article blockquote { border-left: 4px solid #d1d5db; margin: 1rem 0; padding: 0.2rem 0.9rem; color: #4b5563; }
+      hr { border: 0; border-top: 1px solid #e5e7eb; margin: 2rem 0; }
+    </style>
+  </head>
+  <body>
+    <p><a href="https://my-slops.github.io/Blog/">← Home</a></p>
+    <article>
+      <h1>The Verification Window: an 18-Minute Reliability Pass for AI-Assisted Posts</h1>
+      <p class="meta">Mar 21, 2026</p>
+      <ul class="tags"><li>ai writing</li><li>editorial workflow</li><li>fact-checking</li><li>reliability</li><li>publishing</li></ul>
+      <h2>TL;DR</h2>
+<p>If you use AI to draft posts, the highest-risk errors often survive until the end: wrong dates, broken links, overstated claims, and references that look real but don’t support the sentence.</p>
+<p>A <strong>Verification Window</strong> is a fixed 15–20 minute block immediately before publish where you only do three things:</p>
+<ol>
+<li>verify high-impact claims,</li>
+<li>verify every cited link opens and supports the text,</li>
+<li>label uncertainty explicitly.</li>
+</ol>
+<p>This creates a reliable “last line of defense” without turning the full writing process into slow, constant checking.</p>
+<h2>Context</h2>
+<p>Most AI-assisted writing systems already include good drafting patterns (outline first, source lock, claim tables). But teams still ship avoidable errors because verification happens in fragments: a quick check here, a later edit there, and a rushed publish at the end.</p>
+<p>Operationally, that pattern fails for two reasons:</p>
+<ul>
+<li><strong>attention drift</strong>: by publish time, the writer no longer remembers which claims were high-risk;</li>
+<li><strong>cost pressure</strong>: when deadlines are close, verification is the first thing cut.</li>
+</ul>
+<p>A fixed Verification Window solves both: it is mandatory, short, and scoped to the error classes that cause most credibility damage.</p>
+<h2>Key Points</h2>
+<h3>1) Verification should be a phase, not a background intention</h3>
+<p>“Check as you go” sounds good but is unreliable under time pressure.</p>
+<p>A hard pre-publish phase gives you:</p>
+<ul>
+<li>clear start/finish boundary,</li>
+<li>predictable effort,</li>
+<li>better compliance in daily workflows.</li>
+</ul>
+<h3>2) Prioritize by impact, not by sentence order</h3>
+<p>Check claims in this order:</p>
+<ol>
+<li>claims that could materially mislead decisions,</li>
+<li>quantified statements (percentages, benchmarks, timelines),</li>
+<li>citations used as authority anchors.</li>
+</ol>
+<p>Do not spend the window polishing wording. This is a risk pass, not a prose pass.</p>
+<h3>3) “Source exists” is weaker than “source supports claim”</h3>
+<p>A common failure mode is a valid URL that does <strong>not</strong> actually back the sentence.</p>
+<p>For each reference, verify:</p>
+<ul>
+<li>the link opens,</li>
+<li>the source is relevant to the exact claim,</li>
+<li>the source is current enough for the topic,</li>
+<li>your wording does not overstate what the source says.</li>
+</ul>
+<h3>4) Explicit uncertainty is higher quality than silent confidence</h3>
+<p>If evidence is partial, label it:</p>
+<ul>
+<li>“based on limited examples,”</li>
+<li>“early data suggests,”</li>
+<li>“unconfirmed by primary source.”</li>
+</ul>
+<p>This preserves trust and lowers reputational risk more than pretending certainty.</p>
+<h3>5) Time-boxing improves shipping consistency</h3>
+<p>A 15–20 minute cap prevents perfection spirals.</p>
+<p>Goal of the window:</p>
+<ul>
+<li>reduce high-impact factual risk,</li>
+<li>not produce epistemic perfection.</li>
+</ul>
+<h2>Steps / Code</h2>
+<h3>18-minute Verification Window</h3>
+<pre><code class="language-text">Minute 0-3: Highlight top 3 high-impact claims in the draft
+Minute 3-10: Open and validate every cited link against those claims
+Minute 10-14: Reword overclaims; add uncertainty labels where needed
+Minute 14-16: Quick link health check (404/redirect/paywall issues)
+Minute 16-18: Final publish decision: ship / defer / ship-with-note
+</code></pre>
+<h3>Minimal claim check table</h3>
+<pre><code class="language-markdown">| Claim | Risk (H/M/L) | Source URL | Supports claim? | Action |
+|------|---------------|------------|------------------|--------|
+| &quot;X reduces errors by 40%&quot; | H | ... | Partial | Reword to &quot;reported in controlled setting&quot; |
+| &quot;Policy shipped in 2025&quot; | M | ... | Yes | Keep |
+</code></pre>
+<h3>Publish gate rule</h3>
+<pre><code class="language-text">If any High-risk claim is unsupported:
+- either remove/reword before publish,
+- or defer publish.
+No exceptions for deadline pressure.
+</code></pre>
+<h2>Trade-offs</h2>
+<h3>Costs</h3>
+<ol>
+<li>Adds a fixed 15–20 minutes to each post.</li>
+<li>Can feel repetitive for short posts.</li>
+<li>May delay publish when strong sources are missing.</li>
+</ol>
+<h3>Benefits</h3>
+<ol>
+<li>Catches the most credibility-damaging errors before release.</li>
+<li>Creates a repeatable reliability habit across days.</li>
+<li>Improves reader trust by reducing overclaiming.</li>
+<li>Keeps drafting fast while protecting final quality.</li>
+</ol>
+<h2>References</h2>
+<ul>
+<li>Bender et al., <em>On the Dangers of Stochastic Parrots</em> (FAccT &#39;21): <a href="https://arxiv.org/abs/2108.07258">https://arxiv.org/abs/2108.07258</a></li>
+<li>OpenAI, <em>Why language models hallucinate</em>: <a href="https://openai.com/index/why-language-models-hallucinate">https://openai.com/index/why-language-models-hallucinate</a></li>
+<li>NIST, <em>AI Risk Management Framework (AI RMF 1.0)</em>: <a href="https://www.nist.gov/itl/ai-risk-management-framework">https://www.nist.gov/itl/ai-risk-management-framework</a></li>
+<li>OWASP GenAI, <em>LLM Top 10</em>: <a href="https://genai.owasp.org/">https://genai.owasp.org/</a></li>
+</ul>
+<h2>Final Take</h2>
+<p>AI-assisted drafting is already fast. The bottleneck is trust, not speed.</p>
+<p>A fixed Verification Window is a low-friction way to protect trust every day: short, repeatable, and focused on high-impact claims.</p>
+<p>If you adopt only one reliability habit this week, make it this one.</p>
+<h2>Changelog</h2>
+<ul>
+<li>2026-03-21: Initial publish with Verification Window pattern for AI-assisted posts.</li>
+<li>2026-03-21: Post-publish polish pass: sharpened title/metadata and replaced fragile references with more stable canonical links.</li>
+</ul>
+
+    </article>
+  </body>
+</html>

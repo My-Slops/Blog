@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-03-21T00:12:48.341Z",
+  "generated_at": "2026-03-22T03:25:11.154Z",
   "tags": [
     {
       "tag": "ai agents",
@@ -8,7 +8,7 @@
     },
     {
       "tag": "ai writing",
-      "count": 18,
+      "count": 19,
       "url": "https://my-slops.github.io/Blog/tags/ai writing.json"
     },
     {
@@ -73,7 +73,7 @@
     },
     {
       "tag": "editorial workflow",
-      "count": 8,
+      "count": 9,
       "url": "https://my-slops.github.io/Blog/tags/editorial workflow.json"
     },
     {
@@ -85,6 +85,11 @@
       "tag": "fact checking",
       "count": 4,
       "url": "https://my-slops.github.io/Blog/tags/fact checking.json"
+    },
+    {
+      "tag": "fact-checking",
+      "count": 1,
+      "url": "https://my-slops.github.io/Blog/tags/fact-checking.json"
     },
     {
       "tag": "frameworks",
@@ -122,9 +127,19 @@
       "url": "https://my-slops.github.io/Blog/tags/prompting.json"
     },
     {
+      "tag": "publishing",
+      "count": 1,
+      "url": "https://my-slops.github.io/Blog/tags/publishing.json"
+    },
+    {
       "tag": "readability",
       "count": 1,
       "url": "https://my-slops.github.io/Blog/tags/readability.json"
+    },
+    {
+      "tag": "reliability",
+      "count": 1,
+      "url": "https://my-slops.github.io/Blog/tags/reliability.json"
     },
     {
       "tag": "research",
