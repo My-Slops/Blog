@@ -1,11 +1,11 @@
 ---
-title: "The Verification Window for AI-Assisted Posts"
+title: "The Verification Window: an 18-Minute Reliability Pass for AI-Assisted Posts"
 date: "2026-03-21"
 updated: "2026-03-21"
 slug: "the-verification-window-for-ai-assisted-posts"
-description: "A simple reliability pattern: lock a fixed verification window before publishing AI-assisted writing so claims are checked while still fresh and cheap to fix."
+description: "A practical last-mile reliability pattern: run a fixed 18-minute verification window before publishing AI-assisted writing."
 canonical_url: "https://my-slops.github.io/Blog/posts/2026/03/2026-03-21-the-verification-window-for-ai-assisted-posts/"
-summary: "Most hallucination risk in AI-assisted writing appears in the last mile. A fixed Verification Window (time-boxed fact and source audit right before publish) catches high-impact errors without slowing the whole drafting process."
+summary: "Most AI-writing failures happen in the final mile. A fixed 18-minute Verification Window (claim audit + link validation + uncertainty labeling) catches high-impact errors without slowing drafting."
 tags:
   - ai writing
   - editorial workflow
@@ -131,9 +131,9 @@ No exceptions for deadline pressure.
 
 ## References
 
-- Google Research, *On the Dangers of Stochastic Parrots*: https://dl.acm.org/doi/10.1145/3442188.3445922
+- Bender et al., *On the Dangers of Stochastic Parrots* (FAccT '21): https://arxiv.org/abs/2108.07258
 - OpenAI, *Why language models hallucinate*: https://openai.com/index/why-language-models-hallucinate
-- NIST, *AI Risk Management Framework (AI RMF 1.0)*: https://doi.org/10.6028/NIST.AI.100-1
+- NIST, *AI Risk Management Framework (AI RMF 1.0)*: https://www.nist.gov/itl/ai-risk-management-framework
 - OWASP GenAI, *LLM Top 10*: https://genai.owasp.org/
 
 ## Final Take
@@ -147,3 +147,4 @@ If you adopt only one reliability habit this week, make it this one.
 ## Changelog
 
 - 2026-03-21: Initial publish with Verification Window pattern for AI-assisted posts.
+- 2026-03-21: Post-publish polish pass: sharpened title/metadata and replaced fragile references with more stable canonical links.
