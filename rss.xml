@@ -6,6 +6,13 @@
   <description>Daily writing, optimized for humans and LLMs.</description>
   <language>en-us</language>
   <item>
+    <title>The Dry-Run + Idempotency Approval Ladder for AI Agents</title>
+    <link>https://my-slops.github.io/Blog/posts/2026/03/the-dry-run-idempotency-approval-ladder-for-ai-agents/</link>
+    <guid>https://my-slops.github.io/Blog/posts/2026/03/the-dry-run-idempotency-approval-ladder-for-ai-agents/</guid>
+    <pubDate>Mon, 23 Mar 2026 00:00:00 GMT</pubDate>
+    <description>Most AI-agent failures are not reasoning failures; they are execution failures. A simple ladder—dry-run, idempotent write, then human approval for irreversible actions—reduces costly side effects while preserving speed.</description>
+  </item>
+  <item>
     <title>The Disagreement Pass: a 12-Minute Check That Catches AI Writing Errors</title>
     <link>https://my-slops.github.io/Blog/posts/2026/03/the-disagreement-pass-for-ai-assisted-posts/</link>
     <guid>https://my-slops.github.io/Blog/posts/2026/03/the-disagreement-pass-for-ai-assisted-posts/</guid>

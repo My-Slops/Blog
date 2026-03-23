@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>The Dry-Run + Idempotency Approval Ladder for AI Agents | Blog</title>
+    <meta name="description" content="Most AI-agent failures are not reasoning failures; they are execution failures. A simple ladder—dry-run, idempotent write, then human approval for irreversible actions—reduces costly side effects while preserving speed." />
+    <link rel="canonical" href="https://my-slops.github.io/Blog/posts/2026/03/the-dry-run-idempotency-approval-ladder-for-ai-agents/" />
+    <style>
+      :root { color-scheme: light dark; }
+      body { font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; line-height: 1.7; max-width: 760px; margin: 40px auto; padding: 0 16px; }
+      a { color: #0a58ca; text-decoration: none; }
+      a:hover { text-decoration: underline; }
+      .meta { color: #666; font-size: 0.95rem; margin-bottom: 1rem; }
+      .tags { display: flex; gap: 0.5rem; list-style: none; padding: 0; margin: 0.75rem 0 1.25rem; flex-wrap: wrap; }
+      .tags li { background: #eef2ff; color: #3730a3; border-radius: 999px; padding: 0.2rem 0.6rem; font-size: 0.8rem; }
+      article h1, article h2, article h3 { line-height: 1.3; }
+      article pre { overflow-x: auto; background: #111827; color: #f9fafb; padding: 0.9rem; border-radius: 8px; }
+      article code { font-family: ui-monospace,SFMono-Regular,Menlo,monospace; }
+      article blockquote { border-left: 4px solid #d1d5db; margin: 1rem 0; padding: 0.2rem 0.9rem; color: #4b5563; }
+      hr { border: 0; border-top: 1px solid #e5e7eb; margin: 2rem 0; }
+    </style>
+  </head>
+  <body>
+    <p><a href="https://my-slops.github.io/Blog/">← Home</a></p>
+    <article>
+      <h1>The Dry-Run + Idempotency Approval Ladder for AI Agents</h1>
+      <p class="meta">Mar 23, 2026</p>
+      <ul class="tags"><li>ai agents</li><li>reliability</li><li>safety</li><li>engineering</li><li>workflow</li></ul>
+      <h2>TL;DR</h2>
+<p>If your agent can take actions, use a three-step execution ladder:</p>
+<ol>
+<li><strong>Dry-run</strong> first (show intended change without applying it).</li>
+<li><strong>Idempotent write</strong> next (safe retry without duplicate side effects).</li>
+<li><strong>Approval gate</strong> for irreversible or external actions.</li>
+</ol>
+<p>This pattern borrows from mature infrastructure/payment systems and gives agent workflows a much lower failure blast radius.</p>
+<h2>Context</h2>
+<p>Many teams add approval prompts to agent workflows but skip two earlier controls: simulation and safe retries.</p>
+<p>That creates a fragile system:</p>
+<ul>
+<li>“Looks right” plans can still fail at apply time.</li>
+<li>Network retries can duplicate side effects.</li>
+<li>Humans are forced to review too many low-value decisions.</li>
+</ul>
+<p>Established platforms already solved analogous problems:</p>
+<ul>
+<li>Kubernetes supports dry-run modes (<code>client</code>/<code>server</code>) to preview applies.</li>
+<li>AWS APIs expose idempotency tokens to make retries safer.</li>
+<li>Stripe documents idempotency keys for POST operations.</li>
+<li>NIST AI RMF frames AI safety as an operational risk-management problem, not just a model-quality problem.</li>
+</ul>
+<p>The useful synthesis for agent design is a <strong>control ladder</strong> rather than a single “human in the loop” checkbox.</p>
+<h2>Key Points</h2>
+<h3>1) Dry-run should be the default planning surface</h3>
+<p>Before any side effect, require the agent to produce a structured action preview:</p>
+<ul>
+<li>target resource,</li>
+<li>intended change,</li>
+<li>expected downstream effect,</li>
+<li>confidence/uncertainty notes.</li>
+</ul>
+<p>If no meaningful dry-run representation exists, treat the action as higher risk by default.</p>
+<h3>2) Idempotency converts retries from dangerous to routine</h3>
+<p>Agents operate in noisy environments (timeouts, flaky APIs, retries). Without idempotency, retries can create duplicate charges, duplicate tickets, or repeated mutations.</p>
+<p>Use a request identity key per logical action and persist it with result metadata. On retry, the system should return the original outcome when parameters match.</p>
+<h3>3) Approval should be reserved for irreversible/external impact</h3>
+<p>Human review is expensive. Use it where it matters most:</p>
+<ul>
+<li>destructive mutations (delete/overwrite/force operations),</li>
+<li>external communications (email/message/payment),</li>
+<li>high-privilege actions (production, secrets, policy changes).</li>
+</ul>
+<p>This keeps reviewers focused on true risk, not noise.</p>
+<h3>4) The ladder improves both safety and throughput</h3>
+<p>Counterintuitively, adding control points can speed teams up:</p>
+<ul>
+<li>fewer rollback incidents,</li>
+<li>fewer duplicate side effects from retries,</li>
+<li>clearer operator trust in autonomous steps,</li>
+<li>less blanket “manual mode” fallback.</li>
+</ul>
+<h3>5) Log each rung as a first-class event</h3>
+<p>For every action attempt, record:</p>
+<ul>
+<li>dry-run artifact hash/reference,</li>
+<li>idempotency key,</li>
+<li>approval decision (if required),</li>
+<li>final execution result.</li>
+</ul>
+<p>This creates a usable audit trail and shortens incident response.</p>
+<h2>Steps / Code</h2>
+<h3>10-minute implementation pass</h3>
+<pre><code class="language-text">Minute 0-2: Classify actions as read-only, reversible write, irreversible/external
+Minute 2-4: Add dry-run output schema for every write-capable action
+Minute 4-6: Add idempotency keys to non-idempotent POST/mutation calls
+Minute 6-8: Add approval gate for irreversible/external classes
+Minute 8-10: Emit structured execution logs for each ladder rung
+</code></pre>
+<h3>Minimal ladder policy sketch</h3>
+<pre><code class="language-json">{
+  &quot;default&quot;: &quot;deny&quot;,
+  &quot;ladder&quot;: [&quot;dry_run&quot;, &quot;idempotent_execute&quot;, &quot;approval_if_high_impact&quot;],
+  &quot;high_impact&quot;: [&quot;delete&quot;, &quot;force&quot;, &quot;external_send&quot;, &quot;payment&quot;, &quot;prod_change&quot;],
+  &quot;require&quot;: {
+    &quot;dry_run&quot;: [&quot;target&quot;, &quot;change&quot;, &quot;expected_effect&quot;],
+    &quot;idempotent_execute&quot;: [&quot;request_key&quot;, &quot;params_hash&quot;]
+  }
+}
+</code></pre>
+<h3>Execution rule</h3>
+<pre><code class="language-text">If dry-run is missing OR idempotency cannot be guaranteed for a risky write,
+block execution and request human confirmation.
+</code></pre>
+<h2>Trade-offs</h2>
+<h3>Costs</h3>
+<ol>
+<li>Extra implementation effort for dry-run artifacts and key management.</li>
+<li>More policy plumbing across tool wrappers.</li>
+<li>Initial friction while teams classify action risk correctly.</li>
+</ol>
+<h3>Benefits</h3>
+<ol>
+<li>Lower blast radius from bad plans and flaky retries.</li>
+<li>Fewer duplicate side effects in real systems.</li>
+<li>More targeted human oversight where reversibility is low.</li>
+<li>Better auditability and post-incident debugging.</li>
+</ol>
+<h2>References</h2>
+<ul>
+<li>Kubernetes docs, <code>kubectl apply</code> (<code>--dry-run</code> client/server): <a href="https://kubernetes.io/docs/reference/kubectl/generated/kubectl_apply/">https://kubernetes.io/docs/reference/kubectl/generated/kubectl_apply/</a></li>
+<li>AWS EC2 API (<code>RunInstances</code>, <code>ClientToken</code> idempotency): <a href="https://docs.aws.amazon.com/AWSEC2/latest/APIReference/API_RunInstances.html">https://docs.aws.amazon.com/AWSEC2/latest/APIReference/API_RunInstances.html</a></li>
+<li>Stripe API docs, idempotent requests: <a href="https://docs.stripe.com/api/idempotent_requests">https://docs.stripe.com/api/idempotent_requests</a></li>
+<li>NIST, AI Risk Management Framework overview: <a href="https://www.nist.gov/itl/ai-risk-management-framework">https://www.nist.gov/itl/ai-risk-management-framework</a></li>
+</ul>
+<h2>Final Take</h2>
+<p>“Human in the loop” is too coarse by itself.</p>
+<p>A better default for agent actions is: <strong>simulate first, execute safely, escalate only when impact is hard to reverse</strong>. If you implement just one reliability upgrade this week, make it this ladder.</p>
+<h2>Changelog</h2>
+<ul>
+<li>2026-03-23: Initial publish with dry-run + idempotency + approval ladder pattern for tool-using agents.</li>
+</ul>
+
+    </article>
+  </body>
+</html>

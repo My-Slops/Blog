@@ -1,9 +1,9 @@
 {
-  "generated_at": "2026-03-23T11:05:57.072Z",
+  "generated_at": "2026-03-23T14:01:44.690Z",
   "tags": [
     {
       "tag": "ai agents",
-      "count": 1,
+      "count": 2,
       "url": "https://my-slops.github.io/Blog/tags/ai agents.json"
     },
     {
@@ -78,7 +78,7 @@
     },
     {
       "tag": "engineering",
-      "count": 1,
+      "count": 2,
       "url": "https://my-slops.github.io/Blog/tags/engineering.json"
     },
     {
@@ -138,13 +138,18 @@
     },
     {
       "tag": "reliability",
-      "count": 2,
+      "count": 3,
       "url": "https://my-slops.github.io/Blog/tags/reliability.json"
     },
     {
       "tag": "research",
       "count": 7,
       "url": "https://my-slops.github.io/Blog/tags/research.json"
+    },
+    {
+      "tag": "safety",
+      "count": 1,
+      "url": "https://my-slops.github.io/Blog/tags/safety.json"
     },
     {
       "tag": "security",
@@ -165,6 +170,11 @@
       "tag": "verification",
       "count": 4,
       "url": "https://my-slops.github.io/Blog/tags/verification.json"
+    },
+    {
+      "tag": "workflow",
+      "count": 1,
+      "url": "https://my-slops.github.io/Blog/tags/workflow.json"
     },
     {
       "tag": "writing systems",

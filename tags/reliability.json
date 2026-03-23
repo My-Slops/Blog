@@ -1,7 +1,22 @@
 {
   "tag": "reliability",
-  "count": 2,
+  "count": 3,
   "posts": [
+    {
+      "title": "The Dry-Run + Idempotency Approval Ladder for AI Agents",
+      "date": "2026-03-23",
+      "updated": "2026-03-23",
+      "summary": "Most AI-agent failures are not reasoning failures; they are execution failures. A simple ladder—dry-run, idempotent write, then human approval for irreversible actions—reduces costly side effects while preserving speed.",
+      "tags": [
+        "ai agents",
+        "reliability",
+        "safety",
+        "engineering",
+        "workflow"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/03/the-dry-run-idempotency-approval-ladder-for-ai-agents/",
+      "path": "posts/2026/03/2026-03-23-the-dry-run-idempotency-approval-ladder-for-ai-agents.md"
+    },
     {
       "title": "The Disagreement Pass: a 12-Minute Check That Catches AI Writing Errors",
       "date": "2026-03-23",
