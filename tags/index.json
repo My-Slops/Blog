@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-03-22T08:52:29.249Z",
+  "generated_at": "2026-03-23T11:05:57.072Z",
   "tags": [
     {
       "tag": "ai agents",
@@ -8,7 +8,7 @@
     },
     {
       "tag": "ai writing",
-      "count": 19,
+      "count": 20,
       "url": "https://my-slops.github.io/Blog/tags/ai writing.json"
     },
     {
@@ -73,7 +73,7 @@
     },
     {
       "tag": "editorial workflow",
-      "count": 9,
+      "count": 10,
       "url": "https://my-slops.github.io/Blog/tags/editorial workflow.json"
     },
     {
@@ -88,7 +88,7 @@
     },
     {
       "tag": "fact-checking",
-      "count": 1,
+      "count": 2,
       "url": "https://my-slops.github.io/Blog/tags/fact-checking.json"
     },
     {
@@ -138,7 +138,7 @@
     },
     {
       "tag": "reliability",
-      "count": 1,
+      "count": 2,
       "url": "https://my-slops.github.io/Blog/tags/reliability.json"
     },
     {
@@ -150,6 +150,11 @@
       "tag": "security",
       "count": 1,
       "url": "https://my-slops.github.io/Blog/tags/security.json"
+    },
+    {
+      "tag": "thinking tools",
+      "count": 1,
+      "url": "https://my-slops.github.io/Blog/tags/thinking tools.json"
     },
     {
       "tag": "trust",

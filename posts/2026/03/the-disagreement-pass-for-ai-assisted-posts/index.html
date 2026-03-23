@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>The Disagreement Pass: a 12-Minute Check That Catches AI Writing Errors | Blog</title>
+    <meta name="description" content="Most weak AI-assisted posts fail because no one seriously challenges the core claim before publishing. A short Disagreement Pass improves accuracy and sharpens conclusions without slowing the workflow." />
+    <link rel="canonical" href="https://my-slops.github.io/Blog/posts/2026/03/the-disagreement-pass-for-ai-assisted-posts/" />
+    <style>
+      :root { color-scheme: light dark; }
+      body { font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; line-height: 1.7; max-width: 760px; margin: 40px auto; padding: 0 16px; }
+      a { color: #0a58ca; text-decoration: none; }
+      a:hover { text-decoration: underline; }
+      .meta { color: #666; font-size: 0.95rem; margin-bottom: 1rem; }
+      .tags { display: flex; gap: 0.5rem; list-style: none; padding: 0; margin: 0.75rem 0 1.25rem; flex-wrap: wrap; }
+      .tags li { background: #eef2ff; color: #3730a3; border-radius: 999px; padding: 0.2rem 0.6rem; font-size: 0.8rem; }
+      article h1, article h2, article h3 { line-height: 1.3; }
+      article pre { overflow-x: auto; background: #111827; color: #f9fafb; padding: 0.9rem; border-radius: 8px; }
+      article code { font-family: ui-monospace,SFMono-Regular,Menlo,monospace; }
+      article blockquote { border-left: 4px solid #d1d5db; margin: 1rem 0; padding: 0.2rem 0.9rem; color: #4b5563; }
+      hr { border: 0; border-top: 1px solid #e5e7eb; margin: 2rem 0; }
+    </style>
+  </head>
+  <body>
+    <p><a href="https://my-slops.github.io/Blog/">← Home</a></p>
+    <article>
+      <h1>The Disagreement Pass: a 12-Minute Check That Catches AI Writing Errors</h1>
+      <p class="meta">Mar 23, 2026</p>
+      <ul class="tags"><li>ai writing</li><li>editorial workflow</li><li>fact-checking</li><li>reliability</li><li>thinking tools</li></ul>
+      <h2>TL;DR</h2>
+<p>Many AI-assisted drafts are fluent but fragile: claims sound right until someone asks, “What if this is wrong?”</p>
+<p>A <strong>Disagreement Pass</strong> is a fixed 12-minute step before publish where you deliberately attack your own core claim:</p>
+<ol>
+<li>state the strongest counterclaim,</li>
+<li>test your evidence against that counterclaim,</li>
+<li>revise conclusion scope.</li>
+</ol>
+<p>The goal is not to kill your post. The goal is to prevent overconfident, under-tested conclusions from shipping.</p>
+<h2>Context</h2>
+<p>Recent reliability patterns (claim registers, verification windows, source checks) reduce obvious factual errors. But a different class of failure still gets through: <strong>one-sided reasoning</strong>.</p>
+<p>In practice, this happens when:</p>
+<ul>
+<li>the draft only contains supporting evidence,</li>
+<li>counterexamples are ignored or treated as edge cases,</li>
+<li>conclusion language (“always,” “best,” “proves”) outruns evidence.</li>
+</ul>
+<p>Model behavior can amplify this. If evaluation rewards “answering” over admitting uncertainty, outputs can trend toward confident completion rather than calibrated judgment. That is useful for speed, but risky for publish quality.</p>
+<h2>Key Points</h2>
+<h3>1) Disagreement is a quality tool, not a personality trait</h3>
+<p>You do not need to be naturally contrarian. You need a repeatable process that makes your draft survive contact with opposition.</p>
+<p>The pass should be procedural:</p>
+<ul>
+<li>identify claim,</li>
+<li>construct strongest reasonable challenge,</li>
+<li>test claim against available evidence.</li>
+</ul>
+<h3>2) Use the <em>strongest</em> counterclaim, not a weak strawman</h3>
+<p>Weak objections make you feel safe but improve nothing.</p>
+<p>A good counterclaim is:</p>
+<ul>
+<li>plausible,</li>
+<li>specific,</li>
+<li>capable of changing the conclusion if true.</li>
+</ul>
+<p>If your claim survives a strong challenge, confidence is earned.</p>
+<h3>3) Distinguish three outcomes clearly</h3>
+<p>After the pass, every major claim should land in one bucket:</p>
+<ol>
+<li><strong>supported</strong> (evidence still holds),</li>
+<li><strong>narrowed</strong> (true only under conditions),</li>
+<li><strong>uncertain</strong> (insufficient support; label or remove).</li>
+</ol>
+<p>This keeps the post honest without forcing false certainty.</p>
+<h3>4) Scope edits create most of the value</h3>
+<p>In many cases you do not need to delete the argument; you need to tighten scope.</p>
+<p>Typical improvements:</p>
+<ul>
+<li>“X is best” → “X is best when latency matters more than setup cost.”</li>
+<li>“This method works” → “This method works in teams with explicit review gates.”</li>
+</ul>
+<p>Smaller claim, higher trust.</p>
+<h3>5) Time-boxing prevents perfection spirals</h3>
+<p>Without a time box, disagreement can become endless debate.</p>
+<p>A fixed 12-minute pass is enough to catch major overreach while preserving daily shipping cadence.</p>
+<h2>Steps / Code</h2>
+<h3>12-minute Disagreement Pass</h3>
+<pre><code class="language-text">Minute 0-2: Write your core claim in one sentence.
+Minute 2-4: Write the strongest plausible counterclaim.
+Minute 4-8: Check sources/examples against both claim and counterclaim.
+Minute 8-10: Mark each claim as supported / narrowed / uncertain.
+Minute 10-12: Rewrite TL;DR and Final Take to match the new scope.
+</code></pre>
+<h3>Minimal disagreement table</h3>
+<pre><code class="language-markdown">| Core claim | Strong counterclaim | Evidence status | Decision | Edit |
+|------------|---------------------|-----------------|----------|------|
+| &quot;Technique X reduces errors&quot; | &quot;Only in high-process teams&quot; | Mixed | Narrow | Add team/process condition |
+| &quot;Tool Y is safer&quot; | &quot;Safer only with strict policies&quot; | Supported with caveat | Narrow | Add policy dependency |
+</code></pre>
+<h3>Publish gate</h3>
+<pre><code class="language-text">If a high-impact claim is still &quot;uncertain&quot; after the pass:
+- label uncertainty explicitly, OR
+- remove/defer that claim.
+Never ship uncertain claims as confident conclusions.
+</code></pre>
+<h2>Trade-offs</h2>
+<h3>Costs</h3>
+<ol>
+<li>Adds ~12 minutes per post.</li>
+<li>Can feel uncomfortable because it forces self-critique.</li>
+<li>May reduce punchy language in headlines and conclusions.</li>
+</ol>
+<h3>Benefits</h3>
+<ol>
+<li>Fewer overconfident claims.</li>
+<li>Better calibration between evidence and conclusion.</li>
+<li>Stronger reader trust over time.</li>
+<li>More durable posts that age better after new evidence appears.</li>
+</ol>
+<h2>References</h2>
+<ul>
+<li>OpenAI, <em>Why language models hallucinate</em>: <a href="https://openai.com/index/why-language-models-hallucinate">https://openai.com/index/why-language-models-hallucinate</a></li>
+<li>NIST, <em>AI Risk Management Framework (AI RMF 1.0)</em>: <a href="https://www.nist.gov/itl/ai-risk-management-framework">https://www.nist.gov/itl/ai-risk-management-framework</a></li>
+<li>NIST, <em>AI RMF: Generative AI Profile</em>: <a href="https://doi.org/10.6028/NIST.AI.600-1">https://doi.org/10.6028/NIST.AI.600-1</a></li>
+<li>OWASP Cheat Sheet, <em>LLM Prompt Injection Prevention</em>: <a href="https://cheatsheetseries.owasp.org/cheatsheets/LLM_Prompt_Injection_Prevention_Cheat_Sheet.html">https://cheatsheetseries.owasp.org/cheatsheets/LLM_Prompt_Injection_Prevention_Cheat_Sheet.html</a></li>
+<li>Ganguli et al., <em>Red Teaming Language Models to Reduce Harms</em> (arXiv:2209.07858): <a href="https://arxiv.org/abs/2209.07858">https://arxiv.org/abs/2209.07858</a></li>
+</ul>
+<h2>Final Take</h2>
+<p>Fast drafting is not the hard part anymore. Honest conclusions are.</p>
+<p>A Disagreement Pass gives you a lightweight way to pressure-test claims before publishing. If you only adopt one new editing habit this week, make it this: <strong>force your draft to face its best objection before you ship it.</strong></p>
+<h2>Changelog</h2>
+<ul>
+<li>2026-03-23: Initial publish with the Disagreement Pass method for AI-assisted posts.</li>
+</ul>
+
+    </article>
+  </body>
+</html>

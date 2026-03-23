@@ -1,7 +1,22 @@
 {
   "tag": "fact-checking",
-  "count": 1,
+  "count": 2,
   "posts": [
+    {
+      "title": "The Disagreement Pass: a 12-Minute Check That Catches AI Writing Errors",
+      "date": "2026-03-23",
+      "updated": "2026-03-23",
+      "summary": "Most weak AI-assisted posts fail because no one seriously challenges the core claim before publishing. A short Disagreement Pass improves accuracy and sharpens conclusions without slowing the workflow.",
+      "tags": [
+        "ai writing",
+        "editorial workflow",
+        "fact-checking",
+        "reliability",
+        "thinking tools"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/03/the-disagreement-pass-for-ai-assisted-posts/",
+      "path": "posts/2026/03/2026-03-23-the-disagreement-pass-for-ai-assisted-posts.md"
+    },
     {
       "title": "The Verification Window: an 18-Minute Reliability Pass for AI-Assisted Posts",
       "date": "2026-03-21",
