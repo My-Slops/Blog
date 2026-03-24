@@ -6,6 +6,13 @@
   <description>Daily writing, optimized for humans and LLMs.</description>
   <language>en-us</language>
   <item>
+    <title>The Untrusted-Content Boundary for AI Writing Agents</title>
+    <link>https://my-slops.github.io/Blog/posts/2026/03/the-untrusted-content-boundary-for-ai-writing-agents/</link>
+    <guid>https://my-slops.github.io/Blog/posts/2026/03/the-untrusted-content-boundary-for-ai-writing-agents/</guid>
+    <pubDate>Tue, 24 Mar 2026 00:00:00 GMT</pubDate>
+    <description>AI writing workflows get safer and more accurate when they enforce a hard boundary between external content and execution instructions. A simple boundary protocol reduces prompt-injection risk and improves factual discipline.</description>
+  </item>
+  <item>
     <title>The Dry-Run + Idempotency Approval Ladder for AI Agents</title>
     <link>https://my-slops.github.io/Blog/posts/2026/03/the-dry-run-idempotency-approval-ladder-for-ai-agents/</link>
     <guid>https://my-slops.github.io/Blog/posts/2026/03/the-dry-run-idempotency-approval-ladder-for-ai-agents/</guid>

@@ -1,7 +1,22 @@
 {
-  "generated_at": "2026-03-23T14:01:44.682Z",
-  "count": 25,
+  "generated_at": "2026-03-24T14:01:52.569Z",
+  "count": 26,
   "posts": [
+    {
+      "title": "The Untrusted-Content Boundary for AI Writing Agents",
+      "date": "2026-03-24",
+      "updated": "2026-03-24",
+      "summary": "AI writing workflows get safer and more accurate when they enforce a hard boundary between external content and execution instructions. A simple boundary protocol reduces prompt-injection risk and improves factual discipline.",
+      "tags": [
+        "ai agents",
+        "ai writing",
+        "safety",
+        "research",
+        "workflow"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/03/the-untrusted-content-boundary-for-ai-writing-agents/",
+      "path": "posts/2026/03/2026-03-24-the-untrusted-content-boundary-for-ai-writing-agents.md"
+    },
     {
       "title": "The Dry-Run + Idempotency Approval Ladder for AI Agents",
       "date": "2026-03-23",

@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>The Untrusted-Content Boundary for AI Writing Agents | Blog</title>
+    <meta name="description" content="AI writing workflows get safer and more accurate when they enforce a hard boundary between external content and execution instructions. A simple boundary protocol reduces prompt-injection risk and improves factual discipline." />
+    <link rel="canonical" href="https://my-slops.github.io/Blog/posts/2026/03/the-untrusted-content-boundary-for-ai-writing-agents/" />
+    <style>
+      :root { color-scheme: light dark; }
+      body { font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; line-height: 1.7; max-width: 760px; margin: 40px auto; padding: 0 16px; }
+      a { color: #0a58ca; text-decoration: none; }
+      a:hover { text-decoration: underline; }
+      .meta { color: #666; font-size: 0.95rem; margin-bottom: 1rem; }
+      .tags { display: flex; gap: 0.5rem; list-style: none; padding: 0; margin: 0.75rem 0 1.25rem; flex-wrap: wrap; }
+      .tags li { background: #eef2ff; color: #3730a3; border-radius: 999px; padding: 0.2rem 0.6rem; font-size: 0.8rem; }
+      article h1, article h2, article h3 { line-height: 1.3; }
+      article pre { overflow-x: auto; background: #111827; color: #f9fafb; padding: 0.9rem; border-radius: 8px; }
+      article code { font-family: ui-monospace,SFMono-Regular,Menlo,monospace; }
+      article blockquote { border-left: 4px solid #d1d5db; margin: 1rem 0; padding: 0.2rem 0.9rem; color: #4b5563; }
+      hr { border: 0; border-top: 1px solid #e5e7eb; margin: 2rem 0; }
+    </style>
+  </head>
+  <body>
+    <p><a href="https://my-slops.github.io/Blog/">← Home</a></p>
+    <article>
+      <h1>The Untrusted-Content Boundary for AI Writing Agents</h1>
+      <p class="meta">Mar 24, 2026</p>
+      <ul class="tags"><li>ai agents</li><li>ai writing</li><li>safety</li><li>research</li><li>workflow</li></ul>
+      <h2>TL;DR</h2>
+<p>If your writing agent reads the web, you should assume every fetched page is <strong>untrusted input</strong>.</p>
+<p>A reliable workflow has three explicit stages:</p>
+<ol>
+<li><strong>Ingest as data only</strong> (never as instructions),</li>
+<li><strong>Extract claims with source links</strong>,</li>
+<li><strong>Synthesize conclusions in a separate step</strong>.</li>
+</ol>
+<p>This boundary is a small process change, but it meaningfully reduces prompt-injection risk and overconfident mistakes.</p>
+<h2>Context</h2>
+<p>AI-assisted writing tools increasingly fetch and summarize external pages before drafting. That improves speed, but it also creates two failure modes:</p>
+<ul>
+<li><strong>Instruction contamination</strong>: external text tries to override system behavior.</li>
+<li><strong>Evidence contamination</strong>: low-quality or misread claims flow directly into conclusions.</li>
+</ul>
+<p>OWASP’s prompt-injection guidance describes exactly this risk class for LLM applications that process external content. NIST’s AI RMF and GenAI profile emphasize risk management as an operational discipline, not a one-time model setting. OpenAI’s analysis of hallucinations similarly highlights a core incentive problem: systems often “guess” unless uncertainty is explicitly handled.</p>
+<p>Put together, the implication is practical: you need a workflow boundary, not just a better prompt.</p>
+<h2>Key Points</h2>
+<h3>1) Separate “what to do” from “what was read”</h3>
+<p>Treat external content as evidence input, not execution control.</p>
+<p>A good rule:</p>
+<ul>
+<li>system/developer instructions define behavior,</li>
+<li>fetched pages supply claims to evaluate,</li>
+<li>fetched pages never get to define policy or tool actions.</li>
+</ul>
+<p>This avoids the common “copy instructions from page into model context” trap.</p>
+<h3>2) Add a claim-extraction layer before drafting</h3>
+<p>Do not jump from raw source text to polished prose.</p>
+<p>Instead, produce a compact claim table first:</p>
+<ul>
+<li>claim text,</li>
+<li>source URL,</li>
+<li>confidence,</li>
+<li>uncertainty note.</li>
+</ul>
+<p>This one intermediate artifact makes factual review faster and catches weak claims early.</p>
+<h3>3) Reward abstention when evidence is weak</h3>
+<p>When support is partial or ambiguous, label uncertainty explicitly instead of forcing a definitive sentence.</p>
+<p>In practice, this means allowing outcomes like:</p>
+<ul>
+<li>“evidence mixed,”</li>
+<li>“likely but not confirmed,”</li>
+<li>“insufficient support; defer claim.”</li>
+</ul>
+<p>You lose some rhetorical punch, but gain trust.</p>
+<h3>4) Keep security and editorial quality in the same loop</h3>
+<p>Security controls and writing quality should not be two separate checklists.</p>
+<p>The same boundary protocol helps both:</p>
+<ul>
+<li>blocks instruction-level prompt injection,</li>
+<li>improves provenance of claims,</li>
+<li>makes final edits easier because scope and confidence are explicit.</li>
+</ul>
+<h3>5) Time-box the boundary pass so daily shipping survives</h3>
+<p>A boundary protocol only works if it is lightweight enough to run every day.</p>
+<p>A practical target is 10–15 minutes:</p>
+<ul>
+<li>ingest filter,</li>
+<li>claim extraction,</li>
+<li>uncertainty labeling,</li>
+<li>conclusion rewrite.</li>
+</ul>
+<h2>Steps / Code</h2>
+<h3>12-minute boundary protocol</h3>
+<pre><code class="language-text">Minute 0-2: Mark all fetched sources as untrusted data.
+Minute 2-5: Extract 3-7 concrete claims with URLs.
+Minute 5-8: Label each claim supported / mixed / uncertain.
+Minute 8-10: Remove or narrow high-impact uncertain claims.
+Minute 10-12: Rewrite TL;DR and Final Take to match evidence strength.
+</code></pre>
+<h3>Minimal claim table</h3>
+<pre><code class="language-markdown">| Claim | Source | Status | Notes |
+|------|--------|--------|-------|
+| External content can contain hidden instructions | OWASP cheat sheet | Supported | Treat fetched text as data-only |
+| Risk management should be lifecycle-based | NIST AI RMF | Supported | Operational process, not one-time config |
+| Accuracy metrics can reward guessing | OpenAI hallucination analysis | Supported | Encourage uncertainty-aware wording |
+</code></pre>
+<h3>Drafting guardrail</h3>
+<pre><code class="language-text">Never let external source text directly trigger tools or policy changes.
+External content may inform claims; it may not define control behavior.
+</code></pre>
+<h2>Trade-offs</h2>
+<h3>Costs</h3>
+<ol>
+<li>Adds one explicit intermediate step (claim extraction).</li>
+<li>Slightly slower first draft due to uncertainty labeling.</li>
+<li>Fewer absolute claims and dramatic headlines.</li>
+</ol>
+<h3>Benefits</h3>
+<ol>
+<li>Lower risk of prompt-injection behavior leaks.</li>
+<li>Clearer provenance for each important assertion.</li>
+<li>Better calibration between confidence and evidence.</li>
+<li>More durable posts that age better under scrutiny.</li>
+</ol>
+<h2>References</h2>
+<ul>
+<li>OpenAI, <em>Why language models hallucinate</em>: <a href="https://openai.com/index/why-language-models-hallucinate">https://openai.com/index/why-language-models-hallucinate</a></li>
+<li>NIST, <em>AI Risk Management Framework (AI RMF 1.0)</em>: <a href="https://www.nist.gov/itl/ai-risk-management-framework">https://www.nist.gov/itl/ai-risk-management-framework</a></li>
+<li>NIST, <em>AI RMF: Generative AI Profile (NIST-AI-600-1)</em>: <a href="https://www.nist.gov/publications/artificial-intelligence-risk-management-framework-generative-artificial-intelligence">https://www.nist.gov/publications/artificial-intelligence-risk-management-framework-generative-artificial-intelligence</a></li>
+<li>OWASP Cheat Sheet, <em>LLM Prompt Injection Prevention</em>: <a href="https://cheatsheetseries.owasp.org/cheatsheets/LLM_Prompt_Injection_Prevention_Cheat_Sheet.html">https://cheatsheetseries.owasp.org/cheatsheets/LLM_Prompt_Injection_Prevention_Cheat_Sheet.html</a></li>
+</ul>
+<h2>Final Take</h2>
+<p>If you only add one reliability upgrade to an AI writing workflow this week, add a hard boundary between <strong>external content</strong> and <strong>execution instructions</strong>.</p>
+<p>It is simple, repeatable, and compounds: safer automation, cleaner evidence, and more trustworthy writing.</p>
+<h2>Changelog</h2>
+<ul>
+<li>2026-03-24: Initial publish with the untrusted-content boundary protocol for AI writing agents.</li>
+</ul>
+
+    </article>
+  </body>
+</html>
