@@ -1,0 +1,21 @@
+{
+  "tag": "prompt engineering",
+  "count": 1,
+  "posts": [
+    {
+      "title": "The Two-Anchor Pattern for Long-Context Prompts",
+      "date": "2026-03-25",
+      "updated": "2026-03-25",
+      "summary": "Long context alone does not guarantee reliable retrieval. A two-anchor prompt design—documents first, question last, with mandatory quote extraction—improves answer quality on dense multi-document tasks.",
+      "tags": [
+        "ai agents",
+        "prompt engineering",
+        "long context",
+        "llm reliability",
+        "workflow design"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/03/the-two-anchor-pattern-for-long-context-prompts/",
+      "path": "posts/2026/03/2026-03-25-the-two-anchor-pattern-for-long-context-prompts.md"
+    }
+  ]
+}

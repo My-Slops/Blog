@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>The Two-Anchor Pattern for Long-Context Prompts | Blog</title>
+    <meta name="description" content="Long context alone does not guarantee reliable retrieval. A two-anchor prompt design—documents first, question last, with mandatory quote extraction—improves answer quality on dense multi-document tasks." />
+    <link rel="canonical" href="https://my-slops.github.io/Blog/posts/2026/03/the-two-anchor-pattern-for-long-context-prompts/" />
+    <style>
+      :root { color-scheme: light dark; }
+      body { font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; line-height: 1.7; max-width: 760px; margin: 40px auto; padding: 0 16px; }
+      a { color: #0a58ca; text-decoration: none; }
+      a:hover { text-decoration: underline; }
+      .meta { color: #666; font-size: 0.95rem; margin-bottom: 1rem; }
+      .tags { display: flex; gap: 0.5rem; list-style: none; padding: 0; margin: 0.75rem 0 1.25rem; flex-wrap: wrap; }
+      .tags li { background: #eef2ff; color: #3730a3; border-radius: 999px; padding: 0.2rem 0.6rem; font-size: 0.8rem; }
+      article h1, article h2, article h3 { line-height: 1.3; }
+      article pre { overflow-x: auto; background: #111827; color: #f9fafb; padding: 0.9rem; border-radius: 8px; }
+      article code { font-family: ui-monospace,SFMono-Regular,Menlo,monospace; }
+      article blockquote { border-left: 4px solid #d1d5db; margin: 1rem 0; padding: 0.2rem 0.9rem; color: #4b5563; }
+      hr { border: 0; border-top: 1px solid #e5e7eb; margin: 2rem 0; }
+    </style>
+  </head>
+  <body>
+    <p><a href="https://my-slops.github.io/Blog/">← Home</a></p>
+    <article>
+      <h1>The Two-Anchor Pattern for Long-Context Prompts</h1>
+      <p class="meta">Mar 25, 2026</p>
+      <ul class="tags"><li>ai agents</li><li>prompt engineering</li><li>long context</li><li>llm reliability</li><li>workflow design</li></ul>
+      <h2>TL;DR</h2>
+<p>Large context windows are useful, but they do <strong>not</strong> guarantee the model will use the right evidence.</p>
+<p>A reliable default for long-document tasks is a <strong>Two-Anchor Pattern</strong>:</p>
+<ol>
+<li><strong>Anchor 1 (top):</strong> put all source documents first in a structured block.</li>
+<li><strong>Anchor 2 (bottom):</strong> place the actual task/query at the end.</li>
+<li>In between, require a <strong>quote-first extraction step</strong> before synthesis.</li>
+</ol>
+<p>This pattern is simple, model-agnostic, and directly addresses the common “lost in the middle” failure mode.</p>
+<h2>Context</h2>
+<p>Teams often assume that once they upgrade to a model with a larger context window, document QA and synthesis quality will automatically improve.</p>
+<p>But evidence suggests a more nuanced reality:</p>
+<ul>
+<li>The <em>Lost in the Middle</em> paper showed that model performance often drops when relevant information appears in the middle of long inputs, even for long-context models.</li>
+<li>Anthropic’s long-context guidance recommends placing longform data near the top and putting queries at the end; it also recommends grounding responses in extracted quotes first.</li>
+</ul>
+<p>So the main problem is not just token capacity. It is <strong>retrieval reliability inside the window</strong>.</p>
+<h2>Key Points</h2>
+<h3>1) Long context increases capacity, not guaranteed recall quality</h3>
+<p>A 100k+ context lets you include more material, but the model can still underweight relevant details depending on position and prompt structure.</p>
+<p>Treat long context as bandwidth, not accuracy.</p>
+<h3>2) Position matters: beginning/end often outperform middle</h3>
+<p>In <em>Lost in the Middle</em>, models were typically strongest when relevant facts were near boundaries and weaker when they were buried mid-context.</p>
+<p>Prompt design should exploit this by intentionally using boundary placement.</p>
+<h3>3) The Two-Anchor Pattern is a practical default</h3>
+<ul>
+<li><strong>Top anchor:</strong> put full source documents first, consistently tagged.</li>
+<li><strong>Bottom anchor:</strong> put the final question/instructions at the end.</li>
+<li><strong>Bridge step:</strong> require quote extraction with source IDs before final reasoning.</li>
+</ul>
+<p>This reduces hallucinated synthesis because the model must “show receipts” before conclusions.</p>
+<h3>4) Quote-first is the key anti-noise move</h3>
+<p>When documents are dense, asking the model to output relevant quotes first creates a lightweight verification layer.</p>
+<p>If the quotes are weak, you catch failure earlier—before a polished but wrong summary gets shipped.</p>
+<h3>5) Keep output contract strict</h3>
+<p>Use explicit output sections (e.g., <code>quotes</code>, <code>analysis</code>, <code>answer</code>) and require source attribution for each claim.</p>
+<p>This makes both human review and automated checks easier.</p>
+<h2>Steps / Code</h2>
+<h3>10-minute implementation checklist</h3>
+<pre><code class="language-text">1) Wrap each source in structured tags with a stable source id.
+2) Put all source blocks at the top of the prompt.
+3) Put your task/query at the end of the prompt.
+4) Force a quote-extraction phase before synthesis.
+5) Require every major claim to reference source ids.
+6) Reject/regenerate if quotes do not support the answer.
+</code></pre>
+<h3>Prompt skeleton</h3>
+<pre><code class="language-xml">&lt;documents&gt;
+  &lt;document index=&quot;1&quot;&gt;
+    &lt;source&gt;policy_memo_2026-03-20.md&lt;/source&gt;
+    &lt;document_content&gt;
+      {{DOC_1}}
+    &lt;/document_content&gt;
+  &lt;/document&gt;
+  &lt;document index=&quot;2&quot;&gt;
+    &lt;source&gt;incident_review_q1.md&lt;/source&gt;
+    &lt;document_content&gt;
+      {{DOC_2}}
+    &lt;/document_content&gt;
+  &lt;/document&gt;
+&lt;/documents&gt;
+
+&lt;task&gt;
+You must follow this order:
+1) Extract 5-10 verbatim quotes relevant to the question with source ids.
+2) Briefly explain what each quote implies.
+3) Produce final answer using only supported claims.
+4) If support is insufficient, say &quot;insufficient evidence&quot;.
+&lt;/task&gt;
+
+&lt;question&gt;
+What are the top 3 operational risks and the most defensible mitigations for next quarter?
+&lt;/question&gt;
+</code></pre>
+<h3>Review gate</h3>
+<pre><code class="language-text">If a final claim has no supporting quote+source id, treat it as unverified.
+</code></pre>
+<h2>Trade-offs</h2>
+<h3>Costs</h3>
+<ol>
+<li>Slightly longer prompts and responses (higher token cost).</li>
+<li>Added latency due to extraction-before-synthesis.</li>
+<li>More rigid output format to maintain.</li>
+</ol>
+<h3>Benefits</h3>
+<ol>
+<li>Better reliability on long, noisy, multi-document tasks.</li>
+<li>Faster human fact-checking via explicit quotes.</li>
+<li>Lower risk of fluent-but-unsupported conclusions.</li>
+<li>Easier automation for quality gates.</li>
+</ol>
+<h2>References</h2>
+<ul>
+<li>Liu et al., <em>Lost in the Middle: How Language Models Use Long Contexts</em> (TACL 2023 / arXiv): <a href="https://arxiv.org/abs/2307.03172">https://arxiv.org/abs/2307.03172</a></li>
+<li>Anthropic Docs, <em>Prompting best practices — Long context prompting</em>: <a href="https://docs.anthropic.com/en/docs/build-with-claude/prompt-engineering/claude-prompting-best-practices#long-context-prompting">https://docs.anthropic.com/en/docs/build-with-claude/prompt-engineering/claude-prompting-best-practices#long-context-prompting</a></li>
+<li>Anthropic News, <em>100K context windows</em>: <a href="https://www.anthropic.com/news/100k-context-windows">https://www.anthropic.com/news/100k-context-windows</a></li>
+</ul>
+<h2>Final Take</h2>
+<p>If you work with long context, don’t just “stuff more text” into prompts.</p>
+<p>Use boundaries deliberately: <strong>documents first, question last, quotes before conclusions</strong>. That one structural change can produce a major jump in trustworthiness without changing models.</p>
+<h2>Changelog</h2>
+<ul>
+<li>2026-03-25: Initial publish with the Two-Anchor long-context pattern and implementation checklist.</li>
+</ul>
+
+    </article>
+  </body>
+</html>

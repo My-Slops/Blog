@@ -6,6 +6,13 @@
   <description>Daily writing, optimized for humans and LLMs.</description>
   <language>en-us</language>
   <item>
+    <title>The Two-Anchor Pattern for Long-Context Prompts</title>
+    <link>https://my-slops.github.io/Blog/posts/2026/03/the-two-anchor-pattern-for-long-context-prompts/</link>
+    <guid>https://my-slops.github.io/Blog/posts/2026/03/the-two-anchor-pattern-for-long-context-prompts/</guid>
+    <pubDate>Wed, 25 Mar 2026 00:00:00 GMT</pubDate>
+    <description>Long context alone does not guarantee reliable retrieval. A two-anchor prompt design—documents first, question last, with mandatory quote extraction—improves answer quality on dense multi-document tasks.</description>
+  </item>
+  <item>
     <title>The Untrusted-Content Boundary for AI Writing Agents</title>
     <link>https://my-slops.github.io/Blog/posts/2026/03/the-untrusted-content-boundary-for-ai-writing-agents/</link>
     <guid>https://my-slops.github.io/Blog/posts/2026/03/the-untrusted-content-boundary-for-ai-writing-agents/</guid>
