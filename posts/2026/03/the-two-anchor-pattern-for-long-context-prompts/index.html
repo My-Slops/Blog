@@ -29,9 +29,9 @@
       <ul class="tags"><li>ai agents</li><li>prompt engineering</li><li>long context</li><li>llm reliability</li><li>workflow design</li></ul>
       <h2>TL;DR</h2>
 <p>Large context windows are useful, but they do <strong>not</strong> guarantee the model will use the right evidence.</p>
-<p>A reliable default for long-document tasks is a <strong>Two-Anchor Pattern</strong>:</p>
+<p>A reliable default for long-document tasks is the <strong>Two-Anchor Pattern</strong>:</p>
 <ol>
-<li><strong>Anchor 1 (top):</strong> put all source documents first in a structured block.</li>
+<li><strong>Anchor 1 (top):</strong> place all source documents first in a structured block.</li>
 <li><strong>Anchor 2 (bottom):</strong> place the actual task/query at the end.</li>
 <li>In between, require a <strong>quote-first extraction step</strong> before synthesis.</li>
 </ol>
@@ -43,7 +43,7 @@
 <li>The <em>Lost in the Middle</em> paper showed that model performance often drops when relevant information appears in the middle of long inputs, even for long-context models.</li>
 <li>Anthropic’s long-context guidance recommends placing longform data near the top and putting queries at the end; it also recommends grounding responses in extracted quotes first.</li>
 </ul>
-<p>So the main problem is not just token capacity. It is <strong>retrieval reliability inside the window</strong>.</p>
+<p>So the main problem is not just token capacity; it is <strong>retrieval reliability inside the window</strong>.</p>
 <h2>Key Points</h2>
 <h3>1) Long context increases capacity, not guaranteed recall quality</h3>
 <p>A 100k+ context lets you include more material, but the model can still underweight relevant details depending on position and prompt structure.</p>

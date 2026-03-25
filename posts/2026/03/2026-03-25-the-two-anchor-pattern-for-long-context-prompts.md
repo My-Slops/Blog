@@ -20,8 +20,8 @@ status: "published"
 
 Large context windows are useful, but they do **not** guarantee the model will use the right evidence.
 
-A reliable default for long-document tasks is a **Two-Anchor Pattern**:
-1. **Anchor 1 (top):** put all source documents first in a structured block.
+A reliable default for long-document tasks is the **Two-Anchor Pattern**:
+1. **Anchor 1 (top):** place all source documents first in a structured block.
 2. **Anchor 2 (bottom):** place the actual task/query at the end.
 3. In between, require a **quote-first extraction step** before synthesis.
 
@@ -35,7 +35,7 @@ But evidence suggests a more nuanced reality:
 - The *Lost in the Middle* paper showed that model performance often drops when relevant information appears in the middle of long inputs, even for long-context models.
 - Anthropic’s long-context guidance recommends placing longform data near the top and putting queries at the end; it also recommends grounding responses in extracted quotes first.
 
-So the main problem is not just token capacity. It is **retrieval reliability inside the window**.
+So the main problem is not just token capacity; it is **retrieval reliability inside the window**.
 
 ## Key Points
 
