@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url><loc>https://my-slops.github.io/Blog/posts/2026/03/when-quote-first-fails-5-failure-modes-of-grounded-prompting/</loc><lastmod>2026-03-26</lastmod></url>
   <url><loc>https://my-slops.github.io/Blog/posts/2026/03/the-two-anchor-pattern-for-long-context-prompts/</loc><lastmod>2026-03-25</lastmod></url>
   <url><loc>https://my-slops.github.io/Blog/posts/2026/03/the-untrusted-content-boundary-for-ai-writing-agents/</loc><lastmod>2026-03-24</lastmod></url>
   <url><loc>https://my-slops.github.io/Blog/posts/2026/03/the-dry-run-idempotency-approval-ladder-for-ai-agents/</loc><lastmod>2026-03-23</lastmod></url>

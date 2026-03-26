@@ -6,6 +6,13 @@
   <description>Daily writing, optimized for humans and LLMs.</description>
   <language>en-us</language>
   <item>
+    <title>When Quote-First Fails: 5 Failure Modes of Grounded Prompting</title>
+    <link>https://my-slops.github.io/Blog/posts/2026/03/when-quote-first-fails-5-failure-modes-of-grounded-prompting/</link>
+    <guid>https://my-slops.github.io/Blog/posts/2026/03/when-quote-first-fails-5-failure-modes-of-grounded-prompting/</guid>
+    <pubDate>Thu, 26 Mar 2026 00:00:00 GMT</pubDate>
+    <description>Grounded prompting can still fail through irrelevant retrieval, stale evidence, quote laundering, scope drift, and confidence mismatch. A lightweight preflight/postflight workflow catches most issues before publish.</description>
+  </item>
+  <item>
     <title>The Two-Anchor Pattern for Long-Context Prompts</title>
     <link>https://my-slops.github.io/Blog/posts/2026/03/the-two-anchor-pattern-for-long-context-prompts/</link>
     <guid>https://my-slops.github.io/Blog/posts/2026/03/the-two-anchor-pattern-for-long-context-prompts/</guid>

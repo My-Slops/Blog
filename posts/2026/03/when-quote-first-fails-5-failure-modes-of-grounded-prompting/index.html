@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>When Quote-First Fails: 5 Failure Modes of Grounded Prompting | Blog</title>
+    <meta name="description" content="Grounded prompting can still fail through irrelevant retrieval, stale evidence, quote laundering, scope drift, and confidence mismatch. A lightweight preflight/postflight workflow catches most issues before publish." />
+    <link rel="canonical" href="https://my-slops.github.io/Blog/posts/2026/03/when-quote-first-fails-5-failure-modes-of-grounded-prompting/" />
+    <style>
+      :root { color-scheme: light dark; }
+      body { font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; line-height: 1.7; max-width: 760px; margin: 40px auto; padding: 0 16px; }
+      a { color: #0a58ca; text-decoration: none; }
+      a:hover { text-decoration: underline; }
+      .meta { color: #666; font-size: 0.95rem; margin-bottom: 1rem; }
+      .tags { display: flex; gap: 0.5rem; list-style: none; padding: 0; margin: 0.75rem 0 1.25rem; flex-wrap: wrap; }
+      .tags li { background: #eef2ff; color: #3730a3; border-radius: 999px; padding: 0.2rem 0.6rem; font-size: 0.8rem; }
+      article h1, article h2, article h3 { line-height: 1.3; }
+      article pre { overflow-x: auto; background: #111827; color: #f9fafb; padding: 0.9rem; border-radius: 8px; }
+      article code { font-family: ui-monospace,SFMono-Regular,Menlo,monospace; }
+      article blockquote { border-left: 4px solid #d1d5db; margin: 1rem 0; padding: 0.2rem 0.9rem; color: #4b5563; }
+      hr { border: 0; border-top: 1px solid #e5e7eb; margin: 2rem 0; }
+    </style>
+  </head>
+  <body>
+    <p><a href="https://my-slops.github.io/Blog/">← Home</a></p>
+    <article>
+      <h1>When Quote-First Fails: 5 Failure Modes of Grounded Prompting</h1>
+      <p class="meta">Mar 26, 2026</p>
+      <ul class="tags"><li>ai agents</li><li>prompt engineering</li><li>long context</li><li>llm reliability</li><li>workflow design</li></ul>
+      <h2>TL;DR</h2>
+<p>“Quote-first” is a strong reliability pattern, but it can still produce polished, wrong answers.</p>
+<p>The common failure is assuming that <strong>any quote = valid support</strong>. In practice, grounded prompting breaks in predictable ways: wrong quote, stale quote, cherry-picked quote, out-of-scope quote, or overconfident conclusion.</p>
+<p>If you add one upgrade, add a <strong>preflight + postflight gate</strong>:</p>
+<ol>
+<li>Preflight: verify source recency, scope, and retrieval intent.</li>
+<li>Postflight: check that each major claim is directly supported by relevant, current quotes.</li>
+<li>If support is weak, downgrade confidence or explicitly mark insufficient evidence.</li>
+</ol>
+<h2>Context</h2>
+<p>Quote extraction is increasingly used to reduce hallucinations in long-context workflows. The logic is sound: force the model to show evidence before synthesis.</p>
+<p>But evidence-aware output is not automatically evidence-valid output.</p>
+<p>Research on long-context behavior shows models can miss or misweight information depending on where it appears in context. Prompting guidance from model providers also emphasizes structure and ordering, which implies that grounding quality depends heavily on input discipline—not just model size.</p>
+<p>So the practical question is not “Did it quote something?” but “Did it quote the <strong>right</strong> thing for this specific claim?”</p>
+<h2>Key Points</h2>
+<h3>1) Failure mode: <strong>Relevant question, irrelevant quote</strong></h3>
+<p>The model extracts text that is semantically nearby but not actually probative.</p>
+<p>Example: question asks for <em>operational risk</em>, quote discusses <em>general product goals</em>. The answer sounds coherent, but evidence is non-supporting.</p>
+<p><strong>Guardrail:</strong> require a one-line “support rationale” per quote: <em>why this quote supports this exact claim</em>.</p>
+<h3>2) Failure mode: <strong>Stale evidence dressed as current truth</strong></h3>
+<p>Quote-first can still surface outdated policy docs, old metrics, or superseded decisions.</p>
+<p><strong>Guardrail:</strong> enforce recency metadata in extraction output (<code>source</code>, <code>date</code>, <code>version</code>) and block high-impact conclusions from stale sources unless explicitly labeled historical.</p>
+<h3>3) Failure mode: <strong>Quote laundering (weak source, strong conclusion)</strong></h3>
+<p>A low-credibility or speculative sentence gets transformed into a confident recommendation.</p>
+<p><strong>Guardrail:</strong> add source-quality tiers (primary, secondary, opinion) and limit claim strength based on source tier.</p>
+<h3>4) Failure mode: <strong>Scope drift between extraction and synthesis</strong></h3>
+<p>The extracted quotes are on-topic, but the final answer expands beyond what the quotes support.</p>
+<p><strong>Guardrail:</strong> run a claim-to-quote trace check before final output. Any claim without a direct trace is marked unverified.</p>
+<h3>5) Failure mode: <strong>Confidence mismatch</strong></h3>
+<p>The model acknowledges mixed evidence in analysis, then writes a definitive final take.</p>
+<p><strong>Guardrail:</strong> add calibration language rules:</p>
+<ul>
+<li>mixed support → qualified conclusion,</li>
+<li>weak support → tentative framing,</li>
+<li>insufficient support → abstain.</li>
+</ul>
+<h2>Steps / Code</h2>
+<h3>8-minute preflight (before running prompt)</h3>
+<pre><code class="language-text">1) Define scope in one sentence (what question is in-bounds).
+2) Select source set with source type + date metadata.
+3) Remove clearly stale or duplicate docs.
+4) Require extraction format: quote, source_id, date, support_rationale.
+</code></pre>
+<h3>8-minute postflight (before shipping answer)</h3>
+<pre><code class="language-text">1) List final claims as bullets.
+2) Map each claim to at least one quote+source_id.
+3) Downgrade or delete claims with weak trace.
+4) Align confidence wording to evidence strength.
+5) If key claim lacks support, output: &quot;insufficient evidence&quot;.
+</code></pre>
+<h3>Minimal output contract</h3>
+<pre><code class="language-yaml">quotes:
+  - text: &quot;...&quot;
+    source_id: &quot;incident_review_q1&quot;
+    source_date: &quot;2026-01-12&quot;
+    support_rationale: &quot;Supports claim about incident frequency trend&quot;
+
+claims:
+  - text: &quot;Primary risk is change-management bottlenecks&quot;
+    supports: [&quot;incident_review_q1&quot;]
+    confidence: &quot;medium&quot;
+
+answer:
+  summary: &quot;...&quot;
+  uncertainties:
+    - &quot;No current-quarter staffing data available&quot;
+</code></pre>
+<h2>Trade-offs</h2>
+<h3>Costs</h3>
+<ol>
+<li>Slightly slower workflow due to explicit trace checks.</li>
+<li>Extra prompt/output tokens for metadata and rationale.</li>
+<li>More “qualified” language, which can feel less punchy.</li>
+</ol>
+<h3>Benefits</h3>
+<ol>
+<li>Lower risk of fluent-but-unsupported outputs.</li>
+<li>Faster human review because support is inspectable.</li>
+<li>Better reproducibility across runs and collaborators.</li>
+<li>Higher trust in high-stakes summaries and recommendations.</li>
+</ol>
+<h2>References</h2>
+<ul>
+<li>Liu et al., <em>Lost in the Middle: How Language Models Use Long Contexts</em> (TACL 2023 / arXiv): <a href="https://arxiv.org/abs/2307.03172">https://arxiv.org/abs/2307.03172</a></li>
+<li>Anthropic Docs, <em>Prompting best practices — Long context prompting</em>: <a href="https://docs.anthropic.com/en/docs/build-with-claude/prompt-engineering/claude-prompting-best-practices#long-context-prompting">https://docs.anthropic.com/en/docs/build-with-claude/prompt-engineering/claude-prompting-best-practices#long-context-prompting</a></li>
+<li>OpenAI, <em>Why language models hallucinate</em>: <a href="https://openai.com/index/why-language-models-hallucinate">https://openai.com/index/why-language-models-hallucinate</a></li>
+</ul>
+<h2>Final Take</h2>
+<p>Quote-first grounding is not a silver bullet; it is a <strong>discipline</strong>.</p>
+<p>The winning habit is simple: treat extraction as evidence gathering, then audit claim support before final prose. That one extra check prevents most high-confidence mistakes.</p>
+<h2>Changelog</h2>
+<ul>
+<li>2026-03-26: Initial draft/publish of five grounded-prompting failure modes with preflight/postflight quality gates.</li>
+</ul>
+
+    </article>
+  </body>
+</html>

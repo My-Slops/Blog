@@ -1,7 +1,22 @@
 {
   "tag": "ai agents",
-  "count": 4,
+  "count": 5,
   "posts": [
+    {
+      "title": "When Quote-First Fails: 5 Failure Modes of Grounded Prompting",
+      "date": "2026-03-26",
+      "updated": "2026-03-26",
+      "summary": "Grounded prompting can still fail through irrelevant retrieval, stale evidence, quote laundering, scope drift, and confidence mismatch. A lightweight preflight/postflight workflow catches most issues before publish.",
+      "tags": [
+        "ai agents",
+        "prompt engineering",
+        "long context",
+        "llm reliability",
+        "workflow design"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/03/when-quote-first-fails-5-failure-modes-of-grounded-prompting/",
+      "path": "posts/2026/03/2026-03-26-when-quote-first-fails-5-failure-modes-of-grounded-prompting.md"
+    },
     {
       "title": "The Two-Anchor Pattern for Long-Context Prompts",
       "date": "2026-03-25",
