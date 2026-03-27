@@ -1,7 +1,22 @@
 {
-  "generated_at": "2026-03-26T06:09:27.774Z",
-  "count": 28,
+  "generated_at": "2026-03-27T14:01:41.062Z",
+  "count": 29,
   "posts": [
+    {
+      "title": "Idempotency Keys Are the Seatbelt for AI Agents",
+      "date": "2026-03-27",
+      "updated": "2026-03-27",
+      "summary": "Retries are necessary in real systems, but retries plus side effects create duplicate writes, charges, and messages. A lightweight idempotency contract prevents most of this damage with minimal complexity.",
+      "tags": [
+        "ai agents",
+        "reliability",
+        "distributed systems",
+        "api design",
+        "operations"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/03/idempotency-keys-are-the-seatbelt-for-ai-agents/",
+      "path": "posts/2026/03/2026-03-27-idempotency-keys-are-the-seatbelt-for-ai-agents.md"
+    },
     {
       "title": "When Quote-First Fails: 5 Failure Modes of Grounded Prompting",
       "date": "2026-03-26",

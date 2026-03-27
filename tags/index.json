@@ -1,15 +1,20 @@
 {
-  "generated_at": "2026-03-26T06:09:27.783Z",
+  "generated_at": "2026-03-27T14:01:41.070Z",
   "tags": [
     {
       "tag": "ai agents",
-      "count": 5,
+      "count": 6,
       "url": "https://my-slops.github.io/Blog/tags/ai agents.json"
     },
     {
       "tag": "ai writing",
       "count": 21,
       "url": "https://my-slops.github.io/Blog/tags/ai writing.json"
+    },
+    {
+      "tag": "api design",
+      "count": 1,
+      "url": "https://my-slops.github.io/Blog/tags/api design.json"
     },
     {
       "tag": "blogging",
@@ -67,6 +72,11 @@
       "url": "https://my-slops.github.io/Blog/tags/decision making.json"
     },
     {
+      "tag": "distributed systems",
+      "count": 1,
+      "url": "https://my-slops.github.io/Blog/tags/distributed systems.json"
+    },
+    {
       "tag": "editing",
       "count": 9,
       "url": "https://my-slops.github.io/Blog/tags/editing.json"
@@ -122,6 +132,11 @@
       "url": "https://my-slops.github.io/Blog/tags/meta.json"
     },
     {
+      "tag": "operations",
+      "count": 1,
+      "url": "https://my-slops.github.io/Blog/tags/operations.json"
+    },
+    {
       "tag": "productivity",
       "count": 2,
       "url": "https://my-slops.github.io/Blog/tags/productivity.json"
@@ -153,7 +168,7 @@
     },
     {
       "tag": "reliability",
-      "count": 3,
+      "count": 4,
       "url": "https://my-slops.github.io/Blog/tags/reliability.json"
     },
     {

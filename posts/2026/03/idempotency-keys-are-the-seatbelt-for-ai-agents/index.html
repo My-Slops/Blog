@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Idempotency Keys Are the Seatbelt for AI Agents | Blog</title>
+    <meta name="description" content="Retries are necessary in real systems, but retries plus side effects create duplicate writes, charges, and messages. A lightweight idempotency contract prevents most of this damage with minimal complexity." />
+    <link rel="canonical" href="https://my-slops.github.io/Blog/posts/2026/03/idempotency-keys-are-the-seatbelt-for-ai-agents/" />
+    <style>
+      :root { color-scheme: light dark; }
+      body { font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; line-height: 1.7; max-width: 760px; margin: 40px auto; padding: 0 16px; }
+      a { color: #0a58ca; text-decoration: none; }
+      a:hover { text-decoration: underline; }
+      .meta { color: #666; font-size: 0.95rem; margin-bottom: 1rem; }
+      .tags { display: flex; gap: 0.5rem; list-style: none; padding: 0; margin: 0.75rem 0 1.25rem; flex-wrap: wrap; }
+      .tags li { background: #eef2ff; color: #3730a3; border-radius: 999px; padding: 0.2rem 0.6rem; font-size: 0.8rem; }
+      article h1, article h2, article h3 { line-height: 1.3; }
+      article pre { overflow-x: auto; background: #111827; color: #f9fafb; padding: 0.9rem; border-radius: 8px; }
+      article code { font-family: ui-monospace,SFMono-Regular,Menlo,monospace; }
+      article blockquote { border-left: 4px solid #d1d5db; margin: 1rem 0; padding: 0.2rem 0.9rem; color: #4b5563; }
+      hr { border: 0; border-top: 1px solid #e5e7eb; margin: 2rem 0; }
+    </style>
+  </head>
+  <body>
+    <p><a href="https://my-slops.github.io/Blog/">← Home</a></p>
+    <article>
+      <h1>Idempotency Keys Are the Seatbelt for AI Agents</h1>
+      <p class="meta">Mar 27, 2026</p>
+      <ul class="tags"><li>ai agents</li><li>reliability</li><li>distributed systems</li><li>api design</li><li>operations</li></ul>
+      <h2>TL;DR</h2>
+<p>If an AI agent can retry a write action, it can accidentally do that action twice.</p>
+<p>Network timeouts, partial failures, and at-least-once delivery are normal in production systems—not edge cases. The practical fix is to require an <strong>idempotency key</strong> on side-effecting operations and have the server return the first result for duplicate keys.</p>
+<p>Treat this as a default contract for tools that create, mutate, charge, send, or enqueue.</p>
+<h2>Context</h2>
+<p>Agent workflows increasingly chain external tools: payments, ticket creation, email sends, database writes, and queue operations. These are exactly the calls most likely to be retried when a timeout or transient error happens.</p>
+<p>AWS’s reliability guidance is explicit: retries are useful for partial/transient failures, but retries can be unsafe when calls have side effects; APIs should be designed to be idempotent when safe retries matter. Stripe documents a concrete implementation pattern that many teams can copy: client-provided idempotency key + cached first response for that key.</p>
+<p>In other words, this is not “AI safety theater.” It is basic distributed-systems hygiene that becomes more urgent when autonomous loops can issue retries at machine speed.</p>
+<h2>Key Points</h2>
+<h3>1) Retries are normal, not exceptional</h3>
+<p>Real systems fail partially and transiently. Clients retry because retries often work.</p>
+<p>That means any agent tool using HTTP, queues, or RPC will eventually retry something. If the operation is side-effecting, retries are a risk multiplier.</p>
+<h3>2) Duplicate effects are a <em>design</em> problem, not just a runtime bug</h3>
+<p>A timeout does not prove the action did not happen. The downstream system may have completed work even when the caller saw an error.</p>
+<p>This creates the dangerous ambiguity: “did it fail, or did it succeed but we missed the response?”</p>
+<h3>3) Idempotency keys collapse ambiguity</h3>
+<p>With an idempotency key, the server treats repeated requests as the same logical operation.</p>
+<p>Stripe’s approach is a strong baseline:</p>
+<ul>
+<li>client sends a unique key,</li>
+<li>server stores first result for that key,</li>
+<li>retries with same key return the same result,</li>
+<li>key reuse with different parameters is rejected.</li>
+</ul>
+<p>This pattern converts uncertain retry behavior into deterministic behavior.</p>
+<h3>4) At-least-once systems make idempotency mandatory</h3>
+<p>SQS standard queues explicitly warn that duplicates can happen and recommend idempotent consumers.</p>
+<p>If your agent consumes queue events and triggers writes, dedupe cannot be optional. It is part of correctness.</p>
+<h3>5) Non-obvious insight: idempotency is also a <strong>cost-control</strong> primitive</h3>
+<p>Most teams frame idempotency as reliability. It is also a direct budget control:</p>
+<ul>
+<li>duplicate API calls,</li>
+<li>duplicate LLM/tool invocations,</li>
+<li>duplicate human notifications,</li>
+<li>duplicate paid transactions.</li>
+</ul>
+<p>A single idempotency key can prevent both operational incidents and surprise spend.</p>
+<h2>Steps / Code</h2>
+<h3>Minimal contract for side-effecting tools</h3>
+<pre><code class="language-yaml">request:
+  operation: &quot;create_invoice&quot;
+  idempotency_key: &quot;uuid-v4&quot;
+  payload_hash: &quot;sha256(payload)&quot;
+
+server_rules:
+  - if key unseen: execute, persist result, return result
+  - if key seen and payload_hash matches: return persisted result
+  - if key seen and payload_hash differs: return 409 conflict
+  - expire old keys after retention window (e.g., 24h+ based on domain)
+</code></pre>
+<h3>Agent policy (small but effective)</h3>
+<pre><code class="language-text">For every side-effecting action:
+1) Generate one idempotency_key per logical intent.
+2) Reuse the same key for retries of that intent.
+3) Never reuse the key for a different payload.
+4) Log key + operation + outcome for auditability.
+</code></pre>
+<h3>Fast rollout checklist</h3>
+<pre><code class="language-text">[ ] Tag each tool as read-only vs side-effecting.
+[ ] Enforce idempotency_key for side-effecting calls.
+[ ] Add a storage table/cache for key -&gt; first response.
+[ ] Add conflict response for key+payload mismatch.
+[ ] Add dashboard metric: duplicate-prevented count.
+</code></pre>
+<h2>Trade-offs</h2>
+<h3>Costs</h3>
+<ol>
+<li>Extra storage and lookup for idempotency records.</li>
+<li>Slightly more API complexity (key lifecycle, retention, conflict semantics).</li>
+<li>Domain decisions on retention windows and scope (per user? per operation?).</li>
+</ol>
+<h3>Benefits</h3>
+<ol>
+<li>Safe retries under flaky network conditions.</li>
+<li>Fewer duplicate writes/charges/messages.</li>
+<li>Better incident debugging via deterministic replay behavior.</li>
+<li>Lower operational and financial blast radius for autonomous agents.</li>
+</ol>
+<h2>References</h2>
+<ul>
+<li>AWS Builders Library, <em>Timeouts, retries, and backoff with jitter</em>: <a href="https://aws.amazon.com/builders-library/timeouts-retries-and-backoff-with-jitter/">https://aws.amazon.com/builders-library/timeouts-retries-and-backoff-with-jitter/</a></li>
+<li>Stripe Docs, <em>Idempotent requests</em>: <a href="https://docs.stripe.com/api/idempotent_requests">https://docs.stripe.com/api/idempotent_requests</a></li>
+<li>AWS SQS Developer Guide, <em>At-least-once delivery</em>: <a href="https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/standard-queues-at-least-once-delivery.html">https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/standard-queues-at-least-once-delivery.html</a></li>
+</ul>
+<h2>Final Take</h2>
+<p>If you only add one reliability guardrail to agent tool calls this month, make it idempotency keys.</p>
+<p>Retries are unavoidable. Duplicate side effects are optional.</p>
+<h2>Changelog</h2>
+<ul>
+<li>2026-03-27: Initial publish on idempotency keys as a default contract for side-effecting agent actions.</li>
+</ul>
+
+    </article>
+  </body>
+</html>
