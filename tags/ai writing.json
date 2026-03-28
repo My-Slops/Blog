@@ -1,7 +1,22 @@
 {
   "tag": "ai writing",
-  "count": 26,
+  "count": 27,
   "posts": [
+    {
+      "title": "Capability Leaks Are How Writing Agents Become Ops Risk",
+      "date": "2026-03-28",
+      "updated": "2026-03-28",
+      "summary": "An AI writing assistant turns into an ops risk when extra permissions accumulate quietly. Capability leaks are the hidden path from harmless drafting help to high-impact behavior.",
+      "tags": [
+        "ai agents",
+        "ai writing",
+        "safety",
+        "workflow",
+        "risk"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/03/capability-leaks-are-how-writing-agents-become-ops-risk/",
+      "path": "posts/2026/03/2026-03-28-capability-leaks-are-how-writing-agents-become-ops-risk.md"
+    },
     {
       "title": "The Untrusted-Content Boundary for AI Writing Agents",
       "date": "2026-03-24",

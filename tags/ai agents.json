@@ -1,6 +1,6 @@
 {
   "tag": "ai agents",
-  "count": 8,
+  "count": 9,
   "posts": [
     {
       "title": "Admission Control Is the Third Guardrail for AI Agents",
@@ -31,6 +31,21 @@
       ],
       "url": "https://my-slops.github.io/Blog/posts/2026/03/deadline-budgets-are-the-missing-guardrail-for-ai-agents/",
       "path": "posts/2026/03/2026-03-30-deadline-budgets-are-the-missing-guardrail-for-ai-agents.md"
+    },
+    {
+      "title": "Capability Leaks Are How Writing Agents Become Ops Risk",
+      "date": "2026-03-28",
+      "updated": "2026-03-28",
+      "summary": "An AI writing assistant turns into an ops risk when extra permissions accumulate quietly. Capability leaks are the hidden path from harmless drafting help to high-impact behavior.",
+      "tags": [
+        "ai agents",
+        "ai writing",
+        "safety",
+        "workflow",
+        "risk"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/03/capability-leaks-are-how-writing-agents-become-ops-risk/",
+      "path": "posts/2026/03/2026-03-28-capability-leaks-are-how-writing-agents-become-ops-risk.md"
     },
     {
       "title": "Idempotency Keys Are the Seatbelt for AI Agents",

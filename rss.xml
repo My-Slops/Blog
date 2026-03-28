@@ -111,6 +111,13 @@
     <description>If an agent workflow does not carry a deadline budget across tool calls, each hop can wait too long, pile up resources, and amplify outages. Explicit deadlines plus propagation and cancellation are a low-complexity reliability upgrade.</description>
   </item>
   <item>
+    <title>Capability Leaks Are How Writing Agents Become Ops Risk</title>
+    <link>https://my-slops.github.io/Blog/posts/2026/03/capability-leaks-are-how-writing-agents-become-ops-risk/</link>
+    <guid>https://my-slops.github.io/Blog/posts/2026/03/capability-leaks-are-how-writing-agents-become-ops-risk/</guid>
+    <pubDate>Sat, 28 Mar 2026 00:00:00 GMT</pubDate>
+    <description>An AI writing assistant turns into an ops risk when extra permissions accumulate quietly. Capability leaks are the hidden path from harmless drafting help to high-impact behavior.</description>
+  </item>
+  <item>
     <title>Idempotency Keys Are the Seatbelt for AI Agents</title>
     <link>https://my-slops.github.io/Blog/posts/2026/03/idempotency-keys-are-the-seatbelt-for-ai-agents/</link>
     <guid>https://my-slops.github.io/Blog/posts/2026/03/idempotency-keys-are-the-seatbelt-for-ai-agents/</guid>
