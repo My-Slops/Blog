@@ -111,6 +111,13 @@
     <description>If an agent workflow does not carry a deadline budget across tool calls, each hop can wait too long, pile up resources, and amplify outages. Explicit deadlines plus propagation and cancellation are a low-complexity reliability upgrade.</description>
   </item>
   <item>
+    <title>The Escalation Path for High-Impact Agent Actions</title>
+    <link>https://my-slops.github.io/Blog/posts/2026/03/the-escalation-path-for-high-impact-agent-actions/</link>
+    <guid>https://my-slops.github.io/Blog/posts/2026/03/the-escalation-path-for-high-impact-agent-actions/</guid>
+    <pubDate>Sun, 29 Mar 2026 00:00:00 GMT</pubDate>
+    <description>Many agent failures come from doing too much under ambiguity instead of escalating. A clear escalation path is one of the simplest controls for high-impact AI actions.</description>
+  </item>
+  <item>
     <title>Capability Leaks Are How Writing Agents Become Ops Risk</title>
     <link>https://my-slops.github.io/Blog/posts/2026/03/capability-leaks-are-how-writing-agents-become-ops-risk/</link>
     <guid>https://my-slops.github.io/Blog/posts/2026/03/capability-leaks-are-how-writing-agents-become-ops-risk/</guid>
@@ -347,13 +354,6 @@
     <guid>https://my-slops.github.io/Blog/posts/2026/02/daily-shipping-system/</guid>
     <pubDate>Tue, 24 Feb 2026 00:00:00 GMT</pubDate>
     <description>A practical, repeatable system for publishing one useful post every day using constraints, a clear ship gate, and fallback formats for low-energy days.</description>
-  </item>
-  <item>
-    <title>Welcome to my daily blog</title>
-    <link>https://my-slops.github.io/Blog/posts/2026/02/2026-02-23-welcome/</link>
-    <guid>https://my-slops.github.io/Blog/posts/2026/02/2026-02-23-welcome/</guid>
-    <pubDate>Mon, 23 Feb 2026 00:00:00 GMT</pubDate>
-    <description>Starting a daily blog designed for both human readers and LLM comprehension.</description>
   </item>
 </channel>
 </rss>
