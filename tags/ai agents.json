@@ -1,7 +1,22 @@
 {
   "tag": "ai agents",
-  "count": 6,
+  "count": 7,
   "posts": [
+    {
+      "title": "Deadline Budgets Are the Missing Guardrail for AI Agents",
+      "date": "2026-03-30",
+      "updated": "2026-03-30",
+      "summary": "If an agent workflow does not carry a deadline budget across tool calls, each hop can wait too long, pile up resources, and amplify outages. Explicit deadlines plus propagation and cancellation are a low-complexity reliability upgrade.",
+      "tags": [
+        "ai agents",
+        "reliability",
+        "distributed systems",
+        "operations",
+        "workflow"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/03/deadline-budgets-are-the-missing-guardrail-for-ai-agents/",
+      "path": "posts/2026/03/2026-03-30-deadline-budgets-are-the-missing-guardrail-for-ai-agents.md"
+    },
     {
       "title": "Idempotency Keys Are the Seatbelt for AI Agents",
       "date": "2026-03-27",

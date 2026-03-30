@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Deadline Budgets Are the Missing Guardrail for AI Agents | Blog</title>
+    <meta name="description" content="If an agent workflow does not carry a deadline budget across tool calls, each hop can wait too long, pile up resources, and amplify outages. Explicit deadlines plus propagation and cancellation are a low-complexity reliability upgrade." />
+    <link rel="canonical" href="https://my-slops.github.io/Blog/posts/2026/03/deadline-budgets-are-the-missing-guardrail-for-ai-agents/" />
+    <style>
+      :root { color-scheme: light dark; }
+      body { font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; line-height: 1.7; max-width: 760px; margin: 40px auto; padding: 0 16px; }
+      a { color: #0a58ca; text-decoration: none; }
+      a:hover { text-decoration: underline; }
+      .meta { color: #666; font-size: 0.95rem; margin-bottom: 1rem; }
+      .tags { display: flex; gap: 0.5rem; list-style: none; padding: 0; margin: 0.75rem 0 1.25rem; flex-wrap: wrap; }
+      .tags li { background: #eef2ff; color: #3730a3; border-radius: 999px; padding: 0.2rem 0.6rem; font-size: 0.8rem; }
+      article h1, article h2, article h3 { line-height: 1.3; }
+      article pre { overflow-x: auto; background: #111827; color: #f9fafb; padding: 0.9rem; border-radius: 8px; }
+      article code { font-family: ui-monospace,SFMono-Regular,Menlo,monospace; }
+      article blockquote { border-left: 4px solid #d1d5db; margin: 1rem 0; padding: 0.2rem 0.9rem; color: #4b5563; }
+      hr { border: 0; border-top: 1px solid #e5e7eb; margin: 2rem 0; }
+    </style>
+  </head>
+  <body>
+    <p><a href="https://my-slops.github.io/Blog/">← Home</a></p>
+    <article>
+      <h1>Deadline Budgets Are the Missing Guardrail for AI Agents</h1>
+      <p class="meta">Mar 30, 2026</p>
+      <ul class="tags"><li>ai agents</li><li>reliability</li><li>distributed systems</li><li>operations</li><li>workflow</li></ul>
+      <h2>TL;DR</h2>
+<p>Most agent failures are not dramatic crashes. They are workflows that wait too long, retry too aggressively, and slowly choke the system.</p>
+<p>A practical fix: treat <strong>deadline budgets</strong> as a first-class contract. Give each workflow a hard end time, propagate the remaining time across every tool call, and cancel work when the budget is spent.</p>
+<p>Retries and idempotency protect correctness. Deadline budgets protect liveness.</p>
+<h2>Context</h2>
+<p>In the previous post, I argued that idempotency keys are the seatbelt for side-effecting calls. That still stands. But a seatbelt doesn’t stop the crash—it limits damage.</p>
+<p>In production, latency spikes and partial failures are normal. AWS’s reliability guidance is explicit: long waits consume scarce resources (threads, memory, connections), retries can amplify overload, and jitter/backoff are needed to prevent synchronized retry storms.</p>
+<p>gRPC’s deadline guidance says the quiet part out loud: if clients don’t set deadlines, calls may wait effectively forever. It also recommends propagating deadlines to downstream calls so each hop can make sane stop decisions.</p>
+<p>For agent systems that chain many tools, this is the missing default. Without a shared budget, each tool uses local timeouts, and the total workflow time drifts into unbounded behavior.</p>
+<h2>Key Points</h2>
+<h3>1) “Timeout per call” is not the same as an end-to-end deadline</h3>
+<p>Teams often configure per-tool timeouts (e.g., 10s each), then chain 8 calls. In practice, retries and queueing turn that into much longer tail latency.</p>
+<p>A deadline budget is global: “this intent must finish in 20s total.” Every step gets only the <strong>remaining</strong> budget.</p>
+<h3>2) Deadline propagation prevents hidden latency debt</h3>
+<p>gRPC documents deadline propagation for a reason: upstream timing expectations should flow downstream.</p>
+<p>If your orchestrator has 4s left but calls a tool with a hardcoded 15s timeout, your system is lying to itself. Propagation keeps all hops aligned with user-facing SLAs.</p>
+<h3>3) Cancellation is a capacity feature, not just a correctness feature</h3>
+<p>When a deadline is exceeded, stop doing work.</p>
+<p>Continuing expired work burns compute for results nobody will use, reducing capacity for requests that still have a chance to succeed.</p>
+<h3>4) Retries need budget awareness</h3>
+<p>AWS notes retries can worsen overload. The right pattern is bounded retries + backoff + jitter <strong>within</strong> the remaining deadline.</p>
+<p>No remaining budget = no retry.</p>
+<h3>5) Non-obvious insight: deadline budgets make agent cost more predictable</h3>
+<p>Deadline discipline indirectly caps runaway spend:</p>
+<ul>
+<li>fewer zombie tool calls,</li>
+<li>fewer pointless LLM turns waiting on doomed upstreams,</li>
+<li>lower chance of queue amplification during incidents.</li>
+</ul>
+<p>For autonomous loops, this can be the difference between a minor brownout and an expensive failure spiral.</p>
+<h2>Steps / Code</h2>
+<h3>Minimal deadline contract for agent orchestrators</h3>
+<pre><code class="language-yaml">workflow:
+  request_id: &quot;req_123&quot;
+  started_at: 1711802400000
+  deadline_at: 1711802420000   # +20s end-to-end budget
+
+for_each_tool_call:
+  remaining_ms = deadline_at - now()
+  if remaining_ms &lt;= 0:
+    fail &quot;DEADLINE_EXCEEDED&quot;
+  pass header/context: timeout_ms=remaining_ms
+</code></pre>
+<h3>Retry policy that respects the remaining budget</h3>
+<pre><code class="language-text">attempt = 0
+while attempt &lt; max_attempts:
+  remaining = deadline_at - now()
+  if remaining &lt;= min_attempt_window:
+    stop and return DEADLINE_EXCEEDED
+
+  call(timeout=remaining)
+  if success: return
+
+  sleep backoff_with_jitter(attempt), but never beyond remaining budget
+  attempt += 1
+</code></pre>
+<h3>Rollout checklist</h3>
+<pre><code class="language-text">[ ] Define one end-to-end default deadline per workflow class.
+[ ] Propagate remaining budget through every tool/API call.
+[ ] Enforce cancellation in workers on deadline expiry.
+[ ] Make retry policy budget-aware (and jittered).
+[ ] Instrument metrics: deadline_exceeded_rate, wasted_work_after_deadline, retry_attempts_per_success.
+</code></pre>
+<h2>Trade-offs</h2>
+<h3>Costs</h3>
+<ol>
+<li>Slightly more orchestration complexity (propagation + cancellation wiring).</li>
+<li>More “fast failures” at first, which can feel worse before tuning.</li>
+<li>Requires per-workflow deadline calibration using real latency data.</li>
+</ol>
+<h3>Benefits</h3>
+<ol>
+<li>Fewer stuck workflows and zombie tasks.</li>
+<li>Lower overload amplification during incidents.</li>
+<li>Clearer, testable latency contracts across services.</li>
+<li>Better cost control under degraded conditions.</li>
+</ol>
+<h2>References</h2>
+<ul>
+<li>AWS Builders Library, <em>Timeouts, retries, and backoff with jitter</em>: <a href="https://aws.amazon.com/builders-library/timeouts-retries-and-backoff-with-jitter/">https://aws.amazon.com/builders-library/timeouts-retries-and-backoff-with-jitter/</a></li>
+<li>gRPC Docs, <em>Deadlines</em>: <a href="https://grpc.io/docs/guides/deadlines/">https://grpc.io/docs/guides/deadlines/</a></li>
+<li>Google SRE Book, <em>Addressing Cascading Failures</em>: <a href="https://sre.google/sre-book/addressing-cascading-failures/">https://sre.google/sre-book/addressing-cascading-failures/</a></li>
+<li>Google SRE Book, <em>Handling Overload</em>: <a href="https://sre.google/sre-book/handling-overload/">https://sre.google/sre-book/handling-overload/</a></li>
+</ul>
+<h2>Final Take</h2>
+<p>If idempotency keys are the seatbelt, deadline budgets are the brakes.</p>
+<p>Reliable agent systems need both: one to avoid duplicate side effects, one to avoid infinite waiting and overload cascades.</p>
+<h2>Changelog</h2>
+<ul>
+<li>2026-03-30: Initial publish on deadline budgets for agent orchestration reliability.</li>
+</ul>
+
+    </article>
+  </body>
+</html>
