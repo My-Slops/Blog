@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admission Control Is the Third Guardrail for AI Agents | Blog</title>
+    <meta name="description" content="When an AI workflow platform keeps accepting work during brownouts, queues inflate, latency explodes, and retries make things worse. Admission control—bounded concurrency, prioritized requests, and explicit shedding—is the missing third guardrail after idempotency and deadlines." />
+    <link rel="canonical" href="https://my-slops.github.io/Blog/posts/2026/03/admission-control-is-the-third-guardrail-for-ai-agents/" />
+    <style>
+      :root { color-scheme: light dark; }
+      body { font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; line-height: 1.7; max-width: 760px; margin: 40px auto; padding: 0 16px; }
+      a { color: #0a58ca; text-decoration: none; }
+      a:hover { text-decoration: underline; }
+      .meta { color: #666; font-size: 0.95rem; margin-bottom: 1rem; }
+      .tags { display: flex; gap: 0.5rem; list-style: none; padding: 0; margin: 0.75rem 0 1.25rem; flex-wrap: wrap; }
+      .tags li { background: #eef2ff; color: #3730a3; border-radius: 999px; padding: 0.2rem 0.6rem; font-size: 0.8rem; }
+      article h1, article h2, article h3 { line-height: 1.3; }
+      article pre { overflow-x: auto; background: #111827; color: #f9fafb; padding: 0.9rem; border-radius: 8px; }
+      article code { font-family: ui-monospace,SFMono-Regular,Menlo,monospace; }
+      article blockquote { border-left: 4px solid #d1d5db; margin: 1rem 0; padding: 0.2rem 0.9rem; color: #4b5563; }
+      hr { border: 0; border-top: 1px solid #e5e7eb; margin: 2rem 0; }
+    </style>
+  </head>
+  <body>
+    <p><a href="https://my-slops.github.io/Blog/">← Home</a></p>
+    <article>
+      <h1>Admission Control Is the Third Guardrail for AI Agents</h1>
+      <p class="meta">Mar 31, 2026</p>
+      <ul class="tags"><li>ai agents</li><li>reliability</li><li>overload</li><li>systems design</li><li>operations</li></ul>
+      <h2>TL;DR</h2>
+<p>If your agent platform accepts every request during a spike, retries and deadlines won’t save you. You’ll still build a queue you can’t drain fast enough.</p>
+<p>A more reliable default is <strong>admission control</strong>: cap in-flight work, prioritize critical traffic, and reject/defer excess early with explicit signals.</p>
+<p>Think of it as the third guardrail:</p>
+<ul>
+<li>idempotency protects correctness,</li>
+<li>deadlines protect liveness,</li>
+<li>admission control protects capacity.</li>
+</ul>
+<h2>Context</h2>
+<p>The previous posts covered two core reliability patterns for agent workflows: idempotency keys and deadline budgets. Those are necessary, but they are not sufficient under overload.</p>
+<p>Google’s SRE guidance is blunt: overload is the most common cause of cascading failures. Once one slice of the system degrades, spillover traffic can push healthy slices over the edge.</p>
+<p>AWS’s Builders Library makes the same point from another angle: even well-run systems have finite capacity at any instant. Under brownout conditions, a service needs to actively shed work and prioritize what matters most.</p>
+<p>For AI agents, this problem is amplified because a single user intent can fan out into many tool calls, retries, and model turns. If admission is unbounded, you effectively convert a temporary spike into a prolonged outage.</p>
+<h2>Key Points</h2>
+<h3>1) Deadlines without admission control still allow queue collapse</h3>
+<p>A deadline can stop old requests eventually, but it does not prevent your workers from being flooded right now.</p>
+<p>If the system keeps accepting new work while CPU, DB pools, or model quotas are saturated, tail latency grows faster than throughput. You then spend capacity on work that is likely to miss its deadline anyway.</p>
+<h3>2) Rejecting early is often kinder than timing out late</h3>
+<p>The HTTP ecosystem already has a clear contract for overload: <strong>429 Too Many Requests</strong> (optionally with <code>Retry-After</code>).</p>
+<p>For agent clients and orchestrators, early explicit rejection is usually better than hidden queueing:</p>
+<ul>
+<li>the caller can retry later,</li>
+<li>the user gets immediate feedback,</li>
+<li>the platform avoids wasting compute on doomed requests.</li>
+</ul>
+<h3>3) Prioritization beats first-come-first-served during incidents</h3>
+<p>AWS notes that overload handling should triage requests, not treat all traffic as equal.</p>
+<p>In agent systems, this often means:</p>
+<ul>
+<li>prioritize interactive user flows over background batch jobs,</li>
+<li>prioritize cancel/health traffic so the control plane remains responsive,</li>
+<li>deprioritize expensive best-effort enrichments before core response paths.</li>
+</ul>
+<h3>4) Non-obvious insight: admission control improves output quality, not just uptime</h3>
+<p>When overloaded systems keep every request, they often degrade silently:</p>
+<ul>
+<li>shorter internal budgets,</li>
+<li>partial tool execution,</li>
+<li>low-confidence answers shipped under pressure.</li>
+</ul>
+<p>By keeping concurrency inside safe bounds, you reduce “half-complete” agent runs and improve consistency of final responses.</p>
+<h3>5) Retries must coordinate with admission signals</h3>
+<p>Retries are useful for transient failures, but they can amplify overload if every client retries immediately.</p>
+<p>A robust policy combines:</p>
+<ul>
+<li>bounded retries,</li>
+<li>backoff with jitter,</li>
+<li>respect for explicit overload responses (<code>429</code>, <code>Retry-After</code>),</li>
+<li>and no retries when remaining workflow budget is too small.</li>
+</ul>
+<h2>Steps / Code</h2>
+<h3>Minimal admission policy for an orchestrator</h3>
+<pre><code class="language-yaml">limits:
+  max_inflight_global: 800
+  max_inflight_per_tenant: 40
+  max_queue_depth_global: 1200
+
+on_request:
+  if inflight_global &gt;= max_inflight_global:
+    return 429 Retry-After: 2
+
+  if inflight_tenant(tenant_id) &gt;= max_inflight_per_tenant:
+    return 429 Retry-After: 5
+
+  if queue_depth_global &gt;= max_queue_depth_global:
+    return 429 Retry-After: 3
+
+  accept_and_enqueue(priority_class)
+</code></pre>
+<h3>Priority classes (simple, practical default)</h3>
+<pre><code class="language-text">P0: health checks, cancels, auth/session refresh
+P1: interactive user prompts
+P2: async/batch enrichment
+P3: analytics/backfill
+
+Under overload:
+- always preserve P0/P1
+- shed P3 first
+- then rate-limit P2
+</code></pre>
+<h3>Metrics to add this week</h3>
+<pre><code class="language-text">[ ] inflight_requests (global + per tenant)
+[ ] queue_depth and queue_wait_ms (p95/p99)
+[ ] shed_rate (429 count by endpoint/class)
+[ ] useful_goodput (successful responses within deadline)
+[ ] expired_work_ratio (work completed after deadline)
+</code></pre>
+<h2>Trade-offs</h2>
+<h3>Costs</h3>
+<ol>
+<li>You must define policy (limits, priority, fairness), which takes iteration.</li>
+<li>Some requests fail fast during spikes, which can look harsh in the short term.</li>
+<li>Tenant-level fairness can add implementation complexity.</li>
+</ol>
+<h3>Benefits</h3>
+<ol>
+<li>Fewer cascading failures and brownout spirals.</li>
+<li>Better latency predictability for critical user paths.</li>
+<li>Less wasted compute on requests that were unlikely to succeed.</li>
+<li>Higher quality and consistency under pressure.</li>
+</ol>
+<h2>References</h2>
+<ul>
+<li>Google SRE Book, <em>Handling Overload</em>: <a href="https://sre.google/sre-book/handling-overload/">https://sre.google/sre-book/handling-overload/</a></li>
+<li>Google SRE Book, <em>Addressing Cascading Failures</em>: <a href="https://sre.google/sre-book/addressing-cascading-failures/">https://sre.google/sre-book/addressing-cascading-failures/</a></li>
+<li>AWS Builders Library, <em>Using load shedding to avoid overload</em>: <a href="https://aws.amazon.com/builders-library/using-load-shedding-to-avoid-overload/">https://aws.amazon.com/builders-library/using-load-shedding-to-avoid-overload/</a></li>
+<li>AWS Builders Library, <em>Timeouts, retries, and backoff with jitter</em>: <a href="https://aws.amazon.com/builders-library/timeouts-retries-and-backoff-with-jitter/">https://aws.amazon.com/builders-library/timeouts-retries-and-backoff-with-jitter/</a></li>
+<li>MDN, <em>429 Too Many Requests</em>: <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/429">https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/429</a></li>
+</ul>
+<h2>Final Take</h2>
+<p>If you only add retries, you risk amplifying failures.
+If you only add deadlines, you may still drown in queue debt.</p>
+<p>Add admission control as a first-class design choice: decide what to accept, what to defer, and what to reject early. That single decision is often the boundary between graceful degradation and cascading failure.</p>
+<h2>Changelog</h2>
+<ul>
+<li>2026-03-31: Initial publish on admission control for agent reliability.</li>
+</ul>
+
+    </article>
+  </body>
+</html>

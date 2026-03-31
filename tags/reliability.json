@@ -1,7 +1,22 @@
 {
   "tag": "reliability",
-  "count": 5,
+  "count": 6,
   "posts": [
+    {
+      "title": "Admission Control Is the Third Guardrail for AI Agents",
+      "date": "2026-03-31",
+      "updated": "2026-03-31",
+      "summary": "When an AI workflow platform keeps accepting work during brownouts, queues inflate, latency explodes, and retries make things worse. Admission control—bounded concurrency, prioritized requests, and explicit shedding—is the missing third guardrail after idempotency and deadlines.",
+      "tags": [
+        "ai agents",
+        "reliability",
+        "overload",
+        "systems design",
+        "operations"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/03/admission-control-is-the-third-guardrail-for-ai-agents/",
+      "path": "posts/2026/03/2026-03-31-admission-control-is-the-third-guardrail-for-ai-agents.md"
+    },
     {
       "title": "Deadline Budgets Are the Missing Guardrail for AI Agents",
       "date": "2026-03-30",

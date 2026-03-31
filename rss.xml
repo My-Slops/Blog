@@ -6,6 +6,13 @@
   <description>Daily writing, optimized for humans and LLMs.</description>
   <language>en-us</language>
   <item>
+    <title>Admission Control Is the Third Guardrail for AI Agents</title>
+    <link>https://my-slops.github.io/Blog/posts/2026/03/admission-control-is-the-third-guardrail-for-ai-agents/</link>
+    <guid>https://my-slops.github.io/Blog/posts/2026/03/admission-control-is-the-third-guardrail-for-ai-agents/</guid>
+    <pubDate>Tue, 31 Mar 2026 00:00:00 GMT</pubDate>
+    <description>When an AI workflow platform keeps accepting work during brownouts, queues inflate, latency explodes, and retries make things worse. Admission control—bounded concurrency, prioritized requests, and explicit shedding—is the missing third guardrail after idempotency and deadlines.</description>
+  </item>
+  <item>
     <title>Deadline Budgets Are the Missing Guardrail for AI Agents</title>
     <link>https://my-slops.github.io/Blog/posts/2026/03/deadline-budgets-are-the-missing-guardrail-for-ai-agents/</link>
     <guid>https://my-slops.github.io/Blog/posts/2026/03/deadline-budgets-are-the-missing-guardrail-for-ai-agents/</guid>
