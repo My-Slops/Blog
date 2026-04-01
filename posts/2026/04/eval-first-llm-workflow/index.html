@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Stop Prompt-Tuning Blind: An Eval-First Workflow for Reliable LLM Apps | Blog</title>
+    <meta name="description" content="If you change prompts without a standing eval set, you are shipping guesses. This post shows a lightweight eval-first workflow that improves reliability without slowing teams down." />
+    <link rel="canonical" href="https://my-slops.github.io/Blog/posts/2026/04/eval-first-llm-workflow/" />
+    <style>
+      :root { color-scheme: light dark; }
+      body { font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; line-height: 1.7; max-width: 760px; margin: 40px auto; padding: 0 16px; }
+      a { color: #0a58ca; text-decoration: none; }
+      a:hover { text-decoration: underline; }
+      .meta { color: #666; font-size: 0.95rem; margin-bottom: 1rem; }
+      .tags { display: flex; gap: 0.5rem; list-style: none; padding: 0; margin: 0.75rem 0 1.25rem; flex-wrap: wrap; }
+      .tags li { background: #eef2ff; color: #3730a3; border-radius: 999px; padding: 0.2rem 0.6rem; font-size: 0.8rem; }
+      article h1, article h2, article h3 { line-height: 1.3; }
+      article pre { overflow-x: auto; background: #111827; color: #f9fafb; padding: 0.9rem; border-radius: 8px; }
+      article code { font-family: ui-monospace,SFMono-Regular,Menlo,monospace; }
+      article blockquote { border-left: 4px solid #d1d5db; margin: 1rem 0; padding: 0.2rem 0.9rem; color: #4b5563; }
+      hr { border: 0; border-top: 1px solid #e5e7eb; margin: 2rem 0; }
+    </style>
+  </head>
+  <body>
+    <p><a href="https://my-slops.github.io/Blog/">← Home</a></p>
+    <article>
+      <h1>Stop Prompt-Tuning Blind: An Eval-First Workflow for Reliable LLM Apps</h1>
+      <p class="meta">Apr 1, 2026</p>
+      <ul class="tags"><li>llm</li><li>evals</li><li>ai-engineering</li><li>reliability</li></ul>
+      <h2>TL;DR</h2>
+<p>Most LLM teams still over-invest in prompt tweaks and under-invest in measurement. A better default is: define expected behavior, run evals on representative cases, then iterate prompt/model/tooling against the score. Prompting still matters, but evals make improvements real, comparable, and safer to ship.</p>
+<h2>Context</h2>
+<p>A common failure mode in LLM products is “demo progress”: outputs look better in ad-hoc tests, then regress in production.</p>
+<p>Why this happens:</p>
+<ol>
+<li>Teams optimize for examples they remember, not distributions they serve.</li>
+<li>Prompt changes are rarely benchmarked against a fixed baseline.</li>
+<li>Reliability and risk checks are treated as afterthoughts.</li>
+</ol>
+<p>OpenAI’s eval guidance explicitly frames evaluations as essential for reliable app development, especially when trying new models or upgrades. Anthropic’s practical agent guidance similarly recommends starting simple and adding complexity only when warranted. Together, these imply a practical engineering rule: <strong>measure first, then optimize</strong>.</p>
+<h2>Key Points</h2>
+<h3>1) Prompting is necessary, but insufficient</h3>
+<p>Prompt engineering can improve quality fast, but without a stable eval set you can’t tell whether a change helped generally or only on a few hand-picked prompts.</p>
+<p>Treat prompts like code: changes require tests.</p>
+<h3>2) Build a small, living eval suite before “big architecture”</h3>
+<p>You don’t need 10,000 samples to start. For most products, 30–100 representative cases (plus a few adversarial edge cases) is enough to catch obvious regressions.</p>
+<p>Good starter buckets:</p>
+<ul>
+<li>Happy-path tasks</li>
+<li>Ambiguous/underspecified inputs</li>
+<li>Safety/policy boundaries</li>
+<li>Domain-specific hard cases</li>
+</ul>
+<h3>3) Optimize in this order: retrieval/context -&gt; instructions -&gt; model</h3>
+<p>Anthropic notes that many use cases are solved by improving single-call setups with retrieval and examples, before introducing complex agent behavior. In practice, this ordering often gives the best reliability-per-effort:</p>
+<ol>
+<li>Improve context quality (retrieval, grounding, citations)</li>
+<li>Clarify task instructions/output schema</li>
+<li>Swap or fine-tune model only when needed</li>
+</ol>
+<h3>4) Make risk checks part of the same eval loop</h3>
+<p>NIST’s AI RMF and GenAI profile emphasize trustworthiness and risk management during design, development, and evaluation. Practically, this means your eval suite should include not just “task correctness,” but also failure behavior (e.g., unsafe, fabricated, or overconfident outputs).</p>
+<p>If it matters in production, it belongs in eval.</p>
+<h3>5) Use scorecards to decide releases</h3>
+<p>A lightweight release gate can be:</p>
+<ul>
+<li>No regression on core task metric</li>
+<li>Improvement on at least one priority segment</li>
+<li>No increase in high-severity safety failures</li>
+</ul>
+<p>This turns model/prompt updates into auditable engineering decisions instead of subjective taste tests.</p>
+<h2>Steps / Code</h2>
+<h3>Minimal eval-first loop (weekly or per release)</h3>
+<pre><code class="language-text">1) Define task + success criteria
+2) Build/refresh eval dataset (representative + edge cases)
+3) Run baseline (current prompt/model/tooling)
+4) Apply one controlled change
+5) Re-run evals and compare deltas
+6) Ship only if release gate passes
+7) Log failures; convert recurring failures into new eval cases
+</code></pre>
+<h3>Example release scorecard</h3>
+<pre><code class="language-text">Core accuracy:        82% -&gt; 86%   (+4)
+Policy compliance:    97% -&gt; 98%   (+1)
+Citation validity:    74% -&gt; 88%   (+14)
+High-sev failures:    2 -&gt; 2       (no regression)
+Decision: SHIP
+</code></pre>
+<h3>Practical implementation notes</h3>
+<ul>
+<li>Start with deterministic settings for eval runs where possible.</li>
+<li>Keep datasets versioned so improvements are comparable over time.</li>
+<li>Separate “offline eval pass” from “live experiment win”; require both for major updates.</li>
+</ul>
+<h2>Trade-offs</h2>
+<ul>
+<li><strong>Pro:</strong> Fewer silent regressions and safer model/prompt upgrades.</li>
+<li><strong>Con:</strong> Initial setup cost (dataset + scoring criteria).</li>
+<li><strong>Pro:</strong> Better team alignment because quality is measured, not argued.</li>
+<li><strong>Con:</strong> Metrics can overfit if dataset is stale; requires regular refresh.</li>
+</ul>
+<h2>References</h2>
+<ul>
+<li>OpenAI — Working with evals: <a href="https://developers.openai.com/api/docs/guides/evals">https://developers.openai.com/api/docs/guides/evals</a></li>
+<li>Anthropic — Building effective agents: <a href="https://www.anthropic.com/engineering/building-effective-agents">https://www.anthropic.com/engineering/building-effective-agents</a></li>
+<li>NIST — AI Risk Management Framework: <a href="https://www.nist.gov/itl/ai-risk-management-framework">https://www.nist.gov/itl/ai-risk-management-framework</a></li>
+<li>NIST — Generative AI Profile (AI RMF): <a href="https://doi.org/10.6028/NIST.AI.600-1">https://doi.org/10.6028/NIST.AI.600-1</a></li>
+<li>Eugene Yan — Patterns for Building LLM-based Systems &amp; Products: <a href="https://eugeneyan.com/writing/llm-patterns/">https://eugeneyan.com/writing/llm-patterns/</a></li>
+</ul>
+<h2>Final Take</h2>
+<p>If your team is still “improving prompts” without a standing eval suite, you’re not optimizing—you’re guessing. An eval-first workflow is the simplest high-leverage upgrade for moving from flashy demos to dependable LLM products.</p>
+<h2>Changelog</h2>
+<ul>
+<li>2026-04-01: Initial draft created and published.</li>
+</ul>
+
+    </article>
+  </body>
+</html>

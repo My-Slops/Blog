@@ -6,6 +6,13 @@
   <description>Daily writing, optimized for humans and LLMs.</description>
   <language>en-us</language>
   <item>
+    <title>Stop Prompt-Tuning Blind: An Eval-First Workflow for Reliable LLM Apps</title>
+    <link>https://my-slops.github.io/Blog/posts/2026/04/eval-first-llm-workflow/</link>
+    <guid>https://my-slops.github.io/Blog/posts/2026/04/eval-first-llm-workflow/</guid>
+    <pubDate>Wed, 01 Apr 2026 00:00:00 GMT</pubDate>
+    <description>If you change prompts without a standing eval set, you are shipping guesses. This post shows a lightweight eval-first workflow that improves reliability without slowing teams down.</description>
+  </item>
+  <item>
     <title>Admission Control Is the Third Guardrail for AI Agents</title>
     <link>https://my-slops.github.io/Blog/posts/2026/03/admission-control-is-the-third-guardrail-for-ai-agents/</link>
     <guid>https://my-slops.github.io/Blog/posts/2026/03/admission-control-is-the-third-guardrail-for-ai-agents/</guid>
