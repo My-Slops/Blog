@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Your LLM Incident Is a Missing Test: Build an Incident-to-Eval Loop | Blog</title>
+    <meta name="description" content="If the same LLM failure can happen twice, your system is missing a test. Convert every production incident into a concrete eval case before the next model or prompt rollout." />
+    <link rel="canonical" href="https://my-slops.github.io/Blog/posts/2026/04/incident-to-eval-loop-for-llm-reliability/" />
+    <style>
+      :root { color-scheme: light dark; }
+      body { font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; line-height: 1.7; max-width: 760px; margin: 40px auto; padding: 0 16px; }
+      a { color: #0a58ca; text-decoration: none; }
+      a:hover { text-decoration: underline; }
+      .meta { color: #666; font-size: 0.95rem; margin-bottom: 1rem; }
+      .tags { display: flex; gap: 0.5rem; list-style: none; padding: 0; margin: 0.75rem 0 1.25rem; flex-wrap: wrap; }
+      .tags li { background: #eef2ff; color: #3730a3; border-radius: 999px; padding: 0.2rem 0.6rem; font-size: 0.8rem; }
+      article h1, article h2, article h3 { line-height: 1.3; }
+      article pre { overflow-x: auto; background: #111827; color: #f9fafb; padding: 0.9rem; border-radius: 8px; }
+      article code { font-family: ui-monospace,SFMono-Regular,Menlo,monospace; }
+      article blockquote { border-left: 4px solid #d1d5db; margin: 1rem 0; padding: 0.2rem 0.9rem; color: #4b5563; }
+      hr { border: 0; border-top: 1px solid #e5e7eb; margin: 2rem 0; }
+    </style>
+  </head>
+  <body>
+    <p><a href="https://my-slops.github.io/Blog/">← Home</a></p>
+    <article>
+      <h1>Your LLM Incident Is a Missing Test: Build an Incident-to-Eval Loop</h1>
+      <p class="meta">Apr 3, 2026</p>
+      <ul class="tags"><li>llm</li><li>reliability</li><li>evals</li><li>incident-response</li></ul>
+      <h2>TL;DR</h2>
+<p>Most LLM teams treat incidents as operations work and evals as model work. That split creates repeat failures. A better approach is an <strong>incident-to-eval loop</strong>: every meaningful incident becomes one or more eval cases that must pass before future releases.</p>
+<h2>Context</h2>
+<p>Yesterday’s canary pattern helps catch regressions before broad rollout. But canaries only detect what you already measure. When a new failure mode appears in production and never enters your eval suite, you have a process gap: your system learned nothing from the incident.</p>
+<p>This is not just an LLM issue. Google SRE’s postmortem guidance emphasizes learning systems, not blame systems. OpenAI’s eval guidance emphasizes explicitly defining expected behavior and testing it. NIST’s AI RMF and the GenAI profile emphasize ongoing risk management and evaluation rather than one-time compliance checks.</p>
+<p>The synthesis is practical: <strong>postmortem output should feed your eval input</strong>.</p>
+<h2>Key Points</h2>
+<h3>1) Treat incidents as data, not just events</h3>
+<p>An LLM incident is evidence of a mismatch between real-world input and your tested assumptions. If your postmortem ends at “fixed prompt,” you improved today’s state but not tomorrow’s release safety.</p>
+<p>Minimum conversion rule:</p>
+<ul>
+<li>every Sev incident -&gt; at least one deterministic eval case,</li>
+<li>every repeated low-severity issue -&gt; one aggregate behavior eval.</li>
+</ul>
+<h3>2) Write failure cases in user language first</h3>
+<p>Start from the user-visible failure, not the internal root cause.</p>
+<p>Good eval seed:</p>
+<ul>
+<li><strong>Input context:</strong> what user asked and what tools/data were available,</li>
+<li><strong>Observed bad output:</strong> what actually happened,</li>
+<li><strong>Expected acceptable behavior:</strong> what “good” looks like,</li>
+<li><strong>Severity label:</strong> why this matters.</li>
+</ul>
+<p>This keeps evals aligned with product risk, not just engineering aesthetics.</p>
+<h3>3) Split cases by failure type</h3>
+<p>One incident can hide multiple failure classes. Split them so each test has a single purpose:</p>
+<ul>
+<li>hallucinated citation,</li>
+<li>unsafe instruction compliance,</li>
+<li>refusal when retrieval is available,</li>
+<li>brittle formatting that breaks downstream parsers,</li>
+<li>latency timeout leading to empty or partial answers.</li>
+</ul>
+<p>Small, specific evals are easier to maintain and diagnose.</p>
+<h3>4) Promote only if incident-regression tests pass</h3>
+<p>Integrate incident-derived evals into your release gates:</p>
+<ul>
+<li><strong>Eval Gate:</strong> baseline + incident-regression suite must pass,</li>
+<li><strong>Canary Gate:</strong> no live degradation on core metrics,</li>
+<li><strong>Scale Gate:</strong> stable for observation window.</li>
+</ul>
+<p>If a model candidate fails an incident-regression test, it should not ship—regardless of benchmark hype.</p>
+<h3>5) Add a weekly “learning debt” metric</h3>
+<p>Track incident learnings that are not yet encoded as tests.</p>
+<p>Example metric:</p>
+<ul>
+<li>incidents this week: 7</li>
+<li>converted to evals: 5</li>
+<li>conversion lag: 2 (learning debt)</li>
+</ul>
+<p>This gives leadership a tangible reliability signal beyond uptime.</p>
+<h2>Steps / Code</h2>
+<h3>Minimal incident-to-eval SOP</h3>
+<pre><code class="language-text">1) During incident review, extract user-facing failure examples
+2) Classify each example by failure type + severity
+3) Convert each class into eval rows (input, expected output/constraints)
+4) Add tests to incident-regression eval suite
+5) Run suite against current prod baseline + candidate model/prompt
+6) Block promotion if any high-severity incident case regresses
+7) Tag each eval with incident ID for traceability
+8) Review weekly learning debt and close gaps
+</code></pre>
+<h3>Lightweight schema for incident-derived eval cases</h3>
+<pre><code class="language-json">{
+  &quot;incident_id&quot;: &quot;INC-2026-04-03-017&quot;,
+  &quot;severity&quot;: &quot;high&quot;,
+  &quot;failure_type&quot;: &quot;hallucinated_reference&quot;,
+  &quot;input&quot;: {
+    &quot;user_query&quot;: &quot;Summarize policy X with citations&quot;,
+    &quot;retrieval_context&quot;: &quot;&lt;docs available&gt;&quot;
+  },
+  &quot;expected&quot;: {
+    &quot;must_not&quot;: [&quot;invented citation&quot;],
+    &quot;must&quot;: [&quot;cite only provided sources&quot;, &quot;state uncertainty when evidence missing&quot;]
+  }
+}
+</code></pre>
+<h2>Trade-offs</h2>
+<ul>
+<li><strong>Pro:</strong> Repeated incidents drop because each failure becomes a permanent guardrail.</li>
+<li><strong>Pro:</strong> Reliability work becomes measurable and auditable across releases.</li>
+<li><strong>Con:</strong> Requires disciplined postmortems and curation time for high-quality eval cases.</li>
+<li><strong>Con:</strong> Deterministic scoring is hard for nuanced conversational quality; some checks need human or model graders.</li>
+</ul>
+<h2>References</h2>
+<ul>
+<li>OpenAI — Working with evals: <a href="https://developers.openai.com/api/docs/guides/evals">https://developers.openai.com/api/docs/guides/evals</a></li>
+<li>Google SRE Workbook — Postmortem Culture: <a href="https://sre.google/workbook/postmortem-culture/">https://sre.google/workbook/postmortem-culture/</a></li>
+<li>NIST — AI Risk Management Framework: <a href="https://www.nist.gov/itl/ai-risk-management-framework">https://www.nist.gov/itl/ai-risk-management-framework</a></li>
+<li>NIST — Generative AI Profile (AI 600-1): <a href="https://www.nist.gov/publications/artificial-intelligence-risk-management-framework-generative-artificial-intelligence">https://www.nist.gov/publications/artificial-intelligence-risk-management-framework-generative-artificial-intelligence</a></li>
+</ul>
+<h2>Final Take</h2>
+<p>Canaries reduce blast radius. Incident-to-eval loops reduce repeat mistakes. If your postmortem does not produce new tests, you are documenting failure instead of preventing it.</p>
+<h2>Changelog</h2>
+<ul>
+<li>2026-04-03: Initial draft created and published.</li>
+</ul>
+
+    </article>
+  </body>
+</html>

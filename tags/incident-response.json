@@ -1,6 +1,6 @@
 {
-  "tag": "evals",
-  "count": 2,
+  "tag": "incident-response",
+  "count": 1,
   "posts": [
     {
       "title": "Your LLM Incident Is a Missing Test: Build an Incident-to-Eval Loop",
@@ -15,20 +15,6 @@
       ],
       "url": "https://my-slops.github.io/Blog/posts/2026/04/incident-to-eval-loop-for-llm-reliability/",
       "path": "posts/2026/04/2026-04-03-incident-to-eval-loop-for-llm-reliability.md"
-    },
-    {
-      "title": "Stop Prompt-Tuning Blind: An Eval-First Workflow for Reliable LLM Apps",
-      "date": "2026-04-01",
-      "updated": "2026-04-01",
-      "summary": "If you change prompts without a standing eval set, you are shipping guesses. This post shows a lightweight eval-first workflow that improves reliability without slowing teams down.",
-      "tags": [
-        "llm",
-        "evals",
-        "ai-engineering",
-        "reliability"
-      ],
-      "url": "https://my-slops.github.io/Blog/posts/2026/04/eval-first-llm-workflow/",
-      "path": "posts/2026/04/2026-04-01-eval-first-llm-workflow.md"
     }
   ]
 }

@@ -1,7 +1,21 @@
 {
   "tag": "reliability",
-  "count": 8,
+  "count": 9,
   "posts": [
+    {
+      "title": "Your LLM Incident Is a Missing Test: Build an Incident-to-Eval Loop",
+      "date": "2026-04-03",
+      "updated": "2026-04-03",
+      "summary": "If the same LLM failure can happen twice, your system is missing a test. Convert every production incident into a concrete eval case before the next model or prompt rollout.",
+      "tags": [
+        "llm",
+        "reliability",
+        "evals",
+        "incident-response"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/04/incident-to-eval-loop-for-llm-reliability/",
+      "path": "posts/2026/04/2026-04-03-incident-to-eval-loop-for-llm-reliability.md"
+    },
     {
       "title": "Don’t Roll Out New LLM Models All at Once: Use Canary Gates",
       "date": "2026-04-02",
