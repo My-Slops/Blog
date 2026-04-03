@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-04-01T14:02:12.488Z",
+  "generated_at": "2026-04-03T00:32:43.420Z",
   "tags": [
     {
       "tag": "ai agents",
@@ -13,7 +13,7 @@
     },
     {
       "tag": "ai-engineering",
-      "count": 1,
+      "count": 2,
       "url": "https://my-slops.github.io/Blog/tags/ai-engineering.json"
     },
     {
@@ -77,6 +77,11 @@
       "url": "https://my-slops.github.io/Blog/tags/decision making.json"
     },
     {
+      "tag": "deployment",
+      "count": 1,
+      "url": "https://my-slops.github.io/Blog/tags/deployment.json"
+    },
+    {
       "tag": "distributed systems",
       "count": 2,
       "url": "https://my-slops.github.io/Blog/tags/distributed systems.json"
@@ -133,7 +138,7 @@
     },
     {
       "tag": "llm",
-      "count": 1,
+      "count": 2,
       "url": "https://my-slops.github.io/Blog/tags/llm.json"
     },
     {
@@ -188,7 +193,7 @@
     },
     {
       "tag": "reliability",
-      "count": 7,
+      "count": 8,
       "url": "https://my-slops.github.io/Blog/tags/reliability.json"
     },
     {

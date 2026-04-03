@@ -1,7 +1,21 @@
 {
   "tag": "ai-engineering",
-  "count": 1,
+  "count": 2,
   "posts": [
+    {
+      "title": "Don’t Roll Out New LLM Models All at Once: Use Canary Gates",
+      "date": "2026-04-02",
+      "updated": "2026-04-02",
+      "summary": "Most model upgrades fail quietly before they fail loudly. Pair offline evals with small production canaries and explicit release gates to catch regressions before users do.",
+      "tags": [
+        "llm",
+        "reliability",
+        "deployment",
+        "ai-engineering"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/04/canary-gates-for-llm-model-upgrades/",
+      "path": "posts/2026/04/2026-04-02-canary-gates-for-llm-model-upgrades.md"
+    },
     {
       "title": "Stop Prompt-Tuning Blind: An Eval-First Workflow for Reliable LLM Apps",
       "date": "2026-04-01",

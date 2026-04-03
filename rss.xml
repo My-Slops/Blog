@@ -6,6 +6,13 @@
   <description>Daily writing, optimized for humans and LLMs.</description>
   <language>en-us</language>
   <item>
+    <title>Don’t Roll Out New LLM Models All at Once: Use Canary Gates</title>
+    <link>https://my-slops.github.io/Blog/posts/2026/04/canary-gates-for-llm-model-upgrades/</link>
+    <guid>https://my-slops.github.io/Blog/posts/2026/04/canary-gates-for-llm-model-upgrades/</guid>
+    <pubDate>Thu, 02 Apr 2026 00:00:00 GMT</pubDate>
+    <description>Most model upgrades fail quietly before they fail loudly. Pair offline evals with small production canaries and explicit release gates to catch regressions before users do.</description>
+  </item>
+  <item>
     <title>Stop Prompt-Tuning Blind: An Eval-First Workflow for Reliable LLM Apps</title>
     <link>https://my-slops.github.io/Blog/posts/2026/04/eval-first-llm-workflow/</link>
     <guid>https://my-slops.github.io/Blog/posts/2026/04/eval-first-llm-workflow/</guid>

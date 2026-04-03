@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Don’t Roll Out New LLM Models All at Once: Use Canary Gates | Blog</title>
+    <meta name="description" content="Most model upgrades fail quietly before they fail loudly. Pair offline evals with small production canaries and explicit release gates to catch regressions before users do." />
+    <link rel="canonical" href="https://my-slops.github.io/Blog/posts/2026/04/canary-gates-for-llm-model-upgrades/" />
+    <style>
+      :root { color-scheme: light dark; }
+      body { font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; line-height: 1.7; max-width: 760px; margin: 40px auto; padding: 0 16px; }
+      a { color: #0a58ca; text-decoration: none; }
+      a:hover { text-decoration: underline; }
+      .meta { color: #666; font-size: 0.95rem; margin-bottom: 1rem; }
+      .tags { display: flex; gap: 0.5rem; list-style: none; padding: 0; margin: 0.75rem 0 1.25rem; flex-wrap: wrap; }
+      .tags li { background: #eef2ff; color: #3730a3; border-radius: 999px; padding: 0.2rem 0.6rem; font-size: 0.8rem; }
+      article h1, article h2, article h3 { line-height: 1.3; }
+      article pre { overflow-x: auto; background: #111827; color: #f9fafb; padding: 0.9rem; border-radius: 8px; }
+      article code { font-family: ui-monospace,SFMono-Regular,Menlo,monospace; }
+      article blockquote { border-left: 4px solid #d1d5db; margin: 1rem 0; padding: 0.2rem 0.9rem; color: #4b5563; }
+      hr { border: 0; border-top: 1px solid #e5e7eb; margin: 2rem 0; }
+    </style>
+  </head>
+  <body>
+    <p><a href="https://my-slops.github.io/Blog/">← Home</a></p>
+    <article>
+      <h1>Don’t Roll Out New LLM Models All at Once: Use Canary Gates</h1>
+      <p class="meta">Apr 2, 2026</p>
+      <ul class="tags"><li>llm</li><li>reliability</li><li>deployment</li><li>ai-engineering</li></ul>
+      <h2>TL;DR</h2>
+<p>Upgrading an LLM in production should follow the same discipline as any risky software change: test offline, roll out gradually, watch the right metrics, and abort fast if quality drops. The practical pattern is <strong>Eval Gate -&gt; Canary Gate -&gt; Full Rollout</strong>.</p>
+<h2>Context</h2>
+<p>Teams are now upgrading prompts, models, and tool policies as often as they used to ship frontend changes. But many still deploy model changes like configuration tweaks: all at once, with vague success criteria.</p>
+<p>That is risky because LLM regressions are often subtle at first:</p>
+<ul>
+<li>small drops in citation quality,</li>
+<li>more confident hallucinations on edge cases,</li>
+<li>increased policy boundary mistakes,</li>
+<li>slower responses that hurt UX before hard failures appear.</li>
+</ul>
+<p>OpenAI’s eval guidance emphasizes measurement when trying new models. Google’s SRE release guidance emphasizes canarying risky changes before broad rollout. Combined, these point to a simple operating rule for LLM systems: <strong>do not separate model quality checks from rollout strategy</strong>.</p>
+<h2>Key Points</h2>
+<h3>1) Offline evals are necessary, but not sufficient</h3>
+<p>Offline evals catch many correctness and policy regressions early. But they cannot fully reproduce live traffic mix, user intent drift, or latency variance under real load.</p>
+<p>Treat offline eval pass as <strong>entry criteria</strong>, not final proof.</p>
+<h3>2) Canary by traffic slice, not by vibes</h3>
+<p>A useful LLM canary is a controlled percentage of real traffic (for example 1% -&gt; 5% -&gt; 20%), with explicit comparison to baseline on:</p>
+<ul>
+<li>task success / acceptance,</li>
+<li>safety/policy violation rate,</li>
+<li>citation or grounding quality (if applicable),</li>
+<li>latency and cost per request,</li>
+<li>escalation-to-human or retry rate.</li>
+</ul>
+<p>If one metric worsens beyond threshold, pause or roll back.</p>
+<h3>3) Define release gates before rollout starts</h3>
+<p>Most rollout mistakes happen when teams decide success criteria mid-flight. Write gates in advance:</p>
+<ul>
+<li><strong>Eval Gate (offline):</strong> no regression on core benchmark and no increase in high-severity safety failures.</li>
+<li><strong>Canary Gate (online):</strong> no statistically meaningful degradation on primary live metrics at N% traffic.</li>
+<li><strong>Scale Gate:</strong> maintain stability for a fixed observation window before increasing traffic.</li>
+</ul>
+<p>No gate, no promotion.</p>
+<h3>4) Include “failure behavior” metrics</h3>
+<p>Many LLM incidents are not total breakdowns—they are graceful-looking wrong answers. Measure behavior under uncertainty:</p>
+<ul>
+<li>does the model abstain when evidence is missing?</li>
+<li>does it state uncertainty when confidence should be low?</li>
+<li>does it fabricate references less or more than baseline?</li>
+</ul>
+<p>These are product risks, not academic extras.</p>
+<h3>5) Keep rollback boring and immediate</h3>
+<p>Rollback should be one switch, not a war room project. If rollback requires manual multi-step edits across prompts/tools/flags, your release process is under-designed.</p>
+<p>The best time to test rollback is before you need it.</p>
+<h2>Steps / Code</h2>
+<h3>Minimal model-upgrade playbook</h3>
+<pre><code class="language-text">1) Freeze candidate change (prompt/model/tool config)
+2) Run offline eval suite on representative + edge cases
+3) Compare against current production baseline
+4) If Eval Gate passes, deploy to 1% canary traffic
+5) Monitor live scorecard for fixed window (e.g., 60–180 min)
+6) Promote to 5% -&gt; 20% -&gt; 50% -&gt; 100% only if gates pass
+7) Auto-roll back on threshold breach
+8) Log failures; convert them into new eval cases
+</code></pre>
+<h3>Example gate table</h3>
+<pre><code class="language-text">Metric                          Gate
+--------------------------------------------------
+Core task success               No regression &gt; 1.0%
+High-severity policy failures   No increase
+Citation validity               No regression &gt; 2.0%
+P95 latency                     No regression &gt; 10%
+Cost/request                    No regression &gt; 8%
+User retry rate                 No regression &gt; 5%
+Decision                        Promote only if all pass
+</code></pre>
+<h2>Trade-offs</h2>
+<ul>
+<li><strong>Pro:</strong> Catches subtle regressions before broad user impact.</li>
+<li><strong>Pro:</strong> Makes model upgrades auditable and less political.</li>
+<li><strong>Con:</strong> Adds release overhead (instrumentation + monitoring discipline).</li>
+<li><strong>Con:</strong> Requires agreement on thresholds, which can be contentious at first.</li>
+</ul>
+<h2>References</h2>
+<ul>
+<li>OpenAI — Working with evals: <a href="https://developers.openai.com/api/docs/guides/evals">https://developers.openai.com/api/docs/guides/evals</a></li>
+<li>Google SRE Workbook — Canarying Releases: <a href="https://sre.google/workbook/canarying-releases/">https://sre.google/workbook/canarying-releases/</a></li>
+<li>Anthropic — Building effective agents: <a href="https://www.anthropic.com/engineering/building-effective-agents">https://www.anthropic.com/engineering/building-effective-agents</a></li>
+<li>NIST — AI Risk Management Framework: <a href="https://www.nist.gov/itl/ai-risk-management-framework">https://www.nist.gov/itl/ai-risk-management-framework</a></li>
+</ul>
+<h2>Final Take</h2>
+<p>The mistake is not upgrading models quickly. The mistake is upgrading without gates. If a model change is important enough to ship, it is important enough to canary.</p>
+<h2>Changelog</h2>
+<ul>
+<li>2026-04-02: Initial draft created and published.</li>
+</ul>
+
+    </article>
+  </body>
+</html>
