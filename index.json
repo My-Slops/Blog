@@ -1,7 +1,21 @@
 {
-  "generated_at": "2026-04-03T14:01:52.718Z",
-  "count": 34,
+  "generated_at": "2026-04-04T11:15:36.084Z",
+  "count": 35,
   "posts": [
+    {
+      "title": "Stop Arguing About LLM Rollouts: Use a Reliability Scorecard",
+      "date": "2026-04-04",
+      "updated": "2026-04-04",
+      "summary": "A release scorecard turns model rollout decisions from opinion fights into explicit gate checks across quality, safety, latency, and cost.",
+      "tags": [
+        "llm",
+        "reliability",
+        "deployment",
+        "ai-engineering"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/04/llm-release-scorecard/",
+      "path": "posts/2026/04/2026-04-04-llm-release-scorecard.md"
+    },
     {
       "title": "Your LLM Incident Is a Missing Test: Build an Incident-to-Eval Loop",
       "date": "2026-04-03",

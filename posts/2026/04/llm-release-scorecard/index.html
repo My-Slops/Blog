@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Stop Arguing About LLM Rollouts: Use a Reliability Scorecard | Blog</title>
+    <meta name="description" content="A release scorecard turns model rollout decisions from opinion fights into explicit gate checks across quality, safety, latency, and cost." />
+    <link rel="canonical" href="https://my-slops.github.io/Blog/posts/2026/04/llm-release-scorecard/" />
+    <style>
+      :root { color-scheme: light dark; }
+      body { font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; line-height: 1.7; max-width: 760px; margin: 40px auto; padding: 0 16px; }
+      a { color: #0a58ca; text-decoration: none; }
+      a:hover { text-decoration: underline; }
+      .meta { color: #666; font-size: 0.95rem; margin-bottom: 1rem; }
+      .tags { display: flex; gap: 0.5rem; list-style: none; padding: 0; margin: 0.75rem 0 1.25rem; flex-wrap: wrap; }
+      .tags li { background: #eef2ff; color: #3730a3; border-radius: 999px; padding: 0.2rem 0.6rem; font-size: 0.8rem; }
+      article h1, article h2, article h3 { line-height: 1.3; }
+      article pre { overflow-x: auto; background: #111827; color: #f9fafb; padding: 0.9rem; border-radius: 8px; }
+      article code { font-family: ui-monospace,SFMono-Regular,Menlo,monospace; }
+      article blockquote { border-left: 4px solid #d1d5db; margin: 1rem 0; padding: 0.2rem 0.9rem; color: #4b5563; }
+      hr { border: 0; border-top: 1px solid #e5e7eb; margin: 2rem 0; }
+    </style>
+  </head>
+  <body>
+    <p><a href="https://my-slops.github.io/Blog/">← Home</a></p>
+    <article>
+      <h1>Stop Arguing About LLM Rollouts: Use a Reliability Scorecard</h1>
+      <p class="meta">Apr 4, 2026</p>
+      <ul class="tags"><li>llm</li><li>reliability</li><li>deployment</li><li>ai-engineering</li></ul>
+      <h2>TL;DR</h2>
+<p>If your LLM launch decisions depend on who speaks loudest in Slack, your process is fragile. A simple <strong>release scorecard</strong> with pre-agreed thresholds makes promotion and rollback decisions faster, clearer, and less political.</p>
+<h2>Context</h2>
+<p>The first wave of LLM ops maturity usually looks like this:</p>
+<ol>
+<li>teams add offline evals,</li>
+<li>then they add canary rollouts,</li>
+<li>then incidents force better postmortems.</li>
+</ol>
+<p>That is progress, but one problem still remains: final go/no-go decisions often happen ad hoc. People look at mixed metrics and tell conflicting stories.</p>
+<p>A scorecard closes this gap. It does not replace engineering judgment—it structures it. You predefine what must be true to promote a release, then evaluate the candidate consistently every time.</p>
+<h2>Key Points</h2>
+<h3>1) Separate “must-pass” from “nice-to-have” metrics</h3>
+<p>Not all metrics deserve equal weight.</p>
+<p>Use two buckets:</p>
+<ul>
+<li><strong>Hard Gates (must-pass):</strong> high-severity safety failures, critical task success, parser breakage, policy violations.</li>
+<li><strong>Soft Signals (context):</strong> minor style quality shifts, small latency variance, temporary cost noise.</li>
+</ul>
+<p>If hard gates fail, release is blocked regardless of soft-signal wins.</p>
+<h3>2) Scorecards reduce decision latency during launches</h3>
+<p>Without a scorecard, launches slow down because every metric triggers debate. With one, reviewers ask a narrower question: “Did we pass the defined gates?”</p>
+<p>That shortens release calls and reduces last-minute criteria changes.</p>
+<h3>3) Track drift versus baseline, not absolute numbers alone</h3>
+<p>A model can look “good” in isolation and still be worse than your current production baseline.</p>
+<p>Include explicit baseline comparisons:</p>
+<ul>
+<li>task success delta,</li>
+<li>safety incident delta,</li>
+<li>citation validity delta,</li>
+<li>p95 latency delta,</li>
+<li>cost/request delta.</li>
+</ul>
+<p>Promotion should depend on <strong>relative regression bounds</strong>, not only raw scores.</p>
+<h3>4) Add confidence level and sample size to avoid false certainty</h3>
+<p>A score without sample context can mislead.</p>
+<p>For each key metric, include:</p>
+<ul>
+<li>sample size,</li>
+<li>measurement window,</li>
+<li>confidence annotation (high/medium/low).</li>
+</ul>
+<p>This prevents overreacting to tiny samples (or ignoring meaningful movement in large samples).</p>
+<h3>5) Use scorecard outcomes to create next week’s reliability work</h3>
+<p>Every “yellow” or “red” metric should generate a concrete follow-up:</p>
+<ul>
+<li>new eval cases,</li>
+<li>instrumentation gaps to fix,</li>
+<li>threshold recalibration proposal,</li>
+<li>runbook updates.</li>
+</ul>
+<p>The scorecard is not just a release artifact; it is an input to continuous reliability improvement.</p>
+<h2>Steps / Code</h2>
+<h3>Minimal LLM release scorecard template</h3>
+<pre><code class="language-text">Release Candidate: &lt;model/prompt/tool version&gt;
+Baseline: &lt;current production version&gt;
+Window: &lt;start/end&gt;
+Owner: &lt;name&gt;
+
+HARD GATES (must-pass)
+1) Critical task success delta         &lt;= -1.0%      PASS/FAIL
+2) High-severity safety failures       no increase   PASS/FAIL
+3) Structured output parse failures    &lt;= +0.5%      PASS/FAIL
+
+SOFT SIGNALS (context)
+4) Citation validity delta             &gt;= -2.0%      GREEN/YELLOW/RED
+5) P95 latency delta                   &lt;= +10%       GREEN/YELLOW/RED
+6) Cost per request delta              &lt;= +8%        GREEN/YELLOW/RED
+7) User retry/escalation delta         &lt;= +5%        GREEN/YELLOW/RED
+
+SAMPLE QUALITY
+- Traffic sample size: &lt;n&gt;
+- Eval sample size: &lt;n&gt;
+- Confidence note: high / medium / low
+
+DECISION RULE
+- Promote only if all hard gates PASS.
+- If any hard gate FAILS: rollback/hold, create incident-regression tests.
+</code></pre>
+<h3>Suggested operating cadence</h3>
+<pre><code class="language-text">Pre-launch: define thresholds and owners
+Launch: score at each canary stage (1% -&gt; 5% -&gt; 20% -&gt; 50% -&gt; 100%)
+Post-launch: log scorecard + action items in weekly reliability review
+</code></pre>
+<h2>Trade-offs</h2>
+<ul>
+<li><strong>Pro:</strong> Faster and more consistent rollout decisions under pressure.</li>
+<li><strong>Pro:</strong> Easier post-incident auditing (“why did we ship this?”).</li>
+<li><strong>Con:</strong> Upfront work to define good thresholds and data pipelines.</li>
+<li><strong>Con:</strong> Overly rigid gates can block useful launches if not periodically updated.</li>
+</ul>
+<h2>References</h2>
+<ul>
+<li>OpenAI — Evals design guide: <a href="https://platform.openai.com/docs/guides/evals-design">https://platform.openai.com/docs/guides/evals-design</a></li>
+<li>OpenAI — Working with evals: <a href="https://developers.openai.com/api/docs/guides/evals">https://developers.openai.com/api/docs/guides/evals</a></li>
+<li>Google SRE Workbook — Canarying releases: <a href="https://sre.google/workbook/canarying-releases/">https://sre.google/workbook/canarying-releases/</a></li>
+<li>NIST — AI Risk Management Framework: <a href="https://www.nist.gov/itl/ai-risk-management-framework">https://www.nist.gov/itl/ai-risk-management-framework</a></li>
+</ul>
+<h2>Final Take</h2>
+<p>Evals tell you if a model can work. Canaries tell you if it still works in the wild. A release scorecard tells you whether to ship now. Put all three together, and rollout decisions become operational discipline—not opinion.</p>
+<h2>Changelog</h2>
+<ul>
+<li>2026-04-04: Initial draft created and published.</li>
+</ul>
+
+    </article>
+  </body>
+</html>

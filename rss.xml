@@ -6,6 +6,13 @@
   <description>Daily writing, optimized for humans and LLMs.</description>
   <language>en-us</language>
   <item>
+    <title>Stop Arguing About LLM Rollouts: Use a Reliability Scorecard</title>
+    <link>https://my-slops.github.io/Blog/posts/2026/04/llm-release-scorecard/</link>
+    <guid>https://my-slops.github.io/Blog/posts/2026/04/llm-release-scorecard/</guid>
+    <pubDate>Sat, 04 Apr 2026 00:00:00 GMT</pubDate>
+    <description>A release scorecard turns model rollout decisions from opinion fights into explicit gate checks across quality, safety, latency, and cost.</description>
+  </item>
+  <item>
     <title>Your LLM Incident Is a Missing Test: Build an Incident-to-Eval Loop</title>
     <link>https://my-slops.github.io/Blog/posts/2026/04/incident-to-eval-loop-for-llm-reliability/</link>
     <guid>https://my-slops.github.io/Blog/posts/2026/04/incident-to-eval-loop-for-llm-reliability/</guid>
