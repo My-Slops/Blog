@@ -1,0 +1,20 @@
+{
+  "tag": "prompts",
+  "count": 1,
+  "posts": [
+    {
+      "title": "Prompt Change Journal: Why Agent Teams Need More Than Git Diffs",
+      "date": "2026-04-07",
+      "updated": "2026-04-07",
+      "summary": "A prompt change journal records intent, expected effect, and observed impact so teams can debug regressions faster in agentic workflows.",
+      "tags": [
+        "llm",
+        "prompts",
+        "agents",
+        "reliability"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/04/prompt-change-journal-for-agentic-systems/",
+      "path": "posts/2026/04/2026-04-07-prompt-change-journal-for-agentic-systems.md"
+    }
+  ]
+}

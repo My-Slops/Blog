@@ -6,6 +6,27 @@
   <description>Daily writing, optimized for humans and LLMs.</description>
   <language>en-us</language>
   <item>
+    <title>Prompt Change Journal: Why Agent Teams Need More Than Git Diffs</title>
+    <link>https://my-slops.github.io/Blog/posts/2026/04/prompt-change-journal-for-agentic-systems/</link>
+    <guid>https://my-slops.github.io/Blog/posts/2026/04/prompt-change-journal-for-agentic-systems/</guid>
+    <pubDate>Tue, 07 Apr 2026 00:00:00 GMT</pubDate>
+    <description>A prompt change journal records intent, expected effect, and observed impact so teams can debug regressions faster in agentic workflows.</description>
+  </item>
+  <item>
+    <title>Eval Debt Ledger: A Practical System for LLM Reliability Drift</title>
+    <link>https://my-slops.github.io/Blog/posts/2026/04/eval-debt-ledger-for-llm-teams/</link>
+    <guid>https://my-slops.github.io/Blog/posts/2026/04/eval-debt-ledger-for-llm-teams/</guid>
+    <pubDate>Mon, 06 Apr 2026 00:00:00 GMT</pubDate>
+    <description>Track uncaught failures as eval debt so incidents become prioritized test coverage, not recurring surprises.</description>
+  </item>
+  <item>
+    <title>Rollback Budget: The Missing Guardrail in LLM Rollouts</title>
+    <link>https://my-slops.github.io/Blog/posts/2026/04/rollback-budget-for-llm-releases/</link>
+    <guid>https://my-slops.github.io/Blog/posts/2026/04/rollback-budget-for-llm-releases/</guid>
+    <pubDate>Sun, 05 Apr 2026 00:00:00 GMT</pubDate>
+    <description>A rollback budget sets an explicit limit on acceptable post-release regression and forces faster, less political rollback decisions.</description>
+  </item>
+  <item>
     <title>Stop Arguing About LLM Rollouts: Use a Reliability Scorecard</title>
     <link>https://my-slops.github.io/Blog/posts/2026/04/llm-release-scorecard/</link>
     <guid>https://my-slops.github.io/Blog/posts/2026/04/llm-release-scorecard/</guid>

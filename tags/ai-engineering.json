@@ -1,7 +1,21 @@
 {
   "tag": "ai-engineering",
-  "count": 3,
+  "count": 4,
   "posts": [
+    {
+      "title": "Eval Debt Ledger: A Practical System for LLM Reliability Drift",
+      "date": "2026-04-06",
+      "updated": "2026-04-06",
+      "summary": "Track uncaught failures as eval debt so incidents become prioritized test coverage, not recurring surprises.",
+      "tags": [
+        "llm",
+        "evals",
+        "reliability",
+        "ai-engineering"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/04/eval-debt-ledger-for-llm-teams/",
+      "path": "posts/2026/04/2026-04-06-eval-debt-ledger-for-llm-teams.md"
+    },
     {
       "title": "Stop Arguing About LLM Rollouts: Use a Reliability Scorecard",
       "date": "2026-04-04",

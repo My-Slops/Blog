@@ -1,7 +1,49 @@
 {
   "tag": "reliability",
-  "count": 10,
+  "count": 13,
   "posts": [
+    {
+      "title": "Prompt Change Journal: Why Agent Teams Need More Than Git Diffs",
+      "date": "2026-04-07",
+      "updated": "2026-04-07",
+      "summary": "A prompt change journal records intent, expected effect, and observed impact so teams can debug regressions faster in agentic workflows.",
+      "tags": [
+        "llm",
+        "prompts",
+        "agents",
+        "reliability"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/04/prompt-change-journal-for-agentic-systems/",
+      "path": "posts/2026/04/2026-04-07-prompt-change-journal-for-agentic-systems.md"
+    },
+    {
+      "title": "Eval Debt Ledger: A Practical System for LLM Reliability Drift",
+      "date": "2026-04-06",
+      "updated": "2026-04-06",
+      "summary": "Track uncaught failures as eval debt so incidents become prioritized test coverage, not recurring surprises.",
+      "tags": [
+        "llm",
+        "evals",
+        "reliability",
+        "ai-engineering"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/04/eval-debt-ledger-for-llm-teams/",
+      "path": "posts/2026/04/2026-04-06-eval-debt-ledger-for-llm-teams.md"
+    },
+    {
+      "title": "Rollback Budget: The Missing Guardrail in LLM Rollouts",
+      "date": "2026-04-05",
+      "updated": "2026-04-05",
+      "summary": "A rollback budget sets an explicit limit on acceptable post-release regression and forces faster, less political rollback decisions.",
+      "tags": [
+        "llm",
+        "reliability",
+        "deployment",
+        "ai-ops"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/04/rollback-budget-for-llm-releases/",
+      "path": "posts/2026/04/2026-04-05-rollback-budget-for-llm-releases.md"
+    },
     {
       "title": "Stop Arguing About LLM Rollouts: Use a Reliability Scorecard",
       "date": "2026-04-04",

@@ -1,7 +1,21 @@
 {
   "tag": "deployment",
-  "count": 2,
+  "count": 3,
   "posts": [
+    {
+      "title": "Rollback Budget: The Missing Guardrail in LLM Rollouts",
+      "date": "2026-04-05",
+      "updated": "2026-04-05",
+      "summary": "A rollback budget sets an explicit limit on acceptable post-release regression and forces faster, less political rollback decisions.",
+      "tags": [
+        "llm",
+        "reliability",
+        "deployment",
+        "ai-ops"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/04/rollback-budget-for-llm-releases/",
+      "path": "posts/2026/04/2026-04-05-rollback-budget-for-llm-releases.md"
+    },
     {
       "title": "Stop Arguing About LLM Rollouts: Use a Reliability Scorecard",
       "date": "2026-04-04",

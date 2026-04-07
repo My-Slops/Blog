@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Prompt Change Journal: Why Agent Teams Need More Than Git Diffs | Blog</title>
+    <meta name="description" content="A prompt change journal records intent, expected effect, and observed impact so teams can debug regressions faster in agentic workflows." />
+    <link rel="canonical" href="https://my-slops.github.io/Blog/posts/2026/04/prompt-change-journal-for-agentic-systems/" />
+    <style>
+      :root { color-scheme: light dark; }
+      body { font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; line-height: 1.7; max-width: 760px; margin: 40px auto; padding: 0 16px; }
+      a { color: #0a58ca; text-decoration: none; }
+      a:hover { text-decoration: underline; }
+      .meta { color: #666; font-size: 0.95rem; margin-bottom: 1rem; }
+      .tags { display: flex; gap: 0.5rem; list-style: none; padding: 0; margin: 0.75rem 0 1.25rem; flex-wrap: wrap; }
+      .tags li { background: #eef2ff; color: #3730a3; border-radius: 999px; padding: 0.2rem 0.6rem; font-size: 0.8rem; }
+      article h1, article h2, article h3 { line-height: 1.3; }
+      article pre { overflow-x: auto; background: #111827; color: #f9fafb; padding: 0.9rem; border-radius: 8px; }
+      article code { font-family: ui-monospace,SFMono-Regular,Menlo,monospace; }
+      article blockquote { border-left: 4px solid #d1d5db; margin: 1rem 0; padding: 0.2rem 0.9rem; color: #4b5563; }
+      hr { border: 0; border-top: 1px solid #e5e7eb; margin: 2rem 0; }
+    </style>
+  </head>
+  <body>
+    <p><a href="https://my-slops.github.io/Blog/">← Home</a></p>
+    <article>
+      <h1>Prompt Change Journal: Why Agent Teams Need More Than Git Diffs</h1>
+      <p class="meta">Apr 7, 2026</p>
+      <ul class="tags"><li>llm</li><li>prompts</li><li>agents</li><li>reliability</li></ul>
+      <h2>TL;DR</h2>
+<p>Git history tells you what text changed. A <strong>prompt change journal</strong> tells you why it changed, what behavior was expected, and whether that expectation held in production.</p>
+<h2>Context</h2>
+<p>Agentic systems fail in subtle ways. A seemingly minor instruction tweak can improve one task while silently hurting another. Teams relying on plain diffs often cannot answer basic incident questions quickly:</p>
+<ul>
+<li>What behavior was this prompt edit trying to improve?</li>
+<li>Which eval slice should have caught this regression?</li>
+<li>Was the change validated against known failure modes?</li>
+</ul>
+<h2>Key Points</h2>
+<h3>1) Record intent for every meaningful prompt edit</h3>
+<p>Each change should include one-sentence intent and target metric.</p>
+<h3>2) Require “expected blast radius” notes</h3>
+<p>Prompt edits can affect tool use, safety style, latency, and verbosity. Document the likely affected surfaces before rollout.</p>
+<h3>3) Attach eval evidence at change time</h3>
+<p>Every material prompt change should cite:</p>
+<ul>
+<li>eval suite used,</li>
+<li>before/after deltas,</li>
+<li>confidence level.</li>
+</ul>
+<h3>4) Add production observations after deploy</h3>
+<p>Within 24–72 hours, append observed impact so the journal becomes a learning loop—not just a pre-merge checklist.</p>
+<h3>5) Use journal entries in incident response</h3>
+<p>During outages, this log helps triage likely causes faster than raw commit browsing.</p>
+<h2>Steps / Code</h2>
+<h3>Minimal prompt change journal entry</h3>
+<pre><code class="language-markdown">## 2026-04-07 / PR-312 / prompt-v88
+- Intent: reduce tool-call hallucinations in multi-step tasks.
+- Expected effect: +1.5% tool-call validity; no safety regression.
+- Blast radius: tool routing, parser compliance, latency.
+- Eval evidence:
+  - tool-schema-suite: +2.1%
+  - safety-critical-suite: no significant change
+  - latency p95: +4%
+- Decision: ship to 10% canary.
+- 48h observation: validity gain held; slight retry increase in long tasks.
+- Follow-up: add long-context tool-routing eval cases.
+</code></pre>
+<h3>Team policy</h3>
+<pre><code class="language-text">No prompt change to production without:
+1) intent note,
+2) eval evidence,
+3) post-deploy observation window,
+4) explicit owner.
+</code></pre>
+<h2>Trade-offs</h2>
+<ul>
+<li><strong>Pro:</strong> Faster root-cause analysis when regressions appear.</li>
+<li><strong>Pro:</strong> Better team memory despite rapid iteration.</li>
+<li><strong>Con:</strong> Adds lightweight process overhead.</li>
+<li><strong>Con:</strong> Can decay if owners are not enforced.</li>
+</ul>
+<h2>References</h2>
+<ul>
+<li>OpenAI — Prompt engineering guide: <a href="https://platform.openai.com/docs/guides/prompt-engineering">https://platform.openai.com/docs/guides/prompt-engineering</a></li>
+<li>Google SRE Book — Configuration design and change management: <a href="https://sre.google/sre-book/configuration-design/">https://sre.google/sre-book/configuration-design/</a></li>
+<li>Microsoft — Prompt engineering techniques: <a href="https://learn.microsoft.com/azure/ai-services/openai/concepts/prompt-engineering">https://learn.microsoft.com/azure/ai-services/openai/concepts/prompt-engineering</a></li>
+</ul>
+<h2>Final Take</h2>
+<p>As agent systems scale, prompt edits are operational changes, not just writing changes. Treat them with the same accountability as code.</p>
+<h2>Changelog</h2>
+<ul>
+<li>2026-04-07: Initial draft created and published.</li>
+</ul>
+
+    </article>
+  </body>
+</html>

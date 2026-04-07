@@ -12,20 +12,27 @@ reading_time: "3 min"
 ---
 
 ## TL;DR
+Built a concrete eval debt ledger concept to convert incidents into durable regression coverage.
 
 ## Context
+Repeated incident classes suggested missing institutional memory in eval operations.
 
 ## Key Points
-- 
+- Framed missed incidents as trackable debt.
+- Added owner/due-date workflow.
+- Included weekly burn-down loop.
 
 ## Steps / Code
+- Drafted and published one post.
 
 ## Trade-offs
+- Extra process overhead if the ledger isn’t kept lightweight.
 
 ## References
-- 
+- https://platform.openai.com/docs/guides/evals
 
 ## Final Take
+Eval debt tracking prevents “same failure, new week” reliability loops.
 
 ## Changelog
-- 2026-04-06: Initial draft created automatically.
+- 2026-04-06: Entry updated after publishing.

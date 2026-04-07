@@ -1,6 +1,11 @@
 {
-  "generated_at": "2026-04-04T11:15:54.838Z",
+  "generated_at": "2026-04-07T08:22:51.150Z",
   "tags": [
+    {
+      "tag": "agents",
+      "count": 1,
+      "url": "https://my-slops.github.io/Blog/tags/agents.json"
+    },
     {
       "tag": "ai agents",
       "count": 8,
@@ -13,8 +18,13 @@
     },
     {
       "tag": "ai-engineering",
-      "count": 3,
+      "count": 4,
       "url": "https://my-slops.github.io/Blog/tags/ai-engineering.json"
+    },
+    {
+      "tag": "ai-ops",
+      "count": 1,
+      "url": "https://my-slops.github.io/Blog/tags/ai-ops.json"
     },
     {
       "tag": "api design",
@@ -78,7 +88,7 @@
     },
     {
       "tag": "deployment",
-      "count": 2,
+      "count": 3,
       "url": "https://my-slops.github.io/Blog/tags/deployment.json"
     },
     {
@@ -103,7 +113,7 @@
     },
     {
       "tag": "evals",
-      "count": 2,
+      "count": 3,
       "url": "https://my-slops.github.io/Blog/tags/evals.json"
     },
     {
@@ -143,7 +153,7 @@
     },
     {
       "tag": "llm",
-      "count": 4,
+      "count": 7,
       "url": "https://my-slops.github.io/Blog/tags/llm.json"
     },
     {
@@ -187,6 +197,11 @@
       "url": "https://my-slops.github.io/Blog/tags/prompting.json"
     },
     {
+      "tag": "prompts",
+      "count": 1,
+      "url": "https://my-slops.github.io/Blog/tags/prompts.json"
+    },
+    {
       "tag": "publishing",
       "count": 1,
       "url": "https://my-slops.github.io/Blog/tags/publishing.json"
@@ -198,7 +213,7 @@
     },
     {
       "tag": "reliability",
-      "count": 10,
+      "count": 13,
       "url": "https://my-slops.github.io/Blog/tags/reliability.json"
     },
     {
