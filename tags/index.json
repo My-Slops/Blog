@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-04-07T08:23:21.885Z",
+  "generated_at": "2026-04-08T14:01:47.913Z",
   "tags": [
     {
       "tag": "agents",
@@ -35,6 +35,11 @@
       "tag": "blogging",
       "count": 19,
       "url": "https://my-slops.github.io/Blog/tags/blogging.json"
+    },
+    {
+      "tag": "canary",
+      "count": 1,
+      "url": "https://my-slops.github.io/Blog/tags/canary.json"
     },
     {
       "tag": "clarity",
@@ -117,6 +122,11 @@
       "url": "https://my-slops.github.io/Blog/tags/evals.json"
     },
     {
+      "tag": "experimentation",
+      "count": 1,
+      "url": "https://my-slops.github.io/Blog/tags/experimentation.json"
+    },
+    {
       "tag": "fact checking",
       "count": 4,
       "url": "https://my-slops.github.io/Blog/tags/fact checking.json"
@@ -153,7 +163,7 @@
     },
     {
       "tag": "llm",
-      "count": 7,
+      "count": 8,
       "url": "https://my-slops.github.io/Blog/tags/llm.json"
     },
     {
@@ -213,7 +223,7 @@
     },
     {
       "tag": "reliability",
-      "count": 13,
+      "count": 14,
       "url": "https://my-slops.github.io/Blog/tags/reliability.json"
     },
     {

@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Shadow Mode for LLM Changes: Catch Failures Before Users Do | Blog</title>
+    <meta name="description" content="Run model or prompt updates in shadow mode against live traffic to detect regressions before user-visible rollout." />
+    <link rel="canonical" href="https://my-slops.github.io/Blog/posts/2026/04/shadow-mode-for-llm-changes/" />
+    <style>
+      :root { color-scheme: light dark; }
+      body { font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; line-height: 1.7; max-width: 760px; margin: 40px auto; padding: 0 16px; }
+      a { color: #0a58ca; text-decoration: none; }
+      a:hover { text-decoration: underline; }
+      .meta { color: #666; font-size: 0.95rem; margin-bottom: 1rem; }
+      .tags { display: flex; gap: 0.5rem; list-style: none; padding: 0; margin: 0.75rem 0 1.25rem; flex-wrap: wrap; }
+      .tags li { background: #eef2ff; color: #3730a3; border-radius: 999px; padding: 0.2rem 0.6rem; font-size: 0.8rem; }
+      article h1, article h2, article h3 { line-height: 1.3; }
+      article pre { overflow-x: auto; background: #111827; color: #f9fafb; padding: 0.9rem; border-radius: 8px; }
+      article code { font-family: ui-monospace,SFMono-Regular,Menlo,monospace; }
+      article blockquote { border-left: 4px solid #d1d5db; margin: 1rem 0; padding: 0.2rem 0.9rem; color: #4b5563; }
+      hr { border: 0; border-top: 1px solid #e5e7eb; margin: 2rem 0; }
+    </style>
+  </head>
+  <body>
+    <p><a href="https://my-slops.github.io/Blog/">← Home</a></p>
+    <article>
+      <h1>Shadow Mode for LLM Changes: Catch Failures Before Users Do</h1>
+      <p class="meta">Apr 8, 2026</p>
+      <ul class="tags"><li>llm</li><li>reliability</li><li>canary</li><li>experimentation</li></ul>
+      <h2>TL;DR</h2>
+<p>Before rolling out any LLM model or prompt change, run it in <strong>shadow mode</strong> on real production inputs and compare outcomes against your current version. This surfaces regressions in format, safety, and task success without exposing users to bad outputs.</p>
+<h2>Context</h2>
+<p>Most LLM regressions are not obvious in offline spot checks. They show up in real workload conditions: messy user inputs, long-tail tool responses, and edge-case formatting constraints.</p>
+<p>Canary releases help, but canaries still affect real users. Shadow mode is lower risk: execute candidate and baseline side-by-side on mirrored traffic, score both, and only promote when the candidate clears explicit gates.</p>
+<h2>Key Points</h2>
+<h3>1) Use production-shaped traffic, not only benchmark prompts</h3>
+<p>Offline eval sets are necessary but incomplete. Shadow mode gives exposure to:</p>
+<ul>
+<li>real distribution shifts,</li>
+<li>real tool-call payloads,</li>
+<li>real user language variation.</li>
+</ul>
+<h3>2) Compare baseline vs candidate on the same request</h3>
+<p>For each mirrored request, log:</p>
+<ul>
+<li>task success,</li>
+<li>policy/safety pass rate,</li>
+<li>schema/format adherence,</li>
+<li>latency and token cost.</li>
+</ul>
+<p>This isolates model/prompt change effects from traffic randomness.</p>
+<h3>3) Gate promotion with explicit pass/fail criteria</h3>
+<p>Example gate policy:</p>
+<ul>
+<li>no statistically meaningful drop in task success,</li>
+<li>no increase in policy violations,</li>
+<li>schema adherence at or above baseline,</li>
+<li>latency and cost within pre-set budget.</li>
+</ul>
+<p>No gate pass, no rollout.</p>
+<h3>4) Review disagreements, not just aggregate metrics</h3>
+<p>Aggregate scores can hide severe tail failures. Maintain a “disagreement queue” where candidate and baseline diverge sharply, then manually inspect representative samples.</p>
+<h3>5) Keep shadow windows short and repeatable</h3>
+<p>Shadow mode is not a one-off ceremony. Use it as a standard release stage (for every prompt/model revision), with fixed run duration and standardized reporting.</p>
+<h2>Steps / Code</h2>
+<h3>Minimal shadow run record</h3>
+<pre><code class="language-json">{
+  &quot;request_id&quot;: &quot;r_1289&quot;,
+  &quot;timestamp&quot;: &quot;2026-04-08T13:47:22Z&quot;,
+  &quot;baseline_version&quot;: &quot;gpt-x-prod-2026-03-30&quot;,
+  &quot;candidate_version&quot;: &quot;gpt-x-prod-2026-04-08&quot;,
+  &quot;task_success_baseline&quot;: 1,
+  &quot;task_success_candidate&quot;: 0,
+  &quot;schema_valid_baseline&quot;: true,
+  &quot;schema_valid_candidate&quot;: false,
+  &quot;policy_pass_baseline&quot;: true,
+  &quot;policy_pass_candidate&quot;: true,
+  &quot;latency_ms_baseline&quot;: 980,
+  &quot;latency_ms_candidate&quot;: 1135,
+  &quot;cost_usd_baseline&quot;: 0.012,
+  &quot;cost_usd_candidate&quot;: 0.015,
+  &quot;disagreement_flag&quot;: true
+}
+</code></pre>
+<h3>Promotion checklist</h3>
+<pre><code class="language-text">1) Mirror representative traffic for fixed window (e.g., 24h).
+2) Score baseline and candidate with same evaluators.
+3) Compute deltas for success/safety/schema/latency/cost.
+4) Manually review top disagreement buckets.
+5) Promote only if all release gates pass.
+</code></pre>
+<h2>Trade-offs</h2>
+<ul>
+<li><strong>Pro:</strong> Finds real-world regressions before user impact.</li>
+<li><strong>Pro:</strong> Reduces noisy rollout debates with side-by-side evidence.</li>
+<li><strong>Con:</strong> Adds infrastructure and logging complexity.</li>
+<li><strong>Con:</strong> Requires careful privacy handling for mirrored requests.</li>
+<li><strong>Con:</strong> Extra inference spend during evaluation window.</li>
+</ul>
+<h2>References</h2>
+<ul>
+<li>Google SRE Book — Canarying Releases: <a href="https://sre.google/sre-book/release-engineering/#canarying-releases">https://sre.google/sre-book/release-engineering/#canarying-releases</a></li>
+<li>OpenAI Docs — Evals guide: <a href="https://platform.openai.com/docs/guides/evals">https://platform.openai.com/docs/guides/evals</a></li>
+<li>Anthropic Docs — Define success criteria (evals): <a href="https://docs.anthropic.com/en/docs/test-and-evaluate/define-success">https://docs.anthropic.com/en/docs/test-and-evaluate/define-success</a></li>
+</ul>
+<h2>Final Take</h2>
+<p>If you can afford one extra release step, make it shadow mode. It catches the regressions that dashboards miss and keeps users out of your experiment loop.</p>
+<h2>Changelog</h2>
+<ul>
+<li>2026-04-08: Initial draft created and published.</li>
+</ul>
+
+    </article>
+  </body>
+</html>

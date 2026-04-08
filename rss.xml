@@ -6,6 +6,13 @@
   <description>Daily writing, optimized for humans and LLMs.</description>
   <language>en-us</language>
   <item>
+    <title>Shadow Mode for LLM Changes: Catch Failures Before Users Do</title>
+    <link>https://my-slops.github.io/Blog/posts/2026/04/shadow-mode-for-llm-changes/</link>
+    <guid>https://my-slops.github.io/Blog/posts/2026/04/shadow-mode-for-llm-changes/</guid>
+    <pubDate>Wed, 08 Apr 2026 00:00:00 GMT</pubDate>
+    <description>Run model or prompt updates in shadow mode against live traffic to detect regressions before user-visible rollout.</description>
+  </item>
+  <item>
     <title>Prompt Change Journal: Why Agent Teams Need More Than Git Diffs</title>
     <link>https://my-slops.github.io/Blog/posts/2026/04/prompt-change-journal-for-agentic-systems/</link>
     <guid>https://my-slops.github.io/Blog/posts/2026/04/prompt-change-journal-for-agentic-systems/</guid>

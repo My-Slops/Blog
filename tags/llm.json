@@ -1,7 +1,21 @@
 {
   "tag": "llm",
-  "count": 7,
+  "count": 8,
   "posts": [
+    {
+      "title": "Shadow Mode for LLM Changes: Catch Failures Before Users Do",
+      "date": "2026-04-08",
+      "updated": "2026-04-08",
+      "summary": "Run model or prompt updates in shadow mode against live traffic to detect regressions before user-visible rollout.",
+      "tags": [
+        "llm",
+        "reliability",
+        "canary",
+        "experimentation"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/04/shadow-mode-for-llm-changes/",
+      "path": "posts/2026/04/2026-04-08-shadow-mode-for-llm-changes.md"
+    },
     {
       "title": "Prompt Change Journal: Why Agent Teams Need More Than Git Diffs",
       "date": "2026-04-07",
