@@ -1,6 +1,6 @@
 {
   "tag": "deployment",
-  "count": 4,
+  "count": 5,
   "posts": [
     {
       "title": "Shadow First, Canary Second: A Safer Release Workflow for LLM Changes",
@@ -15,6 +15,21 @@
       ],
       "url": "https://my-slops.github.io/Blog/posts/2026/04/shadow-to-canary-llm-release-workflow/",
       "path": "posts/2026/04/2026-04-14-shadow-to-canary-llm-release-workflow.md"
+    },
+    {
+      "title": "The Human Readback Gate for Prompt Rollouts",
+      "date": "2026-04-09",
+      "updated": "2026-04-09",
+      "summary": "Metrics can miss awkward confidence, subtle tone drift, and misleading framing. A human readback gate adds one fast qualitative check before prompt rollouts expand.",
+      "tags": [
+        "llm",
+        "prompts",
+        "reliability",
+        "editorial workflow",
+        "deployment"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/04/the-human-readback-gate-for-prompt-rollouts/",
+      "path": "posts/2026/04/2026-04-09-the-human-readback-gate-for-prompt-rollouts.md"
     },
     {
       "title": "Rollback Budget: The Missing Guardrail in LLM Rollouts",

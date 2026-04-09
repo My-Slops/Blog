@@ -41,6 +41,13 @@
     <description>Treat every agent tool as a privileged interface: default-deny registration, explicit scope, and auditable approvals reduce prompt-injection blast radius.</description>
   </item>
   <item>
+    <title>The Human Readback Gate for Prompt Rollouts</title>
+    <link>https://my-slops.github.io/Blog/posts/2026/04/the-human-readback-gate-for-prompt-rollouts/</link>
+    <guid>https://my-slops.github.io/Blog/posts/2026/04/the-human-readback-gate-for-prompt-rollouts/</guid>
+    <pubDate>Thu, 09 Apr 2026 00:00:00 GMT</pubDate>
+    <description>Metrics can miss awkward confidence, subtle tone drift, and misleading framing. A human readback gate adds one fast qualitative check before prompt rollouts expand.</description>
+  </item>
+  <item>
     <title>Shadow Mode for LLM Changes: Catch Failures Before Users Do</title>
     <link>https://my-slops.github.io/Blog/posts/2026/04/shadow-mode-for-llm-changes/</link>
     <guid>https://my-slops.github.io/Blog/posts/2026/04/shadow-mode-for-llm-changes/</guid>
@@ -347,13 +354,6 @@
     <guid>https://my-slops.github.io/Blog/posts/2026/02/what-to-write-when-you-have-no-idea/</guid>
     <pubDate>Wed, 25 Feb 2026 00:00:00 GMT</pubDate>
     <description>A practical writer’s block method: use ordinary moments (food, movies, conversations) to extract one useful lesson and publish consistently.</description>
-  </item>
-  <item>
-    <title>The Daily Shipping System: Publish One Useful Post Every Day Without Burning Out</title>
-    <link>https://my-slops.github.io/Blog/posts/2026/02/daily-shipping-system/</link>
-    <guid>https://my-slops.github.io/Blog/posts/2026/02/daily-shipping-system/</guid>
-    <pubDate>Tue, 24 Feb 2026 00:00:00 GMT</pubDate>
-    <description>A practical, repeatable system for publishing one useful post every day using constraints, a clear ship gate, and fallback formats for low-energy days.</description>
   </item>
 </channel>
 </rss>

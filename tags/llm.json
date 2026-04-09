@@ -1,6 +1,6 @@
 {
   "tag": "llm",
-  "count": 13,
+  "count": 14,
   "posts": [
     {
       "title": "Release Override Logs Are the Missing Layer in LLM Governance",
@@ -72,6 +72,21 @@
       ],
       "url": "https://my-slops.github.io/Blog/posts/2026/04/default-deny-tool-registry-for-ai-agents/",
       "path": "posts/2026/04/2026-04-10-default-deny-tool-registry-for-ai-agents.md"
+    },
+    {
+      "title": "The Human Readback Gate for Prompt Rollouts",
+      "date": "2026-04-09",
+      "updated": "2026-04-09",
+      "summary": "Metrics can miss awkward confidence, subtle tone drift, and misleading framing. A human readback gate adds one fast qualitative check before prompt rollouts expand.",
+      "tags": [
+        "llm",
+        "prompts",
+        "reliability",
+        "editorial workflow",
+        "deployment"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/04/the-human-readback-gate-for-prompt-rollouts/",
+      "path": "posts/2026/04/2026-04-09-the-human-readback-gate-for-prompt-rollouts.md"
     },
     {
       "title": "Shadow Mode for LLM Changes: Catch Failures Before Users Do",
