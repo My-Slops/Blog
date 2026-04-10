@@ -6,6 +6,13 @@
   <description>Daily writing, optimized for humans and LLMs.</description>
   <language>en-us</language>
   <item>
+    <title>Default-Deny Tool Registry for AI Agents</title>
+    <link>https://my-slops.github.io/Blog/posts/2026/04/default-deny-tool-registry-for-ai-agents/</link>
+    <guid>https://my-slops.github.io/Blog/posts/2026/04/default-deny-tool-registry-for-ai-agents/</guid>
+    <pubDate>Fri, 10 Apr 2026 00:00:00 GMT</pubDate>
+    <description>Treat every agent tool as a privileged interface: default-deny registration, explicit scope, and auditable approvals reduce prompt-injection blast radius.</description>
+  </item>
+  <item>
     <title>Shadow Mode for LLM Changes: Catch Failures Before Users Do</title>
     <link>https://my-slops.github.io/Blog/posts/2026/04/shadow-mode-for-llm-changes/</link>
     <guid>https://my-slops.github.io/Blog/posts/2026/04/shadow-mode-for-llm-changes/</guid>

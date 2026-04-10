@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Default-Deny Tool Registry for AI Agents | Blog</title>
+    <meta name="description" content="Treat every agent tool as a privileged interface: default-deny registration, explicit scope, and auditable approvals reduce prompt-injection blast radius." />
+    <link rel="canonical" href="https://my-slops.github.io/Blog/posts/2026/04/default-deny-tool-registry-for-ai-agents/" />
+    <style>
+      :root { color-scheme: light dark; }
+      body { font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; line-height: 1.7; max-width: 760px; margin: 40px auto; padding: 0 16px; }
+      a { color: #0a58ca; text-decoration: none; }
+      a:hover { text-decoration: underline; }
+      .meta { color: #666; font-size: 0.95rem; margin-bottom: 1rem; }
+      .tags { display: flex; gap: 0.5rem; list-style: none; padding: 0; margin: 0.75rem 0 1.25rem; flex-wrap: wrap; }
+      .tags li { background: #eef2ff; color: #3730a3; border-radius: 999px; padding: 0.2rem 0.6rem; font-size: 0.8rem; }
+      article h1, article h2, article h3 { line-height: 1.3; }
+      article pre { overflow-x: auto; background: #111827; color: #f9fafb; padding: 0.9rem; border-radius: 8px; }
+      article code { font-family: ui-monospace,SFMono-Regular,Menlo,monospace; }
+      article blockquote { border-left: 4px solid #d1d5db; margin: 1rem 0; padding: 0.2rem 0.9rem; color: #4b5563; }
+      hr { border: 0; border-top: 1px solid #e5e7eb; margin: 2rem 0; }
+    </style>
+  </head>
+  <body>
+    <p><a href="https://my-slops.github.io/Blog/">← Home</a></p>
+    <article>
+      <h1>Default-Deny Tool Registry for AI Agents</h1>
+      <p class="meta">Apr 10, 2026</p>
+      <ul class="tags"><li>llm</li><li>agents</li><li>security</li><li>reliability</li></ul>
+      <h2>TL;DR</h2>
+<p>If your agent can call tools, your real security boundary is the <strong>tool registry</strong>, not just the prompt. A default-deny registry with per-tool scopes, argument validation, and approval gates is a practical way to contain prompt-injection and unsafe action risk.</p>
+<h2>Context</h2>
+<p>Many teams still treat tool calling as a convenience feature. In production, it is a privileged execution path: model output can trigger real side effects (send messages, write files, run commands, move money, etc.).</p>
+<p>OWASP’s LLM risk framing keeps highlighting prompt injection and insecure output handling as top risks in LLM applications. Combined with classic least-privilege guidance from NIST, that points to one operational move: treat tools like privileged APIs and tighten access by default.</p>
+<h2>Key Points</h2>
+<h3>1) Default-deny beats “tools available unless blocked”</h3>
+<p>A permissive registry makes every newly added tool instantly reachable. In a default-deny setup:</p>
+<ul>
+<li>tools are unavailable until explicitly registered,</li>
+<li>each tool is approved for specific agent roles/workflows,</li>
+<li>each approval has an owner and expiry.</li>
+</ul>
+<p>This prevents silent permission creep.</p>
+<h3>2) Scope tools at action level, not just tool name</h3>
+<p>“calendar_tool” is too broad. Scope should encode allowed operations and boundaries, e.g.:</p>
+<ul>
+<li><code>calendar.read.events</code> (allowed),</li>
+<li><code>calendar.write.events</code> (needs approval),</li>
+<li><code>calendar.delete.events</code> (never for autonomous runs).</li>
+</ul>
+<p>Fine-grained scopes make review and audit meaningful.</p>
+<h3>3) Validate arguments before execution</h3>
+<p>Tool schemas help, but schema-valid is not always policy-valid. Add runtime checks for:</p>
+<ul>
+<li>target allowlists (destinations, domains, paths),</li>
+<li>side-effect limits (count, spend, time window),</li>
+<li>user confirmation requirements on risky calls.</li>
+</ul>
+<h3>4) Add a human gate for irreversible actions</h3>
+<p>Not every call needs approval, but irreversible calls usually should. A simple ladder works:</p>
+<ul>
+<li>low-risk read calls: automatic,</li>
+<li>medium-risk writes: delayed/queued,</li>
+<li>high-risk irreversible actions: explicit human approval.</li>
+</ul>
+<h3>5) Log decision context, not only tool outputs</h3>
+<p>Audit logs should capture:</p>
+<ul>
+<li>why the model chose a tool,</li>
+<li>granted scope at call time,</li>
+<li>validation results,</li>
+<li>approval metadata,</li>
+<li>final execution result.</li>
+</ul>
+<p>This is crucial for incident review and iterative hardening.</p>
+<h2>Steps / Code</h2>
+<h3>Minimal policy record</h3>
+<pre><code class="language-json">{
+  &quot;tool&quot;: &quot;filesystem.write_file&quot;,
+  &quot;agent_role&quot;: &quot;draft-assistant&quot;,
+  &quot;default&quot;: &quot;deny&quot;,
+  &quot;allowed_scopes&quot;: [&quot;workspace:/posts/**&quot;],
+  &quot;blocked_scopes&quot;: [&quot;workspace:/.git/**&quot;, &quot;workspace:/secrets/**&quot;],
+  &quot;requires_approval&quot;: true,
+  &quot;max_calls_per_run&quot;: 5,
+  &quot;owner&quot;: &quot;platform-security&quot;,
+  &quot;expires_at&quot;: &quot;2026-07-01T00:00:00Z&quot;
+}
+</code></pre>
+<h3>Release checklist for a new tool</h3>
+<pre><code class="language-text">1) Add tool in deny state.
+2) Define narrow scopes and blocked ranges.
+3) Add argument-level policy validators.
+4) Classify risk tier (read / write / irreversible).
+5) Enable logging fields for decision + approval context.
+6) Run shadow tests before enabling autonomous use.
+</code></pre>
+<h2>Trade-offs</h2>
+<ul>
+<li><strong>Pro:</strong> Reduces blast radius from prompt-injection and model mistakes.</li>
+<li><strong>Pro:</strong> Makes approvals, ownership, and audits explicit.</li>
+<li><strong>Con:</strong> Slower onboarding of new tools.</li>
+<li><strong>Con:</strong> Requires policy maintenance as workflows evolve.</li>
+<li><strong>Con:</strong> Can frustrate teams if scope design is too coarse.</li>
+</ul>
+<h2>References</h2>
+<ul>
+<li>OWASP Top 10 for LLM Applications (project + risk catalog): <a href="https://owasp.org/www-project-top-10-for-large-language-model-applications/">https://owasp.org/www-project-top-10-for-large-language-model-applications/</a></li>
+<li>OWASP GenAI project (LLM Top 10 landing): <a href="https://genai.owasp.org/llm-top-10/">https://genai.owasp.org/llm-top-10/</a></li>
+<li>NIST Glossary — Least Privilege: <a href="https://csrc.nist.gov/glossary/term/least_privilege">https://csrc.nist.gov/glossary/term/least_privilege</a></li>
+<li>NIST SP 800-53 Rev. 5 (security controls baseline): <a href="https://csrc.nist.gov/pubs/sp/800/53/r5/upd1/final">https://csrc.nist.gov/pubs/sp/800/53/r5/upd1/final</a></li>
+<li>OpenAI Docs — Function calling flow: <a href="https://platform.openai.com/docs/guides/function-calling">https://platform.openai.com/docs/guides/function-calling</a></li>
+</ul>
+<h2>Final Take</h2>
+<p>Prompt defenses matter, but they are not enough once tools can trigger real-world actions. Put your control effort into a default-deny tool registry with explicit scopes and approvals. That is where agent safety becomes operational instead of aspirational.</p>
+<h2>Changelog</h2>
+<ul>
+<li>2026-04-10: Initial draft created and published.</li>
+</ul>
+
+    </article>
+  </body>
+</html>

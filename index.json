@@ -1,7 +1,21 @@
 {
-  "generated_at": "2026-04-08T14:02:08.228Z",
-  "count": 39,
+  "generated_at": "2026-04-10T14:02:53.959Z",
+  "count": 40,
   "posts": [
+    {
+      "title": "Default-Deny Tool Registry for AI Agents",
+      "date": "2026-04-10",
+      "updated": "2026-04-10",
+      "summary": "Treat every agent tool as a privileged interface: default-deny registration, explicit scope, and auditable approvals reduce prompt-injection blast radius.",
+      "tags": [
+        "llm",
+        "agents",
+        "security",
+        "reliability"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/04/default-deny-tool-registry-for-ai-agents/",
+      "path": "posts/2026/04/2026-04-10-default-deny-tool-registry-for-ai-agents.md"
+    },
     {
       "title": "Shadow Mode for LLM Changes: Catch Failures Before Users Do",
       "date": "2026-04-08",
