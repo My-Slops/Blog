@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-04-27T01:53:13.463Z",
-  "count": 52,
+  "generated_at": "2026-04-27T01:53:15.323Z",
+  "count": 53,
   "posts": [
     {
       "title": "Release Override Logs Are the Missing Layer in LLM Governance",
@@ -58,6 +58,21 @@
       ],
       "url": "https://my-slops.github.io/Blog/posts/2026/04/eval-gated-canary-rollouts-for-llm-prompts/",
       "path": "posts/2026/04/2026-04-12-eval-gated-canary-rollouts-for-llm-prompts.md"
+    },
+    {
+      "title": "The Policy Diff Before You Ship an Agent Change",
+      "date": "2026-04-11",
+      "updated": "2026-04-11",
+      "summary": "Agent changes often ship as prompt tweaks or policy edits that are hard to inspect. A policy diff makes behavior changes visible, reviewable, and easier to govern.",
+      "tags": [
+        "ai agents",
+        "governance",
+        "prompts",
+        "release-engineering",
+        "safety"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/04/the-policy-diff-before-you-ship-an-agent-change/",
+      "path": "posts/2026/04/2026-04-11-the-policy-diff-before-you-ship-an-agent-change.md"
     },
     {
       "title": "Default-Deny Tool Registry for AI Agents",

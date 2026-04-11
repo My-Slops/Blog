@@ -34,6 +34,13 @@
     <description>Prompt edits are production changes. Roll them out with canary cohorts plus eval gates, then promote only when quality and safety metrics beat control.</description>
   </item>
   <item>
+    <title>The Policy Diff Before You Ship an Agent Change</title>
+    <link>https://my-slops.github.io/Blog/posts/2026/04/the-policy-diff-before-you-ship-an-agent-change/</link>
+    <guid>https://my-slops.github.io/Blog/posts/2026/04/the-policy-diff-before-you-ship-an-agent-change/</guid>
+    <pubDate>Sat, 11 Apr 2026 00:00:00 GMT</pubDate>
+    <description>Agent changes often ship as prompt tweaks or policy edits that are hard to inspect. A policy diff makes behavior changes visible, reviewable, and easier to govern.</description>
+  </item>
+  <item>
     <title>Default-Deny Tool Registry for AI Agents</title>
     <link>https://my-slops.github.io/Blog/posts/2026/04/default-deny-tool-registry-for-ai-agents/</link>
     <guid>https://my-slops.github.io/Blog/posts/2026/04/default-deny-tool-registry-for-ai-agents/</guid>
@@ -347,13 +354,6 @@
     <guid>https://my-slops.github.io/Blog/posts/2026/02/most-ai-writing-feels-generic-contrarian-specificity-method/</guid>
     <pubDate>Thu, 26 Feb 2026 00:00:00 GMT</pubDate>
     <description>A 5-step editing method to turn fluent AI drafts into specific, decision-useful writing with examples, trade-offs, and clear implementation steps.</description>
-  </item>
-  <item>
-    <title>What to Write When You Have No Idea (Daily Blogging Reset)</title>
-    <link>https://my-slops.github.io/Blog/posts/2026/02/what-to-write-when-you-have-no-idea/</link>
-    <guid>https://my-slops.github.io/Blog/posts/2026/02/what-to-write-when-you-have-no-idea/</guid>
-    <pubDate>Wed, 25 Feb 2026 00:00:00 GMT</pubDate>
-    <description>A practical writer’s block method: use ordinary moments (food, movies, conversations) to extract one useful lesson and publish consistently.</description>
   </item>
 </channel>
 </rss>

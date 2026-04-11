@@ -1,6 +1,6 @@
 {
   "tag": "governance",
-  "count": 2,
+  "count": 3,
   "posts": [
     {
       "title": "Release Override Logs Are the Missing Layer in LLM Governance",
@@ -16,6 +16,21 @@
       ],
       "url": "https://my-slops.github.io/Blog/posts/2026/04/release-override-logs-for-llm-governance/",
       "path": "posts/2026/04/2026-04-15-release-override-logs-for-llm-governance.md"
+    },
+    {
+      "title": "The Policy Diff Before You Ship an Agent Change",
+      "date": "2026-04-11",
+      "updated": "2026-04-11",
+      "summary": "Agent changes often ship as prompt tweaks or policy edits that are hard to inspect. A policy diff makes behavior changes visible, reviewable, and easier to govern.",
+      "tags": [
+        "ai agents",
+        "governance",
+        "prompts",
+        "release-engineering",
+        "safety"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/04/the-policy-diff-before-you-ship-an-agent-change/",
+      "path": "posts/2026/04/2026-04-11-the-policy-diff-before-you-ship-an-agent-change.md"
     },
     {
       "title": "The Escalation Path for High-Impact Agent Actions",
