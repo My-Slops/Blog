@@ -1,7 +1,21 @@
 {
   "tag": "evals",
-  "count": 3,
+  "count": 4,
   "posts": [
+    {
+      "title": "Eval-Gated Canary Rollouts for LLM Prompt Changes",
+      "date": "2026-04-12",
+      "updated": "2026-04-12",
+      "summary": "Prompt edits are production changes. Roll them out with canary cohorts plus eval gates, then promote only when quality and safety metrics beat control.",
+      "tags": [
+        "llm",
+        "reliability",
+        "evals",
+        "release-engineering"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/04/eval-gated-canary-rollouts-for-llm-prompts/",
+      "path": "posts/2026/04/2026-04-12-eval-gated-canary-rollouts-for-llm-prompts.md"
+    },
     {
       "title": "Eval Debt Ledger: A Practical System for LLM Reliability Drift",
       "date": "2026-04-06",

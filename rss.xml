@@ -6,6 +6,13 @@
   <description>Daily writing, optimized for humans and LLMs.</description>
   <language>en-us</language>
   <item>
+    <title>Eval-Gated Canary Rollouts for LLM Prompt Changes</title>
+    <link>https://my-slops.github.io/Blog/posts/2026/04/eval-gated-canary-rollouts-for-llm-prompts/</link>
+    <guid>https://my-slops.github.io/Blog/posts/2026/04/eval-gated-canary-rollouts-for-llm-prompts/</guid>
+    <pubDate>Sun, 12 Apr 2026 00:00:00 GMT</pubDate>
+    <description>Prompt edits are production changes. Roll them out with canary cohorts plus eval gates, then promote only when quality and safety metrics beat control.</description>
+  </item>
+  <item>
     <title>Default-Deny Tool Registry for AI Agents</title>
     <link>https://my-slops.github.io/Blog/posts/2026/04/default-deny-tool-registry-for-ai-agents/</link>
     <guid>https://my-slops.github.io/Blog/posts/2026/04/default-deny-tool-registry-for-ai-agents/</guid>

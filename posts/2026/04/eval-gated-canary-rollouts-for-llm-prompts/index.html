@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Eval-Gated Canary Rollouts for LLM Prompt Changes | Blog</title>
+    <meta name="description" content="Prompt edits are production changes. Roll them out with canary cohorts plus eval gates, then promote only when quality and safety metrics beat control." />
+    <link rel="canonical" href="https://my-slops.github.io/Blog/posts/2026/04/eval-gated-canary-rollouts-for-llm-prompts/" />
+    <style>
+      :root { color-scheme: light dark; }
+      body { font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; line-height: 1.7; max-width: 760px; margin: 40px auto; padding: 0 16px; }
+      a { color: #0a58ca; text-decoration: none; }
+      a:hover { text-decoration: underline; }
+      .meta { color: #666; font-size: 0.95rem; margin-bottom: 1rem; }
+      .tags { display: flex; gap: 0.5rem; list-style: none; padding: 0; margin: 0.75rem 0 1.25rem; flex-wrap: wrap; }
+      .tags li { background: #eef2ff; color: #3730a3; border-radius: 999px; padding: 0.2rem 0.6rem; font-size: 0.8rem; }
+      article h1, article h2, article h3 { line-height: 1.3; }
+      article pre { overflow-x: auto; background: #111827; color: #f9fafb; padding: 0.9rem; border-radius: 8px; }
+      article code { font-family: ui-monospace,SFMono-Regular,Menlo,monospace; }
+      article blockquote { border-left: 4px solid #d1d5db; margin: 1rem 0; padding: 0.2rem 0.9rem; color: #4b5563; }
+      hr { border: 0; border-top: 1px solid #e5e7eb; margin: 2rem 0; }
+    </style>
+  </head>
+  <body>
+    <p><a href="https://my-slops.github.io/Blog/">← Home</a></p>
+    <article>
+      <h1>Eval-Gated Canary Rollouts for LLM Prompt Changes</h1>
+      <p class="meta">Apr 12, 2026</p>
+      <ul class="tags"><li>llm</li><li>reliability</li><li>evals</li><li>release-engineering</li></ul>
+      <h2>TL;DR</h2>
+<p>Most teams still ship prompt changes as if they were harmless text edits. They are not. Treat prompt changes like code releases: run an eval gate, canary to a small traffic slice, compare against control, then promote only if quality and risk metrics improve.</p>
+<h2>Context</h2>
+<p>Prompt and system-instruction updates can change behavior as much as model swaps, but many teams deploy them instantly to 100% traffic. That creates two avoidable failure modes:</p>
+<ul>
+<li>silent quality regression (answers become less useful),</li>
+<li>silent safety regression (answers become riskier).</li>
+</ul>
+<p>Classical SRE canary practice already solved this for software rollouts: release to a small subset, measure against control, and continue only if signals stay healthy. For LLM apps, the missing piece is an <strong>eval gate</strong> attached to the rollout step.</p>
+<p>NIST AI RMF emphasizes managing trustworthy AI risk across design, development, and use. In practice, eval-gated canaries are a concrete way to operationalize that guidance.</p>
+<h2>Key Points</h2>
+<h3>1) A prompt change should get a release ID, not an ad-hoc edit</h3>
+<p>Every prompt revision should have:</p>
+<ul>
+<li>a version (e.g., <code>prompt:v2026-04-12.1</code>),</li>
+<li>owner,</li>
+<li>expected impact hypothesis,</li>
+<li>rollback criteria.</li>
+</ul>
+<p>If a change cannot be identified and rolled back quickly, it is not release-ready.</p>
+<h3>2) Run an offline eval gate before production traffic</h3>
+<p>Before canarying, run a fixed regression suite (golden tasks + known edge cases). Minimum gate:</p>
+<ul>
+<li>task quality score at or above baseline,</li>
+<li>safety/policy violations not worse than baseline,</li>
+<li>no severe failures on known high-risk prompts.</li>
+</ul>
+<p>This mirrors OpenAI’s eval guidance: define the expected behavior, run tests, analyze, iterate.</p>
+<h3>3) Canary prompt changes on live traffic with a control group</h3>
+<p>Route a small percentage (e.g., 1–5%) to the candidate prompt while the rest remains on control. Compare:</p>
+<ul>
+<li>completion/helpfulness metrics,</li>
+<li>refusal/deflection rates,</li>
+<li>escalation or user complaint rates,</li>
+<li>latency and token cost.</li>
+</ul>
+<p>Canarying is fundamentally controlled experimentation in production, not guesswork.</p>
+<h3>4) Promote only on explicit success criteria</h3>
+<p>Define thresholds <em>before</em> rollout, for example:</p>
+<ul>
+<li>quality +3% or more,</li>
+<li>safety no worse than control,</li>
+<li>p95 latency within +5%,</li>
+<li>unit cost within budget.</li>
+</ul>
+<p>If criteria are unmet, auto-hold or auto-rollback.</p>
+<h3>5) Keep feature flags and kill switches simple</h3>
+<p>Feature toggles let you:</p>
+<ul>
+<li>disable a bad prompt version quickly,</li>
+<li>segment by tenant/use case,</li>
+<li>run short-lived experiments without long-lived branch chaos.</li>
+</ul>
+<p>Use short-lived release toggles for rollouts; remove stale flags to reduce operational complexity.</p>
+<h2>Steps / Code</h2>
+<h3>Minimal rollout checklist</h3>
+<pre><code class="language-text">1) Create prompt release record (version, owner, hypothesis).
+2) Run offline eval suite against control vs candidate.
+3) Block deploy if candidate fails quality/safety gate.
+4) Deploy candidate to 1–5% canary cohort.
+5) Compare canary vs control on quality/risk/latency/cost.
+6) Promote gradually (5% -&gt; 25% -&gt; 100%) only on pass.
+7) Record decision and evidence in release log.
+8) Remove temporary rollout flags after stabilization.
+</code></pre>
+<h3>Example promotion policy (pseudo-config)</h3>
+<pre><code class="language-yaml">release: prompt:v2026-04-12.1
+preprod_gate:
+  quality_delta_min: 0.00
+  safety_severity_max_increase: 0
+canary:
+  traffic_percent: 5
+  duration_minutes: 60
+promotion_rules:
+  quality_delta_min: 0.03
+  policy_violation_rate_max_delta: 0.00
+  p95_latency_max_delta: 0.05
+  unit_cost_max_delta: 0.08
+action_on_fail: rollback
+</code></pre>
+<h2>Trade-offs</h2>
+<ul>
+<li><strong>Pro:</strong> Catches regressions before full blast radius.</li>
+<li><strong>Pro:</strong> Turns subjective “looks fine” launches into measurable decisions.</li>
+<li><strong>Pro:</strong> Improves auditability and incident response.</li>
+<li><strong>Con:</strong> Requires eval dataset maintenance and ownership.</li>
+<li><strong>Con:</strong> Slower than instant prompt edits.</li>
+<li><strong>Con:</strong> Needs telemetry plumbing that many teams still lack.</li>
+</ul>
+<h2>References</h2>
+<ul>
+<li>Google SRE Workbook — Canarying Releases: <a href="https://sre.google/workbook/canarying-releases/">https://sre.google/workbook/canarying-releases/</a></li>
+<li>NIST AI Risk Management Framework (AI RMF): <a href="https://www.nist.gov/itl/ai-risk-management-framework">https://www.nist.gov/itl/ai-risk-management-framework</a></li>
+<li>OpenAI Docs — Working with evals: <a href="https://platform.openai.com/docs/guides/evals">https://platform.openai.com/docs/guides/evals</a></li>
+<li>Martin Fowler — Feature Toggles (Feature Flags): <a href="https://martinfowler.com/articles/feature-toggles.html">https://martinfowler.com/articles/feature-toggles.html</a></li>
+</ul>
+<h2>Final Take</h2>
+<p>If prompts can change production behavior, they deserve production-grade release discipline. An eval gate + canary rollout is the practical baseline: it is lightweight enough to adopt now, and strong enough to prevent many “we changed one sentence and everything broke” incidents.</p>
+<h2>Changelog</h2>
+<ul>
+<li>2026-04-12: Initial draft created and published.</li>
+</ul>
+
+    </article>
+  </body>
+</html>
