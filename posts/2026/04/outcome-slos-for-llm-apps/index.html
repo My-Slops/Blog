@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>From Uptime to Outcomes: SLOs That Actually Work for LLM Apps | Blog</title>
+    <meta name="description" content="Infra uptime is necessary but insufficient for LLM products. Add outcome SLOs tied to task success, groundedness, and safe fallback behavior so releases are judged by user impact, not just API health." />
+    <link rel="canonical" href="https://my-slops.github.io/Blog/posts/2026/04/outcome-slos-for-llm-apps/" />
+    <style>
+      :root { color-scheme: light dark; }
+      body { font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; line-height: 1.7; max-width: 760px; margin: 40px auto; padding: 0 16px; }
+      a { color: #0a58ca; text-decoration: none; }
+      a:hover { text-decoration: underline; }
+      .meta { color: #666; font-size: 0.95rem; margin-bottom: 1rem; }
+      .tags { display: flex; gap: 0.5rem; list-style: none; padding: 0; margin: 0.75rem 0 1.25rem; flex-wrap: wrap; }
+      .tags li { background: #eef2ff; color: #3730a3; border-radius: 999px; padding: 0.2rem 0.6rem; font-size: 0.8rem; }
+      article h1, article h2, article h3 { line-height: 1.3; }
+      article pre { overflow-x: auto; background: #111827; color: #f9fafb; padding: 0.9rem; border-radius: 8px; }
+      article code { font-family: ui-monospace,SFMono-Regular,Menlo,monospace; }
+      article blockquote { border-left: 4px solid #d1d5db; margin: 1rem 0; padding: 0.2rem 0.9rem; color: #4b5563; }
+      hr { border: 0; border-top: 1px solid #e5e7eb; margin: 2rem 0; }
+    </style>
+  </head>
+  <body>
+    <p><a href="https://my-slops.github.io/Blog/">← Home</a></p>
+    <article>
+      <h1>From Uptime to Outcomes: SLOs That Actually Work for LLM Apps</h1>
+      <p class="meta">Apr 13, 2026</p>
+      <ul class="tags"><li>llm</li><li>reliability</li><li>sre</li><li>evals</li></ul>
+      <h2>TL;DR</h2>
+<p>If your only SLOs are latency and uptime, your LLM app can be “green” while users still get bad answers. Keep classic infra SLOs, but add <strong>outcome SLOs</strong> for task success, grounded responses, and safe fallback behavior. Then gate releases on those metrics.</p>
+<h2>Context</h2>
+<p>Most production teams already track standard SRE indicators: availability, latency, and error rate. That baseline is still necessary. But LLM systems fail in ways that these indicators miss: plausible nonsense, poor instruction-following, and brittle behavior on edge prompts.</p>
+<p>Google’s SRE framework is explicit: an SLI should measure what users actually experience, and sometimes server-side metrics are only a proxy. For LLM apps, that warning is the whole point. “200 OK in 500 ms” is not equivalent to “user got a useful, correct answer.”</p>
+<p>At the same time, guidance from NIST AI RMF and current model-eval playbooks points toward continuous evaluation and risk-aware operation, not one-time testing. So the practical move is to define reliability targets that include user-facing quality, not just platform health.</p>
+<h2>Key Points</h2>
+<h3>1) Split reliability into two layers</h3>
+<p>Use two explicit SLO layers:</p>
+<ul>
+<li><strong>Platform SLOs</strong>: availability, latency, infrastructure errors.</li>
+<li><strong>Outcome SLOs</strong>: answer usefulness, factual grounding/citation quality, safe refusal/escalation on risky or uncertain requests.</li>
+</ul>
+<p>You need both. Platform SLOs protect system responsiveness; outcome SLOs protect user trust.</p>
+<h3>2) Pick outcome SLIs you can measure weekly</h3>
+<p>Good outcome SLIs are:</p>
+<ul>
+<li>observable,</li>
+<li>stable enough to trend,</li>
+<li>tied to a real user outcome.</li>
+</ul>
+<p>A minimal set for many assistant products:</p>
+<ul>
+<li><strong>Task success rate</strong> on a fixed eval set.</li>
+<li><strong>Groundedness pass rate</strong> (claims supported by provided context or references).</li>
+<li><strong>Unsafe failure rate</strong> (high-severity policy or risk violations).</li>
+<li><strong>Escalation quality</strong> (when uncertain, model abstains or routes to human/process instead of bluffing).</li>
+</ul>
+<h3>3) Define a reliability budget for quality regressions</h3>
+<p>SRE teams use error budgets; LLM teams should mirror that concept for outcome quality.</p>
+<p>Example:</p>
+<ul>
+<li>Monthly task-success SLO: <strong>&gt;= 92%</strong> on core eval set.</li>
+<li>Budget: <strong>8 percentage points</strong> of allowed miss.</li>
+<li>If burn rate exceeds threshold, freeze risky launches and prioritize reliability fixes.</li>
+</ul>
+<p>This turns “it feels worse lately” into operational policy.</p>
+<h3>4) Gate launches with control-vs-candidate comparisons</h3>
+<p>Before promoting model/prompt/retrieval changes:</p>
+<ol>
+<li>Run offline evals against baseline.</li>
+<li>Canary in production.</li>
+<li>Compare candidate vs control on both platform and outcome SLIs.</li>
+<li>Promote only if outcome deltas pass predefined thresholds.</li>
+</ol>
+<p>This aligns with current eval guidance: describe desired behavior, test with representative data, analyze results, iterate.</p>
+<h3>5) Treat uncertainty behavior as a first-class reliability signal</h3>
+<p>A high-performing assistant should sometimes say “I don’t know.” If your system never abstains, it is likely overconfident.</p>
+<p>Operationalize this by tracking:</p>
+<ul>
+<li>abstention rate on unanswerable items,</li>
+<li>hallucination rate on fact-check subsets,</li>
+<li>citation/quote support coverage for factual claims.</li>
+</ul>
+<h2>Steps / Code</h2>
+<h3>Starter outcome SLO spec (example)</h3>
+<pre><code class="language-yaml">service: support-assistant
+window: 28d
+slo_layers:
+  platform:
+    availability: &quot;&gt;=99.9%&quot;
+    p95_latency_ms: &quot;&lt;=1800&quot;
+  outcome:
+    task_success_core_eval: &quot;&gt;=0.92&quot;
+    grounded_claim_rate: &quot;&gt;=0.90&quot;
+    high_severity_safety_violations: &quot;&lt;=0.002&quot;
+    correct_abstention_on_unanswerable: &quot;&gt;=0.85&quot;
+release_policy:
+  require_all_platform_slos: true
+  require_all_outcome_slos: true
+  block_on_regression:
+    task_success_core_eval_delta: &quot;&lt; -0.01&quot;
+    grounded_claim_rate_delta: &quot;&lt; -0.02&quot;
+    high_severity_safety_violations_delta: &quot;&gt; 0.000&quot;
+</code></pre>
+<h3>Weekly operating loop</h3>
+<pre><code class="language-text">1) Refresh eval dataset slices (core, edge, high-risk).
+2) Run baseline vs candidate evals.
+3) Review budget burn for each outcome SLO.
+4) Decide: promote, hold, or rollback.
+5) Log decision + evidence in release journal.
+</code></pre>
+<h2>Trade-offs</h2>
+<ul>
+<li><strong>Pro:</strong> Catches “looks healthy but feels broken” regressions.</li>
+<li><strong>Pro:</strong> Aligns engineering decisions with user trust outcomes.</li>
+<li><strong>Pro:</strong> Makes release governance auditable.</li>
+<li><strong>Con:</strong> Outcome labeling/eval maintenance adds ongoing cost.</li>
+<li><strong>Con:</strong> Some SLIs (like helpfulness) need careful rubric design.</li>
+<li><strong>Con:</strong> Overly strict gates can slow iteration if metrics are noisy.</li>
+</ul>
+<h2>References</h2>
+<ul>
+<li>Google SRE Book — Service Level Objectives: <a href="https://sre.google/sre-book/service-level-objectives/">https://sre.google/sre-book/service-level-objectives/</a></li>
+<li>NIST AI Risk Management Framework: <a href="https://www.nist.gov/itl/ai-risk-management-framework">https://www.nist.gov/itl/ai-risk-management-framework</a></li>
+<li>OpenAI Docs — Working with evals: <a href="https://platform.openai.com/docs/guides/evals">https://platform.openai.com/docs/guides/evals</a></li>
+<li>Anthropic Docs — Reduce hallucinations: <a href="https://docs.anthropic.com/en/docs/test-and-evaluate/strengthen-guardrails/reduce-hallucinations">https://docs.anthropic.com/en/docs/test-and-evaluate/strengthen-guardrails/reduce-hallucinations</a></li>
+</ul>
+<h2>Final Take</h2>
+<p>For LLM systems, uptime is table stakes, not reliability. Reliability means users consistently get useful and trustworthy outcomes. The teams that operationalize outcome SLOs now will ship faster <em>and</em> break trust less often.</p>
+<h2>Changelog</h2>
+<ul>
+<li>2026-04-13: Initial draft created and published.</li>
+</ul>
+
+    </article>
+  </body>
+</html>

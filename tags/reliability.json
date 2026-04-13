@@ -1,7 +1,21 @@
 {
   "tag": "reliability",
-  "count": 16,
+  "count": 17,
   "posts": [
+    {
+      "title": "From Uptime to Outcomes: SLOs That Actually Work for LLM Apps",
+      "date": "2026-04-13",
+      "updated": "2026-04-13",
+      "summary": "Infra uptime is necessary but insufficient for LLM products. Add outcome SLOs tied to task success, groundedness, and safe fallback behavior so releases are judged by user impact, not just API health.",
+      "tags": [
+        "llm",
+        "reliability",
+        "sre",
+        "evals"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/04/outcome-slos-for-llm-apps/",
+      "path": "posts/2026/04/2026-04-13-outcome-slos-for-llm-apps.md"
+    },
     {
       "title": "Eval-Gated Canary Rollouts for LLM Prompt Changes",
       "date": "2026-04-12",

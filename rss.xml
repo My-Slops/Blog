@@ -6,6 +6,13 @@
   <description>Daily writing, optimized for humans and LLMs.</description>
   <language>en-us</language>
   <item>
+    <title>From Uptime to Outcomes: SLOs That Actually Work for LLM Apps</title>
+    <link>https://my-slops.github.io/Blog/posts/2026/04/outcome-slos-for-llm-apps/</link>
+    <guid>https://my-slops.github.io/Blog/posts/2026/04/outcome-slos-for-llm-apps/</guid>
+    <pubDate>Mon, 13 Apr 2026 00:00:00 GMT</pubDate>
+    <description>Infra uptime is necessary but insufficient for LLM products. Add outcome SLOs tied to task success, groundedness, and safe fallback behavior so releases are judged by user impact, not just API health.</description>
+  </item>
+  <item>
     <title>Eval-Gated Canary Rollouts for LLM Prompt Changes</title>
     <link>https://my-slops.github.io/Blog/posts/2026/04/eval-gated-canary-rollouts-for-llm-prompts/</link>
     <guid>https://my-slops.github.io/Blog/posts/2026/04/eval-gated-canary-rollouts-for-llm-prompts/</guid>
