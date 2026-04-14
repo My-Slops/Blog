@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Shadow First, Canary Second: A Safer Release Workflow for LLM Changes | Blog</title>
+    <meta name="description" content="Treat LLM prompt/model updates like reliability releases: run shadow evaluations before user impact, then canary with explicit promotion gates on outcome metrics and rollback triggers." />
+    <link rel="canonical" href="https://my-slops.github.io/Blog/posts/2026/04/shadow-to-canary-llm-release-workflow/" />
+    <style>
+      :root { color-scheme: light dark; }
+      body { font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; line-height: 1.7; max-width: 760px; margin: 40px auto; padding: 0 16px; }
+      a { color: #0a58ca; text-decoration: none; }
+      a:hover { text-decoration: underline; }
+      .meta { color: #666; font-size: 0.95rem; margin-bottom: 1rem; }
+      .tags { display: flex; gap: 0.5rem; list-style: none; padding: 0; margin: 0.75rem 0 1.25rem; flex-wrap: wrap; }
+      .tags li { background: #eef2ff; color: #3730a3; border-radius: 999px; padding: 0.2rem 0.6rem; font-size: 0.8rem; }
+      article h1, article h2, article h3 { line-height: 1.3; }
+      article pre { overflow-x: auto; background: #111827; color: #f9fafb; padding: 0.9rem; border-radius: 8px; }
+      article code { font-family: ui-monospace,SFMono-Regular,Menlo,monospace; }
+      article blockquote { border-left: 4px solid #d1d5db; margin: 1rem 0; padding: 0.2rem 0.9rem; color: #4b5563; }
+      hr { border: 0; border-top: 1px solid #e5e7eb; margin: 2rem 0; }
+    </style>
+  </head>
+  <body>
+    <p><a href="https://my-slops.github.io/Blog/">← Home</a></p>
+    <article>
+      <h1>Shadow First, Canary Second: A Safer Release Workflow for LLM Changes</h1>
+      <p class="meta">Apr 14, 2026</p>
+      <ul class="tags"><li>llm</li><li>evals</li><li>reliability</li><li>deployment</li></ul>
+      <h2>TL;DR</h2>
+<p>Most LLM regressions are discovered too late—after users feel them. A safer default is a <strong>two-stage release path</strong>: (1) <strong>shadow evaluation</strong> against real traffic patterns without affecting users, then (2) <strong>canary rollout</strong> with explicit pass/fail gates on outcome metrics (not just latency and uptime).</p>
+<h2>Context</h2>
+<p>Teams now ship model, prompt, and retrieval changes weekly (sometimes daily). Traditional release checks catch infrastructure breakage, but they often miss quality regressions like weaker instruction-following, unsupported claims, or worse behavior on edge cases.</p>
+<p>OpenAI’s eval guidance emphasizes a loop: define desired behavior, test on representative data, analyze, and iterate. Google SRE’s canarying guidance similarly treats release safety as a control-vs-candidate comparison with clear rollout decisions. NIST AI RMF adds the governance layer: trustworthiness should be managed continuously across design, development, and use—not treated as a one-time audit.</p>
+<p>Put together, these sources imply one practical release discipline for LLM products: <strong>shadow first, canary second, promote only on explicit outcome thresholds</strong>.</p>
+<h2>Key Points</h2>
+<h3>1) Shadow mode should answer one question: “Would this have been worse for users?”</h3>
+<p>In shadow mode, candidate behavior is evaluated on production-like inputs while control remains user-facing. This gives realistic distribution coverage before user impact.</p>
+<p>Minimum shadow checks:</p>
+<ul>
+<li>task-success delta vs control,</li>
+<li>groundedness/citation support delta,</li>
+<li>unsafe failure delta,</li>
+<li>abstention quality on ambiguous inputs.</li>
+</ul>
+<h3>2) Canary is where you test real-world coupling effects</h3>
+<p>Offline and shadow runs can still miss production coupling (latency spikes, retrieval drift, tool-call path differences). Canarying a small traffic slice catches these interactions with bounded blast radius.</p>
+<p>Use canary as an A/B comparison:</p>
+<ul>
+<li>fixed traffic percentage,</li>
+<li>time-limited evaluation window,</li>
+<li>predefined rollback criteria,</li>
+<li>auto-stop on severe regressions.</li>
+</ul>
+<h3>3) Promotion gates must include outcome SLIs</h3>
+<p>If gates only measure p95 latency and error rate, you can still ship lower-quality answers. Promotion rules should require both:</p>
+<ul>
+<li><strong>platform health</strong> (availability, latency, errors), and</li>
+<li><strong>outcome quality</strong> (task success, groundedness, safety, uncertainty handling).</li>
+</ul>
+<h3>4) Decide in deltas, not absolute vibes</h3>
+<p>Absolute scores are useful, but release decisions are cleaner with deltas against control:</p>
+<ul>
+<li>promote when candidate is non-inferior or better,</li>
+<li>hold when confidence is weak,</li>
+<li>rollback when high-severity deltas fail immediately.</li>
+</ul>
+<h3>5) Record evidence for every release decision</h3>
+<p>Every promotion/rollback should be auditable: dataset version, grader version, metric deltas, reviewer, and rationale. This prevents “cargo-cult reliability” and improves future incident reviews.</p>
+<h2>Steps / Code</h2>
+<h3>Example release policy (shadow → canary)</h3>
+<pre><code class="language-yaml">release:
+  candidate: prompt_v58
+  control: prompt_v57
+
+shadow_stage:
+  required_window_hours: 24
+  pass_conditions:
+    task_success_delta: &quot;&gt;= -0.005&quot;
+    grounded_claim_rate_delta: &quot;&gt;= -0.010&quot;
+    high_severity_safety_violations_delta: &quot;&lt;= 0.000&quot;
+
+canary_stage:
+  traffic_percent: 5
+  duration_minutes: 90
+  pass_conditions:
+    p95_latency_ms_delta: &quot;&lt;= 150&quot;
+    error_rate_delta: &quot;&lt;= 0.002&quot;
+    task_success_delta: &quot;&gt;= -0.010&quot;
+    grounded_claim_rate_delta: &quot;&gt;= -0.015&quot;
+    high_severity_safety_violations_delta: &quot;&lt;= 0.000&quot;
+  rollback_on:
+    high_severity_safety_violations_delta: &quot;&gt; 0.000&quot;
+    task_success_delta: &quot;&lt; -0.020&quot;
+
+promotion:
+  require_shadow_pass: true
+  require_canary_pass: true
+</code></pre>
+<h3>Operational checklist</h3>
+<pre><code class="language-text">1) Freeze control version and eval dataset slice IDs.
+2) Run shadow evaluation on production-like traffic.
+3) Review confidence intervals, not just point estimates.
+4) Canary at low traffic with auto-rollback enabled.
+5) Promote only when platform + outcome gates pass.
+6) Log decision artifacts in release journal.
+</code></pre>
+<h2>Trade-offs</h2>
+<ul>
+<li><strong>Pro:</strong> Catches user-impacting quality regressions earlier.</li>
+<li><strong>Pro:</strong> Reduces risky “big bang” model/prompt launches.</li>
+<li><strong>Pro:</strong> Produces auditable release governance.</li>
+<li><strong>Con:</strong> Adds evaluation and ops overhead.</li>
+<li><strong>Con:</strong> Requires disciplined metric definitions and label quality.</li>
+<li><strong>Con:</strong> Can slow raw release speed when gates are noisy.</li>
+</ul>
+<h2>References</h2>
+<ul>
+<li>OpenAI Docs — Working with evals: <a href="https://developers.openai.com/api/docs/guides/evals">https://developers.openai.com/api/docs/guides/evals</a></li>
+<li>Google SRE Workbook — Canarying Releases: <a href="https://sre.google/workbook/canarying-releases/">https://sre.google/workbook/canarying-releases/</a></li>
+<li>NIST AI Risk Management Framework (AI RMF 1.0): <a href="https://www.nist.gov/itl/ai-risk-management-framework">https://www.nist.gov/itl/ai-risk-management-framework</a></li>
+<li>Anthropic Docs — Reduce hallucinations: <a href="https://docs.anthropic.com/en/docs/test-and-evaluate/strengthen-guardrails/reduce-hallucinations">https://docs.anthropic.com/en/docs/test-and-evaluate/strengthen-guardrails/reduce-hallucinations</a></li>
+</ul>
+<h2>Final Take</h2>
+<p>LLM release safety should be a system, not intuition. Shadow mode tells you what would have happened; canary tells you what is happening. Combining both with hard outcome gates is the fastest path to shipping often without quietly eroding trust.</p>
+<h2>Changelog</h2>
+<ul>
+<li>2026-04-14: Initial draft created and published.</li>
+</ul>
+
+    </article>
+  </body>
+</html>

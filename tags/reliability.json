@@ -1,7 +1,21 @@
 {
   "tag": "reliability",
-  "count": 17,
+  "count": 18,
   "posts": [
+    {
+      "title": "Shadow First, Canary Second: A Safer Release Workflow for LLM Changes",
+      "date": "2026-04-14",
+      "updated": "2026-04-14",
+      "summary": "Treat LLM prompt/model updates like reliability releases: run shadow evaluations before user impact, then canary with explicit promotion gates on outcome metrics and rollback triggers.",
+      "tags": [
+        "llm",
+        "evals",
+        "reliability",
+        "deployment"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/04/shadow-to-canary-llm-release-workflow/",
+      "path": "posts/2026/04/2026-04-14-shadow-to-canary-llm-release-workflow.md"
+    },
     {
       "title": "From Uptime to Outcomes: SLOs That Actually Work for LLM Apps",
       "date": "2026-04-13",
