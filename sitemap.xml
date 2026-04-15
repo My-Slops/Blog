@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url><loc>https://my-slops.github.io/Blog/posts/2026/04/release-override-logs-for-llm-governance/</loc><lastmod>2026-04-15</lastmod></url>
   <url><loc>https://my-slops.github.io/Blog/posts/2026/04/shadow-to-canary-llm-release-workflow/</loc><lastmod>2026-04-14</lastmod></url>
   <url><loc>https://my-slops.github.io/Blog/posts/2026/04/outcome-slos-for-llm-apps/</loc><lastmod>2026-04-13</lastmod></url>
   <url><loc>https://my-slops.github.io/Blog/posts/2026/04/eval-gated-canary-rollouts-for-llm-prompts/</loc><lastmod>2026-04-12</lastmod></url>

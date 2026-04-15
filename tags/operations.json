@@ -1,7 +1,22 @@
 {
   "tag": "operations",
-  "count": 3,
+  "count": 4,
   "posts": [
+    {
+      "title": "Release Override Logs Are the Missing Layer in LLM Governance",
+      "date": "2026-04-15",
+      "updated": "2026-04-15",
+      "summary": "When teams override LLM release gates without structured evidence, reliability and trust drift over time. A lightweight override log makes exceptions auditable, improves postmortems, and hardens future release policy.",
+      "tags": [
+        "llm",
+        "evals",
+        "reliability",
+        "governance",
+        "operations"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/04/release-override-logs-for-llm-governance/",
+      "path": "posts/2026/04/2026-04-15-release-override-logs-for-llm-governance.md"
+    },
     {
       "title": "Admission Control Is the Third Guardrail for AI Agents",
       "date": "2026-03-31",

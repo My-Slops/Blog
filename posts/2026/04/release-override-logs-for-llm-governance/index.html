@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Release Override Logs Are the Missing Layer in LLM Governance | Blog</title>
+    <meta name="description" content="When teams override LLM release gates without structured evidence, reliability and trust drift over time. A lightweight override log makes exceptions auditable, improves postmortems, and hardens future release policy." />
+    <link rel="canonical" href="https://my-slops.github.io/Blog/posts/2026/04/release-override-logs-for-llm-governance/" />
+    <style>
+      :root { color-scheme: light dark; }
+      body { font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; line-height: 1.7; max-width: 760px; margin: 40px auto; padding: 0 16px; }
+      a { color: #0a58ca; text-decoration: none; }
+      a:hover { text-decoration: underline; }
+      .meta { color: #666; font-size: 0.95rem; margin-bottom: 1rem; }
+      .tags { display: flex; gap: 0.5rem; list-style: none; padding: 0; margin: 0.75rem 0 1.25rem; flex-wrap: wrap; }
+      .tags li { background: #eef2ff; color: #3730a3; border-radius: 999px; padding: 0.2rem 0.6rem; font-size: 0.8rem; }
+      article h1, article h2, article h3 { line-height: 1.3; }
+      article pre { overflow-x: auto; background: #111827; color: #f9fafb; padding: 0.9rem; border-radius: 8px; }
+      article code { font-family: ui-monospace,SFMono-Regular,Menlo,monospace; }
+      article blockquote { border-left: 4px solid #d1d5db; margin: 1rem 0; padding: 0.2rem 0.9rem; color: #4b5563; }
+      hr { border: 0; border-top: 1px solid #e5e7eb; margin: 2rem 0; }
+    </style>
+  </head>
+  <body>
+    <p><a href="https://my-slops.github.io/Blog/">← Home</a></p>
+    <article>
+      <h1>Release Override Logs Are the Missing Layer in LLM Governance</h1>
+      <p class="meta">Apr 15, 2026</p>
+      <ul class="tags"><li>llm</li><li>evals</li><li>reliability</li><li>governance</li><li>operations</li></ul>
+      <h2>TL;DR</h2>
+<p>Most teams now have eval gates and canary rollouts for LLM changes. But they still make exceptions under pressure (launch deadlines, noisy metrics, incomplete labels).</p>
+<p>If those exceptions are not logged in a structured way, they become invisible risk debt.</p>
+<p>A simple <strong>release override log</strong>—who overrode which gate, why, with what evidence, for how long—turns ad hoc judgment into an auditable safety mechanism.</p>
+<h2>Context</h2>
+<p>Canarying exists to reduce blast radius by comparing a candidate release against a control before broad rollout. SRE guidance frames canaries as partial, time-limited deployments explicitly used to decide whether to proceed.</p>
+<p>LLM teams increasingly add eval-based quality gates on top of platform health metrics. OpenAI’s eval docs emphasize an iterative loop: define desired behavior, run evals, analyze results, then iterate.</p>
+<p>In real operations, however, gates are not always clean. You get:</p>
+<ul>
+<li>low statistical confidence,</li>
+<li>label quality issues,</li>
+<li>last-minute business pressure,</li>
+<li>partial regressions that may be acceptable short-term.</li>
+</ul>
+<p>NIST’s AI RMF emphasizes continuous risk management during design, development, use, and evaluation. That implies governance for exceptions too—not only for &quot;happy path&quot; releases.</p>
+<h2>Key Points</h2>
+<h3>1) Gate overrides are inevitable, so design for them explicitly</h3>
+<p>Pretending all release decisions are binary (pass/fail) is unrealistic. Mature systems acknowledge exceptions and make them legible.</p>
+<h3>2) Non-obvious insight: unlogged overrides are hidden policy changes</h3>
+<p>If a team repeatedly ships despite the same failed gate, that gate is effectively deprecated—even if the policy document says otherwise.</p>
+<p>Override logs reveal this drift early and force a choice: tighten execution or formally update policy.</p>
+<h3>3) Override records should capture <em>evidence quality</em>, not just rationale</h3>
+<p>&quot;We believed it was fine&quot; is weak. Better fields include:</p>
+<ul>
+<li>sample size and confidence,</li>
+<li>known dataset blind spots,</li>
+<li>severity of observed regressions,</li>
+<li>expected user impact window.</li>
+</ul>
+<p>This separates informed risk acceptance from hopeful guessing.</p>
+<h3>4) Every override needs an expiry condition</h3>
+<p>Overrides should not live forever. Add one of:</p>
+<ul>
+<li>hard expiration date,</li>
+<li>traffic cap,</li>
+<li>metric threshold for auto-revert,</li>
+<li>mandatory follow-up evaluation.</li>
+</ul>
+<p>Without expiry, temporary exceptions become permanent controls bypass.</p>
+<h3>5) Override logs improve incident reviews and future velocity</h3>
+<p>When incidents happen, teams can quickly answer:</p>
+<ul>
+<li>what signal was ignored,</li>
+<li>who made the call,</li>
+<li>whether assumptions held,</li>
+<li>what policy to adjust.</li>
+</ul>
+<p>That shortens postmortems and reduces repeated decision thrash.</p>
+<h2>Steps / Code</h2>
+<h3>Minimal override log schema</h3>
+<pre><code class="language-yaml">release_id: &quot;2026-04-15.prompt-v62&quot;
+control_version: &quot;prompt-v61&quot;
+candidate_version: &quot;prompt-v62&quot;
+
+failed_or_noisy_gates:
+  - name: &quot;grounded_claim_rate_delta&quot;
+    observed_delta: -0.018
+    policy_threshold: &quot;&gt;= -0.010&quot;
+    confidence_note: &quot;CI overlaps threshold; low confidence&quot;
+
+override:
+  approved_by: &quot;oncall-ml-lead&quot;
+  approved_at: &quot;2026-04-15T13:42:00Z&quot;
+  rationale: &quot;Regression limited to low-traffic segment; hotfix queued&quot;
+  evidence:
+    sample_size: 1840
+    severity_mix: &quot;no high-severity safety regression&quot;
+    mitigation: &quot;5% canary cap + rollback automation&quot;
+
+expiry:
+  type: &quot;timebox&quot;
+  at: &quot;2026-04-17T00:00:00Z&quot;
+  auto_actions:
+    - &quot;require re-eval on refreshed dataset&quot;
+    - &quot;block further traffic increase without new approval&quot;
+</code></pre>
+<h3>Operational checklist</h3>
+<pre><code class="language-text">1) Define which gates are non-overridable (e.g., high-severity safety failures).
+2) Require structured override logs for all other exceptions.
+3) Attach evidence quality fields (sample size, confidence, known blind spots).
+4) Add expiry and explicit rollback triggers.
+5) Review overrides weekly; convert repeated exceptions into policy updates.
+</code></pre>
+<h2>Trade-offs</h2>
+<h3>Costs</h3>
+<ol>
+<li>Slightly slower release decisions in the moment.</li>
+<li>Additional process overhead for on-call and release owners.</li>
+<li>Requires discipline to review and retire old overrides.</li>
+</ol>
+<h3>Benefits</h3>
+<ol>
+<li>Clear accountability without blame theater.</li>
+<li>Better auditability for reliability and compliance reviews.</li>
+<li>Faster, sharper postmortems when regressions occur.</li>
+<li>Less silent policy drift over time.</li>
+</ol>
+<h2>References</h2>
+<ul>
+<li>Google SRE Workbook, <em>Canarying Releases</em>: <a href="https://sre.google/workbook/canarying-releases/">https://sre.google/workbook/canarying-releases/</a></li>
+<li>Google SRE Book, <em>Service Level Objectives</em>: <a href="https://sre.google/sre-book/service-level-objectives/">https://sre.google/sre-book/service-level-objectives/</a></li>
+<li>OpenAI Docs, <em>Working with evals</em>: <a href="https://developers.openai.com/api/docs/guides/evals">https://developers.openai.com/api/docs/guides/evals</a></li>
+<li>NIST, <em>AI Risk Management Framework (AI RMF 1.0)</em>: <a href="https://www.nist.gov/itl/ai-risk-management-framework">https://www.nist.gov/itl/ai-risk-management-framework</a></li>
+<li>Anthropic Docs, <em>Reduce hallucinations</em>: <a href="https://docs.anthropic.com/en/docs/test-and-evaluate/strengthen-guardrails/reduce-hallucinations">https://docs.anthropic.com/en/docs/test-and-evaluate/strengthen-guardrails/reduce-hallucinations</a></li>
+</ul>
+<h2>Final Take</h2>
+<p>Eval gates and canaries are necessary but not sufficient. The real-world safety layer is what you do when signals are ambiguous and time pressure is real.</p>
+<p>If you do need to override, log it like an engineering decision—not a Slack footnote.</p>
+<h2>Changelog</h2>
+<ul>
+<li>2026-04-15: Initial publish on release override logs for LLM governance.</li>
+</ul>
+
+    </article>
+  </body>
+</html>

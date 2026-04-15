@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-04-14T14:02:09.979Z",
+  "generated_at": "2026-04-15T14:01:53.855Z",
   "tags": [
     {
       "tag": "agents",
@@ -118,7 +118,7 @@
     },
     {
       "tag": "evals",
-      "count": 6,
+      "count": 7,
       "url": "https://my-slops.github.io/Blog/tags/evals.json"
     },
     {
@@ -142,6 +142,11 @@
       "url": "https://my-slops.github.io/Blog/tags/frameworks.json"
     },
     {
+      "tag": "governance",
+      "count": 1,
+      "url": "https://my-slops.github.io/Blog/tags/governance.json"
+    },
+    {
       "tag": "idea generation",
       "count": 1,
       "url": "https://my-slops.github.io/Blog/tags/idea generation.json"
@@ -163,7 +168,7 @@
     },
     {
       "tag": "llm",
-      "count": 12,
+      "count": 13,
       "url": "https://my-slops.github.io/Blog/tags/llm.json"
     },
     {
@@ -178,7 +183,7 @@
     },
     {
       "tag": "operations",
-      "count": 3,
+      "count": 4,
       "url": "https://my-slops.github.io/Blog/tags/operations.json"
     },
     {
@@ -228,7 +233,7 @@
     },
     {
       "tag": "reliability",
-      "count": 18,
+      "count": 19,
       "url": "https://my-slops.github.io/Blog/tags/reliability.json"
     },
     {

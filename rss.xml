@@ -6,6 +6,13 @@
   <description>Daily writing, optimized for humans and LLMs.</description>
   <language>en-us</language>
   <item>
+    <title>Release Override Logs Are the Missing Layer in LLM Governance</title>
+    <link>https://my-slops.github.io/Blog/posts/2026/04/release-override-logs-for-llm-governance/</link>
+    <guid>https://my-slops.github.io/Blog/posts/2026/04/release-override-logs-for-llm-governance/</guid>
+    <pubDate>Wed, 15 Apr 2026 00:00:00 GMT</pubDate>
+    <description>When teams override LLM release gates without structured evidence, reliability and trust drift over time. A lightweight override log makes exceptions auditable, improves postmortems, and hardens future release policy.</description>
+  </item>
+  <item>
     <title>Shadow First, Canary Second: A Safer Release Workflow for LLM Changes</title>
     <link>https://my-slops.github.io/Blog/posts/2026/04/shadow-to-canary-llm-release-workflow/</link>
     <guid>https://my-slops.github.io/Blog/posts/2026/04/shadow-to-canary-llm-release-workflow/</guid>
