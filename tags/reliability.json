@@ -1,7 +1,22 @@
 {
   "tag": "reliability",
-  "count": 20,
+  "count": 21,
   "posts": [
+    {
+      "title": "The Rollback Drill for Agent Workflows",
+      "date": "2026-04-16",
+      "updated": "2026-04-16",
+      "summary": "If you have never rehearsed rollback for an agent workflow, you probably do not have rollback. A lightweight drill exposes missing controls before they matter.",
+      "tags": [
+        "ai agents",
+        "rollback",
+        "operations",
+        "incident-response",
+        "reliability"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/04/the-rollback-drill-for-agent-workflows/",
+      "path": "posts/2026/04/2026-04-16-the-rollback-drill-for-agent-workflows.md"
+    },
     {
       "title": "Release Override Logs Are the Missing Layer in LLM Governance",
       "date": "2026-04-15",

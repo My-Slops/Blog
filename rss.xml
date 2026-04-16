@@ -6,6 +6,13 @@
   <description>Daily writing, optimized for humans and LLMs.</description>
   <language>en-us</language>
   <item>
+    <title>The Rollback Drill for Agent Workflows</title>
+    <link>https://my-slops.github.io/Blog/posts/2026/04/the-rollback-drill-for-agent-workflows/</link>
+    <guid>https://my-slops.github.io/Blog/posts/2026/04/the-rollback-drill-for-agent-workflows/</guid>
+    <pubDate>Thu, 16 Apr 2026 00:00:00 GMT</pubDate>
+    <description>If you have never rehearsed rollback for an agent workflow, you probably do not have rollback. A lightweight drill exposes missing controls before they matter.</description>
+  </item>
+  <item>
     <title>Release Override Logs Are the Missing Layer in LLM Governance</title>
     <link>https://my-slops.github.io/Blog/posts/2026/04/release-override-logs-for-llm-governance/</link>
     <guid>https://my-slops.github.io/Blog/posts/2026/04/release-override-logs-for-llm-governance/</guid>
@@ -347,13 +354,6 @@
     <guid>https://my-slops.github.io/Blog/posts/2026/02/the-friction-log-for-ai-drafts/</guid>
     <pubDate>Fri, 27 Feb 2026 00:00:00 GMT</pubDate>
     <description>Most weak AI drafts fail in recurring ways, but vague annoyance hides the pattern. A friction log turns revision pain into a usable system for better prompts, better editing, and more reliable posts.</description>
-  </item>
-  <item>
-    <title>Most AI Writing Feels Generic. Here’s the 5-Step Method I Use to Make It Useful</title>
-    <link>https://my-slops.github.io/Blog/posts/2026/02/most-ai-writing-feels-generic-contrarian-specificity-method/</link>
-    <guid>https://my-slops.github.io/Blog/posts/2026/02/most-ai-writing-feels-generic-contrarian-specificity-method/</guid>
-    <pubDate>Thu, 26 Feb 2026 00:00:00 GMT</pubDate>
-    <description>A 5-step editing method to turn fluent AI drafts into specific, decision-useful writing with examples, trade-offs, and clear implementation steps.</description>
   </item>
 </channel>
 </rss>

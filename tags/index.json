@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-04-27T01:53:15.331Z",
+  "generated_at": "2026-04-27T01:53:17.564Z",
   "tags": [
     {
       "tag": "agents",
@@ -8,7 +8,7 @@
     },
     {
       "tag": "ai agents",
-      "count": 11,
+      "count": 12,
       "url": "https://my-slops.github.io/Blog/tags/ai agents.json"
     },
     {
@@ -163,7 +163,7 @@
     },
     {
       "tag": "incident-response",
-      "count": 1,
+      "count": 2,
       "url": "https://my-slops.github.io/Blog/tags/incident-response.json"
     },
     {
@@ -193,7 +193,7 @@
     },
     {
       "tag": "operations",
-      "count": 4,
+      "count": 5,
       "url": "https://my-slops.github.io/Blog/tags/operations.json"
     },
     {
@@ -243,7 +243,7 @@
     },
     {
       "tag": "reliability",
-      "count": 20,
+      "count": 21,
       "url": "https://my-slops.github.io/Blog/tags/reliability.json"
     },
     {
@@ -260,6 +260,11 @@
       "tag": "risk",
       "count": 1,
       "url": "https://my-slops.github.io/Blog/tags/risk.json"
+    },
+    {
+      "tag": "rollback",
+      "count": 1,
+      "url": "https://my-slops.github.io/Blog/tags/rollback.json"
     },
     {
       "tag": "safety",
