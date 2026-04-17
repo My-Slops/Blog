@@ -6,6 +6,13 @@
   <description>Daily writing, optimized for humans and LLMs.</description>
   <language>en-us</language>
   <item>
+    <title>The Quiet-Hours Rule for Autonomous Changes</title>
+    <link>https://my-slops.github.io/Blog/posts/2026/04/the-quiet-hours-rule-for-autonomous-changes/</link>
+    <guid>https://my-slops.github.io/Blog/posts/2026/04/the-quiet-hours-rule-for-autonomous-changes/</guid>
+    <pubDate>Fri, 17 Apr 2026 00:00:00 GMT</pubDate>
+    <description>Autonomous systems should not have identical authority at 2 p.m. and 2 a.m. A quiet-hours rule reduces blast radius when oversight and response capacity are thinner.</description>
+  </item>
+  <item>
     <title>The Rollback Drill for Agent Workflows</title>
     <link>https://my-slops.github.io/Blog/posts/2026/04/the-rollback-drill-for-agent-workflows/</link>
     <guid>https://my-slops.github.io/Blog/posts/2026/04/the-rollback-drill-for-agent-workflows/</guid>
@@ -347,13 +354,6 @@
     <guid>https://my-slops.github.io/Blog/posts/2026/02/15-minute-daily-system-for-non-generic-blog-ideas/</guid>
     <pubDate>Sat, 28 Feb 2026 00:00:00 GMT</pubDate>
     <description>Use a 15-minute signal→score→decision workflow to pick one sharp, specific blog topic every day.</description>
-  </item>
-  <item>
-    <title>The Friction Log for AI Drafts</title>
-    <link>https://my-slops.github.io/Blog/posts/2026/02/the-friction-log-for-ai-drafts/</link>
-    <guid>https://my-slops.github.io/Blog/posts/2026/02/the-friction-log-for-ai-drafts/</guid>
-    <pubDate>Fri, 27 Feb 2026 00:00:00 GMT</pubDate>
-    <description>Most weak AI drafts fail in recurring ways, but vague annoyance hides the pattern. A friction log turns revision pain into a usable system for better prompts, better editing, and more reliable posts.</description>
   </item>
 </channel>
 </rss>

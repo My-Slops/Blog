@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>The Quiet-Hours Rule for Autonomous Changes | Blog</title>
+    <meta name="description" content="Autonomous systems should not have identical authority at 2 p.m. and 2 a.m. A quiet-hours rule reduces blast radius when oversight and response capacity are thinner." />
+    <link rel="canonical" href="https://my-slops.github.io/Blog/posts/2026/04/the-quiet-hours-rule-for-autonomous-changes/" />
+    <style>
+      :root { color-scheme: light dark; }
+      body { font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; line-height: 1.7; max-width: 760px; margin: 40px auto; padding: 0 16px; }
+      a { color: #0a58ca; text-decoration: none; }
+      a:hover { text-decoration: underline; }
+      .meta { color: #666; font-size: 0.95rem; margin-bottom: 1rem; }
+      .tags { display: flex; gap: 0.5rem; list-style: none; padding: 0; margin: 0.75rem 0 1.25rem; flex-wrap: wrap; }
+      .tags li { background: #eef2ff; color: #3730a3; border-radius: 999px; padding: 0.2rem 0.6rem; font-size: 0.8rem; }
+      article h1, article h2, article h3 { line-height: 1.3; }
+      article pre { overflow-x: auto; background: #111827; color: #f9fafb; padding: 0.9rem; border-radius: 8px; }
+      article code { font-family: ui-monospace,SFMono-Regular,Menlo,monospace; }
+      article blockquote { border-left: 4px solid #d1d5db; margin: 1rem 0; padding: 0.2rem 0.9rem; color: #4b5563; }
+      hr { border: 0; border-top: 1px solid #e5e7eb; margin: 2rem 0; }
+    </style>
+  </head>
+  <body>
+    <p><a href="https://my-slops.github.io/Blog/">← Home</a></p>
+    <article>
+      <h1>The Quiet-Hours Rule for Autonomous Changes</h1>
+      <p class="meta">Apr 17, 2026</p>
+      <ul class="tags"><li>ai agents</li><li>operations</li><li>governance</li><li>safety</li><li>reliability</li></ul>
+      <h2>TL;DR</h2>
+<p>An autonomous action that is acceptable during staffed hours may be unacceptable during thin-coverage hours.</p>
+<p>A <strong>quiet-hours rule</strong> reduces authority when response capacity is low:</p>
+<ul>
+<li>fewer high-impact writes,</li>
+<li>stricter approval requirements,</li>
+<li>narrower rollout options,</li>
+<li>more escalation instead of action.</li>
+</ul>
+<p>The system does not need the same freedom at all times to be useful.</p>
+<h2>Context</h2>
+<p>Many governance discussions assume agent capability is static. In practice, organizational capacity is not static at all.</p>
+<p>During quiet hours:</p>
+<ul>
+<li>fewer reviewers are awake,</li>
+<li>incident response is slower,</li>
+<li>ambiguity is harder to resolve,</li>
+<li>downstream communication is slower.</li>
+</ul>
+<p>That changes the real risk of the same action. An overnight autonomous publish or policy change is not the same event as the same change under full staffing.</p>
+<p>Operations teams already understand this intuitively for deployments, maintenance windows, and incident response. Agent workflows should inherit the same discipline.</p>
+<h2>Key Points</h2>
+<h3>1) Risk depends on response capacity, not only action type</h3>
+<p>A moderate-risk action can become high-risk when the organization cannot respond quickly.</p>
+<p>That is why time-sensitive permissioning makes sense.</p>
+<h3>2) Quiet-hours rules should be narrow and explicit</h3>
+<p>Examples:</p>
+<ul>
+<li>no external publishing,</li>
+<li>no broad file writes,</li>
+<li>no expansion of rollout percentage,</li>
+<li>no policy changes without a live reviewer.</li>
+</ul>
+<p>This avoids the false choice between full shutdown and full freedom.</p>
+<h3>3) The rule is about containment, not mistrust</h3>
+<p>You are not saying the system becomes worse at night.</p>
+<p>You are saying the system becomes harder to supervise at night.</p>
+<p>That is a different and more practical argument.</p>
+<h3>4) Quiet-hours policy pairs well with escalation paths</h3>
+<p>Instead of acting, the agent can:</p>
+<ul>
+<li>queue the work,</li>
+<li>save a draft,</li>
+<li>prepare an evidence packet,</li>
+<li>ask for next-business-hour approval.</li>
+</ul>
+<p>That keeps momentum without pretending the timing does not matter.</p>
+<h3>5) Publishing agents especially need this rule</h3>
+<p>If the workflow can create public output, off-hours mistakes are more expensive:</p>
+<ul>
+<li>slower correction,</li>
+<li>longer time visible,</li>
+<li>fewer reviewers,</li>
+<li>more reputational drag.</li>
+</ul>
+<h2>Steps / Code</h2>
+<h3>Quiet-hours policy sketch</h3>
+<pre><code class="language-yaml">quiet_hours:
+  start: &quot;22:00&quot;
+  end: &quot;07:00&quot;
+  restrictions:
+    - no_external_publish
+    - no_rollout_expansion
+    - require_human_approval_for_internal_writes
+  fallback:
+    - queue_for_morning_review
+</code></pre>
+<h2>Trade-offs</h2>
+<h3>Costs</h3>
+<ol>
+<li>Less overnight automation.</li>
+<li>More queued work for staffed hours.</li>
+<li>Slightly slower completion for non-urgent tasks.</li>
+</ol>
+<h3>Benefits</h3>
+<ol>
+<li>Lower blast radius during thin coverage.</li>
+<li>Better alignment between authority and oversight.</li>
+<li>Cleaner escalation behavior.</li>
+<li>More realistic operational risk control.</li>
+</ol>
+<h2>References</h2>
+<ul>
+<li>NIST, <em>Artificial Intelligence Risk Management Framework (AI RMF 1.0)</em>: <a href="https://doi.org/10.6028/NIST.AI.100-1">https://doi.org/10.6028/NIST.AI.100-1</a></li>
+<li>Google SRE Workbook, <em>Canarying Releases</em>: <a href="https://sre.google/workbook/canarying-releases/">https://sre.google/workbook/canarying-releases/</a></li>
+</ul>
+<h2>Final Take</h2>
+<p>Autonomy should scale with supervision.</p>
+<p>If your staffing changes by time of day, your agent authority probably should too.</p>
+<h2>Changelog</h2>
+<ul>
+<li>2026-04-17: Initial publish on quiet-hours restrictions for autonomous changes.</li>
+</ul>
+
+    </article>
+  </body>
+</html>
