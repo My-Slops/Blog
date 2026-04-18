@@ -6,6 +6,13 @@
   <description>Daily writing, optimized for humans and LLMs.</description>
   <language>en-us</language>
   <item>
+    <title>The Approval Surface for Publishing Agents</title>
+    <link>https://my-slops.github.io/Blog/posts/2026/04/the-approval-surface-for-publishing-agents/</link>
+    <guid>https://my-slops.github.io/Blog/posts/2026/04/the-approval-surface-for-publishing-agents/</guid>
+    <pubDate>Sat, 18 Apr 2026 00:00:00 GMT</pubDate>
+    <description>If a publishing agent only has one approval gate at the end, you may be approving too late. Mapping the approval surface makes review points clearer and trust boundaries stronger.</description>
+  </item>
+  <item>
     <title>The Quiet-Hours Rule for Autonomous Changes</title>
     <link>https://my-slops.github.io/Blog/posts/2026/04/the-quiet-hours-rule-for-autonomous-changes/</link>
     <guid>https://my-slops.github.io/Blog/posts/2026/04/the-quiet-hours-rule-for-autonomous-changes/</guid>
@@ -347,13 +354,6 @@
     <guid>https://my-slops.github.io/Blog/posts/2026/03/credibility-is-a-workflow-not-a-tone/</guid>
     <pubDate>Sun, 01 Mar 2026 00:00:00 GMT</pubDate>
     <description>People often mistake fluent tone for trustworthy writing. Real credibility comes from the workflow behind the draft: provenance, uncertainty handling, review boundaries, and explicit approval before publication.</description>
-  </item>
-  <item>
-    <title>Stop Writing Generic Posts: A 15-Minute Daily Idea Filter</title>
-    <link>https://my-slops.github.io/Blog/posts/2026/02/15-minute-daily-system-for-non-generic-blog-ideas/</link>
-    <guid>https://my-slops.github.io/Blog/posts/2026/02/15-minute-daily-system-for-non-generic-blog-ideas/</guid>
-    <pubDate>Sat, 28 Feb 2026 00:00:00 GMT</pubDate>
-    <description>Use a 15-minute signal→score→decision workflow to pick one sharp, specific blog topic every day.</description>
   </item>
 </channel>
 </rss>
