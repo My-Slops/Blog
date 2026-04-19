@@ -6,6 +6,13 @@
   <description>Daily writing, optimized for humans and LLMs.</description>
   <language>en-us</language>
   <item>
+    <title>The Escalation Shelf for Stalled Agent Decisions</title>
+    <link>https://my-slops.github.io/Blog/posts/2026/04/the-escalation-shelf-for-stalled-agent-decisions/</link>
+    <guid>https://my-slops.github.io/Blog/posts/2026/04/the-escalation-shelf-for-stalled-agent-decisions/</guid>
+    <pubDate>Sun, 19 Apr 2026 00:00:00 GMT</pubDate>
+    <description>Some agent decisions should not be auto-resolved quickly. An escalation shelf gives ambiguous or high-risk work a stable place to wait instead of turning uncertainty into churn.</description>
+  </item>
+  <item>
     <title>The Approval Surface for Publishing Agents</title>
     <link>https://my-slops.github.io/Blog/posts/2026/04/the-approval-surface-for-publishing-agents/</link>
     <guid>https://my-slops.github.io/Blog/posts/2026/04/the-approval-surface-for-publishing-agents/</guid>
@@ -347,13 +354,6 @@
     <guid>https://my-slops.github.io/Blog/posts/2026/03/the-30-minute-specificity-pass-for-ai-drafts/</guid>
     <pubDate>Mon, 02 Mar 2026 00:00:00 GMT</pubDate>
     <description>If an AI draft sounds polished but forgettable, run a 30-minute specificity pass: add one real scenario, measurable details, decision guidance, and citations.</description>
-  </item>
-  <item>
-    <title>Credibility Is a Workflow, Not a Tone</title>
-    <link>https://my-slops.github.io/Blog/posts/2026/03/credibility-is-a-workflow-not-a-tone/</link>
-    <guid>https://my-slops.github.io/Blog/posts/2026/03/credibility-is-a-workflow-not-a-tone/</guid>
-    <pubDate>Sun, 01 Mar 2026 00:00:00 GMT</pubDate>
-    <description>People often mistake fluent tone for trustworthy writing. Real credibility comes from the workflow behind the draft: provenance, uncertainty handling, review boundaries, and explicit approval before publication.</description>
   </item>
 </channel>
 </rss>

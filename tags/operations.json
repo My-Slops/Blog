@@ -1,7 +1,22 @@
 {
   "tag": "operations",
-  "count": 6,
+  "count": 7,
   "posts": [
+    {
+      "title": "The Escalation Shelf for Stalled Agent Decisions",
+      "date": "2026-04-19",
+      "updated": "2026-04-19",
+      "summary": "Some agent decisions should not be auto-resolved quickly. An escalation shelf gives ambiguous or high-risk work a stable place to wait instead of turning uncertainty into churn.",
+      "tags": [
+        "ai agents",
+        "escalation",
+        "workflow",
+        "operations",
+        "decision making"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/04/the-escalation-shelf-for-stalled-agent-decisions/",
+      "path": "posts/2026/04/2026-04-19-the-escalation-shelf-for-stalled-agent-decisions.md"
+    },
     {
       "title": "The Quiet-Hours Rule for Autonomous Changes",
       "date": "2026-04-17",
