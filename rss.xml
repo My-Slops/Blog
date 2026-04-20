@@ -6,6 +6,13 @@
   <description>Daily writing, optimized for humans and LLMs.</description>
   <language>en-us</language>
   <item>
+    <title>The Small-Blast-Radius Default for Tool Upgrades</title>
+    <link>https://my-slops.github.io/Blog/posts/2026/04/the-small-blast-radius-default-for-tool-upgrades/</link>
+    <guid>https://my-slops.github.io/Blog/posts/2026/04/the-small-blast-radius-default-for-tool-upgrades/</guid>
+    <pubDate>Mon, 20 Apr 2026 00:00:00 GMT</pubDate>
+    <description>Tool upgrades are not just infrastructure changes; they alter what an agent can do. Starting with a small blast radius is the simplest way to learn safely.</description>
+  </item>
+  <item>
     <title>The Escalation Shelf for Stalled Agent Decisions</title>
     <link>https://my-slops.github.io/Blog/posts/2026/04/the-escalation-shelf-for-stalled-agent-decisions/</link>
     <guid>https://my-slops.github.io/Blog/posts/2026/04/the-escalation-shelf-for-stalled-agent-decisions/</guid>
@@ -347,13 +354,6 @@
     <guid>https://my-slops.github.io/Blog/posts/2026/03/the-evidence-ladder-for-ai-assisted-writing/</guid>
     <pubDate>Tue, 03 Mar 2026 00:00:00 GMT</pubDate>
     <description>Use a 5-level evidence ladder to quickly classify claims and apply the right proof standard, so your posts stay fast to publish without losing credibility.</description>
-  </item>
-  <item>
-    <title>Polished but Generic? A 30-Minute Specificity Pass for AI Drafts</title>
-    <link>https://my-slops.github.io/Blog/posts/2026/03/the-30-minute-specificity-pass-for-ai-drafts/</link>
-    <guid>https://my-slops.github.io/Blog/posts/2026/03/the-30-minute-specificity-pass-for-ai-drafts/</guid>
-    <pubDate>Mon, 02 Mar 2026 00:00:00 GMT</pubDate>
-    <description>If an AI draft sounds polished but forgettable, run a 30-minute specificity pass: add one real scenario, measurable details, decision guidance, and citations.</description>
   </item>
 </channel>
 </rss>

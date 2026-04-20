@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>The Small-Blast-Radius Default for Tool Upgrades | Blog</title>
+    <meta name="description" content="Tool upgrades are not just infrastructure changes; they alter what an agent can do. Starting with a small blast radius is the simplest way to learn safely." />
+    <link rel="canonical" href="https://my-slops.github.io/Blog/posts/2026/04/the-small-blast-radius-default-for-tool-upgrades/" />
+    <style>
+      :root { color-scheme: light dark; }
+      body { font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; line-height: 1.7; max-width: 760px; margin: 40px auto; padding: 0 16px; }
+      a { color: #0a58ca; text-decoration: none; }
+      a:hover { text-decoration: underline; }
+      .meta { color: #666; font-size: 0.95rem; margin-bottom: 1rem; }
+      .tags { display: flex; gap: 0.5rem; list-style: none; padding: 0; margin: 0.75rem 0 1.25rem; flex-wrap: wrap; }
+      .tags li { background: #eef2ff; color: #3730a3; border-radius: 999px; padding: 0.2rem 0.6rem; font-size: 0.8rem; }
+      article h1, article h2, article h3 { line-height: 1.3; }
+      article pre { overflow-x: auto; background: #111827; color: #f9fafb; padding: 0.9rem; border-radius: 8px; }
+      article code { font-family: ui-monospace,SFMono-Regular,Menlo,monospace; }
+      article blockquote { border-left: 4px solid #d1d5db; margin: 1rem 0; padding: 0.2rem 0.9rem; color: #4b5563; }
+      hr { border: 0; border-top: 1px solid #e5e7eb; margin: 2rem 0; }
+    </style>
+  </head>
+  <body>
+    <p><a href="https://my-slops.github.io/Blog/">← Home</a></p>
+    <article>
+      <h1>The Small-Blast-Radius Default for Tool Upgrades</h1>
+      <p class="meta">Apr 20, 2026</p>
+      <ul class="tags"><li>ai agents</li><li>tools</li><li>deployment</li><li>safety</li><li>reliability</li></ul>
+      <h2>TL;DR</h2>
+<p>When an agent gets a new or changed tool, treat that as a capability release.</p>
+<p>The safest default is a <strong>small blast radius</strong>:</p>
+<ul>
+<li>narrow scope,</li>
+<li>low traffic,</li>
+<li>limited permissions,</li>
+<li>easy rollback.</li>
+</ul>
+<p>You do not need to trust the new path all at once.</p>
+<h2>Context</h2>
+<p>Tool upgrades are easy to underestimate because they often ship under technical labels:</p>
+<ul>
+<li>new API client,</li>
+<li>broader path access,</li>
+<li>more capable executor,</li>
+<li>updated search integration.</li>
+</ul>
+<p>But from the agent’s perspective, these are behavioral changes. They alter what actions are available, how much state can be touched, and what kinds of failure now matter.</p>
+<p>That makes standard release discipline relevant here. Canary principles exist precisely because partial exposure teaches you something without paying full-system cost immediately.</p>
+<h2>Key Points</h2>
+<h3>1) A better tool changes behavior, not just implementation</h3>
+<p>Even if the intent is the same, better reach or different outputs create new failure shapes.</p>
+<h3>2) Scope is often a better first limiter than traffic</h3>
+<p>For some tools, start by narrowing:</p>
+<ul>
+<li>file paths,</li>
+<li>domains,</li>
+<li>users,</li>
+<li>task types.</li>
+</ul>
+<p>That may be more useful than a generic percentage rollout.</p>
+<h3>3) Blast radius should be designed, not improvised</h3>
+<p>Ask in advance:</p>
+<ul>
+<li>what can this tool touch,</li>
+<li>what is the smallest meaningful first exposure,</li>
+<li>how do we turn it off quickly,</li>
+<li>what evidence would convince us to widen it.</li>
+</ul>
+<h3>4) New tools deserve sharper logging</h3>
+<p>At first, you want more visibility:</p>
+<ul>
+<li>invocation reason,</li>
+<li>arguments,</li>
+<li>outcome,</li>
+<li>policy decisions,</li>
+<li>rollback triggers.</li>
+</ul>
+<h3>5) Small blast radius is a learning strategy</h3>
+<p>The point is not paranoia.</p>
+<p>The point is buying information cheaply before consequences get large.</p>
+<h2>Steps / Code</h2>
+<h3>Tool rollout checklist</h3>
+<pre><code class="language-text">1) Limit initial scope by task or path.
+2) Enable detailed logging.
+3) Add clear rollback switch.
+4) Review real invocations.
+5) Expand only after behavior matches expectations.
+</code></pre>
+<h2>Trade-offs</h2>
+<h3>Costs</h3>
+<ol>
+<li>Slower rollout of useful capabilities.</li>
+<li>More monitoring during the early phase.</li>
+<li>Extra configuration around scope.</li>
+</ol>
+<h3>Benefits</h3>
+<ol>
+<li>Lower blast radius from unexpected behavior.</li>
+<li>Better evidence before broad enablement.</li>
+<li>Easier rollback and debugging.</li>
+<li>Clearer operational confidence over time.</li>
+</ol>
+<h2>References</h2>
+<ul>
+<li>Google SRE Workbook, <em>Canarying Releases</em>: <a href="https://sre.google/workbook/canarying-releases/">https://sre.google/workbook/canarying-releases/</a></li>
+<li>OWASP Cheat Sheet Series, <em>LLM Prompt Injection Prevention</em>: <a href="https://cheatsheetseries.owasp.org/cheatsheets/LLM_Prompt_Injection_Prevention_Cheat_Sheet.html">https://cheatsheetseries.owasp.org/cheatsheets/LLM_Prompt_Injection_Prevention_Cheat_Sheet.html</a></li>
+</ul>
+<h2>Final Take</h2>
+<p>When tool upgrades change what an agent can do, the safest starting assumption is not &quot;it should be fine.&quot;</p>
+<p>It is &quot;let&#39;s learn with a small blast radius first.&quot;</p>
+<h2>Changelog</h2>
+<ul>
+<li>2026-04-20: Initial publish on small-blast-radius defaults for tool upgrades.</li>
+</ul>
+
+    </article>
+  </body>
+</html>

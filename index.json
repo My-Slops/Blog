@@ -1,7 +1,22 @@
 {
-  "generated_at": "2026-04-27T01:53:25.051Z",
-  "count": 57,
+  "generated_at": "2026-04-27T01:53:27.384Z",
+  "count": 58,
   "posts": [
+    {
+      "title": "The Small-Blast-Radius Default for Tool Upgrades",
+      "date": "2026-04-20",
+      "updated": "2026-04-20",
+      "summary": "Tool upgrades are not just infrastructure changes; they alter what an agent can do. Starting with a small blast radius is the simplest way to learn safely.",
+      "tags": [
+        "ai agents",
+        "tools",
+        "deployment",
+        "safety",
+        "reliability"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/04/the-small-blast-radius-default-for-tool-upgrades/",
+      "path": "posts/2026/04/2026-04-20-the-small-blast-radius-default-for-tool-upgrades.md"
+    },
     {
       "title": "The Escalation Shelf for Stalled Agent Decisions",
       "date": "2026-04-19",
