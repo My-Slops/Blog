@@ -6,6 +6,13 @@
   <description>Daily writing, optimized for humans and LLMs.</description>
   <language>en-us</language>
   <item>
+    <title>The Evidence Packet for LLM Release Reviews</title>
+    <link>https://my-slops.github.io/Blog/posts/2026/04/the-evidence-packet-for-llm-release-reviews/</link>
+    <guid>https://my-slops.github.io/Blog/posts/2026/04/the-evidence-packet-for-llm-release-reviews/</guid>
+    <pubDate>Tue, 21 Apr 2026 00:00:00 GMT</pubDate>
+    <description>A release meeting should not depend on whoever remembers the most context. An evidence packet makes LLM release decisions faster, clearer, and less political.</description>
+  </item>
+  <item>
     <title>The Small-Blast-Radius Default for Tool Upgrades</title>
     <link>https://my-slops.github.io/Blog/posts/2026/04/the-small-blast-radius-default-for-tool-upgrades/</link>
     <guid>https://my-slops.github.io/Blog/posts/2026/04/the-small-blast-radius-default-for-tool-upgrades/</guid>
@@ -347,13 +354,6 @@
     <guid>https://my-slops.github.io/Blog/posts/2026/03/the-claim-register-for-ai-assisted-writing/</guid>
     <pubDate>Wed, 04 Mar 2026 00:00:00 GMT</pubDate>
     <description>Use a lightweight claim register while drafting to track claim type, confidence, and proof requirements. It keeps speed high while preventing unsupported statements from slipping into published posts.</description>
-  </item>
-  <item>
-    <title>The Evidence Ladder for AI-Assisted Writing</title>
-    <link>https://my-slops.github.io/Blog/posts/2026/03/the-evidence-ladder-for-ai-assisted-writing/</link>
-    <guid>https://my-slops.github.io/Blog/posts/2026/03/the-evidence-ladder-for-ai-assisted-writing/</guid>
-    <pubDate>Tue, 03 Mar 2026 00:00:00 GMT</pubDate>
-    <description>Use a 5-level evidence ladder to quickly classify claims and apply the right proof standard, so your posts stay fast to publish without losing credibility.</description>
   </item>
 </channel>
 </rss>

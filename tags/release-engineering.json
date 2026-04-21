@@ -1,7 +1,22 @@
 {
   "tag": "release-engineering",
-  "count": 2,
+  "count": 3,
   "posts": [
+    {
+      "title": "The Evidence Packet for LLM Release Reviews",
+      "date": "2026-04-21",
+      "updated": "2026-04-21",
+      "summary": "A release meeting should not depend on whoever remembers the most context. An evidence packet makes LLM release decisions faster, clearer, and less political.",
+      "tags": [
+        "llm",
+        "release-engineering",
+        "evals",
+        "governance",
+        "reliability"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/04/the-evidence-packet-for-llm-release-reviews/",
+      "path": "posts/2026/04/2026-04-21-the-evidence-packet-for-llm-release-reviews.md"
+    },
     {
       "title": "Eval-Gated Canary Rollouts for LLM Prompt Changes",
       "date": "2026-04-12",
