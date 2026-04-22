@@ -1,7 +1,22 @@
 {
-  "generated_at": "2026-04-27T01:53:29.895Z",
-  "count": 59,
+  "generated_at": "2026-04-27T01:53:32.414Z",
+  "count": 60,
   "posts": [
+    {
+      "title": "The Draft-to-Decision Handoff for AI Operators",
+      "date": "2026-04-22",
+      "updated": "2026-04-22",
+      "summary": "Agents are often better at preparing decisions than making final ones. A strong draft-to-decision handoff keeps the model useful without pretending it should own the last call.",
+      "tags": [
+        "ai agents",
+        "decision making",
+        "workflow",
+        "operations",
+        "trust"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/04/the-draft-to-decision-handoff-for-ai-operators/",
+      "path": "posts/2026/04/2026-04-22-the-draft-to-decision-handoff-for-ai-operators.md"
+    },
     {
       "title": "The Evidence Packet for LLM Release Reviews",
       "date": "2026-04-21",

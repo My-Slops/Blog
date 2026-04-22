@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>The Draft-to-Decision Handoff for AI Operators | Blog</title>
+    <meta name="description" content="Agents are often better at preparing decisions than making final ones. A strong draft-to-decision handoff keeps the model useful without pretending it should own the last call." />
+    <link rel="canonical" href="https://my-slops.github.io/Blog/posts/2026/04/the-draft-to-decision-handoff-for-ai-operators/" />
+    <style>
+      :root { color-scheme: light dark; }
+      body { font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; line-height: 1.7; max-width: 760px; margin: 40px auto; padding: 0 16px; }
+      a { color: #0a58ca; text-decoration: none; }
+      a:hover { text-decoration: underline; }
+      .meta { color: #666; font-size: 0.95rem; margin-bottom: 1rem; }
+      .tags { display: flex; gap: 0.5rem; list-style: none; padding: 0; margin: 0.75rem 0 1.25rem; flex-wrap: wrap; }
+      .tags li { background: #eef2ff; color: #3730a3; border-radius: 999px; padding: 0.2rem 0.6rem; font-size: 0.8rem; }
+      article h1, article h2, article h3 { line-height: 1.3; }
+      article pre { overflow-x: auto; background: #111827; color: #f9fafb; padding: 0.9rem; border-radius: 8px; }
+      article code { font-family: ui-monospace,SFMono-Regular,Menlo,monospace; }
+      article blockquote { border-left: 4px solid #d1d5db; margin: 1rem 0; padding: 0.2rem 0.9rem; color: #4b5563; }
+      hr { border: 0; border-top: 1px solid #e5e7eb; margin: 2rem 0; }
+    </style>
+  </head>
+  <body>
+    <p><a href="https://my-slops.github.io/Blog/">← Home</a></p>
+    <article>
+      <h1>The Draft-to-Decision Handoff for AI Operators</h1>
+      <p class="meta">Apr 22, 2026</p>
+      <ul class="tags"><li>ai agents</li><li>decision making</li><li>workflow</li><li>operations</li><li>trust</li></ul>
+      <h2>TL;DR</h2>
+<p>Many agent workflows improve when the model stops short of the final decision.</p>
+<p>Use the system to:</p>
+<ul>
+<li>gather context,</li>
+<li>summarize trade-offs,</li>
+<li>prepare candidate actions,</li>
+<li>package evidence.</li>
+</ul>
+<p>Then perform a <strong>draft-to-decision handoff</strong> to the operator.</p>
+<p>The agent drafts the decision space. The human owns the decision.</p>
+<h2>Context</h2>
+<p>There is a recurring pattern in both writing systems and operational systems: the model is often more useful as a preparer than as a final arbiter.</p>
+<p>This is not because models are useless. It is because final decisions usually carry a blend of factors:</p>
+<ul>
+<li>policy,</li>
+<li>accountability,</li>
+<li>business trade-offs,</li>
+<li>irreversibility,</li>
+<li>human judgment under ambiguity.</li>
+</ul>
+<p>Trying to automate that entire bundle often creates fake confidence. A cleaner model is to treat the agent as a decision-preparation layer.</p>
+<h2>Key Points</h2>
+<h3>1) Prepared context is real leverage</h3>
+<p>Humans often spend too much time assembling the decision surface.</p>
+<p>Agents can help by organizing:</p>
+<ul>
+<li>what changed,</li>
+<li>what options exist,</li>
+<li>what the evidence says,</li>
+<li>what remains uncertain.</li>
+</ul>
+<p>That can save significant time without over-automating authority.</p>
+<h3>2) Handoff quality matters</h3>
+<p>The operator should not receive a vague summary. They should receive:</p>
+<ul>
+<li>the decision needed,</li>
+<li>recommended options,</li>
+<li>downside of each option,</li>
+<li>confidence and uncertainty,</li>
+<li>safe fallback.</li>
+</ul>
+<p>That keeps the human in charge without making them redo the work.</p>
+<h3>3) This pattern scales well to high-trust workflows</h3>
+<p>Publishing, policy changes, release decisions, and high-impact writes all benefit here.</p>
+<p>The model still accelerates the process, but the authority boundary remains legible.</p>
+<h3>4) Handoffs reduce pressure to guess</h3>
+<p>If the system knows that ambiguous high-impact cases end in operator review, it does not have to force completion where judgment should stay human.</p>
+<h3>5) This is a better autonomy story than all-or-nothing</h3>
+<p>The false choice is:</p>
+<ul>
+<li>fully autonomous,</li>
+<li>or basically unused.</li>
+</ul>
+<p>The better choice is:</p>
+<ul>
+<li>automate preparation aggressively,</li>
+<li>automate final judgment selectively.</li>
+</ul>
+<h2>Steps / Code</h2>
+<h3>Handoff payload</h3>
+<pre><code class="language-markdown">Decision needed:
+- Approve rollout to 25% or hold
+
+Options:
+- Approve now
+- Hold for more evals
+- Keep at current canary level
+
+Evidence:
+- metric summary
+- qualitative notes
+- known blind spots
+
+Fallback:
+- stay at current level
+</code></pre>
+<h2>Trade-offs</h2>
+<h3>Costs</h3>
+<ol>
+<li>More human decisions remain in the loop.</li>
+<li>Requires better formatting of agent outputs.</li>
+<li>Can frustrate teams chasing maximum autonomy.</li>
+</ol>
+<h3>Benefits</h3>
+<ol>
+<li>Better use of model strengths.</li>
+<li>Lower risk of false-confidence decisions.</li>
+<li>Cleaner accountability boundaries.</li>
+<li>Higher trust in the workflow over time.</li>
+</ol>
+<h2>References</h2>
+<ul>
+<li>NIST, <em>Artificial Intelligence Risk Management Framework (AI RMF 1.0)</em>: <a href="https://doi.org/10.6028/NIST.AI.100-1">https://doi.org/10.6028/NIST.AI.100-1</a></li>
+<li>OpenAI, <em>Teaching models to express their uncertainty in words</em>: <a href="https://openai.com/index/teaching-models-to-express-their-uncertainty-in-words/">https://openai.com/index/teaching-models-to-express-their-uncertainty-in-words/</a></li>
+</ul>
+<h2>Final Take</h2>
+<p>The model does not need to own the final judgment to be extremely useful.</p>
+<p>Often its best role is to draft the decision space cleanly and stop there.</p>
+<h2>Changelog</h2>
+<ul>
+<li>2026-04-22: Initial publish on draft-to-decision handoffs for AI operators.</li>
+</ul>
+
+    </article>
+  </body>
+</html>

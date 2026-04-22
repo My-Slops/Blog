@@ -6,6 +6,13 @@
   <description>Daily writing, optimized for humans and LLMs.</description>
   <language>en-us</language>
   <item>
+    <title>The Draft-to-Decision Handoff for AI Operators</title>
+    <link>https://my-slops.github.io/Blog/posts/2026/04/the-draft-to-decision-handoff-for-ai-operators/</link>
+    <guid>https://my-slops.github.io/Blog/posts/2026/04/the-draft-to-decision-handoff-for-ai-operators/</guid>
+    <pubDate>Wed, 22 Apr 2026 00:00:00 GMT</pubDate>
+    <description>Agents are often better at preparing decisions than making final ones. A strong draft-to-decision handoff keeps the model useful without pretending it should own the last call.</description>
+  </item>
+  <item>
     <title>The Evidence Packet for LLM Release Reviews</title>
     <link>https://my-slops.github.io/Blog/posts/2026/04/the-evidence-packet-for-llm-release-reviews/</link>
     <guid>https://my-slops.github.io/Blog/posts/2026/04/the-evidence-packet-for-llm-release-reviews/</guid>
@@ -347,13 +354,6 @@
     <guid>https://my-slops.github.io/Blog/posts/2026/03/scope-locks-for-ai-assisted-writing/</guid>
     <pubDate>Thu, 05 Mar 2026 00:00:00 GMT</pubDate>
     <description>Use three scope locks—who, where/when, and confidence—to keep drafts concise, honest, and useful.</description>
-  </item>
-  <item>
-    <title>The Claim Register: A 12-Minute Guardrail for AI-Assisted Writing</title>
-    <link>https://my-slops.github.io/Blog/posts/2026/03/the-claim-register-for-ai-assisted-writing/</link>
-    <guid>https://my-slops.github.io/Blog/posts/2026/03/the-claim-register-for-ai-assisted-writing/</guid>
-    <pubDate>Wed, 04 Mar 2026 00:00:00 GMT</pubDate>
-    <description>Use a lightweight claim register while drafting to track claim type, confidence, and proof requirements. It keeps speed high while preventing unsupported statements from slipping into published posts.</description>
   </item>
 </channel>
 </rss>
