@@ -6,6 +6,13 @@
   <description>Daily writing, optimized for humans and LLMs.</description>
   <language>en-us</language>
   <item>
+    <title>The Confidence Threshold for Agent Escalation</title>
+    <link>https://my-slops.github.io/Blog/posts/2026/04/the-confidence-threshold-for-agent-escalation/</link>
+    <guid>https://my-slops.github.io/Blog/posts/2026/04/the-confidence-threshold-for-agent-escalation/</guid>
+    <pubDate>Thu, 23 Apr 2026 00:00:00 GMT</pubDate>
+    <description>High-impact actions do not all need the same escalation rule. A confidence threshold makes escalation more adaptive while still staying conservative where it matters.</description>
+  </item>
+  <item>
     <title>The Draft-to-Decision Handoff for AI Operators</title>
     <link>https://my-slops.github.io/Blog/posts/2026/04/the-draft-to-decision-handoff-for-ai-operators/</link>
     <guid>https://my-slops.github.io/Blog/posts/2026/04/the-draft-to-decision-handoff-for-ai-operators/</guid>
@@ -347,13 +354,6 @@
     <guid>https://my-slops.github.io/Blog/posts/2026/03/the-scan-first-outline-for-ai-assisted-posts/</guid>
     <pubDate>Fri, 06 Mar 2026 00:00:00 GMT</pubDate>
     <description>Design your post in two layers: a scan layer (headings, key bullets, decisions) and a depth layer (evidence, examples, trade-offs). This improves usability without dumbing down.</description>
-  </item>
-  <item>
-    <title>Scope Locks: Stop AI Drafts from Overgeneralizing</title>
-    <link>https://my-slops.github.io/Blog/posts/2026/03/scope-locks-for-ai-assisted-writing/</link>
-    <guid>https://my-slops.github.io/Blog/posts/2026/03/scope-locks-for-ai-assisted-writing/</guid>
-    <pubDate>Thu, 05 Mar 2026 00:00:00 GMT</pubDate>
-    <description>Use three scope locks—who, where/when, and confidence—to keep drafts concise, honest, and useful.</description>
   </item>
 </channel>
 </rss>

@@ -1,7 +1,22 @@
 {
-  "generated_at": "2026-04-27T01:53:32.414Z",
-  "count": 60,
+  "generated_at": "2026-04-27T01:53:34.272Z",
+  "count": 61,
   "posts": [
+    {
+      "title": "The Confidence Threshold for Agent Escalation",
+      "date": "2026-04-23",
+      "updated": "2026-04-23",
+      "summary": "High-impact actions do not all need the same escalation rule. A confidence threshold makes escalation more adaptive while still staying conservative where it matters.",
+      "tags": [
+        "ai agents",
+        "uncertainty",
+        "escalation",
+        "safety",
+        "decision making"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/04/the-confidence-threshold-for-agent-escalation/",
+      "path": "posts/2026/04/2026-04-23-the-confidence-threshold-for-agent-escalation.md"
+    },
     {
       "title": "The Draft-to-Decision Handoff for AI Operators",
       "date": "2026-04-22",

@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-04-27T01:53:32.422Z",
+  "generated_at": "2026-04-27T01:53:34.280Z",
   "tags": [
     {
       "tag": "agents",
@@ -8,7 +8,7 @@
     },
     {
       "tag": "ai agents",
-      "count": 17,
+      "count": 18,
       "url": "https://my-slops.github.io/Blog/tags/ai agents.json"
     },
     {
@@ -88,7 +88,7 @@
     },
     {
       "tag": "decision making",
-      "count": 3,
+      "count": 4,
       "url": "https://my-slops.github.io/Blog/tags/decision making.json"
     },
     {
@@ -118,7 +118,7 @@
     },
     {
       "tag": "escalation",
-      "count": 2,
+      "count": 3,
       "url": "https://my-slops.github.io/Blog/tags/escalation.json"
     },
     {
@@ -268,7 +268,7 @@
     },
     {
       "tag": "safety",
-      "count": 7,
+      "count": 8,
       "url": "https://my-slops.github.io/Blog/tags/safety.json"
     },
     {
@@ -300,6 +300,11 @@
       "tag": "trust",
       "count": 8,
       "url": "https://my-slops.github.io/Blog/tags/trust.json"
+    },
+    {
+      "tag": "uncertainty",
+      "count": 1,
+      "url": "https://my-slops.github.io/Blog/tags/uncertainty.json"
     },
     {
       "tag": "verification",
