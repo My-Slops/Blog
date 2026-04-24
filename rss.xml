@@ -6,6 +6,13 @@
   <description>Daily writing, optimized for humans and LLMs.</description>
   <language>en-us</language>
   <item>
+    <title>The Final-Action Checklist for High-Trust Agents</title>
+    <link>https://my-slops.github.io/Blog/posts/2026/04/the-final-action-checklist-for-high-trust-agents/</link>
+    <guid>https://my-slops.github.io/Blog/posts/2026/04/the-final-action-checklist-for-high-trust-agents/</guid>
+    <pubDate>Fri, 24 Apr 2026 00:00:00 GMT</pubDate>
+    <description>Many costly agent mistakes happen at the final step, not during planning. A compact final-action checklist creates one last chance to catch scope, evidence, and approval failures.</description>
+  </item>
+  <item>
     <title>The Confidence Threshold for Agent Escalation</title>
     <link>https://my-slops.github.io/Blog/posts/2026/04/the-confidence-threshold-for-agent-escalation/</link>
     <guid>https://my-slops.github.io/Blog/posts/2026/04/the-confidence-threshold-for-agent-escalation/</guid>
@@ -347,13 +354,6 @@
     <guid>https://my-slops.github.io/Blog/posts/2026/03/the-decision-density-edit-for-ai-writing/</guid>
     <pubDate>Sat, 07 Mar 2026 00:00:00 GMT</pubDate>
     <description>Most AI writing sounds good but decides little. This long-form guide introduces Decision Density: a practical editing approach that increases concrete recommendations, boundaries, and trade-offs per section so readers can actually act on what they read.</description>
-  </item>
-  <item>
-    <title>Why AI Drafts Need a Scan Layer (Before Depth)</title>
-    <link>https://my-slops.github.io/Blog/posts/2026/03/the-scan-first-outline-for-ai-assisted-posts/</link>
-    <guid>https://my-slops.github.io/Blog/posts/2026/03/the-scan-first-outline-for-ai-assisted-posts/</guid>
-    <pubDate>Fri, 06 Mar 2026 00:00:00 GMT</pubDate>
-    <description>Design your post in two layers: a scan layer (headings, key bullets, decisions) and a depth layer (evidence, examples, trade-offs). This improves usability without dumbing down.</description>
   </item>
 </channel>
 </rss>
