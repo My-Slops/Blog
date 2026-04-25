@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>The Observation Window After Agent Policy Changes | Blog</title>
+    <meta name="description" content="Agent policy changes need a period of heightened attention after release. An observation window catches slow failures, adaptation effects, and hidden scope creep before they harden." />
+    <link rel="canonical" href="https://my-slops.github.io/Blog/posts/2026/04/the-observation-window-after-agent-policy-changes/" />
+    <style>
+      :root { color-scheme: light dark; }
+      body { font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; line-height: 1.7; max-width: 760px; margin: 40px auto; padding: 0 16px; }
+      a { color: #0a58ca; text-decoration: none; }
+      a:hover { text-decoration: underline; }
+      .meta { color: #666; font-size: 0.95rem; margin-bottom: 1rem; }
+      .tags { display: flex; gap: 0.5rem; list-style: none; padding: 0; margin: 0.75rem 0 1.25rem; flex-wrap: wrap; }
+      .tags li { background: #eef2ff; color: #3730a3; border-radius: 999px; padding: 0.2rem 0.6rem; font-size: 0.8rem; }
+      article h1, article h2, article h3 { line-height: 1.3; }
+      article pre { overflow-x: auto; background: #111827; color: #f9fafb; padding: 0.9rem; border-radius: 8px; }
+      article code { font-family: ui-monospace,SFMono-Regular,Menlo,monospace; }
+      article blockquote { border-left: 4px solid #d1d5db; margin: 1rem 0; padding: 0.2rem 0.9rem; color: #4b5563; }
+      hr { border: 0; border-top: 1px solid #e5e7eb; margin: 2rem 0; }
+    </style>
+  </head>
+  <body>
+    <p><a href="https://my-slops.github.io/Blog/">← Home</a></p>
+    <article>
+      <h1>The Observation Window After Agent Policy Changes</h1>
+      <p class="meta">Apr 25, 2026</p>
+      <ul class="tags"><li>ai agents</li><li>governance</li><li>monitoring</li><li>release-engineering</li><li>reliability</li></ul>
+      <h2>TL;DR</h2>
+<p>Shipping a policy change is not the end of the work.</p>
+<p>After the change lands, keep the system in an <strong>observation window</strong>:</p>
+<ul>
+<li>tighter logging,</li>
+<li>narrower authority,</li>
+<li>explicit review of real behavior,</li>
+<li>easier rollback.</li>
+</ul>
+<p>This catches slow or indirect regressions that may not appear immediately.</p>
+<h2>Context</h2>
+<p>Some of the most damaging policy changes do not fail on first contact.</p>
+<p>They fail after:</p>
+<ul>
+<li>the model sees more varied contexts,</li>
+<li>operators start trusting the new behavior too much,</li>
+<li>edge cases appear,</li>
+<li>hidden interactions with tools or approvals surface.</li>
+</ul>
+<p>That makes post-change observation important. Release discipline is not only about gating entry. It is also about watching the period right after entry, when reality starts applying pressure.</p>
+<h2>Key Points</h2>
+<h3>1) Immediate pass does not mean stable pass</h3>
+<p>A system can look fine in initial review and still degrade later under broader context.</p>
+<h3>2) Observation windows should be explicit</h3>
+<p>Define:</p>
+<ul>
+<li>how long the window lasts,</li>
+<li>what signals are watched,</li>
+<li>what authority remains constrained,</li>
+<li>what conditions close the window.</li>
+</ul>
+<h3>3) Policy changes deserve closer watch than cosmetic changes</h3>
+<p>If the update changes:</p>
+<ul>
+<li>allowed actions,</li>
+<li>escalation logic,</li>
+<li>approval thresholds,</li>
+<li>interpretation of user intent,</li>
+</ul>
+<p>then you are watching behavior, not just style.</p>
+<h3>4) Human observations still matter here</h3>
+<p>As with readback review, some post-change issues show up first as:</p>
+<ul>
+<li>odd confidence,</li>
+<li>workflow confusion,</li>
+<li>awkward escalation behavior,</li>
+<li>unexpected broadness.</li>
+</ul>
+<h3>5) The window should end with a decision</h3>
+<p>At the end, choose:</p>
+<ul>
+<li>widen,</li>
+<li>keep constrained,</li>
+<li>revise,</li>
+<li>rollback.</li>
+</ul>
+<p>Otherwise observation becomes passive logging.</p>
+<h2>Steps / Code</h2>
+<h3>Observation window template</h3>
+<pre><code class="language-yaml">window:
+  duration: &quot;72h&quot;
+  constraints:
+    - limited_scope
+    - elevated_logging
+  monitor:
+    - policy_decisions
+    - escalations
+    - failed_actions
+    - reviewer_flags
+  close_with:
+    - widen
+    - revise
+    - rollback
+</code></pre>
+<h2>Trade-offs</h2>
+<h3>Costs</h3>
+<ol>
+<li>Longer period before full confidence.</li>
+<li>More monitoring work after release.</li>
+<li>Slightly slower path to broad enablement.</li>
+</ol>
+<h3>Benefits</h3>
+<ol>
+<li>Better detection of slow regressions.</li>
+<li>Safer expansion after policy changes.</li>
+<li>More grounded trust in new behavior.</li>
+<li>Stronger post-release governance.</li>
+</ol>
+<h2>References</h2>
+<ul>
+<li>Google SRE Workbook, <em>Canarying Releases</em>: <a href="https://sre.google/workbook/canarying-releases/">https://sre.google/workbook/canarying-releases/</a></li>
+<li>NIST, <em>Artificial Intelligence Risk Management Framework: Generative Artificial Intelligence Profile</em>: <a href="https://doi.org/10.6028/NIST.AI.600-1">https://doi.org/10.6028/NIST.AI.600-1</a></li>
+</ul>
+<h2>Final Take</h2>
+<p>The first day after a policy change is not proof. It is the start of the real test.</p>
+<p>Give the change an observation window.</p>
+<h2>Changelog</h2>
+<ul>
+<li>2026-04-25: Initial publish on observation windows after agent policy changes.</li>
+</ul>
+
+    </article>
+  </body>
+</html>

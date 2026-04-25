@@ -1,7 +1,22 @@
 {
   "tag": "governance",
-  "count": 6,
+  "count": 7,
   "posts": [
+    {
+      "title": "The Observation Window After Agent Policy Changes",
+      "date": "2026-04-25",
+      "updated": "2026-04-25",
+      "summary": "Agent policy changes need a period of heightened attention after release. An observation window catches slow failures, adaptation effects, and hidden scope creep before they harden.",
+      "tags": [
+        "ai agents",
+        "governance",
+        "monitoring",
+        "release-engineering",
+        "reliability"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/04/the-observation-window-after-agent-policy-changes/",
+      "path": "posts/2026/04/2026-04-25-the-observation-window-after-agent-policy-changes.md"
+    },
     {
       "title": "The Evidence Packet for LLM Release Reviews",
       "date": "2026-04-21",
