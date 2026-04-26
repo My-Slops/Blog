@@ -1,0 +1,223 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>The Permission Budget for AI Writing Agents | Blog</title>
+    <meta name="description" content="If an AI agent helps write publishable work, trust depends on bounded permissions as much as prompting quality. A permission budget makes drafting faster while keeping research, claims, edits, and publishing under explicit control." />
+    <link rel="canonical" href="https://my-slops.github.io/Blog/posts/2026/04/the-permission-budget-for-ai-writing-agents/" />
+    <style>
+      :root { color-scheme: light dark; }
+      body { font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; line-height: 1.7; max-width: 760px; margin: 40px auto; padding: 0 16px; }
+      a { color: #0a58ca; text-decoration: none; }
+      a:hover { text-decoration: underline; }
+      .meta { color: #666; font-size: 0.95rem; margin-bottom: 1rem; }
+      .tags { display: flex; gap: 0.5rem; list-style: none; padding: 0; margin: 0.75rem 0 1.25rem; flex-wrap: wrap; }
+      .tags li { background: #eef2ff; color: #3730a3; border-radius: 999px; padding: 0.2rem 0.6rem; font-size: 0.8rem; }
+      article h1, article h2, article h3 { line-height: 1.3; }
+      article pre { overflow-x: auto; background: #111827; color: #f9fafb; padding: 0.9rem; border-radius: 8px; }
+      article code { font-family: ui-monospace,SFMono-Regular,Menlo,monospace; }
+      article blockquote { border-left: 4px solid #d1d5db; margin: 1rem 0; padding: 0.2rem 0.9rem; color: #4b5563; }
+      hr { border: 0; border-top: 1px solid #e5e7eb; margin: 2rem 0; }
+    </style>
+  </head>
+  <body>
+    <p><a href="https://my-slops.github.io/Blog/">← Home</a></p>
+    <article>
+      <h1>The Permission Budget for AI Writing Agents</h1>
+      <p class="meta">Apr 26, 2026</p>
+      <ul class="tags"><li>ai writing</li><li>ai agents</li><li>credibility</li><li>editorial workflow</li><li>safety</li></ul>
+      <h2>TL;DR</h2>
+<p>If an LLM helps write work that other people will read, the main question is not just whether the model sounds smart.</p>
+<p>It is whether the system has the right to do the wrong thing.</p>
+<p>A strong AI writing workflow uses a <strong>permission budget</strong>:</p>
+<ul>
+<li>broad permission to summarize and propose,</li>
+<li>narrower permission to make factual claims,</li>
+<li>very narrow permission to modify sourced statements,</li>
+<li>near-zero permission to publish or act externally without explicit approval.</li>
+</ul>
+<p>That turns credibility from a vibe into a control surface.</p>
+<h2>Context</h2>
+<p>Most advice about AI writing focuses on better prompts, stronger models, or more careful editing. All of that matters, but it skips a more structural issue: a writing agent can fail <em>procedurally</em> even when its prose looks polished.</p>
+<p>Examples:</p>
+<ul>
+<li>it rewrites a sourced claim into a stronger claim than the source supports,</li>
+<li>it silently fills evidence gaps with plausible wording,</li>
+<li>it treats fetched content as instructions rather than data,</li>
+<li>it publishes or updates something public before a human has verified the final draft.</li>
+</ul>
+<p>Security guidance and reliability guidance already point in this direction. OWASP treats prompt injection as a boundary problem where instructions and data mix too freely. NIST’s AI RMF and the Generative AI Profile push organizations to manage AI risk across the full lifecycle, not just at model selection time. OpenAI’s recent work on hallucinations argues that models are often rewarded for guessing when uncertain.</p>
+<p>Taken together, the implication is broader than security: <strong>editorial credibility depends on permission design</strong>.</p>
+<h2>Key Points</h2>
+<h3>1) A writing agent should have different rights at different stages</h3>
+<p>Most teams give an AI writing system one blob of authority:</p>
+<ul>
+<li>read sources,</li>
+<li>summarize,</li>
+<li>draft,</li>
+<li>revise,</li>
+<li>cite,</li>
+<li>maybe even publish.</li>
+</ul>
+<p>That is convenient, but it collapses tasks with very different risk profiles.</p>
+<p>A better default is staged authority:</p>
+<ul>
+<li><strong>Research stage</strong>: may fetch, extract, cluster, and summarize.</li>
+<li><strong>Claim stage</strong>: may propose claims, but must attach source links and confidence notes.</li>
+<li><strong>Draft stage</strong>: may turn approved claims into prose, but should not invent new unsupported assertions.</li>
+<li><strong>Edit stage</strong>: may improve structure and clarity, but should not strengthen factual language without re-checking support.</li>
+<li><strong>Publish stage</strong>: may prepare output, but should not ship externally without explicit approval.</li>
+</ul>
+<p>This is not bureaucracy. It is just separating high-reversibility work from high-consequence work.</p>
+<h3>2) The non-obvious editorial risk is not “bad writing,” it is <em>authority drift</em></h3>
+<p>Fluent models create a dangerous illusion: once a draft sounds coherent, people start granting it too much implicit authority.</p>
+<p>That drift shows up in small ways:</p>
+<ul>
+<li>a tentative finding becomes a confident sentence,</li>
+<li>a source summary becomes a source-backed conclusion,</li>
+<li>a note for the author becomes public-facing copy,</li>
+<li>a draft citation becomes treated as verified.</li>
+</ul>
+<p>A permission budget slows this drift down by making the system ask different questions at each layer:</p>
+<ul>
+<li>&quot;Can I summarize this?&quot;</li>
+<li>&quot;Can I assert this?&quot;</li>
+<li>&quot;Can I strengthen this?&quot;</li>
+<li>&quot;Can I publish this?&quot;</li>
+</ul>
+<p>Those are not the same permission.</p>
+<h3>3) Credibility improves when the model has a large drafting budget but a small claiming budget</h3>
+<p>This is the balance most people get backward.</p>
+<p>They often overconstrain drafting style and underconstrain factual authority.</p>
+<p>In practice, you usually want:</p>
+<ul>
+<li><strong>high freedom</strong> for structure, examples, transitions, and alternative phrasings,</li>
+<li><strong>medium freedom</strong> for synthesis across already-approved notes,</li>
+<li><strong>low freedom</strong> for numeric claims, quotations, recency-sensitive facts, and causal assertions,</li>
+<li><strong>near-zero freedom</strong> for external actions like publishing, emailing, or editing canonical sources without review.</li>
+</ul>
+<p>That preserves the part LLMs are genuinely good at while putting friction around the part that damages trust fastest.</p>
+<h3>4) Prompt-injection controls and editorial controls should share one policy</h3>
+<p>This is where writing workflows often get split in the wrong place.</p>
+<p>Security people write one set of rules about untrusted content. Editors write another set of rules about tone and claims. The agent sits between them and neither side actually controls the whole workflow.</p>
+<p>A permission budget is useful because it handles both concerns at once:</p>
+<ul>
+<li>fetched text is data, not authority,</li>
+<li>claims require provenance,</li>
+<li>unsupported certainty is blocked or labeled,</li>
+<li>external actions require human approval,</li>
+<li>policy decisions are visible in logs or checkpoints.</li>
+</ul>
+<p>That is both a safer agent design and a cleaner editorial process.</p>
+<h3>5) Publishing is a separate privilege, not the final step of drafting</h3>
+<p>This is the most important line to keep hard.</p>
+<p>If the same workflow that brainstorms and rewrites can also silently publish, you have turned a credibility problem into an operational problem.</p>
+<p>Drafting errors are fixable. Public errors create reputation debt.</p>
+<p>The publish boundary should therefore require at least:</p>
+<ul>
+<li>final human review,</li>
+<li>explicit verification of sensitive claims,</li>
+<li>confirmation that citations and dates were checked recently,</li>
+<li>a visible approval event before external release.</li>
+</ul>
+<p>If that feels heavy, good. Public authority should be heavier than draft generation.</p>
+<h2>Steps / Code</h2>
+<h3>A simple permission budget for an AI writing workflow</h3>
+<pre><code class="language-yaml">workflow: &quot;publish_blog_post&quot;
+
+stages:
+  research:
+    allow:
+      - fetch_sources
+      - read_local_notes
+      - summarize
+      - extract_claims
+    deny:
+      - publish
+      - send_external_messages
+
+  claim_review:
+    allow:
+      - propose_claims_with_sources
+      - label_uncertainty
+    require:
+      - source_link_per_high_impact_claim
+    deny:
+      - unsourced_numeric_claims
+      - unsourced_quotes
+
+  drafting:
+    allow:
+      - write_intro
+      - structure_sections
+      - rewrite_for_clarity
+      - synthesize_approved_claims
+    deny:
+      - introduce_new_high_impact_claims
+      - strengthen_uncertain_claims_without_review
+
+  editing:
+    allow:
+      - tighten_prose
+      - reduce_repetition
+      - improve_headings
+    require:
+      - recheck_support_if_factual_language_changes
+
+  publishing:
+    allow:
+      - render_output
+    require:
+      - human_approval
+      - final_recency_check
+      - final_link_check
+    deny:
+      - auto_publish_without_review
+</code></pre>
+<h3>15-minute editorial permission pass</h3>
+<pre><code class="language-text">Minute 0-3: Mark which actions are summarize / claim / edit / publish.
+Minute 3-6: Deny external actions by default.
+Minute 6-9: Require sources for high-impact claims and all quotes.
+Minute 9-12: Block wording changes that increase certainty without re-checking evidence.
+Minute 12-15: Add a human publish gate and a final recency check.
+</code></pre>
+<h3>Practical rule set</h3>
+<pre><code class="language-text">The model may draft freely from approved notes.
+The model may not silently turn uncertain evidence into confident claims.
+The model may not publish, send, or overwrite canonical output without approval.
+</code></pre>
+<h2>Trade-offs</h2>
+<h3>Costs</h3>
+<ol>
+<li>More explicit workflow design up front.</li>
+<li>Slightly slower last-mile editing because factual rewrites trigger re-checks.</li>
+<li>Extra review friction before publishing.</li>
+</ol>
+<h3>Benefits</h3>
+<ol>
+<li>Lower risk of polished but unsupported claims.</li>
+<li>Clearer separation between drafting help and editorial authority.</li>
+<li>Better resistance to prompt injection and source contamination.</li>
+<li>More consistent trust when publishing with AI repeatedly.</li>
+</ol>
+<h2>References</h2>
+<ul>
+<li>OpenAI, <em>Why language models hallucinate</em>: <a href="https://openai.com/index/why-language-models-hallucinate">https://openai.com/index/why-language-models-hallucinate</a></li>
+<li>OpenAI Developers, <em>Evaluation</em>: <a href="https://developers.openai.com/">https://developers.openai.com/</a></li>
+<li>OWASP Cheat Sheet Series, <em>LLM Prompt Injection Prevention</em>: <a href="https://cheatsheetseries.owasp.org/cheatsheets/LLM_Prompt_Injection_Prevention_Cheat_Sheet.html">https://cheatsheetseries.owasp.org/cheatsheets/LLM_Prompt_Injection_Prevention_Cheat_Sheet.html</a></li>
+<li>NIST, <em>Artificial Intelligence Risk Management Framework (AI RMF 1.0)</em>: <a href="https://doi.org/10.6028/NIST.AI.100-1">https://doi.org/10.6028/NIST.AI.100-1</a></li>
+<li>NIST, <em>Artificial Intelligence Risk Management Framework: Generative Artificial Intelligence Profile</em>: <a href="https://doi.org/10.6028/NIST.AI.600-1">https://doi.org/10.6028/NIST.AI.600-1</a></li>
+</ul>
+<h2>Final Take</h2>
+<p>An AI writing system does not become trustworthy because it writes in a calm tone and usually gets things right.</p>
+<p>It becomes trustworthy when the workflow makes it hard to overclaim, hard to silently escalate authority, and impossible to publish without an explicit human decision.</p>
+<p>That is the real editorial upgrade: not smarter prose, but better permissions.</p>
+<h2>Changelog</h2>
+<ul>
+<li>2026-04-26: Initial publish on permission budgets for AI writing agents.</li>
+</ul>
+
+    </article>
+  </body>
+</html>

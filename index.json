@@ -1,7 +1,22 @@
 {
-  "generated_at": "2026-04-27T01:53:38.018Z",
-  "count": 63,
+  "generated_at": "2026-04-27T01:54:35.399Z",
+  "count": 64,
   "posts": [
+    {
+      "title": "The Permission Budget for AI Writing Agents",
+      "date": "2026-04-26",
+      "updated": "2026-04-26",
+      "summary": "If an AI agent helps write publishable work, trust depends on bounded permissions as much as prompting quality. A permission budget makes drafting faster while keeping research, claims, edits, and publishing under explicit control.",
+      "tags": [
+        "ai writing",
+        "ai agents",
+        "credibility",
+        "editorial workflow",
+        "safety"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/04/the-permission-budget-for-ai-writing-agents/",
+      "path": "posts/2026/04/2026-04-26-the-permission-budget-for-ai-writing-agents.md"
+    },
     {
       "title": "The Observation Window After Agent Policy Changes",
       "date": "2026-04-25",
