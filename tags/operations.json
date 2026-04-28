@@ -1,7 +1,22 @@
 {
   "tag": "operations",
-  "count": 8,
+  "count": 9,
   "posts": [
+    {
+      "title": "The Approval Freshness Rule for Agent Actions",
+      "date": "2026-04-28",
+      "updated": "2026-04-28",
+      "summary": "Agent workflows often fail when they act on old approvals in new conditions. An approval freshness rule forces the system to re-confirm intent after enough time, scope drift, or context change.",
+      "tags": [
+        "ai agents",
+        "governance",
+        "trust",
+        "safety",
+        "operations"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/04/the-approval-freshness-rule-for-agent-actions/",
+      "path": "posts/2026/04/2026-04-28-the-approval-freshness-rule-for-agent-actions.md"
+    },
     {
       "title": "The Draft-to-Decision Handoff for AI Operators",
       "date": "2026-04-22",

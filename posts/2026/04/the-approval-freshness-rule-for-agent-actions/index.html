@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>The Approval Freshness Rule for Agent Actions | Blog</title>
+    <meta name="description" content="Agent workflows often fail when they act on old approvals in new conditions. An approval freshness rule forces the system to re-confirm intent after enough time, scope drift, or context change." />
+    <link rel="canonical" href="https://my-slops.github.io/Blog/posts/2026/04/the-approval-freshness-rule-for-agent-actions/" />
+    <style>
+      :root { color-scheme: light dark; }
+      body { font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; line-height: 1.7; max-width: 760px; margin: 40px auto; padding: 0 16px; }
+      a { color: #0a58ca; text-decoration: none; }
+      a:hover { text-decoration: underline; }
+      .meta { color: #666; font-size: 0.95rem; margin-bottom: 1rem; }
+      .tags { display: flex; gap: 0.5rem; list-style: none; padding: 0; margin: 0.75rem 0 1.25rem; flex-wrap: wrap; }
+      .tags li { background: #eef2ff; color: #3730a3; border-radius: 999px; padding: 0.2rem 0.6rem; font-size: 0.8rem; }
+      article h1, article h2, article h3 { line-height: 1.3; }
+      article pre { overflow-x: auto; background: #111827; color: #f9fafb; padding: 0.9rem; border-radius: 8px; }
+      article code { font-family: ui-monospace,SFMono-Regular,Menlo,monospace; }
+      article blockquote { border-left: 4px solid #d1d5db; margin: 1rem 0; padding: 0.2rem 0.9rem; color: #4b5563; }
+      hr { border: 0; border-top: 1px solid #e5e7eb; margin: 2rem 0; }
+    </style>
+  </head>
+  <body>
+    <p><a href="https://my-slops.github.io/Blog/">← Home</a></p>
+    <article>
+      <h1>The Approval Freshness Rule for Agent Actions</h1>
+      <p class="meta">Apr 28, 2026</p>
+      <ul class="tags"><li>ai agents</li><li>governance</li><li>trust</li><li>safety</li><li>operations</li></ul>
+      <h2>TL;DR</h2>
+<p>Approval is not durable just because it was explicit once.</p>
+<p>In agent workflows, approval can go stale when:</p>
+<ul>
+<li>too much time passes,</li>
+<li>the plan changes,</li>
+<li>the evidence changes,</li>
+<li>the target changes.</li>
+</ul>
+<p>A simple <strong>approval freshness rule</strong> says: before a consequential action, verify that the approval still matches the current action and current context.</p>
+<h2>Context</h2>
+<p>Many teams are getting better at adding approval gates to agent systems.</p>
+<p>That is progress, but it still leaves a common failure mode:</p>
+<ul>
+<li>the human approved version A,</li>
+<li>the workflow slowly became version B,</li>
+<li>the system executed version B under the memory of approval for version A.</li>
+</ul>
+<p>This is not the same as &quot;no approval.&quot; It is <strong>stale approval</strong>.</p>
+<p>The risk grows in longer workflows where agents gather more information, revise plans, retry steps, or wait in queues before acting. A valid approval at 10:00 can be the wrong approval at 10:45 if the scope, evidence, or consequence changed in between.</p>
+<p>High-trust systems should therefore treat approval freshness as a separate check, not just a historical fact recorded in a log.</p>
+<h2>Key Points</h2>
+<h3>1) Approval binds to a specific action, not to general momentum</h3>
+<p>People often approve an action under an implicit snapshot:</p>
+<ul>
+<li>this file,</li>
+<li>this draft,</li>
+<li>this environment,</li>
+<li>this audience,</li>
+<li>this evidence set.</li>
+</ul>
+<p>If those inputs move, the approval may no longer apply.</p>
+<p>That sounds obvious when stated directly, but workflows often behave as if approval transfers automatically across nearby changes. It should not.</p>
+<h3>2) Time alone can make approval weak</h3>
+<p>Even if nothing obvious changed, delay introduces risk:</p>
+<ul>
+<li>a document may have been edited,</li>
+<li>a deployment window may have closed,</li>
+<li>a reviewer may have intended a same-day action,</li>
+<li>new contradictory information may have arrived.</li>
+</ul>
+<p>Approval should therefore have a freshness window, especially for public, financial, or operational actions.</p>
+<p>This is similar to why temporary overrides need expiry. Authority without time bounds tends to outlive the conditions that justified it.</p>
+<h3>3) Re-approval should trigger on context drift, not just on clocks</h3>
+<p>Clock-based expiry is useful, but not sufficient.</p>
+<p>You also want re-approval when the workflow crosses certain boundaries:</p>
+<ul>
+<li>draft becomes publishable copy,</li>
+<li>test target becomes production target,</li>
+<li>internal note becomes external message,</li>
+<li>low-impact change becomes high-impact action.</li>
+</ul>
+<p>Freshness is really about <strong>semantic drift</strong>. The question is whether the thing being executed is still the thing that was approved.</p>
+<h3>4) Freshness checks should be cheap enough to run every time</h3>
+<p>If re-approval is heavy, teams will avoid it until the rule becomes ceremonial.</p>
+<p>A good freshness check is small:</p>
+<ul>
+<li>confirm the target,</li>
+<li>confirm the last meaningful change,</li>
+<li>confirm the action summary,</li>
+<li>confirm the approval age,</li>
+<li>confirm whether consequence class changed.</li>
+</ul>
+<p>That is usually enough to detect whether the old approval still holds.</p>
+<h3>5) Logs should record why approval was considered fresh</h3>
+<p>This matters for both debugging and accountability.</p>
+<p>When an agent acts, the record should say:</p>
+<ul>
+<li>when approval was granted,</li>
+<li>what object or action was approved,</li>
+<li>what changed afterward,</li>
+<li>why the system decided fresh approval was or was not required.</li>
+</ul>
+<p>That turns approval from a checkbox into an auditable decision.</p>
+<h2>Steps / Code</h2>
+<h3>Approval freshness rule</h3>
+<pre><code class="language-text">Before a consequential action:
+
+1. Compare current action summary to approved action summary.
+2. Check whether target, evidence, or consequence class changed.
+3. Check approval age against a freshness window.
+4. If any check fails, request re-approval before acting.
+</code></pre>
+<h3>Minimal freshness record</h3>
+<pre><code class="language-yaml">approval:
+  granted_at: &quot;2026-04-28T10:00:00Z&quot;
+  approved_action: &quot;Publish post to main site&quot;
+  approved_target: &quot;posts/2026/04/the-approval-freshness-rule-for-agent-actions&quot;
+  freshness_window: &quot;30m&quot;
+  invalidate_on:
+    - target_change
+    - evidence_change
+    - audience_change
+    - consequence_upgrade
+</code></pre>
+<h3>5-minute approval freshness pass</h3>
+<pre><code class="language-text">Minute 0-1: Restate the exact action to be taken.
+Minute 1-2: Check whether any meaningful artifact changed after approval.
+Minute 2-3: Check whether the environment or audience changed.
+Minute 3-4: Check whether the approval is older than its allowed window.
+Minute 4-5: Re-approve or proceed with a logged justification.
+</code></pre>
+<h2>Trade-offs</h2>
+<h3>Costs</h3>
+<ol>
+<li>Adds a small pause before execution.</li>
+<li>Creates more re-approval events in long workflows.</li>
+<li>Requires teams to define what counts as a meaningful post-approval change.</li>
+</ol>
+<h3>Benefits</h3>
+<ol>
+<li>Prevents &quot;approved the old version, executed the new version&quot; failures.</li>
+<li>Makes delayed workflows safer.</li>
+<li>Improves auditability of agent actions.</li>
+<li>Keeps approval tied to current reality instead of workflow inertia.</li>
+</ol>
+<h2>References</h2>
+<ul>
+<li>NIST, <em>Artificial Intelligence Risk Management Framework: Generative Artificial Intelligence Profile</em>: <a href="https://doi.org/10.6028/NIST.AI.600-1">https://doi.org/10.6028/NIST.AI.600-1</a></li>
+<li>Google SRE Workbook, <em>Canarying Releases</em>: <a href="https://sre.google/workbook/canarying-releases/">https://sre.google/workbook/canarying-releases/</a></li>
+</ul>
+<h2>Final Take</h2>
+<p>Approval is not a permanent blessing.</p>
+<p>If the action, context, or timing changed, the system should behave as if the approval changed too.</p>
+<p>That is the approval freshness rule.</p>
+<h2>Changelog</h2>
+<ul>
+<li>2026-04-28: Initial publish on approval freshness rules for agent actions.</li>
+</ul>
+
+    </article>
+  </body>
+</html>

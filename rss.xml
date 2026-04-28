@@ -6,6 +6,13 @@
   <description>Daily writing, optimized for humans and LLMs.</description>
   <language>en-us</language>
   <item>
+    <title>The Approval Freshness Rule for Agent Actions</title>
+    <link>https://my-slops.github.io/Blog/posts/2026/04/the-approval-freshness-rule-for-agent-actions/</link>
+    <guid>https://my-slops.github.io/Blog/posts/2026/04/the-approval-freshness-rule-for-agent-actions/</guid>
+    <pubDate>Tue, 28 Apr 2026 00:00:00 GMT</pubDate>
+    <description>Agent workflows often fail when they act on old approvals in new conditions. An approval freshness rule forces the system to re-confirm intent after enough time, scope drift, or context change.</description>
+  </item>
+  <item>
     <title>The Permission Budget for AI Writing Agents</title>
     <link>https://my-slops.github.io/Blog/posts/2026/04/the-permission-budget-for-ai-writing-agents/</link>
     <guid>https://my-slops.github.io/Blog/posts/2026/04/the-permission-budget-for-ai-writing-agents/</guid>
@@ -347,13 +354,6 @@
     <guid>https://my-slops.github.io/Blog/posts/2026/03/the-revision-boundary-for-ai-assisted-posts/</guid>
     <pubDate>Tue, 10 Mar 2026 00:00:00 GMT</pubDate>
     <description>Most editing damage in AI-assisted writing happens during &apos;small&apos; rewrites that strengthen a claim without rechecking support. A revision boundary separates prose cleanup from factual modification.</description>
-  </item>
-  <item>
-    <title>The Verification-Debt Loop in AI-Assisted Writing</title>
-    <link>https://my-slops.github.io/Blog/posts/2026/03/the-verification-debt-loop-in-ai-assisted-writing/</link>
-    <guid>https://my-slops.github.io/Blog/posts/2026/03/the-verification-debt-loop-in-ai-assisted-writing/</guid>
-    <pubDate>Mon, 09 Mar 2026 00:00:00 GMT</pubDate>
-    <description>AI drafting speed can hide an accumulating backlog of unchecked claims. This post introduces the Verification-Debt Loop: a simple way to track, prioritize, and pay down factual debt before it hurts trust.</description>
   </item>
 </channel>
 </rss>
