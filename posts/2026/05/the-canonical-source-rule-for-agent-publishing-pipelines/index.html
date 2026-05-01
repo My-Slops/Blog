@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>The Canonical-Source Rule for Agent Publishing Pipelines | Blog</title>
+    <meta name="description" content="Publishing pipelines get fragile when agents patch rendered pages, feeds, and indexes directly. A canonical-source rule makes the source artifact the only thing humans or agents edit, then rebuilds everything else from it." />
+    <link rel="canonical" href="https://my-slops.github.io/Blog/posts/2026/05/the-canonical-source-rule-for-agent-publishing-pipelines/" />
+    <style>
+      :root { color-scheme: light dark; }
+      body { font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; line-height: 1.7; max-width: 760px; margin: 40px auto; padding: 0 16px; }
+      a { color: #0a58ca; text-decoration: none; }
+      a:hover { text-decoration: underline; }
+      .meta { color: #666; font-size: 0.95rem; margin-bottom: 1rem; }
+      .tags { display: flex; gap: 0.5rem; list-style: none; padding: 0; margin: 0.75rem 0 1.25rem; flex-wrap: wrap; }
+      .tags li { background: #eef2ff; color: #3730a3; border-radius: 999px; padding: 0.2rem 0.6rem; font-size: 0.8rem; }
+      article h1, article h2, article h3 { line-height: 1.3; }
+      article pre { overflow-x: auto; background: #111827; color: #f9fafb; padding: 0.9rem; border-radius: 8px; }
+      article code { font-family: ui-monospace,SFMono-Regular,Menlo,monospace; }
+      article blockquote { border-left: 4px solid #d1d5db; margin: 1rem 0; padding: 0.2rem 0.9rem; color: #4b5563; }
+      hr { border: 0; border-top: 1px solid #e5e7eb; margin: 2rem 0; }
+    </style>
+  </head>
+  <body>
+    <p><a href="https://my-slops.github.io/Blog/">← Home</a></p>
+    <article>
+      <h1>The Canonical-Source Rule for Agent Publishing Pipelines</h1>
+      <p class="meta">May 1, 2026</p>
+      <ul class="tags"><li>ai agents</li><li>publishing</li><li>workflow</li><li>credibility</li><li>engineering</li></ul>
+      <h2>TL;DR</h2>
+<p>If an agent can edit both the source document and the generated site output, your publishing system will eventually contradict itself.</p>
+<p>The safer rule is simple:</p>
+<ul>
+<li>choose one <strong>canonical source</strong>,</li>
+<li>edit only that source,</li>
+<li>regenerate everything derived from it,</li>
+<li>treat generated artifacts as disposable.</li>
+</ul>
+<p>For a Markdown-first blog, that usually means the Markdown file is authoritative and the HTML, feed, sitemap, and indexes are products of the build.</p>
+<h2>Context</h2>
+<p>A lot of small publishing systems drift for a boring reason: they let convenience outrun structure.</p>
+<p>Someone fixes a typo in rendered HTML instead of the source Markdown. An agent updates <code>index.json</code> directly because it is faster than rerunning the generator. A feed entry gets patched by hand after the post changed upstream. Nothing breaks immediately, but the repo starts carrying multiple partial truths.</p>
+<p>That is survivable in a manual workflow. It gets dangerous in an agent workflow because agents are optimized to complete the local task in front of them. If the system says both source files and generated files are writable, the shortest path wins.</p>
+<p>The result is a repo where:</p>
+<ul>
+<li>the post says one thing,</li>
+<li>the rendered page says another,</li>
+<li>the feed lags behind,</li>
+<li>the next build silently overwrites a &quot;fix&quot; that was never made at the source.</li>
+</ul>
+<p>This is not just messy. It is a reliability problem.</p>
+<h2>Key Points</h2>
+<h3>1) Publishing systems need one artifact that counts as truth</h3>
+<p>You can have many useful representations of the same post:</p>
+<ul>
+<li>Markdown for authors,</li>
+<li>HTML for readers,</li>
+<li>JSON for machines,</li>
+<li>RSS for subscribers,</li>
+<li>sitemap entries for crawlers.</li>
+</ul>
+<p>But you should not have many authoritative representations.</p>
+<p>Authority must be singular. Otherwise every correction becomes a coordination problem: <em>which file did we really mean to fix?</em></p>
+<p>For a static content repo, the usual answer is straightforward: the Markdown source is canonical.</p>
+<h3>2) Generated artifacts should be outputs, not collaboration surfaces</h3>
+<p>This is where agent workflows go wrong.</p>
+<p>Generated files look temptingly editable because they are plain text and already present in the repo. An agent that is asked to &quot;update the homepage&quot; may patch <code>index.html</code>. An agent asked to &quot;fix the feed summary&quot; may edit <code>rss.xml</code>. The local task appears complete, but the system just accepted a side-channel edit.</p>
+<p>Once that happens, the next build has two possible bad outcomes:</p>
+<ul>
+<li>it overwrites the generated fix because the source never changed, or</li>
+<li>it preserves stale generated output because people become afraid to rebuild.</li>
+</ul>
+<p>Neither is good. Generated artifacts should be treated like compiled binaries: inspectable, reviewable, and replaceable, but not hand-maintained.</p>
+<h3>3) The canonical-source rule makes agent permissions easier to reason about</h3>
+<p>A lot of governance gets simpler when the workflow has a hard source boundary.</p>
+<p>Instead of saying:</p>
+<ul>
+<li>the agent may edit Markdown sometimes,</li>
+<li>and HTML sometimes,</li>
+<li>and feed files if needed,</li>
+<li>and maybe the sitemap too,</li>
+</ul>
+<p>you can say:</p>
+<ul>
+<li>the agent may modify canonical post files,</li>
+<li>the build step may regenerate derived artifacts,</li>
+<li>nobody manually edits derived artifacts as part of normal publishing.</li>
+</ul>
+<p>That is a much cleaner permission model.</p>
+<p>It also narrows review. Humans can review the meaning change in the source diff, then review the generated output as confirmation that the build reflected the source correctly.</p>
+<h3>4) Source-first publishing reduces recovery cost</h3>
+<p>The best part of the canonical-source rule is how it behaves under failure.</p>
+<p>If a generated artifact is wrong and the source is right, recovery is cheap:</p>
+<ul>
+<li>delete generated output,</li>
+<li>rerun the build,</li>
+<li>verify the regenerated files.</li>
+</ul>
+<p>If the source and generated output both got edited independently, recovery becomes forensic work. You have to reconstruct which change was intentional and which was merely convenient.</p>
+<p>Small repos feel this as annoyance. Larger systems feel it as operational drag.</p>
+<h3>5) Review source diffs and generated diffs for different reasons</h3>
+<p>These two diffs are not redundant.</p>
+<p>Review the <strong>source diff</strong> to answer:</p>
+<ul>
+<li>what claim changed,</li>
+<li>what wording changed,</li>
+<li>what structure changed,</li>
+<li>whether the post itself is correct.</li>
+</ul>
+<p>Review the <strong>generated diff</strong> to answer:</p>
+<ul>
+<li>did the build touch the expected files,</li>
+<li>did URLs and summaries propagate correctly,</li>
+<li>did any unrelated page change,</li>
+<li>did the generator produce surprising output.</li>
+</ul>
+<p>That split is useful because it keeps meaning review separate from pipeline verification.</p>
+<h2>Steps / Code</h2>
+<h3>Minimal canonical-source policy</h3>
+<pre><code class="language-yaml">content_system:
+  canonical_sources:
+    - &quot;posts/**/*.md&quot;
+
+  derived_artifacts:
+    - &quot;index.html&quot;
+    - &quot;index.json&quot;
+    - &quot;rss.xml&quot;
+    - &quot;sitemap.xml&quot;
+    - &quot;posts/**/index.html&quot;
+    - &quot;tags/*.json&quot;
+
+  rules:
+    - &quot;Humans and agents edit canonical sources.&quot;
+    - &quot;Build scripts regenerate derived artifacts.&quot;
+    - &quot;Direct edits to derived artifacts are rejected or overwritten.&quot;
+</code></pre>
+<h3>Pre-publish check</h3>
+<pre><code class="language-text">1. Edit the Markdown post only.
+2. Run the site build.
+3. Confirm the expected derived files changed.
+4. Reject the publish if a generated-file fix has no matching source change.
+</code></pre>
+<h3>Fast recovery rule</h3>
+<pre><code class="language-text">If source is correct and generated output is wrong:
+rebuild, do not hand-patch.
+</code></pre>
+<h2>Trade-offs</h2>
+<h3>Costs</h3>
+<ol>
+<li>Some quick fixes feel slower because you have to trace them back to the source file.</li>
+<li>Build tooling becomes a required part of the editing workflow.</li>
+<li>Teams need discipline to avoid &quot;just this once&quot; edits in rendered output.</li>
+</ol>
+<h3>Benefits</h3>
+<ol>
+<li>One clear place to make content changes.</li>
+<li>Less drift between posts, feeds, indexes, and rendered pages.</li>
+<li>Cleaner agent permissions and cleaner code review.</li>
+<li>Faster recovery when generated output is wrong.</li>
+</ol>
+<h2>References</h2>
+<ul>
+<li>GitHub Docs, <em>Configuring a publishing source for your GitHub Pages site</em>: <a href="https://docs.github.com/en/pages/getting-started-with-github-pages/configuring-a-publishing-source-for-your-github-pages-site">https://docs.github.com/en/pages/getting-started-with-github-pages/configuring-a-publishing-source-for-your-github-pages-site</a></li>
+<li>This repository README: <a href="https://github.com/My-Slops/Blog">https://github.com/My-Slops/Blog</a></li>
+</ul>
+<h2>Final Take</h2>
+<p>If your publishing agent can edit everything, your system has no real source of truth.</p>
+<p>Pick one canonical artifact. Edit that. Rebuild the rest.</p>
+<p>That is not only cleaner engineering. It is a better trust model.</p>
+<h2>Changelog</h2>
+<ul>
+<li>2026-05-01: Initial publish on canonical-source rules for agent publishing pipelines.</li>
+</ul>
+
+    </article>
+  </body>
+</html>

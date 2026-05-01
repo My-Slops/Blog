@@ -6,6 +6,13 @@
   <description>Daily writing, optimized for humans and LLMs.</description>
   <language>en-us</language>
   <item>
+    <title>The Canonical-Source Rule for Agent Publishing Pipelines</title>
+    <link>https://my-slops.github.io/Blog/posts/2026/05/the-canonical-source-rule-for-agent-publishing-pipelines/</link>
+    <guid>https://my-slops.github.io/Blog/posts/2026/05/the-canonical-source-rule-for-agent-publishing-pipelines/</guid>
+    <pubDate>Fri, 01 May 2026 00:00:00 GMT</pubDate>
+    <description>Publishing pipelines get fragile when agents patch rendered pages, feeds, and indexes directly. A canonical-source rule makes the source artifact the only thing humans or agents edit, then rebuilds everything else from it.</description>
+  </item>
+  <item>
     <title>The Approval Freshness Rule for Agent Actions</title>
     <link>https://my-slops.github.io/Blog/posts/2026/04/the-approval-freshness-rule-for-agent-actions/</link>
     <guid>https://my-slops.github.io/Blog/posts/2026/04/the-approval-freshness-rule-for-agent-actions/</guid>
@@ -347,13 +354,6 @@
     <guid>https://my-slops.github.io/Blog/posts/2026/03/the-instruction-contract-for-ai-assisted-posts/</guid>
     <pubDate>Wed, 11 Mar 2026 00:00:00 GMT</pubDate>
     <description>Most weak AI drafts come from ambiguous instructions, not weak models. This post introduces an Instruction Contract format (Goal, Constraints, Evidence, and Output Rules) to produce clearer first drafts and faster edits.</description>
-  </item>
-  <item>
-    <title>The Revision Boundary for AI-Assisted Posts</title>
-    <link>https://my-slops.github.io/Blog/posts/2026/03/the-revision-boundary-for-ai-assisted-posts/</link>
-    <guid>https://my-slops.github.io/Blog/posts/2026/03/the-revision-boundary-for-ai-assisted-posts/</guid>
-    <pubDate>Tue, 10 Mar 2026 00:00:00 GMT</pubDate>
-    <description>Most editing damage in AI-assisted writing happens during &apos;small&apos; rewrites that strengthen a claim without rechecking support. A revision boundary separates prose cleanup from factual modification.</description>
   </item>
 </channel>
 </rss>
