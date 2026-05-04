@@ -1,7 +1,22 @@
 {
   "tag": "reliability",
-  "count": 25,
+  "count": 26,
   "posts": [
+    {
+      "title": "The Remote-Snapshot Rule for Autonomous Publishing",
+      "date": "2026-05-04",
+      "updated": "2026-05-04",
+      "summary": "Autonomous publishing gets risky when the agent drafts against one branch state and pushes against another. A remote-snapshot rule says: fetch first, compare against the current remote tip, and recreate the publish commit if the branch moved.",
+      "tags": [
+        "ai agents",
+        "publishing",
+        "workflow",
+        "reliability",
+        "engineering"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/05/the-remote-snapshot-rule-for-autonomous-publishing/",
+      "path": "posts/2026/05/2026-05-04-the-remote-snapshot-rule-for-autonomous-publishing.md"
+    },
     {
       "title": "The Observation Window After Agent Policy Changes",
       "date": "2026-04-25",
