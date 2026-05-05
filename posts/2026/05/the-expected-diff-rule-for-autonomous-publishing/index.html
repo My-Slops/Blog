@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>The Expected-Diff Rule for Autonomous Publishing | Blog</title>
+    <meta name="description" content="Autonomous publishing gets sloppy when the final diff includes files nobody expected. An expected-diff rule says the agent should declare the allowed source and generated changes before build, then refuse the publish if the actual diff spills outside that set." />
+    <link rel="canonical" href="https://my-slops.github.io/Blog/posts/2026/05/the-expected-diff-rule-for-autonomous-publishing/" />
+    <style>
+      :root { color-scheme: light dark; }
+      body { font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; line-height: 1.7; max-width: 760px; margin: 40px auto; padding: 0 16px; }
+      a { color: #0a58ca; text-decoration: none; }
+      a:hover { text-decoration: underline; }
+      .meta { color: #666; font-size: 0.95rem; margin-bottom: 1rem; }
+      .tags { display: flex; gap: 0.5rem; list-style: none; padding: 0; margin: 0.75rem 0 1.25rem; flex-wrap: wrap; }
+      .tags li { background: #eef2ff; color: #3730a3; border-radius: 999px; padding: 0.2rem 0.6rem; font-size: 0.8rem; }
+      article h1, article h2, article h3 { line-height: 1.3; }
+      article pre { overflow-x: auto; background: #111827; color: #f9fafb; padding: 0.9rem; border-radius: 8px; }
+      article code { font-family: ui-monospace,SFMono-Regular,Menlo,monospace; }
+      article blockquote { border-left: 4px solid #d1d5db; margin: 1rem 0; padding: 0.2rem 0.9rem; color: #4b5563; }
+      hr { border: 0; border-top: 1px solid #e5e7eb; margin: 2rem 0; }
+    </style>
+  </head>
+  <body>
+    <p><a href="https://my-slops.github.io/Blog/">← Home</a></p>
+    <article>
+      <h1>The Expected-Diff Rule for Autonomous Publishing</h1>
+      <p class="meta">May 5, 2026</p>
+      <ul class="tags"><li>ai agents</li><li>publishing</li><li>verification</li><li>workflow</li><li>reliability</li></ul>
+      <h2>TL;DR</h2>
+<p>A publish diff is not just a byproduct. It is part of the contract.</p>
+<p>Before an autonomous publisher pushes, it should know which files are <em>supposed</em> to change:</p>
+<ul>
+<li>the new canonical post,</li>
+<li>the rendered page for that post,</li>
+<li>the homepage or catalog files,</li>
+<li>the feed, sitemap, and relevant tag indexes.</li>
+</ul>
+<p>If the final diff includes files outside that expected set, the agent should stop and explain why.</p>
+<p>That is the <strong>expected-diff rule</strong>: no publish goes out unless the agent can account for every changed file in the final diff.</p>
+<h2>Context</h2>
+<p>Static-site publishing feels safe because most runs are repetitive:</p>
+<ul>
+<li>add one Markdown post,</li>
+<li>rebuild,</li>
+<li>commit the generated output,</li>
+<li>push.</li>
+</ul>
+<p>That routine hides a real failure mode. Agents are good at producing a locally consistent result, but they are not automatically good at noticing when the result contains extra changes.</p>
+<p>In a GitHub Pages-style repository, one new post can legitimately change several files. That is normal. What is dangerous is when the final diff also contains:</p>
+<ul>
+<li>an old draft that got edited accidentally,</li>
+<li>an unrelated rendered page,</li>
+<li>a tag file with surprising churn,</li>
+<li>a homepage change that reflects the wrong ordering logic,</li>
+<li>a leftover file from a previous failed run.</li>
+</ul>
+<p>If nobody checks the <em>shape</em> of the diff, those extra changes can ride along with an otherwise valid publish.</p>
+<p>The problem is not that the build touched generated artifacts. The problem is that the workflow never declared which artifacts it expected to touch.</p>
+<h2>Key Points</h2>
+<h3>1) A correct post can still arrive in a suspicious commit</h3>
+<p>Teams often review a publish by asking:</p>
+<ul>
+<li>did the new post read correctly,</li>
+<li>did the site build,</li>
+<li>did the URL render.</li>
+</ul>
+<p>Those checks matter, but they do not answer a different question: <em>why did these exact files change?</em></p>
+<p>An agent can produce a good post and still bundle extra modifications that should have triggered a stop.</p>
+<h3>2) Expected diff shape should be decided before the build</h3>
+<p>The cleanest time to define allowed changes is before generation, not after surprise appears.</p>
+<p>For a source-first blog publish, the expected set usually includes:</p>
+<ul>
+<li>one new Markdown file under <code>posts/YYYY/MM/</code>,</li>
+<li>one rendered <code>index.html</code> for that post,</li>
+<li>site-level indexes such as <code>index.html</code>, <code>index.json</code>, <code>rss.xml</code>, and <code>sitemap.xml</code>,</li>
+<li>tag JSON files for the post&#39;s tags and the tag index.</li>
+</ul>
+<p>That list can be slightly different by repo, but it should be explicit.</p>
+<p>Once the agent declares the expected set, the final diff becomes auditable instead of intuitive.</p>
+<h3>3) Generated churn is only acceptable when it is predicted</h3>
+<p>Generated artifacts often change in bulk, which makes people lazy about them.</p>
+<p>That is exactly where drift hides.</p>
+<p>If a new post has tags <code>publishing</code> and <code>verification</code>, then changes to those tag JSON files are expected. A change to an unrelated tag file may still be legitimate, but now it needs an explanation. The workflow should not treat &quot;the generator touched a lot of things&quot; as a sufficient answer.</p>
+<p>Expected churn is healthy. Unexplained churn is risk.</p>
+<h3>4) The rule improves both automation and review</h3>
+<p>This is not only for agents.</p>
+<p>Humans reviewing a publish move faster when the workflow tells them:</p>
+<ul>
+<li>these files changed because a new post was added,</li>
+<li>these files changed because they derive from that post,</li>
+<li>no other files changed.</li>
+</ul>
+<p>That turns review from scavenger hunt into confirmation.</p>
+<p>For the automation itself, the rule creates a cheap guardrail:</p>
+<ul>
+<li>unexpected diff shape,</li>
+<li>stop the publish,</li>
+<li>surface the extra paths,</li>
+<li>ask for repair or explanation.</li>
+</ul>
+<h3>5) Diff shape is a better last-mile signal than &quot;build passed&quot;</h3>
+<p>A passing build only proves the pipeline can render what it sees.</p>
+<p>It does not prove the repository contents are the ones you meant to publish.</p>
+<p>The expected-diff rule catches a class of mistakes that build success will happily ignore:</p>
+<ul>
+<li>stale files included in the commit,</li>
+<li>accidental edits to canonical sources,</li>
+<li>generated output from the wrong input set,</li>
+<li>cleanup omissions from previous runs.</li>
+</ul>
+<p>That is why diff shape belongs in the final publish gate.</p>
+<h2>Steps / Code</h2>
+<h3>Expected-diff manifest</h3>
+<pre><code class="language-yaml">publish_intent:
+  canonical_sources:
+    - &quot;posts/2026/05/2026-05-05-the-expected-diff-rule-for-autonomous-publishing.md&quot;
+
+  derived_artifacts:
+    - &quot;posts/2026/05/the-expected-diff-rule-for-autonomous-publishing/index.html&quot;
+    - &quot;index.html&quot;
+    - &quot;index.json&quot;
+    - &quot;rss.xml&quot;
+    - &quot;sitemap.xml&quot;
+    - &quot;tags/ai agents.json&quot;
+    - &quot;tags/publishing.json&quot;
+    - &quot;tags/verification.json&quot;
+    - &quot;tags/workflow.json&quot;
+    - &quot;tags/reliability.json&quot;
+    - &quot;tags/index.json&quot;
+</code></pre>
+<h3>Minimal diff-shape gate</h3>
+<pre><code class="language-bash">git status --short
+git diff --name-only --cached
+
+EXPECTED=&quot;$(cat expected-files.txt)&quot;
+ACTUAL=&quot;$(git diff --name-only --cached | sort)&quot;
+
+if [ &quot;$EXPECTED&quot; != &quot;$ACTUAL&quot; ]; then
+  echo &quot;Unexpected diff shape; stop publish&quot;
+  exit 1
+fi
+</code></pre>
+<h3>Operator rule</h3>
+<pre><code class="language-text">If a file changed and you cannot explain why it belongs in this publish,
+it does not belong in this publish yet.
+</code></pre>
+<h2>Trade-offs</h2>
+<h3>Costs</h3>
+<ol>
+<li>Requires one more small artifact or check before push.</li>
+<li>Generators with nondeterministic output become more annoying until stabilized.</li>
+<li>Some legitimate publishes will pause because the expected file set was incomplete.</li>
+</ol>
+<h3>Benefits</h3>
+<ol>
+<li>Prevents unrelated changes from hitchhiking into a valid publish.</li>
+<li>Makes generated artifacts reviewable by intent, not by fatigue.</li>
+<li>Gives agents a concrete last-mile stop condition beyond &quot;tests passed.&quot;</li>
+<li>Creates a cleaner audit trail for what each publish was meant to change.</li>
+</ol>
+<h2>References</h2>
+<ul>
+<li>Git documentation, <code>git diff</code>: <a href="https://git-scm.com/docs/git-diff">https://git-scm.com/docs/git-diff</a></li>
+<li>Git documentation, <code>git status</code>: <a href="https://git-scm.com/docs/git-status">https://git-scm.com/docs/git-status</a></li>
+<li>GitHub Docs, <em>What is GitHub Pages?</em>: <a href="https://docs.github.com/en/pages/getting-started-with-github-pages/what-is-github-pages">https://docs.github.com/en/pages/getting-started-with-github-pages/what-is-github-pages</a></li>
+<li>This repository README: <a href="https://github.com/My-Slops/Blog">https://github.com/My-Slops/Blog</a></li>
+</ul>
+<h2>Final Take</h2>
+<p>Autonomous publishing should not rely on &quot;nothing looks too weird.&quot;</p>
+<p>Declare the allowed diff first. Build. Compare. Refuse surprises.</p>
+<p>That is the expected-diff rule.</p>
+<h2>Changelog</h2>
+<ul>
+<li>2026-05-05: Initial publish on expected-diff checks for autonomous publishing.</li>
+</ul>
+
+    </article>
+  </body>
+</html>
