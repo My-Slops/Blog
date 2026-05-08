@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-04-15T14:02:15.417Z",
+  "generated_at": "2026-05-08T14:18:50.104Z",
   "tags": [
     {
       "tag": "agents",
@@ -8,12 +8,12 @@
     },
     {
       "tag": "ai agents",
-      "count": 8,
+      "count": 26,
       "url": "https://my-slops.github.io/Blog/tags/ai agents.json"
     },
     {
       "tag": "ai writing",
-      "count": 21,
+      "count": 28,
       "url": "https://my-slops.github.io/Blog/tags/ai writing.json"
     },
     {
@@ -42,18 +42,23 @@
       "url": "https://my-slops.github.io/Blog/tags/canary.json"
     },
     {
-      "tag": "clarity",
+      "tag": "checklist",
       "count": 1,
+      "url": "https://my-slops.github.io/Blog/tags/checklist.json"
+    },
+    {
+      "tag": "clarity",
+      "count": 2,
       "url": "https://my-slops.github.io/Blog/tags/clarity.json"
     },
     {
       "tag": "consistency",
-      "count": 2,
+      "count": 3,
       "url": "https://my-slops.github.io/Blog/tags/consistency.json"
     },
     {
       "tag": "content quality",
-      "count": 5,
+      "count": 6,
       "url": "https://my-slops.github.io/Blog/tags/content quality.json"
     },
     {
@@ -73,12 +78,12 @@
     },
     {
       "tag": "credibility",
-      "count": 6,
+      "count": 10,
       "url": "https://my-slops.github.io/Blog/tags/credibility.json"
     },
     {
       "tag": "critical thinking",
-      "count": 1,
+      "count": 2,
       "url": "https://my-slops.github.io/Blog/tags/critical thinking.json"
     },
     {
@@ -88,12 +93,12 @@
     },
     {
       "tag": "decision making",
-      "count": 1,
+      "count": 4,
       "url": "https://my-slops.github.io/Blog/tags/decision making.json"
     },
     {
       "tag": "deployment",
-      "count": 4,
+      "count": 6,
       "url": "https://my-slops.github.io/Blog/tags/deployment.json"
     },
     {
@@ -103,23 +108,33 @@
     },
     {
       "tag": "editing",
-      "count": 9,
+      "count": 11,
       "url": "https://my-slops.github.io/Blog/tags/editing.json"
     },
     {
       "tag": "editorial workflow",
-      "count": 10,
+      "count": 14,
       "url": "https://my-slops.github.io/Blog/tags/editorial workflow.json"
     },
     {
       "tag": "engineering",
-      "count": 2,
+      "count": 4,
       "url": "https://my-slops.github.io/Blog/tags/engineering.json"
     },
     {
+      "tag": "escalation",
+      "count": 3,
+      "url": "https://my-slops.github.io/Blog/tags/escalation.json"
+    },
+    {
       "tag": "evals",
-      "count": 7,
+      "count": 8,
       "url": "https://my-slops.github.io/Blog/tags/evals.json"
+    },
+    {
+      "tag": "evidence",
+      "count": 1,
+      "url": "https://my-slops.github.io/Blog/tags/evidence.json"
     },
     {
       "tag": "experimentation",
@@ -128,12 +143,12 @@
     },
     {
       "tag": "fact checking",
-      "count": 4,
+      "count": 5,
       "url": "https://my-slops.github.io/Blog/tags/fact checking.json"
     },
     {
       "tag": "fact-checking",
-      "count": 2,
+      "count": 3,
       "url": "https://my-slops.github.io/Blog/tags/fact-checking.json"
     },
     {
@@ -143,7 +158,7 @@
     },
     {
       "tag": "governance",
-      "count": 1,
+      "count": 8,
       "url": "https://my-slops.github.io/Blog/tags/governance.json"
     },
     {
@@ -153,7 +168,7 @@
     },
     {
       "tag": "incident-response",
-      "count": 1,
+      "count": 2,
       "url": "https://my-slops.github.io/Blog/tags/incident-response.json"
     },
     {
@@ -168,7 +183,7 @@
     },
     {
       "tag": "llm",
-      "count": 13,
+      "count": 15,
       "url": "https://my-slops.github.io/Blog/tags/llm.json"
     },
     {
@@ -182,8 +197,13 @@
       "url": "https://my-slops.github.io/Blog/tags/meta.json"
     },
     {
+      "tag": "monitoring",
+      "count": 1,
+      "url": "https://my-slops.github.io/Blog/tags/monitoring.json"
+    },
+    {
       "tag": "operations",
-      "count": 4,
+      "count": 9,
       "url": "https://my-slops.github.io/Blog/tags/operations.json"
     },
     {
@@ -213,12 +233,12 @@
     },
     {
       "tag": "prompts",
-      "count": 1,
+      "count": 3,
       "url": "https://my-slops.github.io/Blog/tags/prompts.json"
     },
     {
       "tag": "publishing",
-      "count": 1,
+      "count": 6,
       "url": "https://my-slops.github.io/Blog/tags/publishing.json"
     },
     {
@@ -228,12 +248,12 @@
     },
     {
       "tag": "release-engineering",
-      "count": 1,
+      "count": 4,
       "url": "https://my-slops.github.io/Blog/tags/release-engineering.json"
     },
     {
       "tag": "reliability",
-      "count": 19,
+      "count": 27,
       "url": "https://my-slops.github.io/Blog/tags/reliability.json"
     },
     {
@@ -242,8 +262,23 @@
       "url": "https://my-slops.github.io/Blog/tags/research.json"
     },
     {
+      "tag": "review",
+      "count": 1,
+      "url": "https://my-slops.github.io/Blog/tags/review.json"
+    },
+    {
+      "tag": "risk",
+      "count": 1,
+      "url": "https://my-slops.github.io/Blog/tags/risk.json"
+    },
+    {
+      "tag": "rollback",
+      "count": 1,
+      "url": "https://my-slops.github.io/Blog/tags/rollback.json"
+    },
+    {
       "tag": "safety",
-      "count": 2,
+      "count": 12,
       "url": "https://my-slops.github.io/Blog/tags/safety.json"
     },
     {
@@ -267,23 +302,33 @@
       "url": "https://my-slops.github.io/Blog/tags/thinking tools.json"
     },
     {
+      "tag": "tools",
+      "count": 1,
+      "url": "https://my-slops.github.io/Blog/tags/tools.json"
+    },
+    {
       "tag": "trust",
-      "count": 3,
+      "count": 10,
       "url": "https://my-slops.github.io/Blog/tags/trust.json"
     },
     {
+      "tag": "uncertainty",
+      "count": 1,
+      "url": "https://my-slops.github.io/Blog/tags/uncertainty.json"
+    },
+    {
       "tag": "verification",
-      "count": 4,
+      "count": 8,
       "url": "https://my-slops.github.io/Blog/tags/verification.json"
     },
     {
       "tag": "workflow design",
-      "count": 2,
+      "count": 4,
       "url": "https://my-slops.github.io/Blog/tags/workflow design.json"
     },
     {
       "tag": "workflow",
-      "count": 3,
+      "count": 12,
       "url": "https://my-slops.github.io/Blog/tags/workflow.json"
     },
     {

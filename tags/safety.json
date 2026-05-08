@@ -1,7 +1,157 @@
 {
   "tag": "safety",
-  "count": 2,
+  "count": 12,
   "posts": [
+    {
+      "title": "The Clean-Worktree Gate for Autonomous Publishing",
+      "date": "2026-05-08",
+      "updated": "2026-05-08",
+      "summary": "Autonomous publishers should refuse to start from a dirty working tree. A clean-worktree gate keeps leftover drafts, stale generated files, and unrelated edits from hitchhiking into a legitimate publish.",
+      "tags": [
+        "ai agents",
+        "publishing",
+        "verification",
+        "workflow",
+        "safety"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/05/the-clean-worktree-gate-for-autonomous-publishing/",
+      "path": "posts/2026/05/2026-05-08-the-clean-worktree-gate-for-autonomous-publishing.md"
+    },
+    {
+      "title": "The Approval Freshness Rule for Agent Actions",
+      "date": "2026-04-28",
+      "updated": "2026-04-28",
+      "summary": "Agent workflows often fail when they act on old approvals in new conditions. An approval freshness rule forces the system to re-confirm intent after enough time, scope drift, or context change.",
+      "tags": [
+        "ai agents",
+        "governance",
+        "trust",
+        "safety",
+        "operations"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/04/the-approval-freshness-rule-for-agent-actions/",
+      "path": "posts/2026/04/2026-04-28-the-approval-freshness-rule-for-agent-actions.md"
+    },
+    {
+      "title": "The Permission Budget for AI Writing Agents",
+      "date": "2026-04-26",
+      "updated": "2026-04-26",
+      "summary": "If an AI agent helps write publishable work, trust depends on bounded permissions as much as prompting quality. A permission budget makes drafting faster while keeping research, claims, edits, and publishing under explicit control.",
+      "tags": [
+        "ai writing",
+        "ai agents",
+        "credibility",
+        "editorial workflow",
+        "safety"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/04/the-permission-budget-for-ai-writing-agents/",
+      "path": "posts/2026/04/2026-04-26-the-permission-budget-for-ai-writing-agents.md"
+    },
+    {
+      "title": "The Final-Action Checklist for High-Trust Agents",
+      "date": "2026-04-24",
+      "updated": "2026-04-24",
+      "summary": "Many costly agent mistakes happen at the final step, not during planning. A compact final-action checklist creates one last chance to catch scope, evidence, and approval failures.",
+      "tags": [
+        "ai agents",
+        "checklist",
+        "safety",
+        "verification",
+        "trust"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/04/the-final-action-checklist-for-high-trust-agents/",
+      "path": "posts/2026/04/2026-04-24-the-final-action-checklist-for-high-trust-agents.md"
+    },
+    {
+      "title": "The Confidence Threshold for Agent Escalation",
+      "date": "2026-04-23",
+      "updated": "2026-04-23",
+      "summary": "High-impact actions do not all need the same escalation rule. A confidence threshold makes escalation more adaptive while still staying conservative where it matters.",
+      "tags": [
+        "ai agents",
+        "uncertainty",
+        "escalation",
+        "safety",
+        "decision making"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/04/the-confidence-threshold-for-agent-escalation/",
+      "path": "posts/2026/04/2026-04-23-the-confidence-threshold-for-agent-escalation.md"
+    },
+    {
+      "title": "The Small-Blast-Radius Default for Tool Upgrades",
+      "date": "2026-04-20",
+      "updated": "2026-04-20",
+      "summary": "Tool upgrades are not just infrastructure changes; they alter what an agent can do. Starting with a small blast radius is the simplest way to learn safely.",
+      "tags": [
+        "ai agents",
+        "tools",
+        "deployment",
+        "safety",
+        "reliability"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/04/the-small-blast-radius-default-for-tool-upgrades/",
+      "path": "posts/2026/04/2026-04-20-the-small-blast-radius-default-for-tool-upgrades.md"
+    },
+    {
+      "title": "The Quiet-Hours Rule for Autonomous Changes",
+      "date": "2026-04-17",
+      "updated": "2026-04-17",
+      "summary": "Autonomous systems should not have identical authority at 2 p.m. and 2 a.m. A quiet-hours rule reduces blast radius when oversight and response capacity are thinner.",
+      "tags": [
+        "ai agents",
+        "operations",
+        "governance",
+        "safety",
+        "reliability"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/04/the-quiet-hours-rule-for-autonomous-changes/",
+      "path": "posts/2026/04/2026-04-17-the-quiet-hours-rule-for-autonomous-changes.md"
+    },
+    {
+      "title": "The Policy Diff Before You Ship an Agent Change",
+      "date": "2026-04-11",
+      "updated": "2026-04-11",
+      "summary": "Agent changes often ship as prompt tweaks or policy edits that are hard to inspect. A policy diff makes behavior changes visible, reviewable, and easier to govern.",
+      "tags": [
+        "ai agents",
+        "governance",
+        "prompts",
+        "release-engineering",
+        "safety"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/04/the-policy-diff-before-you-ship-an-agent-change/",
+      "path": "posts/2026/04/2026-04-11-the-policy-diff-before-you-ship-an-agent-change.md"
+    },
+    {
+      "title": "The Escalation Path for High-Impact Agent Actions",
+      "date": "2026-03-29",
+      "updated": "2026-03-29",
+      "summary": "Many agent failures come from doing too much under ambiguity instead of escalating. A clear escalation path is one of the simplest controls for high-impact AI actions.",
+      "tags": [
+        "ai agents",
+        "safety",
+        "escalation",
+        "governance",
+        "trust"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/03/the-escalation-path-for-high-impact-agent-actions/",
+      "path": "posts/2026/03/2026-03-29-the-escalation-path-for-high-impact-agent-actions.md"
+    },
+    {
+      "title": "Capability Leaks Are How Writing Agents Become Ops Risk",
+      "date": "2026-03-28",
+      "updated": "2026-03-28",
+      "summary": "An AI writing assistant turns into an ops risk when extra permissions accumulate quietly. Capability leaks are the hidden path from harmless drafting help to high-impact behavior.",
+      "tags": [
+        "ai agents",
+        "ai writing",
+        "safety",
+        "workflow",
+        "risk"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/03/capability-leaks-are-how-writing-agents-become-ops-risk/",
+      "path": "posts/2026/03/2026-03-28-capability-leaks-are-how-writing-agents-become-ops-risk.md"
+    },
     {
       "title": "The Untrusted-Content Boundary for AI Writing Agents",
       "date": "2026-03-24",

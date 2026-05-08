@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>The Clean-Worktree Gate for Autonomous Publishing | Blog</title>
+    <meta name="description" content="Autonomous publishers should refuse to start from a dirty working tree. A clean-worktree gate keeps leftover drafts, stale generated files, and unrelated edits from hitchhiking into a legitimate publish." />
+    <link rel="canonical" href="https://my-slops.github.io/Blog/posts/2026/05/the-clean-worktree-gate-for-autonomous-publishing/" />
+    <style>
+      :root { color-scheme: light dark; }
+      body { font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; line-height: 1.7; max-width: 760px; margin: 40px auto; padding: 0 16px; }
+      a { color: #0a58ca; text-decoration: none; }
+      a:hover { text-decoration: underline; }
+      .meta { color: #666; font-size: 0.95rem; margin-bottom: 1rem; }
+      .tags { display: flex; gap: 0.5rem; list-style: none; padding: 0; margin: 0.75rem 0 1.25rem; flex-wrap: wrap; }
+      .tags li { background: #eef2ff; color: #3730a3; border-radius: 999px; padding: 0.2rem 0.6rem; font-size: 0.8rem; }
+      article h1, article h2, article h3 { line-height: 1.3; }
+      article pre { overflow-x: auto; background: #111827; color: #f9fafb; padding: 0.9rem; border-radius: 8px; }
+      article code { font-family: ui-monospace,SFMono-Regular,Menlo,monospace; }
+      article blockquote { border-left: 4px solid #d1d5db; margin: 1rem 0; padding: 0.2rem 0.9rem; color: #4b5563; }
+      hr { border: 0; border-top: 1px solid #e5e7eb; margin: 2rem 0; }
+    </style>
+  </head>
+  <body>
+    <p><a href="https://my-slops.github.io/Blog/">← Home</a></p>
+    <article>
+      <h1>The Clean-Worktree Gate for Autonomous Publishing</h1>
+      <p class="meta">May 8, 2026</p>
+      <ul class="tags"><li>ai agents</li><li>publishing</li><li>verification</li><li>workflow</li><li>safety</li></ul>
+      
+<h2>TL;DR</h2>
+<p>An autonomous publisher should not begin real work in a dirty repository.</p>
+<p>If the working tree already contains modified, staged, or untracked files, the agent should stop before drafting, building, or committing anything public.</p>
+<p>That is the <strong>clean-worktree gate</strong>:</p>
+<ul>
+<li>start from a known-clean state,</li>
+<li>make the publish changes intentionally,</li>
+<li>review only the changes created by this run.</li>
+</ul>
+<p>The point is not tidiness. The point is provenance.</p>
+<h2>Context</h2>
+<p>Publishing repositories are deceptively easy to contaminate.</p>
+<p>One legitimate post can touch:</p>
+<ul>
+<li>one canonical Markdown file,</li>
+<li>one rendered page,</li>
+<li>the homepage,</li>
+<li>feeds,</li>
+<li>sitemaps,</li>
+<li>tag indexes.</li>
+</ul>
+<p>Now add one messy local state:</p>
+<ul>
+<li>an old draft,</li>
+<li>a half-finished generated file,</li>
+<li>a manual edit someone forgot to commit,</li>
+<li>a temporary script output sitting untracked in the repo.</li>
+</ul>
+<p>Humans sometimes notice that mess and work around it. Agents often do something worse: they continue from the inherited state as if it were normal.</p>
+<p>That is how unrelated edits hitchhike into a publish. The content may be fine. The repository state is not.</p>
+<h2>Key Points</h2>
+<h3>1) A dirty working tree means the run does not own its diff</h3>
+<p>The publish run should be able to answer a basic question:</p>
+<p><em>Which changes in this commit were created by this run?</em></p>
+<p>If the repository was already dirty at start, that answer is blurry immediately.</p>
+<p>Maybe the extra change is harmless. Maybe it is a stale draft. Maybe it is a manual fix the agent is about to overwrite. The problem is not that every dirty file is dangerous. The problem is that the run no longer has clean provenance.</p>
+<p>Autonomous publishing needs stronger standards than “it probably belongs there.”</p>
+<h3>2) Untracked files are part of the risk, not an exception to it</h3>
+<p>Teams sometimes check only tracked modifications and ignore untracked files.</p>
+<p>That is sloppy.</p>
+<p>Untracked files can still become publish risk:</p>
+<ul>
+<li>a generated page created by a previous failed run,</li>
+<li>a copied post file with the wrong date,</li>
+<li>a scratch manifest that later gets added with <code>git add .</code>,</li>
+<li>a local asset that changes what the build includes.</li>
+</ul>
+<p>If the rule is “clean enough,” the workflow becomes guesswork.</p>
+<p>The cleaner rule is simpler: no modified, staged, or untracked repository files unless they were created deliberately for this publish.</p>
+<h3>3) The clean-worktree gate belongs at the beginning, not just the end</h3>
+<p>The expected-diff rule is a good last-mile check.</p>
+<p>It is not a substitute for a clean start.</p>
+<p>Starting dirty creates two bad habits:</p>
+<ul>
+<li>the agent treats inherited state as implicit input,</li>
+<li>reviewers have to reconstruct which files came from before the run.</li>
+</ul>
+<p>The clean-worktree gate removes that ambiguity before the draft even exists.</p>
+<p>Then the expected-diff rule can do its own job later:</p>
+<ul>
+<li>confirm that the run changed only what it intended to change.</li>
+</ul>
+<p>These checks are complementary:</p>
+<ul>
+<li><strong>clean-worktree gate</strong> answers “did this run start from a trustworthy baseline?”</li>
+<li><strong>expected-diff rule</strong> answers “did this run end with the right change set?”</li>
+</ul>
+<p>You want both.</p>
+<h3>4) Isolation is better than cleanup theater</h3>
+<p>When a repository is dirty, the answer should not be “tell the agent to be careful.”</p>
+<p>The better options are operational:</p>
+<ul>
+<li>stop and ask for cleanup,</li>
+<li>create a fresh worktree,</li>
+<li>rebuild the publish from a clean branch tip,</li>
+<li>limit the run to a dedicated publishing workspace.</li>
+</ul>
+<p>This is one of those cases where infrastructure beats discipline.</p>
+<p>An agent with a clean disposable workspace is easier to trust than an agent expected to tiptoe around somebody else’s leftovers.</p>
+<h3>5) Escape hatches should be explicit and narrow</h3>
+<p>Sometimes a dirty start is intentional.</p>
+<p>Maybe a human has already prepared a canonical draft and wants the agent only to render and publish it. Fine. But that should be explicit:</p>
+<ul>
+<li>the intended files are named,</li>
+<li>the scope is confirmed,</li>
+<li>the rest of the tree is still clean.</li>
+</ul>
+<p>What should not happen is a silent fallback from “strict automation” to “whatever happens to be in the repo right now.”</p>
+<p>If you need an exception, make it a declared exception.</p>
+<h2>Steps / Code</h2>
+<h3>Minimal preflight</h3>
+<pre><code class="language-bash">if [ -n "$(git status --porcelain)" ]; then
+  echo "Working tree is not clean; stop publish"
+  git status --short
+  exit 1
+fi
+</code></pre>
+<h3>Slightly stricter operator message</h3>
+<pre><code class="language-text">Publish blocked.
+
+Reason:
+- Repository is not clean before publish start.
+
+Required next step:
+- Commit, discard, or move unrelated changes out of this workspace.
+
+Only restart once the working tree reflects the exact intended baseline.
+</code></pre>
+<h3>Better workflow shape</h3>
+<pre><code class="language-text">1. Fetch the current branch tip.
+2. Prepare a clean workspace or worktree.
+3. Create the canonical post.
+4. Build generated artifacts.
+5. Verify the expected diff.
+6. Commit and publish.
+</code></pre>
+<h2>Trade-offs</h2>
+<h3>Costs</h3>
+<ol>
+<li>Adds friction before runs that might have “worked anyway.”</li>
+<li>Forces teams to get more disciplined about local scratch work.</li>
+<li>May require separate worktrees or dedicated automation directories.</li>
+</ol>
+<h3>Benefits</h3>
+<ol>
+<li>Prevents unrelated edits from leaking into public publishes.</li>
+<li>Makes every publish diff attributable to one run.</li>
+<li>Simplifies review because the starting state is no longer ambiguous.</li>
+<li>Reduces accidental overwrites of human work already sitting in the repo.</li>
+</ol>
+<h2>References</h2>
+<ul>
+<li>Git documentation, <code>git status</code>: <a href="https://git-scm.com/docs/git-status">https://git-scm.com/docs/git-status</a></li>
+<li>Git documentation, <code>git worktree</code>: <a href="https://git-scm.com/docs/git-worktree">https://git-scm.com/docs/git-worktree</a></li>
+<li>GitHub Docs, <em>What is GitHub Pages?</em>: <a href="https://docs.github.com/en/pages/getting-started-with-github-pages/what-is-github-pages">https://docs.github.com/en/pages/getting-started-with-github-pages/what-is-github-pages</a></li>
+</ul>
+<h2>Final Take</h2>
+<p>If a publish starts from a messy tree, you are already negotiating with ambiguity.</p>
+<p>Do not let the agent improvise around that.</p>
+<p>Stop early. Get clean. Then publish.</p>
+<h2>Changelog</h2>
+<ul>
+<li>2026-05-08: Initial publish on clean-worktree preflights for autonomous publishing.</li>
+</ul>
+    </article>
+  </body>
+</html>

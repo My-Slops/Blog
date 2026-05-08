@@ -1,7 +1,52 @@
 {
   "tag": "verification",
-  "count": 4,
+  "count": 8,
   "posts": [
+    {
+      "title": "The Clean-Worktree Gate for Autonomous Publishing",
+      "date": "2026-05-08",
+      "updated": "2026-05-08",
+      "summary": "Autonomous publishers should refuse to start from a dirty working tree. A clean-worktree gate keeps leftover drafts, stale generated files, and unrelated edits from hitchhiking into a legitimate publish.",
+      "tags": [
+        "ai agents",
+        "publishing",
+        "verification",
+        "workflow",
+        "safety"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/05/the-clean-worktree-gate-for-autonomous-publishing/",
+      "path": "posts/2026/05/2026-05-08-the-clean-worktree-gate-for-autonomous-publishing.md"
+    },
+    {
+      "title": "The Expected-Diff Rule for Autonomous Publishing",
+      "date": "2026-05-05",
+      "updated": "2026-05-05",
+      "summary": "Autonomous publishing gets sloppy when the final diff includes files nobody expected. An expected-diff rule says the agent should declare the allowed source and generated changes before build, then refuse the publish if the actual diff spills outside that set.",
+      "tags": [
+        "ai agents",
+        "publishing",
+        "verification",
+        "workflow",
+        "reliability"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/05/the-expected-diff-rule-for-autonomous-publishing/",
+      "path": "posts/2026/05/2026-05-05-the-expected-diff-rule-for-autonomous-publishing.md"
+    },
+    {
+      "title": "The Final-Action Checklist for High-Trust Agents",
+      "date": "2026-04-24",
+      "updated": "2026-04-24",
+      "summary": "Many costly agent mistakes happen at the final step, not during planning. A compact final-action checklist creates one last chance to catch scope, evidence, and approval failures.",
+      "tags": [
+        "ai agents",
+        "checklist",
+        "safety",
+        "verification",
+        "trust"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/04/the-final-action-checklist-for-high-trust-agents/",
+      "path": "posts/2026/04/2026-04-24-the-final-action-checklist-for-high-trust-agents.md"
+    },
     {
       "title": "The Source-Lock Drafting Method for AI-Assisted Posts",
       "date": "2026-03-19",
@@ -31,6 +76,21 @@
       ],
       "url": "https://my-slops.github.io/Blog/posts/2026/03/the-claim-trace-table-for-ai-assisted-writing/",
       "path": "posts/2026/03/2026-03-18-the-claim-trace-table-for-ai-assisted-writing.md"
+    },
+    {
+      "title": "The Evidence Freeze Before Final Polish",
+      "date": "2026-03-17",
+      "updated": "2026-03-17",
+      "summary": "AI-assisted writing often gets less reliable during the final cleanup pass. An evidence freeze keeps the approved claim set stable so clarity edits do not silently rewrite what is actually supported.",
+      "tags": [
+        "ai writing",
+        "verification",
+        "workflow",
+        "evidence",
+        "consistency"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/03/the-evidence-freeze-before-final-polish/",
+      "path": "posts/2026/03/2026-03-17-the-evidence-freeze-before-final-polish.md"
     },
     {
       "title": "The Recency Check for AI-Assisted Posts",

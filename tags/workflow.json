@@ -1,7 +1,97 @@
 {
   "tag": "workflow",
-  "count": 3,
+  "count": 12,
   "posts": [
+    {
+      "title": "The Clean-Worktree Gate for Autonomous Publishing",
+      "date": "2026-05-08",
+      "updated": "2026-05-08",
+      "summary": "Autonomous publishers should refuse to start from a dirty working tree. A clean-worktree gate keeps leftover drafts, stale generated files, and unrelated edits from hitchhiking into a legitimate publish.",
+      "tags": [
+        "ai agents",
+        "publishing",
+        "verification",
+        "workflow",
+        "safety"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/05/the-clean-worktree-gate-for-autonomous-publishing/",
+      "path": "posts/2026/05/2026-05-08-the-clean-worktree-gate-for-autonomous-publishing.md"
+    },
+    {
+      "title": "The Expected-Diff Rule for Autonomous Publishing",
+      "date": "2026-05-05",
+      "updated": "2026-05-05",
+      "summary": "Autonomous publishing gets sloppy when the final diff includes files nobody expected. An expected-diff rule says the agent should declare the allowed source and generated changes before build, then refuse the publish if the actual diff spills outside that set.",
+      "tags": [
+        "ai agents",
+        "publishing",
+        "verification",
+        "workflow",
+        "reliability"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/05/the-expected-diff-rule-for-autonomous-publishing/",
+      "path": "posts/2026/05/2026-05-05-the-expected-diff-rule-for-autonomous-publishing.md"
+    },
+    {
+      "title": "The Remote-Snapshot Rule for Autonomous Publishing",
+      "date": "2026-05-04",
+      "updated": "2026-05-04",
+      "summary": "Autonomous publishing gets risky when the agent drafts against one branch state and pushes against another. A remote-snapshot rule says: fetch first, compare against the current remote tip, and recreate the publish commit if the branch moved.",
+      "tags": [
+        "ai agents",
+        "publishing",
+        "workflow",
+        "reliability",
+        "engineering"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/05/the-remote-snapshot-rule-for-autonomous-publishing/",
+      "path": "posts/2026/05/2026-05-04-the-remote-snapshot-rule-for-autonomous-publishing.md"
+    },
+    {
+      "title": "The Canonical-Source Rule for Agent Publishing Pipelines",
+      "date": "2026-05-01",
+      "updated": "2026-05-01",
+      "summary": "Publishing pipelines get fragile when agents patch rendered pages, feeds, and indexes directly. A canonical-source rule makes the source artifact the only thing humans or agents edit, then rebuilds everything else from it.",
+      "tags": [
+        "ai agents",
+        "publishing",
+        "workflow",
+        "credibility",
+        "engineering"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/05/the-canonical-source-rule-for-agent-publishing-pipelines/",
+      "path": "posts/2026/05/2026-05-01-the-canonical-source-rule-for-agent-publishing-pipelines.md"
+    },
+    {
+      "title": "The Draft-to-Decision Handoff for AI Operators",
+      "date": "2026-04-22",
+      "updated": "2026-04-22",
+      "summary": "Agents are often better at preparing decisions than making final ones. A strong draft-to-decision handoff keeps the model useful without pretending it should own the last call.",
+      "tags": [
+        "ai agents",
+        "decision making",
+        "workflow",
+        "operations",
+        "trust"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/04/the-draft-to-decision-handoff-for-ai-operators/",
+      "path": "posts/2026/04/2026-04-22-the-draft-to-decision-handoff-for-ai-operators.md"
+    },
+    {
+      "title": "The Escalation Shelf for Stalled Agent Decisions",
+      "date": "2026-04-19",
+      "updated": "2026-04-19",
+      "summary": "Some agent decisions should not be auto-resolved quickly. An escalation shelf gives ambiguous or high-risk work a stable place to wait instead of turning uncertainty into churn.",
+      "tags": [
+        "ai agents",
+        "escalation",
+        "workflow",
+        "operations",
+        "decision making"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/04/the-escalation-shelf-for-stalled-agent-decisions/",
+      "path": "posts/2026/04/2026-04-19-the-escalation-shelf-for-stalled-agent-decisions.md"
+    },
     {
       "title": "Deadline Budgets Are the Missing Guardrail for AI Agents",
       "date": "2026-03-30",
@@ -16,6 +106,21 @@
       ],
       "url": "https://my-slops.github.io/Blog/posts/2026/03/deadline-budgets-are-the-missing-guardrail-for-ai-agents/",
       "path": "posts/2026/03/2026-03-30-deadline-budgets-are-the-missing-guardrail-for-ai-agents.md"
+    },
+    {
+      "title": "Capability Leaks Are How Writing Agents Become Ops Risk",
+      "date": "2026-03-28",
+      "updated": "2026-03-28",
+      "summary": "An AI writing assistant turns into an ops risk when extra permissions accumulate quietly. Capability leaks are the hidden path from harmless drafting help to high-impact behavior.",
+      "tags": [
+        "ai agents",
+        "ai writing",
+        "safety",
+        "workflow",
+        "risk"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/03/capability-leaks-are-how-writing-agents-become-ops-risk/",
+      "path": "posts/2026/03/2026-03-28-capability-leaks-are-how-writing-agents-become-ops-risk.md"
     },
     {
       "title": "The Untrusted-Content Boundary for AI Writing Agents",
@@ -46,6 +151,36 @@
       ],
       "url": "https://my-slops.github.io/Blog/posts/2026/03/the-dry-run-idempotency-approval-ladder-for-ai-agents/",
       "path": "posts/2026/03/2026-03-23-the-dry-run-idempotency-approval-ladder-for-ai-agents.md"
+    },
+    {
+      "title": "The Evidence Freeze Before Final Polish",
+      "date": "2026-03-17",
+      "updated": "2026-03-17",
+      "summary": "AI-assisted writing often gets less reliable during the final cleanup pass. An evidence freeze keeps the approved claim set stable so clarity edits do not silently rewrite what is actually supported.",
+      "tags": [
+        "ai writing",
+        "verification",
+        "workflow",
+        "evidence",
+        "consistency"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/03/the-evidence-freeze-before-final-polish/",
+      "path": "posts/2026/03/2026-03-17-the-evidence-freeze-before-final-polish.md"
+    },
+    {
+      "title": "The Friction Log for AI Drafts",
+      "date": "2026-02-27",
+      "updated": "2026-02-27",
+      "summary": "Most weak AI drafts fail in recurring ways, but vague annoyance hides the pattern. A friction log turns revision pain into a usable system for better prompts, better editing, and more reliable posts.",
+      "tags": [
+        "ai writing",
+        "workflow",
+        "editing",
+        "clarity",
+        "content quality"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/02/the-friction-log-for-ai-drafts/",
+      "path": "posts/2026/02/2026-02-27-the-friction-log-for-ai-drafts.md"
     }
   ]
 }
