@@ -1,7 +1,52 @@
 {
   "tag": "editorial workflow",
-  "count": 10,
+  "count": 14,
   "posts": [
+    {
+      "title": "The Permission Budget for AI Writing Agents",
+      "date": "2026-04-26",
+      "updated": "2026-04-26",
+      "summary": "If an AI agent helps write publishable work, trust depends on bounded permissions as much as prompting quality. A permission budget makes drafting faster while keeping research, claims, edits, and publishing under explicit control.",
+      "tags": [
+        "ai writing",
+        "ai agents",
+        "credibility",
+        "editorial workflow",
+        "safety"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/04/the-permission-budget-for-ai-writing-agents/",
+      "path": "posts/2026/04/2026-04-26-the-permission-budget-for-ai-writing-agents.md"
+    },
+    {
+      "title": "The Approval Surface for Publishing Agents",
+      "date": "2026-04-18",
+      "updated": "2026-04-18",
+      "summary": "If a publishing agent only has one approval gate at the end, you may be approving too late. Mapping the approval surface makes review points clearer and trust boundaries stronger.",
+      "tags": [
+        "ai agents",
+        "publishing",
+        "editorial workflow",
+        "governance",
+        "trust"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/04/the-approval-surface-for-publishing-agents/",
+      "path": "posts/2026/04/2026-04-18-the-approval-surface-for-publishing-agents.md"
+    },
+    {
+      "title": "The Human Readback Gate for Prompt Rollouts",
+      "date": "2026-04-09",
+      "updated": "2026-04-09",
+      "summary": "Metrics can miss awkward confidence, subtle tone drift, and misleading framing. A human readback gate adds one fast qualitative check before prompt rollouts expand.",
+      "tags": [
+        "llm",
+        "prompts",
+        "reliability",
+        "editorial workflow",
+        "deployment"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/04/the-human-readback-gate-for-prompt-rollouts/",
+      "path": "posts/2026/04/2026-04-09-the-human-readback-gate-for-prompt-rollouts.md"
+    },
     {
       "title": "The Disagreement Pass: a 12-Minute Check That Catches AI Writing Errors",
       "date": "2026-03-23",
@@ -155,6 +200,21 @@
       ],
       "url": "https://my-slops.github.io/Blog/posts/2026/03/the-instruction-contract-for-ai-assisted-posts/",
       "path": "posts/2026/03/2026-03-11-the-instruction-contract-for-ai-assisted-posts.md"
+    },
+    {
+      "title": "Credibility Is a Workflow, Not a Tone",
+      "date": "2026-03-01",
+      "updated": "2026-03-01",
+      "summary": "People often mistake fluent tone for trustworthy writing. Real credibility comes from the workflow behind the draft: provenance, uncertainty handling, review boundaries, and explicit approval before publication.",
+      "tags": [
+        "ai writing",
+        "credibility",
+        "fact-checking",
+        "editorial workflow",
+        "trust"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/03/credibility-is-a-workflow-not-a-tone/",
+      "path": "posts/2026/03/2026-03-01-credibility-is-a-workflow-not-a-tone.md"
     }
   ]
 }

@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>The Confidence Threshold for Agent Escalation | Blog</title>
+    <meta name="description" content="High-impact actions do not all need the same escalation rule. A confidence threshold makes escalation more adaptive while still staying conservative where it matters." />
+    <link rel="canonical" href="https://my-slops.github.io/Blog/posts/2026/04/the-confidence-threshold-for-agent-escalation/" />
+    <style>
+      :root { color-scheme: light dark; }
+      body { font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; line-height: 1.7; max-width: 760px; margin: 40px auto; padding: 0 16px; }
+      a { color: #0a58ca; text-decoration: none; }
+      a:hover { text-decoration: underline; }
+      .meta { color: #666; font-size: 0.95rem; margin-bottom: 1rem; }
+      .tags { display: flex; gap: 0.5rem; list-style: none; padding: 0; margin: 0.75rem 0 1.25rem; flex-wrap: wrap; }
+      .tags li { background: #eef2ff; color: #3730a3; border-radius: 999px; padding: 0.2rem 0.6rem; font-size: 0.8rem; }
+      article h1, article h2, article h3 { line-height: 1.3; }
+      article pre { overflow-x: auto; background: #111827; color: #f9fafb; padding: 0.9rem; border-radius: 8px; }
+      article code { font-family: ui-monospace,SFMono-Regular,Menlo,monospace; }
+      article blockquote { border-left: 4px solid #d1d5db; margin: 1rem 0; padding: 0.2rem 0.9rem; color: #4b5563; }
+      hr { border: 0; border-top: 1px solid #e5e7eb; margin: 2rem 0; }
+    </style>
+  </head>
+  <body>
+    <p><a href="https://my-slops.github.io/Blog/">← Home</a></p>
+    <article>
+      <h1>The Confidence Threshold for Agent Escalation</h1>
+      <p class="meta">Apr 23, 2026</p>
+      <ul class="tags"><li>ai agents</li><li>uncertainty</li><li>escalation</li><li>safety</li><li>decision making</li></ul>
+      <h2>TL;DR</h2>
+<p>Impact alone is not always enough to decide whether an agent should escalate.</p>
+<p>You also need to ask how confident the system is, and whether that confidence is trustworthy.</p>
+<p>A <strong>confidence threshold</strong> for escalation means:</p>
+<ul>
+<li>high-impact + low-confidence -&gt; escalate,</li>
+<li>high-impact + ambiguous evidence -&gt; escalate,</li>
+<li>lower-impact + strong confidence -&gt; maybe continue within scope.</li>
+</ul>
+<p>This creates a more calibrated exit from autonomous mode.</p>
+<h2>Context</h2>
+<p>Escalation policies are often binary. That is sometimes correct, especially for irreversible or public actions. But many workflows have a middle band where confidence quality matters.</p>
+<p>The challenge is not just whether the model reports confidence. It is whether the workflow interprets confidence conservatively. OpenAI’s uncertainty work is relevant here: useful systems should be able to express when they are not sure. Operationally, that should affect whether they keep acting.</p>
+<h2>Key Points</h2>
+<h3>1) Low-confidence action should be treated differently from low-confidence drafting</h3>
+<p>If a draft paragraph is uncertain, you can mark it or revise it.</p>
+<p>If a file write, rollout change, or external message is uncertain, you may need to stop entirely.</p>
+<h3>2) Confidence needs evidence, not vibes</h3>
+<p>Good signals might include:</p>
+<ul>
+<li>conflicting inputs,</li>
+<li>missing tool results,</li>
+<li>weak source support,</li>
+<li>policy ambiguity,</li>
+<li>unusual argument shapes.</li>
+</ul>
+<p>The threshold should respond to those conditions.</p>
+<h3>3) Confidence thresholds work best within bounded scopes</h3>
+<p>They are not a reason to allow broad autonomy everywhere.</p>
+<p>They are a refinement inside a system that already has:</p>
+<ul>
+<li>scoped tools,</li>
+<li>approval gates,</li>
+<li>safe defaults.</li>
+</ul>
+<h3>4) Escalation should include the reason confidence was weak</h3>
+<p>Otherwise humans just inherit a vague warning.</p>
+<p>The payload should say:</p>
+<ul>
+<li>what was unclear,</li>
+<li>what checks failed,</li>
+<li>what safe fallback exists.</li>
+</ul>
+<h3>5) Publishing and policy workflows benefit from conservative thresholds</h3>
+<p>If the workflow affects public output or system behavior, it is usually better to escalate too early than too late.</p>
+<h2>Steps / Code</h2>
+<h3>Threshold rule</h3>
+<pre><code class="language-text">If action impact is medium/high and confidence is weak or evidence is incomplete,
+escalate with rationale instead of acting.
+</code></pre>
+<h2>Trade-offs</h2>
+<h3>Costs</h3>
+<ol>
+<li>More escalations.</li>
+<li>Requires some confidence instrumentation or heuristics.</li>
+<li>Possible slowdown on borderline cases.</li>
+</ol>
+<h3>Benefits</h3>
+<ol>
+<li>Better calibration of autonomy.</li>
+<li>Lower risk of bad high-impact guesses.</li>
+<li>More explainable escalation behavior.</li>
+<li>Cleaner boundary between drafting uncertainty and action uncertainty.</li>
+</ol>
+<h2>References</h2>
+<ul>
+<li>OpenAI, <em>Teaching models to express their uncertainty in words</em>: <a href="https://openai.com/index/teaching-models-to-express-their-uncertainty-in-words/">https://openai.com/index/teaching-models-to-express-their-uncertainty-in-words/</a></li>
+<li>NIST, <em>Artificial Intelligence Risk Management Framework: Generative Artificial Intelligence Profile</em>: <a href="https://doi.org/10.6028/NIST.AI.600-1">https://doi.org/10.6028/NIST.AI.600-1</a></li>
+</ul>
+<h2>Final Take</h2>
+<p>Agents do not just need action thresholds.</p>
+<p>They also need confidence thresholds for when to stop acting.</p>
+<h2>Changelog</h2>
+<ul>
+<li>2026-04-23: Initial publish on confidence thresholds for agent escalation.</li>
+</ul>
+
+    </article>
+  </body>
+</html>

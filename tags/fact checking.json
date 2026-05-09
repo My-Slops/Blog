@@ -1,6 +1,6 @@
 {
   "tag": "fact checking",
-  "count": 4,
+  "count": 5,
   "posts": [
     {
       "title": "The Counterexample Pass for AI-Assisted Posts",
@@ -32,6 +32,21 @@
       ],
       "url": "https://my-slops.github.io/Blog/posts/2026/03/the-uncertainty-label-protocol-for-ai-assisted-posts/",
       "path": "posts/2026/03/2026-03-12-the-uncertainty-label-protocol-for-ai-assisted-posts.md"
+    },
+    {
+      "title": "The Revision Boundary for AI-Assisted Posts",
+      "date": "2026-03-10",
+      "updated": "2026-03-10",
+      "summary": "Most editing damage in AI-assisted writing happens during 'small' rewrites that strengthen a claim without rechecking support. A revision boundary separates prose cleanup from factual modification.",
+      "tags": [
+        "ai writing",
+        "editing",
+        "fact checking",
+        "workflow design",
+        "credibility"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/03/the-revision-boundary-for-ai-assisted-posts/",
+      "path": "posts/2026/03/2026-03-10-the-revision-boundary-for-ai-assisted-posts.md"
     },
     {
       "title": "The Verification-Debt Loop in AI-Assisted Writing",

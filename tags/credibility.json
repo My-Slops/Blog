@@ -1,7 +1,37 @@
 {
   "tag": "credibility",
-  "count": 6,
+  "count": 10,
   "posts": [
+    {
+      "title": "The Canonical-Source Rule for Agent Publishing Pipelines",
+      "date": "2026-05-01",
+      "updated": "2026-05-01",
+      "summary": "Publishing pipelines get fragile when agents patch rendered pages, feeds, and indexes directly. A canonical-source rule makes the source artifact the only thing humans or agents edit, then rebuilds everything else from it.",
+      "tags": [
+        "ai agents",
+        "publishing",
+        "workflow",
+        "credibility",
+        "engineering"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/05/the-canonical-source-rule-for-agent-publishing-pipelines/",
+      "path": "posts/2026/05/2026-05-01-the-canonical-source-rule-for-agent-publishing-pipelines.md"
+    },
+    {
+      "title": "The Permission Budget for AI Writing Agents",
+      "date": "2026-04-26",
+      "updated": "2026-04-26",
+      "summary": "If an AI agent helps write publishable work, trust depends on bounded permissions as much as prompting quality. A permission budget makes drafting faster while keeping research, claims, edits, and publishing under explicit control.",
+      "tags": [
+        "ai writing",
+        "ai agents",
+        "credibility",
+        "editorial workflow",
+        "safety"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/04/the-permission-budget-for-ai-writing-agents/",
+      "path": "posts/2026/04/2026-04-26-the-permission-budget-for-ai-writing-agents.md"
+    },
     {
       "title": "The Evidence-Weighting Pass for AI-Assisted Posts",
       "date": "2026-03-15",
@@ -33,6 +63,21 @@
       ],
       "url": "https://my-slops.github.io/Blog/posts/2026/03/the-reproducibility-note-for-ai-assisted-posts/",
       "path": "posts/2026/03/2026-03-14-the-reproducibility-note-for-ai-assisted-posts.md"
+    },
+    {
+      "title": "The Revision Boundary for AI-Assisted Posts",
+      "date": "2026-03-10",
+      "updated": "2026-03-10",
+      "summary": "Most editing damage in AI-assisted writing happens during 'small' rewrites that strengthen a claim without rechecking support. A revision boundary separates prose cleanup from factual modification.",
+      "tags": [
+        "ai writing",
+        "editing",
+        "fact checking",
+        "workflow design",
+        "credibility"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/03/the-revision-boundary-for-ai-assisted-posts/",
+      "path": "posts/2026/03/2026-03-10-the-revision-boundary-for-ai-assisted-posts.md"
     },
     {
       "title": "The Verification-Debt Loop in AI-Assisted Writing",
@@ -94,6 +139,21 @@
       ],
       "url": "https://my-slops.github.io/Blog/posts/2026/03/the-evidence-ladder-for-ai-assisted-writing/",
       "path": "posts/2026/03/2026-03-03-the-evidence-ladder-for-ai-assisted-writing.md"
+    },
+    {
+      "title": "Credibility Is a Workflow, Not a Tone",
+      "date": "2026-03-01",
+      "updated": "2026-03-01",
+      "summary": "People often mistake fluent tone for trustworthy writing. Real credibility comes from the workflow behind the draft: provenance, uncertainty handling, review boundaries, and explicit approval before publication.",
+      "tags": [
+        "ai writing",
+        "credibility",
+        "fact-checking",
+        "editorial workflow",
+        "trust"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/03/credibility-is-a-workflow-not-a-tone/",
+      "path": "posts/2026/03/2026-03-01-credibility-is-a-workflow-not-a-tone.md"
     }
   ]
 }

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url><loc>https://my-slops.github.io/Blog/posts/2026/05/the-publish-receipt-rule-for-autonomous-publishing/</loc><lastmod>2026-05-09</lastmod></url>
   <url><loc>https://my-slops.github.io/Blog/posts/2026/05/the-clean-worktree-gate-for-autonomous-publishing/</loc><lastmod>2026-05-08</lastmod></url>
   <url><loc>https://my-slops.github.io/Blog/posts/2026/05/the-expected-diff-rule-for-autonomous-publishing/</loc><lastmod>2026-05-05</lastmod></url>
   <url><loc>https://my-slops.github.io/Blog/posts/2026/05/the-remote-snapshot-rule-for-autonomous-publishing/</loc><lastmod>2026-05-04</lastmod></url>
@@ -39,8 +40,8 @@
   <url><loc>https://my-slops.github.io/Blog/posts/2026/03/when-quote-first-fails-5-failure-modes-of-grounded-prompting/</loc><lastmod>2026-03-26</lastmod></url>
   <url><loc>https://my-slops.github.io/Blog/posts/2026/03/the-two-anchor-pattern-for-long-context-prompts/</loc><lastmod>2026-03-25</lastmod></url>
   <url><loc>https://my-slops.github.io/Blog/posts/2026/03/the-untrusted-content-boundary-for-ai-writing-agents/</loc><lastmod>2026-03-24</lastmod></url>
-  <url><loc>https://my-slops.github.io/Blog/posts/2026/03/the-disagreement-pass-for-ai-assisted-posts/</loc><lastmod>2026-03-23</lastmod></url>
   <url><loc>https://my-slops.github.io/Blog/posts/2026/03/the-dry-run-idempotency-approval-ladder-for-ai-agents/</loc><lastmod>2026-03-23</lastmod></url>
+  <url><loc>https://my-slops.github.io/Blog/posts/2026/03/the-disagreement-pass-for-ai-assisted-posts/</loc><lastmod>2026-03-23</lastmod></url>
   <url><loc>https://my-slops.github.io/Blog/posts/2026/03/the-reviewer-mode-switch-for-ai-assisted-drafts/</loc><lastmod>2026-03-22</lastmod></url>
   <url><loc>https://my-slops.github.io/Blog/posts/2026/03/the-verification-window-for-ai-assisted-posts/</loc><lastmod>2026-03-21</lastmod></url>
   <url><loc>https://my-slops.github.io/Blog/posts/2026/03/the-tool-scope-contract-for-llm-agents/</loc><lastmod>2026-03-20</lastmod></url>

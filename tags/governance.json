@@ -1,7 +1,82 @@
 {
   "tag": "governance",
-  "count": 1,
+  "count": 8,
   "posts": [
+    {
+      "title": "The Approval Freshness Rule for Agent Actions",
+      "date": "2026-04-28",
+      "updated": "2026-04-28",
+      "summary": "Agent workflows often fail when they act on old approvals in new conditions. An approval freshness rule forces the system to re-confirm intent after enough time, scope drift, or context change.",
+      "tags": [
+        "ai agents",
+        "governance",
+        "trust",
+        "safety",
+        "operations"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/04/the-approval-freshness-rule-for-agent-actions/",
+      "path": "posts/2026/04/2026-04-28-the-approval-freshness-rule-for-agent-actions.md"
+    },
+    {
+      "title": "The Observation Window After Agent Policy Changes",
+      "date": "2026-04-25",
+      "updated": "2026-04-25",
+      "summary": "Agent policy changes need a period of heightened attention after release. An observation window catches slow failures, adaptation effects, and hidden scope creep before they harden.",
+      "tags": [
+        "ai agents",
+        "governance",
+        "monitoring",
+        "release-engineering",
+        "reliability"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/04/the-observation-window-after-agent-policy-changes/",
+      "path": "posts/2026/04/2026-04-25-the-observation-window-after-agent-policy-changes.md"
+    },
+    {
+      "title": "The Evidence Packet for LLM Release Reviews",
+      "date": "2026-04-21",
+      "updated": "2026-04-21",
+      "summary": "A release meeting should not depend on whoever remembers the most context. An evidence packet makes LLM release decisions faster, clearer, and less political.",
+      "tags": [
+        "llm",
+        "release-engineering",
+        "evals",
+        "governance",
+        "reliability"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/04/the-evidence-packet-for-llm-release-reviews/",
+      "path": "posts/2026/04/2026-04-21-the-evidence-packet-for-llm-release-reviews.md"
+    },
+    {
+      "title": "The Approval Surface for Publishing Agents",
+      "date": "2026-04-18",
+      "updated": "2026-04-18",
+      "summary": "If a publishing agent only has one approval gate at the end, you may be approving too late. Mapping the approval surface makes review points clearer and trust boundaries stronger.",
+      "tags": [
+        "ai agents",
+        "publishing",
+        "editorial workflow",
+        "governance",
+        "trust"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/04/the-approval-surface-for-publishing-agents/",
+      "path": "posts/2026/04/2026-04-18-the-approval-surface-for-publishing-agents.md"
+    },
+    {
+      "title": "The Quiet-Hours Rule for Autonomous Changes",
+      "date": "2026-04-17",
+      "updated": "2026-04-17",
+      "summary": "Autonomous systems should not have identical authority at 2 p.m. and 2 a.m. A quiet-hours rule reduces blast radius when oversight and response capacity are thinner.",
+      "tags": [
+        "ai agents",
+        "operations",
+        "governance",
+        "safety",
+        "reliability"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/04/the-quiet-hours-rule-for-autonomous-changes/",
+      "path": "posts/2026/04/2026-04-17-the-quiet-hours-rule-for-autonomous-changes.md"
+    },
     {
       "title": "Release Override Logs Are the Missing Layer in LLM Governance",
       "date": "2026-04-15",
@@ -16,6 +91,36 @@
       ],
       "url": "https://my-slops.github.io/Blog/posts/2026/04/release-override-logs-for-llm-governance/",
       "path": "posts/2026/04/2026-04-15-release-override-logs-for-llm-governance.md"
+    },
+    {
+      "title": "The Policy Diff Before You Ship an Agent Change",
+      "date": "2026-04-11",
+      "updated": "2026-04-11",
+      "summary": "Agent changes often ship as prompt tweaks or policy edits that are hard to inspect. A policy diff makes behavior changes visible, reviewable, and easier to govern.",
+      "tags": [
+        "ai agents",
+        "governance",
+        "prompts",
+        "release-engineering",
+        "safety"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/04/the-policy-diff-before-you-ship-an-agent-change/",
+      "path": "posts/2026/04/2026-04-11-the-policy-diff-before-you-ship-an-agent-change.md"
+    },
+    {
+      "title": "The Escalation Path for High-Impact Agent Actions",
+      "date": "2026-03-29",
+      "updated": "2026-03-29",
+      "summary": "Many agent failures come from doing too much under ambiguity instead of escalating. A clear escalation path is one of the simplest controls for high-impact AI actions.",
+      "tags": [
+        "ai agents",
+        "safety",
+        "escalation",
+        "governance",
+        "trust"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/03/the-escalation-path-for-high-impact-agent-actions/",
+      "path": "posts/2026/03/2026-03-29-the-escalation-path-for-high-impact-agent-actions.md"
     }
   ]
 }

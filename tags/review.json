@@ -1,0 +1,21 @@
+{
+  "tag": "review",
+  "count": 1,
+  "posts": [
+    {
+      "title": "The Reviewer-Mode Switch for AI-Assisted Drafts",
+      "date": "2026-03-22",
+      "updated": "2026-03-22",
+      "summary": "Drafting mode wants movement; reviewer mode wants skepticism. Treating both as the same task leads to weak self-critique. A reviewer-mode switch improves precision, trust, and editing efficiency.",
+      "tags": [
+        "ai writing",
+        "review",
+        "workflow design",
+        "critical thinking",
+        "trust"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/03/the-reviewer-mode-switch-for-ai-assisted-drafts/",
+      "path": "posts/2026/03/2026-03-22-the-reviewer-mode-switch-for-ai-assisted-drafts.md"
+    }
+  ]
+}

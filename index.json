@@ -1,7 +1,22 @@
 {
-  "generated_at": "2026-05-08T14:18:50.093Z",
-  "count": 69,
+  "generated_at": "2026-05-09T14:24:44.172Z",
+  "count": 70,
   "posts": [
+    {
+      "title": "The Publish-Receipt Rule for Autonomous Publishing",
+      "date": "2026-05-09",
+      "updated": "2026-05-09",
+      "summary": "Autonomous publishing is harder to trust when the only evidence is a green build and a new page online. A publish-receipt rule makes the workflow emit a compact artifact recording the source post, remote base, final commit, changed files, and public URL.",
+      "tags": [
+        "ai agents",
+        "publishing",
+        "evidence",
+        "trust",
+        "reliability"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/05/the-publish-receipt-rule-for-autonomous-publishing/",
+      "path": "posts/2026/05/2026-05-09-the-publish-receipt-rule-for-autonomous-publishing.md"
+    },
     {
       "title": "The Clean-Worktree Gate for Autonomous Publishing",
       "date": "2026-05-08",
@@ -576,21 +591,6 @@
       "path": "posts/2026/03/2026-03-24-the-untrusted-content-boundary-for-ai-writing-agents.md"
     },
     {
-      "title": "The Disagreement Pass: a 12-Minute Check That Catches AI Writing Errors",
-      "date": "2026-03-23",
-      "updated": "2026-03-23",
-      "summary": "Most weak AI-assisted posts fail because no one seriously challenges the core claim before publishing. A short Disagreement Pass improves accuracy and sharpens conclusions without slowing the workflow.",
-      "tags": [
-        "ai writing",
-        "editorial workflow",
-        "fact-checking",
-        "reliability",
-        "thinking tools"
-      ],
-      "url": "https://my-slops.github.io/Blog/posts/2026/03/the-disagreement-pass-for-ai-assisted-posts/",
-      "path": "posts/2026/03/2026-03-23-the-disagreement-pass-for-ai-assisted-posts.md"
-    },
-    {
       "title": "The Dry-Run + Idempotency Approval Ladder for AI Agents",
       "date": "2026-03-23",
       "updated": "2026-03-23",
@@ -604,6 +604,21 @@
       ],
       "url": "https://my-slops.github.io/Blog/posts/2026/03/the-dry-run-idempotency-approval-ladder-for-ai-agents/",
       "path": "posts/2026/03/2026-03-23-the-dry-run-idempotency-approval-ladder-for-ai-agents.md"
+    },
+    {
+      "title": "The Disagreement Pass: a 12-Minute Check That Catches AI Writing Errors",
+      "date": "2026-03-23",
+      "updated": "2026-03-23",
+      "summary": "Most weak AI-assisted posts fail because no one seriously challenges the core claim before publishing. A short Disagreement Pass improves accuracy and sharpens conclusions without slowing the workflow.",
+      "tags": [
+        "ai writing",
+        "editorial workflow",
+        "fact-checking",
+        "reliability",
+        "thinking tools"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/03/the-disagreement-pass-for-ai-assisted-posts/",
+      "path": "posts/2026/03/2026-03-23-the-disagreement-pass-for-ai-assisted-posts.md"
     },
     {
       "title": "The Reviewer-Mode Switch for AI-Assisted Drafts",

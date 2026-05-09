@@ -1,7 +1,37 @@
 {
   "tag": "ai writing",
-  "count": 21,
+  "count": 28,
   "posts": [
+    {
+      "title": "The Permission Budget for AI Writing Agents",
+      "date": "2026-04-26",
+      "updated": "2026-04-26",
+      "summary": "If an AI agent helps write publishable work, trust depends on bounded permissions as much as prompting quality. A permission budget makes drafting faster while keeping research, claims, edits, and publishing under explicit control.",
+      "tags": [
+        "ai writing",
+        "ai agents",
+        "credibility",
+        "editorial workflow",
+        "safety"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/04/the-permission-budget-for-ai-writing-agents/",
+      "path": "posts/2026/04/2026-04-26-the-permission-budget-for-ai-writing-agents.md"
+    },
+    {
+      "title": "Capability Leaks Are How Writing Agents Become Ops Risk",
+      "date": "2026-03-28",
+      "updated": "2026-03-28",
+      "summary": "An AI writing assistant turns into an ops risk when extra permissions accumulate quietly. Capability leaks are the hidden path from harmless drafting help to high-impact behavior.",
+      "tags": [
+        "ai agents",
+        "ai writing",
+        "safety",
+        "workflow",
+        "risk"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/03/capability-leaks-are-how-writing-agents-become-ops-risk/",
+      "path": "posts/2026/03/2026-03-28-capability-leaks-are-how-writing-agents-become-ops-risk.md"
+    },
     {
       "title": "The Untrusted-Content Boundary for AI Writing Agents",
       "date": "2026-03-24",
@@ -31,6 +61,21 @@
       ],
       "url": "https://my-slops.github.io/Blog/posts/2026/03/the-disagreement-pass-for-ai-assisted-posts/",
       "path": "posts/2026/03/2026-03-23-the-disagreement-pass-for-ai-assisted-posts.md"
+    },
+    {
+      "title": "The Reviewer-Mode Switch for AI-Assisted Drafts",
+      "date": "2026-03-22",
+      "updated": "2026-03-22",
+      "summary": "Drafting mode wants movement; reviewer mode wants skepticism. Treating both as the same task leads to weak self-critique. A reviewer-mode switch improves precision, trust, and editing efficiency.",
+      "tags": [
+        "ai writing",
+        "review",
+        "workflow design",
+        "critical thinking",
+        "trust"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/03/the-reviewer-mode-switch-for-ai-assisted-drafts/",
+      "path": "posts/2026/03/2026-03-22-the-reviewer-mode-switch-for-ai-assisted-drafts.md"
     },
     {
       "title": "The Verification Window: an 18-Minute Reliability Pass for AI-Assisted Posts",
@@ -76,6 +121,21 @@
       ],
       "url": "https://my-slops.github.io/Blog/posts/2026/03/the-claim-trace-table-for-ai-assisted-writing/",
       "path": "posts/2026/03/2026-03-18-the-claim-trace-table-for-ai-assisted-writing.md"
+    },
+    {
+      "title": "The Evidence Freeze Before Final Polish",
+      "date": "2026-03-17",
+      "updated": "2026-03-17",
+      "summary": "AI-assisted writing often gets less reliable during the final cleanup pass. An evidence freeze keeps the approved claim set stable so clarity edits do not silently rewrite what is actually supported.",
+      "tags": [
+        "ai writing",
+        "verification",
+        "workflow",
+        "evidence",
+        "consistency"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/03/the-evidence-freeze-before-final-polish/",
+      "path": "posts/2026/03/2026-03-17-the-evidence-freeze-before-final-polish.md"
     },
     {
       "title": "The Recency Check for AI-Assisted Posts",
@@ -171,6 +231,21 @@
       ],
       "url": "https://my-slops.github.io/Blog/posts/2026/03/the-instruction-contract-for-ai-assisted-posts/",
       "path": "posts/2026/03/2026-03-11-the-instruction-contract-for-ai-assisted-posts.md"
+    },
+    {
+      "title": "The Revision Boundary for AI-Assisted Posts",
+      "date": "2026-03-10",
+      "updated": "2026-03-10",
+      "summary": "Most editing damage in AI-assisted writing happens during 'small' rewrites that strengthen a claim without rechecking support. A revision boundary separates prose cleanup from factual modification.",
+      "tags": [
+        "ai writing",
+        "editing",
+        "fact checking",
+        "workflow design",
+        "credibility"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/03/the-revision-boundary-for-ai-assisted-posts/",
+      "path": "posts/2026/03/2026-03-10-the-revision-boundary-for-ai-assisted-posts.md"
     },
     {
       "title": "The Verification-Debt Loop in AI-Assisted Writing",
@@ -296,6 +371,21 @@
       "path": "posts/2026/03/2026-03-02-the-30-minute-specificity-pass-for-ai-drafts.md"
     },
     {
+      "title": "Credibility Is a Workflow, Not a Tone",
+      "date": "2026-03-01",
+      "updated": "2026-03-01",
+      "summary": "People often mistake fluent tone for trustworthy writing. Real credibility comes from the workflow behind the draft: provenance, uncertainty handling, review boundaries, and explicit approval before publication.",
+      "tags": [
+        "ai writing",
+        "credibility",
+        "fact-checking",
+        "editorial workflow",
+        "trust"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/03/credibility-is-a-workflow-not-a-tone/",
+      "path": "posts/2026/03/2026-03-01-credibility-is-a-workflow-not-a-tone.md"
+    },
+    {
       "title": "Stop Writing Generic Posts: A 15-Minute Daily Idea Filter",
       "date": "2026-02-28",
       "updated": "2026-02-28",
@@ -309,6 +399,21 @@
       ],
       "url": "https://my-slops.github.io/Blog/posts/2026/02/15-minute-daily-system-for-non-generic-blog-ideas/",
       "path": "posts/2026/02/2026-02-28-15-minute-daily-system-for-non-generic-blog-ideas.md"
+    },
+    {
+      "title": "The Friction Log for AI Drafts",
+      "date": "2026-02-27",
+      "updated": "2026-02-27",
+      "summary": "Most weak AI drafts fail in recurring ways, but vague annoyance hides the pattern. A friction log turns revision pain into a usable system for better prompts, better editing, and more reliable posts.",
+      "tags": [
+        "ai writing",
+        "workflow",
+        "editing",
+        "clarity",
+        "content quality"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/02/the-friction-log-for-ai-drafts/",
+      "path": "posts/2026/02/2026-02-27-the-friction-log-for-ai-drafts.md"
     },
     {
       "title": "Most AI Writing Feels Generic. Here’s the 5-Step Method I Use to Make It Useful",

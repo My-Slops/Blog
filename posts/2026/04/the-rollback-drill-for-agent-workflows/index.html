@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>The Rollback Drill for Agent Workflows | Blog</title>
+    <meta name="description" content="If you have never rehearsed rollback for an agent workflow, you probably do not have rollback. A lightweight drill exposes missing controls before they matter." />
+    <link rel="canonical" href="https://my-slops.github.io/Blog/posts/2026/04/the-rollback-drill-for-agent-workflows/" />
+    <style>
+      :root { color-scheme: light dark; }
+      body { font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; line-height: 1.7; max-width: 760px; margin: 40px auto; padding: 0 16px; }
+      a { color: #0a58ca; text-decoration: none; }
+      a:hover { text-decoration: underline; }
+      .meta { color: #666; font-size: 0.95rem; margin-bottom: 1rem; }
+      .tags { display: flex; gap: 0.5rem; list-style: none; padding: 0; margin: 0.75rem 0 1.25rem; flex-wrap: wrap; }
+      .tags li { background: #eef2ff; color: #3730a3; border-radius: 999px; padding: 0.2rem 0.6rem; font-size: 0.8rem; }
+      article h1, article h2, article h3 { line-height: 1.3; }
+      article pre { overflow-x: auto; background: #111827; color: #f9fafb; padding: 0.9rem; border-radius: 8px; }
+      article code { font-family: ui-monospace,SFMono-Regular,Menlo,monospace; }
+      article blockquote { border-left: 4px solid #d1d5db; margin: 1rem 0; padding: 0.2rem 0.9rem; color: #4b5563; }
+      hr { border: 0; border-top: 1px solid #e5e7eb; margin: 2rem 0; }
+    </style>
+  </head>
+  <body>
+    <p><a href="https://my-slops.github.io/Blog/">← Home</a></p>
+    <article>
+      <h1>The Rollback Drill for Agent Workflows</h1>
+      <p class="meta">Apr 16, 2026</p>
+      <ul class="tags"><li>ai agents</li><li>rollback</li><li>operations</li><li>incident-response</li><li>reliability</li></ul>
+      <h2>TL;DR</h2>
+<p>Many teams say they can roll back an agent change. Fewer have proved it.</p>
+<p>A <strong>rollback drill</strong> is a short rehearsal of three things:</p>
+<ul>
+<li>stop the workflow,</li>
+<li>restore the previous behavior,</li>
+<li>verify the risky action path is actually closed.</li>
+</ul>
+<p>If any of those fail under rehearsal, the rollback plan is weaker than it looks.</p>
+<h2>Context</h2>
+<p>Rollback is familiar in software operations, but agent workflows complicate it. You may need to reverse more than one layer:</p>
+<ul>
+<li>prompt or policy version,</li>
+<li>tool permissions,</li>
+<li>scheduled tasks,</li>
+<li>publish or message triggers,</li>
+<li>human approval routing.</li>
+</ul>
+<p>That means rollback is not just &quot;switch back to old code.&quot; It is a workflow state transition, often across multiple control surfaces.</p>
+<p>SRE guidance is clear that safe release processes need bounded blast radius and fast reversal. The practical extension for agent systems is that you should rehearse rollback before you trust it.</p>
+<h2>Key Points</h2>
+<h3>1) Rollback plans often assume cleaner state than production actually has</h3>
+<p>On paper:</p>
+<ul>
+<li>revert the prompt,</li>
+<li>restore the config,</li>
+<li>done.</li>
+</ul>
+<p>In reality:</p>
+<ul>
+<li>a queued job still exists,</li>
+<li>an approval remains active,</li>
+<li>a tool permission was changed elsewhere,</li>
+<li>a scheduled publish remains armed.</li>
+</ul>
+<p>Drills expose these assumptions early.</p>
+<h3>2) Stopping the workflow is its own capability</h3>
+<p>Teams often think only about reversal.</p>
+<p>But first you need containment:</p>
+<ul>
+<li>can you halt new actions,</li>
+<li>can you pause queued work,</li>
+<li>can you prevent retriggers,</li>
+<li>can you do it without editing five systems manually?</li>
+</ul>
+<p>If not, rollback will be slower and messier than planned.</p>
+<h3>3) Verification after rollback matters as much as rollback itself</h3>
+<p>You need evidence that the risky path is actually closed:</p>
+<ul>
+<li>test prompt version restored,</li>
+<li>disallowed tool path blocked,</li>
+<li>external action path no longer available,</li>
+<li>monitoring reflects the old baseline.</li>
+</ul>
+<p>Otherwise you may believe you reverted when you only partially reverted.</p>
+<h3>4) Drills improve release confidence honestly</h3>
+<p>The goal is not to look prepared. It is to find what is unprepared.</p>
+<p>A rollback drill is valuable precisely because it embarrasses your assumptions in a low-stakes moment.</p>
+<h3>5) Agent rollback should include content workflows too</h3>
+<p>If the workflow drafts or publishes public material, rollback may also need:</p>
+<ul>
+<li>content freeze,</li>
+<li>approval reset,</li>
+<li>output queue review,</li>
+<li>reversal of staged artifacts.</li>
+</ul>
+<p>That makes publishing agents closer to operational systems than many teams admit.</p>
+<h2>Steps / Code</h2>
+<h3>15-minute rollback drill</h3>
+<pre><code class="language-text">1) Simulate a release problem.
+2) Pause the agent workflow.
+3) Restore the previous prompt/policy/tool state.
+4) Verify the risky action path is closed.
+5) Record what took too long or required hidden knowledge.
+</code></pre>
+<h3>Pass criteria</h3>
+<pre><code class="language-markdown">- Workflow paused
+- Previous behavior restored
+- No residual queued actions
+- Operator knows which controls mattered
+</code></pre>
+<h2>Trade-offs</h2>
+<h3>Costs</h3>
+<ol>
+<li>Consumes a small amount of ops time.</li>
+<li>Surfaces uncomfortable gaps.</li>
+<li>May require better tooling to make rollback practical.</li>
+</ol>
+<h3>Benefits</h3>
+<ol>
+<li>Faster incident response later.</li>
+<li>More realistic release confidence.</li>
+<li>Lower chance of partial rollback theater.</li>
+<li>Better understanding of workflow dependencies.</li>
+</ol>
+<h2>References</h2>
+<ul>
+<li>Google SRE Workbook, <em>Canarying Releases</em>: <a href="https://sre.google/workbook/canarying-releases/">https://sre.google/workbook/canarying-releases/</a></li>
+<li>NIST, <em>Artificial Intelligence Risk Management Framework: Generative Artificial Intelligence Profile</em>: <a href="https://doi.org/10.6028/NIST.AI.600-1">https://doi.org/10.6028/NIST.AI.600-1</a></li>
+</ul>
+<h2>Final Take</h2>
+<p>If rollback only exists in a runbook, you do not really know whether it exists.</p>
+<p>Run the drill.</p>
+<h2>Changelog</h2>
+<ul>
+<li>2026-04-16: Initial publish on rollback drills for agent workflows.</li>
+</ul>
+
+    </article>
+  </body>
+</html>

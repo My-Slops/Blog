@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>The Evidence Packet for LLM Release Reviews | Blog</title>
+    <meta name="description" content="A release meeting should not depend on whoever remembers the most context. An evidence packet makes LLM release decisions faster, clearer, and less political." />
+    <link rel="canonical" href="https://my-slops.github.io/Blog/posts/2026/04/the-evidence-packet-for-llm-release-reviews/" />
+    <style>
+      :root { color-scheme: light dark; }
+      body { font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; line-height: 1.7; max-width: 760px; margin: 40px auto; padding: 0 16px; }
+      a { color: #0a58ca; text-decoration: none; }
+      a:hover { text-decoration: underline; }
+      .meta { color: #666; font-size: 0.95rem; margin-bottom: 1rem; }
+      .tags { display: flex; gap: 0.5rem; list-style: none; padding: 0; margin: 0.75rem 0 1.25rem; flex-wrap: wrap; }
+      .tags li { background: #eef2ff; color: #3730a3; border-radius: 999px; padding: 0.2rem 0.6rem; font-size: 0.8rem; }
+      article h1, article h2, article h3 { line-height: 1.3; }
+      article pre { overflow-x: auto; background: #111827; color: #f9fafb; padding: 0.9rem; border-radius: 8px; }
+      article code { font-family: ui-monospace,SFMono-Regular,Menlo,monospace; }
+      article blockquote { border-left: 4px solid #d1d5db; margin: 1rem 0; padding: 0.2rem 0.9rem; color: #4b5563; }
+      hr { border: 0; border-top: 1px solid #e5e7eb; margin: 2rem 0; }
+    </style>
+  </head>
+  <body>
+    <p><a href="https://my-slops.github.io/Blog/">← Home</a></p>
+    <article>
+      <h1>The Evidence Packet for LLM Release Reviews</h1>
+      <p class="meta">Apr 21, 2026</p>
+      <ul class="tags"><li>llm</li><li>release-engineering</li><li>evals</li><li>governance</li><li>reliability</li></ul>
+      <h2>TL;DR</h2>
+<p>Many release reviews go badly because the evidence is fragmented.</p>
+<p>An <strong>evidence packet</strong> collects the minimum decision material in one place:</p>
+<ul>
+<li>candidate vs control summary,</li>
+<li>outcome metrics,</li>
+<li>risk notes,</li>
+<li>human readback observations,</li>
+<li>rollback and rollout plan.</li>
+</ul>
+<p>That makes release judgment faster and less dependent on memory or status theater.</p>
+<h2>Context</h2>
+<p>LLM releases often involve a messy mix of artifacts:</p>
+<ul>
+<li>eval dashboards,</li>
+<li>prompt diffs,</li>
+<li>canary notes,</li>
+<li>Slack threads,</li>
+<li>screenshots,</li>
+<li>reviewer opinions.</li>
+</ul>
+<p>Individually useful, collectively chaotic.</p>
+<p>The consequence is predictable: meetings spend time reconstructing context instead of evaluating trade-offs. That is bad for quality and bad for governance. A release decision should be based on an inspectable packet, not whoever speaks most confidently.</p>
+<h2>Key Points</h2>
+<h3>1) Release judgment gets worse when evidence is scattered</h3>
+<p>Fragmentation creates:</p>
+<ul>
+<li>missing context,</li>
+<li>duplicated arguments,</li>
+<li>weak accountability,</li>
+<li>decisions based on tone rather than comparison.</li>
+</ul>
+<h3>2) The packet should be decision-oriented</h3>
+<p>Do not stuff everything in.</p>
+<p>Include what changes the ship / hold / escalate call:</p>
+<ul>
+<li>what changed,</li>
+<li>what the candidate did relative to control,</li>
+<li>what risks remain,</li>
+<li>what the rollback plan is.</li>
+</ul>
+<h3>3) Qualitative evidence belongs beside quantitative evidence</h3>
+<p>This is where many packets fail.</p>
+<p>If humans observed trust drift or awkward behavior in readback review, that belongs in the packet next to metric summaries. Language products need both.</p>
+<h3>4) A packet helps dissent stay concrete</h3>
+<p>Instead of vague unease, reviewers can point to:</p>
+<ul>
+<li>a weak eval segment,</li>
+<li>a known blind spot,</li>
+<li>a rollout assumption,</li>
+<li>a specific risk accepted by override.</li>
+</ul>
+<h3>5) Packets create better postmortems later</h3>
+<p>If the release fails, you want to know:</p>
+<ul>
+<li>what evidence existed,</li>
+<li>what was missing,</li>
+<li>what was ignored,</li>
+<li>what threshold proved too weak.</li>
+</ul>
+<p>The packet becomes the factual base for that discussion.</p>
+<h2>Steps / Code</h2>
+<h3>Minimal evidence packet</h3>
+<pre><code class="language-markdown">- Change summary
+- Candidate vs control metrics
+- Known blind spots
+- Human readback notes
+- Rollout plan
+- Rollback plan
+- Decision and approver
+</code></pre>
+<h2>Trade-offs</h2>
+<h3>Costs</h3>
+<ol>
+<li>More preparation before release review.</li>
+<li>Requires better artifact hygiene.</li>
+<li>Can feel repetitive if teams already track many dashboards.</li>
+</ol>
+<h3>Benefits</h3>
+<ol>
+<li>Faster, clearer reviews.</li>
+<li>Better mix of qualitative and quantitative evidence.</li>
+<li>Stronger auditability.</li>
+<li>Less decision-making by memory or politics.</li>
+</ol>
+<h2>References</h2>
+<ul>
+<li>OpenAI Developers, <em>Evals design guide</em>: <a href="https://platform.openai.com/docs/guides/evals">https://platform.openai.com/docs/guides/evals</a></li>
+<li>Google SRE Workbook, <em>Canarying Releases</em>: <a href="https://sre.google/workbook/canarying-releases/">https://sre.google/workbook/canarying-releases/</a></li>
+<li>NIST, <em>Artificial Intelligence Risk Management Framework: Generative Artificial Intelligence Profile</em>: <a href="https://doi.org/10.6028/NIST.AI.600-1">https://doi.org/10.6028/NIST.AI.600-1</a></li>
+</ul>
+<h2>Final Take</h2>
+<p>If your release review depends on context spread across five tabs and three people&#39;s memories, the process is weaker than it looks.</p>
+<p>Ship with an evidence packet.</p>
+<h2>Changelog</h2>
+<ul>
+<li>2026-04-21: Initial publish on evidence packets for LLM release reviews.</li>
+</ul>
+
+    </article>
+  </body>
+</html>

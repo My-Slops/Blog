@@ -1,7 +1,22 @@
 {
   "tag": "publishing",
-  "count": 6,
+  "count": 7,
   "posts": [
+    {
+      "title": "The Publish-Receipt Rule for Autonomous Publishing",
+      "date": "2026-05-09",
+      "updated": "2026-05-09",
+      "summary": "Autonomous publishing is harder to trust when the only evidence is a green build and a new page online. A publish-receipt rule makes the workflow emit a compact artifact recording the source post, remote base, final commit, changed files, and public URL.",
+      "tags": [
+        "ai agents",
+        "publishing",
+        "evidence",
+        "trust",
+        "reliability"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/05/the-publish-receipt-rule-for-autonomous-publishing/",
+      "path": "posts/2026/05/2026-05-09-the-publish-receipt-rule-for-autonomous-publishing.md"
+    },
     {
       "title": "The Clean-Worktree Gate for Autonomous Publishing",
       "date": "2026-05-08",

@@ -27,8 +27,7 @@
       <h1>The Clean-Worktree Gate for Autonomous Publishing</h1>
       <p class="meta">May 8, 2026</p>
       <ul class="tags"><li>ai agents</li><li>publishing</li><li>verification</li><li>workflow</li><li>safety</li></ul>
-      
-<h2>TL;DR</h2>
+      <h2>TL;DR</h2>
 <p>An autonomous publisher should not begin real work in a dirty repository.</p>
 <p>If the working tree already contains modified, staged, or untracked files, the agent should stop before drafting, building, or committing anything public.</p>
 <p>That is the <strong>clean-worktree gate</strong>:</p>
@@ -64,7 +63,7 @@
 <p><em>Which changes in this commit were created by this run?</em></p>
 <p>If the repository was already dirty at start, that answer is blurry immediately.</p>
 <p>Maybe the extra change is harmless. Maybe it is a stale draft. Maybe it is a manual fix the agent is about to overwrite. The problem is not that every dirty file is dangerous. The problem is that the run no longer has clean provenance.</p>
-<p>Autonomous publishing needs stronger standards than “it probably belongs there.”</p>
+<p>Autonomous publishing needs stronger standards than &quot;it probably belongs there.&quot;</p>
 <h3>2) Untracked files are part of the risk, not an exception to it</h3>
 <p>Teams sometimes check only tracked modifications and ignore untracked files.</p>
 <p>That is sloppy.</p>
@@ -75,7 +74,7 @@
 <li>a scratch manifest that later gets added with <code>git add .</code>,</li>
 <li>a local asset that changes what the build includes.</li>
 </ul>
-<p>If the rule is “clean enough,” the workflow becomes guesswork.</p>
+<p>If the rule is &quot;clean enough,&quot; the workflow becomes guesswork.</p>
 <p>The cleaner rule is simpler: no modified, staged, or untracked repository files unless they were created deliberately for this publish.</p>
 <h3>3) The clean-worktree gate belongs at the beginning, not just the end</h3>
 <p>The expected-diff rule is a good last-mile check.</p>
@@ -92,12 +91,12 @@
 </ul>
 <p>These checks are complementary:</p>
 <ul>
-<li><strong>clean-worktree gate</strong> answers “did this run start from a trustworthy baseline?”</li>
-<li><strong>expected-diff rule</strong> answers “did this run end with the right change set?”</li>
+<li><strong>clean-worktree gate</strong> answers &quot;did this run start from a trustworthy baseline?&quot;</li>
+<li><strong>expected-diff rule</strong> answers &quot;did this run end with the right change set?&quot;</li>
 </ul>
 <p>You want both.</p>
 <h3>4) Isolation is better than cleanup theater</h3>
-<p>When a repository is dirty, the answer should not be “tell the agent to be careful.”</p>
+<p>When a repository is dirty, the answer should not be &quot;tell the agent to be careful.&quot;</p>
 <p>The better options are operational:</p>
 <ul>
 <li>stop and ask for cleanup,</li>
@@ -106,7 +105,7 @@
 <li>limit the run to a dedicated publishing workspace.</li>
 </ul>
 <p>This is one of those cases where infrastructure beats discipline.</p>
-<p>An agent with a clean disposable workspace is easier to trust than an agent expected to tiptoe around somebody else’s leftovers.</p>
+<p>An agent with a clean disposable workspace is easier to trust than an agent expected to tiptoe around somebody else&#39;s leftovers.</p>
 <h3>5) Escape hatches should be explicit and narrow</h3>
 <p>Sometimes a dirty start is intentional.</p>
 <p>Maybe a human has already prepared a canonical draft and wants the agent only to render and publish it. Fine. But that should be explicit:</p>
@@ -115,12 +114,12 @@
 <li>the scope is confirmed,</li>
 <li>the rest of the tree is still clean.</li>
 </ul>
-<p>What should not happen is a silent fallback from “strict automation” to “whatever happens to be in the repo right now.”</p>
+<p>What should not happen is a silent fallback from &quot;strict automation&quot; to &quot;whatever happens to be in the repo right now.&quot;</p>
 <p>If you need an exception, make it a declared exception.</p>
 <h2>Steps / Code</h2>
 <h3>Minimal preflight</h3>
-<pre><code class="language-bash">if [ -n "$(git status --porcelain)" ]; then
-  echo "Working tree is not clean; stop publish"
+<pre><code class="language-bash">if [ -n &quot;$(git status --porcelain)&quot; ]; then
+  echo &quot;Working tree is not clean; stop publish&quot;
   git status --short
   exit 1
 fi
@@ -147,7 +146,7 @@ Only restart once the working tree reflects the exact intended baseline.
 <h2>Trade-offs</h2>
 <h3>Costs</h3>
 <ol>
-<li>Adds friction before runs that might have “worked anyway.”</li>
+<li>Adds friction before runs that might have &quot;worked anyway.&quot;</li>
 <li>Forces teams to get more disciplined about local scratch work.</li>
 <li>May require separate worktrees or dedicated automation directories.</li>
 </ol>
@@ -172,6 +171,7 @@ Only restart once the working tree reflects the exact intended baseline.
 <ul>
 <li>2026-05-08: Initial publish on clean-worktree preflights for autonomous publishing.</li>
 </ul>
+
     </article>
   </body>
 </html>

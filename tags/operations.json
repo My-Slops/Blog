@@ -1,7 +1,82 @@
 {
   "tag": "operations",
-  "count": 4,
+  "count": 9,
   "posts": [
+    {
+      "title": "The Approval Freshness Rule for Agent Actions",
+      "date": "2026-04-28",
+      "updated": "2026-04-28",
+      "summary": "Agent workflows often fail when they act on old approvals in new conditions. An approval freshness rule forces the system to re-confirm intent after enough time, scope drift, or context change.",
+      "tags": [
+        "ai agents",
+        "governance",
+        "trust",
+        "safety",
+        "operations"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/04/the-approval-freshness-rule-for-agent-actions/",
+      "path": "posts/2026/04/2026-04-28-the-approval-freshness-rule-for-agent-actions.md"
+    },
+    {
+      "title": "The Draft-to-Decision Handoff for AI Operators",
+      "date": "2026-04-22",
+      "updated": "2026-04-22",
+      "summary": "Agents are often better at preparing decisions than making final ones. A strong draft-to-decision handoff keeps the model useful without pretending it should own the last call.",
+      "tags": [
+        "ai agents",
+        "decision making",
+        "workflow",
+        "operations",
+        "trust"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/04/the-draft-to-decision-handoff-for-ai-operators/",
+      "path": "posts/2026/04/2026-04-22-the-draft-to-decision-handoff-for-ai-operators.md"
+    },
+    {
+      "title": "The Escalation Shelf for Stalled Agent Decisions",
+      "date": "2026-04-19",
+      "updated": "2026-04-19",
+      "summary": "Some agent decisions should not be auto-resolved quickly. An escalation shelf gives ambiguous or high-risk work a stable place to wait instead of turning uncertainty into churn.",
+      "tags": [
+        "ai agents",
+        "escalation",
+        "workflow",
+        "operations",
+        "decision making"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/04/the-escalation-shelf-for-stalled-agent-decisions/",
+      "path": "posts/2026/04/2026-04-19-the-escalation-shelf-for-stalled-agent-decisions.md"
+    },
+    {
+      "title": "The Quiet-Hours Rule for Autonomous Changes",
+      "date": "2026-04-17",
+      "updated": "2026-04-17",
+      "summary": "Autonomous systems should not have identical authority at 2 p.m. and 2 a.m. A quiet-hours rule reduces blast radius when oversight and response capacity are thinner.",
+      "tags": [
+        "ai agents",
+        "operations",
+        "governance",
+        "safety",
+        "reliability"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/04/the-quiet-hours-rule-for-autonomous-changes/",
+      "path": "posts/2026/04/2026-04-17-the-quiet-hours-rule-for-autonomous-changes.md"
+    },
+    {
+      "title": "The Rollback Drill for Agent Workflows",
+      "date": "2026-04-16",
+      "updated": "2026-04-16",
+      "summary": "If you have never rehearsed rollback for an agent workflow, you probably do not have rollback. A lightweight drill exposes missing controls before they matter.",
+      "tags": [
+        "ai agents",
+        "rollback",
+        "operations",
+        "incident-response",
+        "reliability"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/04/the-rollback-drill-for-agent-workflows/",
+      "path": "posts/2026/04/2026-04-16-the-rollback-drill-for-agent-workflows.md"
+    },
     {
       "title": "Release Override Logs Are the Missing Layer in LLM Governance",
       "date": "2026-04-15",

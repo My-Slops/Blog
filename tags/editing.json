@@ -1,6 +1,6 @@
 {
   "tag": "editing",
-  "count": 9,
+  "count": 11,
   "posts": [
     {
       "title": "The Counterexample Pass for AI-Assisted Posts",
@@ -17,6 +17,21 @@
       ],
       "url": "https://my-slops.github.io/Blog/posts/2026/03/the-counterexample-pass-for-ai-assisted-posts/",
       "path": "posts/2026/03/2026-03-13-the-counterexample-pass-for-ai-assisted-posts.md"
+    },
+    {
+      "title": "The Revision Boundary for AI-Assisted Posts",
+      "date": "2026-03-10",
+      "updated": "2026-03-10",
+      "summary": "Most editing damage in AI-assisted writing happens during 'small' rewrites that strengthen a claim without rechecking support. A revision boundary separates prose cleanup from factual modification.",
+      "tags": [
+        "ai writing",
+        "editing",
+        "fact checking",
+        "workflow design",
+        "credibility"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/03/the-revision-boundary-for-ai-assisted-posts/",
+      "path": "posts/2026/03/2026-03-10-the-revision-boundary-for-ai-assisted-posts.md"
     },
     {
       "title": "The Verification-Debt Loop in AI-Assisted Writing",
@@ -140,6 +155,21 @@
       ],
       "url": "https://my-slops.github.io/Blog/posts/2026/03/the-30-minute-specificity-pass-for-ai-drafts/",
       "path": "posts/2026/03/2026-03-02-the-30-minute-specificity-pass-for-ai-drafts.md"
+    },
+    {
+      "title": "The Friction Log for AI Drafts",
+      "date": "2026-02-27",
+      "updated": "2026-02-27",
+      "summary": "Most weak AI drafts fail in recurring ways, but vague annoyance hides the pattern. A friction log turns revision pain into a usable system for better prompts, better editing, and more reliable posts.",
+      "tags": [
+        "ai writing",
+        "workflow",
+        "editing",
+        "clarity",
+        "content quality"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/02/the-friction-log-for-ai-drafts/",
+      "path": "posts/2026/02/2026-02-27-the-friction-log-for-ai-drafts.md"
     }
   ]
 }

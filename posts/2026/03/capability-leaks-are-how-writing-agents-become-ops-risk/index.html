@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Capability Leaks Are How Writing Agents Become Ops Risk | Blog</title>
+    <meta name="description" content="An AI writing assistant turns into an ops risk when extra permissions accumulate quietly. Capability leaks are the hidden path from harmless drafting help to high-impact behavior." />
+    <link rel="canonical" href="https://my-slops.github.io/Blog/posts/2026/03/capability-leaks-are-how-writing-agents-become-ops-risk/" />
+    <style>
+      :root { color-scheme: light dark; }
+      body { font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; line-height: 1.7; max-width: 760px; margin: 40px auto; padding: 0 16px; }
+      a { color: #0a58ca; text-decoration: none; }
+      a:hover { text-decoration: underline; }
+      .meta { color: #666; font-size: 0.95rem; margin-bottom: 1rem; }
+      .tags { display: flex; gap: 0.5rem; list-style: none; padding: 0; margin: 0.75rem 0 1.25rem; flex-wrap: wrap; }
+      .tags li { background: #eef2ff; color: #3730a3; border-radius: 999px; padding: 0.2rem 0.6rem; font-size: 0.8rem; }
+      article h1, article h2, article h3 { line-height: 1.3; }
+      article pre { overflow-x: auto; background: #111827; color: #f9fafb; padding: 0.9rem; border-radius: 8px; }
+      article code { font-family: ui-monospace,SFMono-Regular,Menlo,monospace; }
+      article blockquote { border-left: 4px solid #d1d5db; margin: 1rem 0; padding: 0.2rem 0.9rem; color: #4b5563; }
+      hr { border: 0; border-top: 1px solid #e5e7eb; margin: 2rem 0; }
+    </style>
+  </head>
+  <body>
+    <p><a href="https://my-slops.github.io/Blog/">← Home</a></p>
+    <article>
+      <h1>Capability Leaks Are How Writing Agents Become Ops Risk</h1>
+      <p class="meta">Mar 28, 2026</p>
+      <ul class="tags"><li>ai agents</li><li>ai writing</li><li>safety</li><li>workflow</li><li>risk</li></ul>
+      <h2>TL;DR</h2>
+<p>Most writing agents do not become risky because someone intentionally built a dangerous autonomous publisher.</p>
+<p>They become risky because capabilities accumulate:</p>
+<ul>
+<li>read a few more sources,</li>
+<li>update a few more files,</li>
+<li>call one more tool,</li>
+<li>send one more external action.</li>
+</ul>
+<p>That slow drift turns a writing workflow into an operational workflow.</p>
+<p>The problem is not just prompt injection or bad prose. It is <strong>capability leakage</strong>.</p>
+<h2>Context</h2>
+<p>A writing assistant sounds benign. That label hides a lot.</p>
+<p>In practice, many so-called writing agents can already:</p>
+<ul>
+<li>fetch external content,</li>
+<li>inspect private notes,</li>
+<li>update repository files,</li>
+<li>open pull requests,</li>
+<li>publish or schedule outputs,</li>
+<li>send notifications or messages.</li>
+</ul>
+<p>At that point, the agent is no longer only writing. It is participating in production behavior.</p>
+<p>OWASP’s prompt-injection guidance is useful here because it frames the core issue as mixed authority between instructions and data. But even without an attack, capability creep creates a governance problem. NIST’s AI RMF pushes teams to evaluate risk across design, development, deployment, and use. That lifecycle view matters because the real danger often appears gradually, through convenience decisions that each seem harmless on their own.</p>
+<h2>Key Points</h2>
+<h3>1) Capability leaks usually look like convenience</h3>
+<p>No one says:
+&quot;Let’s turn the drafting helper into a high-impact system.&quot;</p>
+<p>They say:</p>
+<ul>
+<li>&quot;It should also update the markdown file.&quot;</li>
+<li>&quot;It may as well build the site.&quot;</li>
+<li>&quot;It can probably create the PR too.&quot;</li>
+<li>&quot;Maybe it can publish after approval.&quot;</li>
+</ul>
+<p>Each addition sounds small. Together they change the risk class.</p>
+<h3>2) The name of the workflow often stops matching reality</h3>
+<p>This is a bad sign.</p>
+<p>If you still call something a &quot;writing assistant&quot; after it can modify canonical content, trigger external actions, or move release state, your mental model is stale.</p>
+<p>Stale names create stale safeguards.</p>
+<h3>3) Risk jumps at action boundaries, not only at reasoning boundaries</h3>
+<p>Teams often focus on whether the model can produce correct text.</p>
+<p>That matters, but the sharper question is:</p>
+<ul>
+<li>what can the system do when it is wrong,</li>
+<li>what can it do when it is manipulated,</li>
+<li>what can it do when the context is ambiguous.</li>
+</ul>
+<p>Capability leaks increase the blast radius of all three.</p>
+<h3>4) Editorial and operational trust should be governed together</h3>
+<p>This is why bridge posts like this one matter.</p>
+<p>If a system drafts public-facing content and also changes files or triggers release behavior, then editorial discipline and operational discipline are no longer separate topics.</p>
+<p>The same workflow needs:</p>
+<ul>
+<li>evidence boundaries,</li>
+<li>tool boundaries,</li>
+<li>approval gates,</li>
+<li>action logs.</li>
+</ul>
+<h3>5) The fix is not less usefulness, it is sharper scoping</h3>
+<p>Many teams respond to these concerns with a false binary:</p>
+<ul>
+<li>full autonomy, or</li>
+<li>no automation.</li>
+</ul>
+<p>The better answer is narrower capability design:</p>
+<ul>
+<li>read widely,</li>
+<li>suggest freely,</li>
+<li>act narrowly,</li>
+<li>escalate early.</li>
+</ul>
+<p>That preserves the useful part while reducing hidden operational exposure.</p>
+<h2>Steps / Code</h2>
+<h3>Capability leak inventory</h3>
+<pre><code class="language-text">List each action the writing workflow can currently perform.
+For each action, mark:
+1) read-only,
+2) internal write,
+3) external write,
+4) irreversible or high-impact.
+
+If a &quot;writing&quot; workflow has multiple items in 3 or 4,
+it is also an operations workflow.
+</code></pre>
+<h3>Policy rule</h3>
+<pre><code class="language-json">{
+  &quot;workflow&quot;: &quot;ai_writing_assistant&quot;,
+  &quot;allow&quot;: [&quot;draft&quot;, &quot;summarize&quot;, &quot;extract_claims&quot;],
+  &quot;escalate&quot;: [&quot;publish&quot;, &quot;message_send&quot;, &quot;repo_write&quot;],
+  &quot;deny_by_default&quot;: true
+}
+</code></pre>
+<h2>Trade-offs</h2>
+<h3>Costs</h3>
+<ol>
+<li>More explicit capability review.</li>
+<li>Slightly less frictionless automation.</li>
+<li>More approval prompts around boundary actions.</li>
+</ol>
+<h3>Benefits</h3>
+<ol>
+<li>Lower hidden blast radius.</li>
+<li>Better alignment between workflow name and workflow reality.</li>
+<li>Clearer separation between writing help and operational authority.</li>
+<li>Easier incident review when something goes wrong.</li>
+</ol>
+<h2>References</h2>
+<ul>
+<li>OWASP Cheat Sheet Series, <em>LLM Prompt Injection Prevention</em>: <a href="https://cheatsheetseries.owasp.org/cheatsheets/LLM_Prompt_Injection_Prevention_Cheat_Sheet.html">https://cheatsheetseries.owasp.org/cheatsheets/LLM_Prompt_Injection_Prevention_Cheat_Sheet.html</a></li>
+<li>NIST, <em>Artificial Intelligence Risk Management Framework (AI RMF 1.0)</em>: <a href="https://doi.org/10.6028/NIST.AI.100-1">https://doi.org/10.6028/NIST.AI.100-1</a></li>
+<li>NIST, <em>Artificial Intelligence Risk Management Framework: Generative Artificial Intelligence Profile</em>: <a href="https://doi.org/10.6028/NIST.AI.600-1">https://doi.org/10.6028/NIST.AI.600-1</a></li>
+</ul>
+<h2>Final Take</h2>
+<p>The easiest way to miss agent risk is to keep calling it a writing problem after the system has gained operational powers.</p>
+<p>That is what capability leaks do.</p>
+<p>They change the system before the safeguards catch up.</p>
+<h2>Changelog</h2>
+<ul>
+<li>2026-03-28: Initial publish on capability leakage in AI writing agents.</li>
+</ul>
+
+    </article>
+  </body>
+</html>

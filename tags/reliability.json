@@ -1,7 +1,127 @@
 {
   "tag": "reliability",
-  "count": 19,
+  "count": 28,
   "posts": [
+    {
+      "title": "The Publish-Receipt Rule for Autonomous Publishing",
+      "date": "2026-05-09",
+      "updated": "2026-05-09",
+      "summary": "Autonomous publishing is harder to trust when the only evidence is a green build and a new page online. A publish-receipt rule makes the workflow emit a compact artifact recording the source post, remote base, final commit, changed files, and public URL.",
+      "tags": [
+        "ai agents",
+        "publishing",
+        "evidence",
+        "trust",
+        "reliability"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/05/the-publish-receipt-rule-for-autonomous-publishing/",
+      "path": "posts/2026/05/2026-05-09-the-publish-receipt-rule-for-autonomous-publishing.md"
+    },
+    {
+      "title": "The Expected-Diff Rule for Autonomous Publishing",
+      "date": "2026-05-05",
+      "updated": "2026-05-05",
+      "summary": "Autonomous publishing gets sloppy when the final diff includes files nobody expected. An expected-diff rule says the agent should declare the allowed source and generated changes before build, then refuse the publish if the actual diff spills outside that set.",
+      "tags": [
+        "ai agents",
+        "publishing",
+        "verification",
+        "workflow",
+        "reliability"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/05/the-expected-diff-rule-for-autonomous-publishing/",
+      "path": "posts/2026/05/2026-05-05-the-expected-diff-rule-for-autonomous-publishing.md"
+    },
+    {
+      "title": "The Remote-Snapshot Rule for Autonomous Publishing",
+      "date": "2026-05-04",
+      "updated": "2026-05-04",
+      "summary": "Autonomous publishing gets risky when the agent drafts against one branch state and pushes against another. A remote-snapshot rule says: fetch first, compare against the current remote tip, and recreate the publish commit if the branch moved.",
+      "tags": [
+        "ai agents",
+        "publishing",
+        "workflow",
+        "reliability",
+        "engineering"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/05/the-remote-snapshot-rule-for-autonomous-publishing/",
+      "path": "posts/2026/05/2026-05-04-the-remote-snapshot-rule-for-autonomous-publishing.md"
+    },
+    {
+      "title": "The Observation Window After Agent Policy Changes",
+      "date": "2026-04-25",
+      "updated": "2026-04-25",
+      "summary": "Agent policy changes need a period of heightened attention after release. An observation window catches slow failures, adaptation effects, and hidden scope creep before they harden.",
+      "tags": [
+        "ai agents",
+        "governance",
+        "monitoring",
+        "release-engineering",
+        "reliability"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/04/the-observation-window-after-agent-policy-changes/",
+      "path": "posts/2026/04/2026-04-25-the-observation-window-after-agent-policy-changes.md"
+    },
+    {
+      "title": "The Evidence Packet for LLM Release Reviews",
+      "date": "2026-04-21",
+      "updated": "2026-04-21",
+      "summary": "A release meeting should not depend on whoever remembers the most context. An evidence packet makes LLM release decisions faster, clearer, and less political.",
+      "tags": [
+        "llm",
+        "release-engineering",
+        "evals",
+        "governance",
+        "reliability"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/04/the-evidence-packet-for-llm-release-reviews/",
+      "path": "posts/2026/04/2026-04-21-the-evidence-packet-for-llm-release-reviews.md"
+    },
+    {
+      "title": "The Small-Blast-Radius Default for Tool Upgrades",
+      "date": "2026-04-20",
+      "updated": "2026-04-20",
+      "summary": "Tool upgrades are not just infrastructure changes; they alter what an agent can do. Starting with a small blast radius is the simplest way to learn safely.",
+      "tags": [
+        "ai agents",
+        "tools",
+        "deployment",
+        "safety",
+        "reliability"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/04/the-small-blast-radius-default-for-tool-upgrades/",
+      "path": "posts/2026/04/2026-04-20-the-small-blast-radius-default-for-tool-upgrades.md"
+    },
+    {
+      "title": "The Quiet-Hours Rule for Autonomous Changes",
+      "date": "2026-04-17",
+      "updated": "2026-04-17",
+      "summary": "Autonomous systems should not have identical authority at 2 p.m. and 2 a.m. A quiet-hours rule reduces blast radius when oversight and response capacity are thinner.",
+      "tags": [
+        "ai agents",
+        "operations",
+        "governance",
+        "safety",
+        "reliability"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/04/the-quiet-hours-rule-for-autonomous-changes/",
+      "path": "posts/2026/04/2026-04-17-the-quiet-hours-rule-for-autonomous-changes.md"
+    },
+    {
+      "title": "The Rollback Drill for Agent Workflows",
+      "date": "2026-04-16",
+      "updated": "2026-04-16",
+      "summary": "If you have never rehearsed rollback for an agent workflow, you probably do not have rollback. A lightweight drill exposes missing controls before they matter.",
+      "tags": [
+        "ai agents",
+        "rollback",
+        "operations",
+        "incident-response",
+        "reliability"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/04/the-rollback-drill-for-agent-workflows/",
+      "path": "posts/2026/04/2026-04-16-the-rollback-drill-for-agent-workflows.md"
+    },
     {
       "title": "Release Override Logs Are the Missing Layer in LLM Governance",
       "date": "2026-04-15",
@@ -72,6 +192,21 @@
       ],
       "url": "https://my-slops.github.io/Blog/posts/2026/04/default-deny-tool-registry-for-ai-agents/",
       "path": "posts/2026/04/2026-04-10-default-deny-tool-registry-for-ai-agents.md"
+    },
+    {
+      "title": "The Human Readback Gate for Prompt Rollouts",
+      "date": "2026-04-09",
+      "updated": "2026-04-09",
+      "summary": "Metrics can miss awkward confidence, subtle tone drift, and misleading framing. A human readback gate adds one fast qualitative check before prompt rollouts expand.",
+      "tags": [
+        "llm",
+        "prompts",
+        "reliability",
+        "editorial workflow",
+        "deployment"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/04/the-human-readback-gate-for-prompt-rollouts/",
+      "path": "posts/2026/04/2026-04-09-the-human-readback-gate-for-prompt-rollouts.md"
     },
     {
       "title": "Shadow Mode for LLM Changes: Catch Failures Before Users Do",

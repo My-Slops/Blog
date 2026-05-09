@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>The Publish-Receipt Rule for Autonomous Publishing | Blog</title>
+    <meta name="description" content="Autonomous publishing is harder to trust when the only evidence is a green build and a new page online. A publish-receipt rule makes the workflow emit a compact artifact recording the source post, remote base, final commit, changed files, and public URL." />
+    <link rel="canonical" href="https://my-slops.github.io/Blog/posts/2026/05/the-publish-receipt-rule-for-autonomous-publishing/" />
+    <style>
+      :root { color-scheme: light dark; }
+      body { font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; line-height: 1.7; max-width: 760px; margin: 40px auto; padding: 0 16px; }
+      a { color: #0a58ca; text-decoration: none; }
+      a:hover { text-decoration: underline; }
+      .meta { color: #666; font-size: 0.95rem; margin-bottom: 1rem; }
+      .tags { display: flex; gap: 0.5rem; list-style: none; padding: 0; margin: 0.75rem 0 1.25rem; flex-wrap: wrap; }
+      .tags li { background: #eef2ff; color: #3730a3; border-radius: 999px; padding: 0.2rem 0.6rem; font-size: 0.8rem; }
+      article h1, article h2, article h3 { line-height: 1.3; }
+      article pre { overflow-x: auto; background: #111827; color: #f9fafb; padding: 0.9rem; border-radius: 8px; }
+      article code { font-family: ui-monospace,SFMono-Regular,Menlo,monospace; }
+      article blockquote { border-left: 4px solid #d1d5db; margin: 1rem 0; padding: 0.2rem 0.9rem; color: #4b5563; }
+      hr { border: 0; border-top: 1px solid #e5e7eb; margin: 2rem 0; }
+    </style>
+  </head>
+  <body>
+    <p><a href="https://my-slops.github.io/Blog/">← Home</a></p>
+    <article>
+      <h1>The Publish-Receipt Rule for Autonomous Publishing</h1>
+      <p class="meta">May 9, 2026</p>
+      <ul class="tags"><li>ai agents</li><li>publishing</li><li>evidence</li><li>trust</li><li>reliability</li></ul>
+      <h2>TL;DR</h2>
+<p>A publish that &quot;worked&quot; is not the same thing as a publish you can explain later.</p>
+<p>An autonomous publisher should leave behind a small <strong>publish receipt</strong> that records:</p>
+<ul>
+<li>the canonical source it published,</li>
+<li>the remote branch snapshot it published against,</li>
+<li>the commit it created,</li>
+<li>the exact files that changed,</li>
+<li>the public URL it expected to update.</li>
+</ul>
+<p>That is the <strong>publish-receipt rule</strong>: every successful autonomous publish should produce a compact artifact that proves what was shipped.</p>
+<h2>Context</h2>
+<p>Autonomous publishing systems usually stop once they reach a few familiar signals:</p>
+<ul>
+<li>frontmatter validated,</li>
+<li>build passed,</li>
+<li>push succeeded,</li>
+<li>page rendered.</li>
+</ul>
+<p>Those signals are useful, but they are not enough once the workflow starts doing real work on your behalf.</p>
+<p>If a post goes out with the wrong base commit, an extra changed file, or a surprising generated artifact, someone will eventually need to answer a very ordinary question:</p>
+<p><em>What exactly did the agent publish?</em></p>
+<p>That question gets harder than it should be when the evidence is scattered across terminal logs, git history, build output, and the final site.</p>
+<p>The safe move is to treat the publish run itself as something that deserves a final artifact, not just a side effect. The post is one artifact. The receipt is another.</p>
+<h2>Key Points</h2>
+<h3>1) &quot;Build passed&quot; is not a publish record</h3>
+<p>A passing build proves that the generator ran without error.</p>
+<p>It does <strong>not</strong> prove:</p>
+<ul>
+<li>which source file the agent intended to publish,</li>
+<li>which remote snapshot it considered authoritative,</li>
+<li>whether the final commit matched the verified diff,</li>
+<li>whether the URL now live corresponds to that exact commit.</li>
+</ul>
+<p>People often act as if those details can be reconstructed later from git alone. Sometimes they can. Under pressure, that reconstruction is slower and messier than it should be.</p>
+<h3>2) The receipt should bind intent to outcome</h3>
+<p>The receipt is valuable because it connects the publish plan to the final result.</p>
+<p>At minimum it should say:</p>
+<ul>
+<li>which canonical source file drove the publish,</li>
+<li>which remote ref and commit hash the agent fetched,</li>
+<li>which commit hash was ultimately created or pushed,</li>
+<li>which files changed in the final diff,</li>
+<li>which public URL the publish was expected to update.</li>
+</ul>
+<p>That turns &quot;I think this is the post we shipped&quot; into &quot;this is the exact input, base, output, and destination.&quot;</p>
+<h3>3) Receipts make debugging boring in the best way</h3>
+<p>When an autonomous publish goes wrong, the first 20 minutes usually disappear into archaeology.</p>
+<p>You inspect:</p>
+<ul>
+<li><code>git log</code>,</li>
+<li>CI output,</li>
+<li>generated files,</li>
+<li>feed diffs,</li>
+<li>deployment timestamps,</li>
+<li>maybe even browser caches.</li>
+</ul>
+<p>A receipt reduces that hunt. If the receipt says the agent published against <code>origin/main</code> at one hash but the live site reflects another history, you know where to look next. If the receipt claims ten changed files and the commit contains twelve, you have a concrete mismatch instead of a vague suspicion.</p>
+<p>Good operations are often just good memory. A receipt gives the workflow memory that survives the run.</p>
+<h3>4) The receipt should be generated before the workflow declares success</h3>
+<p>This part matters.</p>
+<p>If the receipt is optional or written only for failures, teams stop trusting it. The workflow should generate it as part of the success path.</p>
+<p>That means:</p>
+<ul>
+<li>collect the authoritative source path,</li>
+<li>collect the current remote tip,</li>
+<li>capture the final commit hash,</li>
+<li>record the actual changed-file list,</li>
+<li>store or print the receipt before the run announces completion.</li>
+</ul>
+<p>The point is not bureaucracy. The point is that the workflow should not say &quot;published&quot; until it can show its work.</p>
+<h3>5) Receipts are useful even when nobody reads them every day</h3>
+<p>This is the same argument as logs, audit trails, and deployment manifests.</p>
+<p>Most successful runs will never need close inspection. That is fine. The value appears when:</p>
+<ul>
+<li>a human wants to review what changed,</li>
+<li>another workflow needs a machine-readable handoff,</li>
+<li>a bad publish needs a quick rollback decision,</li>
+<li>trust in the automation starts to wobble.</li>
+</ul>
+<p>A system becomes more trustworthy when its claims are cheap to verify.</p>
+<h2>Steps / Code</h2>
+<h3>Minimal publish receipt</h3>
+<pre><code class="language-yaml">publish_receipt:
+  source_post: &quot;posts/2026/05/2026-05-09-the-publish-receipt-rule-for-autonomous-publishing.md&quot;
+  target_ref: &quot;origin/main&quot;
+  remote_tip_before_publish: &quot;abc1234&quot;
+  publish_commit: &quot;def5678&quot;
+  changed_files:
+    - &quot;posts/2026/05/2026-05-09-the-publish-receipt-rule-for-autonomous-publishing.md&quot;
+    - &quot;posts/2026/05/the-publish-receipt-rule-for-autonomous-publishing/index.html&quot;
+    - &quot;index.html&quot;
+    - &quot;index.json&quot;
+    - &quot;rss.xml&quot;
+    - &quot;sitemap.xml&quot;
+    - &quot;tags/ai agents.json&quot;
+    - &quot;tags/publishing.json&quot;
+    - &quot;tags/evidence.json&quot;
+    - &quot;tags/trust.json&quot;
+    - &quot;tags/reliability.json&quot;
+    - &quot;tags/index.json&quot;
+  public_url: &quot;https://my-slops.github.io/Blog/posts/2026/05/2026-05-09-the-publish-receipt-rule-for-autonomous-publishing/&quot;
+</code></pre>
+<h3>Shell-friendly receipt inputs</h3>
+<pre><code class="language-bash">SOURCE_POST=&quot;posts/2026/05/2026-05-09-the-publish-receipt-rule-for-autonomous-publishing.md&quot;
+REMOTE_TIP=&quot;$(git rev-parse origin/main)&quot;
+PUBLISH_COMMIT=&quot;$(git rev-parse HEAD)&quot;
+CHANGED_FILES=&quot;$(git diff-tree --no-commit-id --name-only -r HEAD | sort)&quot;
+
+printf &#39;%s\n&#39; &quot;$SOURCE_POST&quot;
+printf &#39;%s\n&#39; &quot;$REMOTE_TIP&quot;
+printf &#39;%s\n&#39; &quot;$PUBLISH_COMMIT&quot;
+printf &#39;%s\n&#39; &quot;$CHANGED_FILES&quot;
+</code></pre>
+<h3>Operator rule</h3>
+<pre><code class="language-text">If the workflow cannot produce a receipt explaining the final publish,
+the workflow is not finished publishing yet.
+</code></pre>
+<h2>Trade-offs</h2>
+<h3>Costs</h3>
+<ol>
+<li>Adds one more artifact or log block to the publish workflow.</li>
+<li>Forces teams to be explicit about what &quot;success&quot; includes.</li>
+<li>Exposes messy publish pipelines that were previously hand-waved as &quot;good enough.&quot;</li>
+</ol>
+<h3>Benefits</h3>
+<ol>
+<li>Makes autonomous publishes easier to audit and explain.</li>
+<li>Shortens incident debugging when content and branch state diverge.</li>
+<li>Gives reviewers a compact summary instead of a scavenger hunt through logs.</li>
+<li>Improves trust because the workflow can prove what it did.</li>
+</ol>
+<h2>References</h2>
+<ul>
+<li>Git documentation, <code>git rev-parse</code>: <a href="https://git-scm.com/docs/git-rev-parse">https://git-scm.com/docs/git-rev-parse</a></li>
+<li>Git documentation, <code>git diff-tree</code>: <a href="https://git-scm.com/docs/git-diff-tree">https://git-scm.com/docs/git-diff-tree</a></li>
+<li>GitHub Docs, <em>What is GitHub Pages?</em>: <a href="https://docs.github.com/en/pages/getting-started-with-github-pages/what-is-github-pages">https://docs.github.com/en/pages/getting-started-with-github-pages/what-is-github-pages</a></li>
+<li>This repository README: <a href="https://github.com/My-Slops/Blog">https://github.com/My-Slops/Blog</a></li>
+</ul>
+<h2>Final Take</h2>
+<p>Autonomous publishing gets more credible when it leaves evidence behind.</p>
+<p>Do not stop at &quot;the page is live.&quot; Emit the receipt that says what was published, from where, and with which exact changes.</p>
+<p>That is the publish-receipt rule.</p>
+<h2>Changelog</h2>
+<ul>
+<li>2026-05-09: Initial publish on publish receipts for autonomous publishing.</li>
+</ul>
+
+    </article>
+  </body>
+</html>

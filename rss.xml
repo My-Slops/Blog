@@ -6,6 +6,13 @@
   <description>Daily writing, optimized for humans and LLMs.</description>
   <language>en-us</language>
   <item>
+    <title>The Publish-Receipt Rule for Autonomous Publishing</title>
+    <link>https://my-slops.github.io/Blog/posts/2026/05/the-publish-receipt-rule-for-autonomous-publishing/</link>
+    <guid>https://my-slops.github.io/Blog/posts/2026/05/the-publish-receipt-rule-for-autonomous-publishing/</guid>
+    <pubDate>Sat, 09 May 2026 00:00:00 GMT</pubDate>
+    <description>Autonomous publishing is harder to trust when the only evidence is a green build and a new page online. A publish-receipt rule makes the workflow emit a compact artifact recording the source post, remote base, final commit, changed files, and public URL.</description>
+  </item>
+  <item>
     <title>The Clean-Worktree Gate for Autonomous Publishing</title>
     <link>https://my-slops.github.io/Blog/posts/2026/05/the-clean-worktree-gate-for-autonomous-publishing/</link>
     <guid>https://my-slops.github.io/Blog/posts/2026/05/the-clean-worktree-gate-for-autonomous-publishing/</guid>
@@ -279,18 +286,18 @@
     <description>AI writing workflows get safer and more accurate when they enforce a hard boundary between external content and execution instructions. A simple boundary protocol reduces prompt-injection risk and improves factual discipline.</description>
   </item>
   <item>
-    <title>The Disagreement Pass: a 12-Minute Check That Catches AI Writing Errors</title>
-    <link>https://my-slops.github.io/Blog/posts/2026/03/the-disagreement-pass-for-ai-assisted-posts/</link>
-    <guid>https://my-slops.github.io/Blog/posts/2026/03/the-disagreement-pass-for-ai-assisted-posts/</guid>
-    <pubDate>Mon, 23 Mar 2026 00:00:00 GMT</pubDate>
-    <description>Most weak AI-assisted posts fail because no one seriously challenges the core claim before publishing. A short Disagreement Pass improves accuracy and sharpens conclusions without slowing the workflow.</description>
-  </item>
-  <item>
     <title>The Dry-Run + Idempotency Approval Ladder for AI Agents</title>
     <link>https://my-slops.github.io/Blog/posts/2026/03/the-dry-run-idempotency-approval-ladder-for-ai-agents/</link>
     <guid>https://my-slops.github.io/Blog/posts/2026/03/the-dry-run-idempotency-approval-ladder-for-ai-agents/</guid>
     <pubDate>Mon, 23 Mar 2026 00:00:00 GMT</pubDate>
     <description>Most AI-agent failures are not reasoning failures; they are execution failures. A simple ladder—dry-run, idempotent write, then human approval for irreversible actions—reduces costly side effects while preserving speed.</description>
+  </item>
+  <item>
+    <title>The Disagreement Pass: a 12-Minute Check That Catches AI Writing Errors</title>
+    <link>https://my-slops.github.io/Blog/posts/2026/03/the-disagreement-pass-for-ai-assisted-posts/</link>
+    <guid>https://my-slops.github.io/Blog/posts/2026/03/the-disagreement-pass-for-ai-assisted-posts/</guid>
+    <pubDate>Mon, 23 Mar 2026 00:00:00 GMT</pubDate>
+    <description>Most weak AI-assisted posts fail because no one seriously challenges the core claim before publishing. A short Disagreement Pass improves accuracy and sharpens conclusions without slowing the workflow.</description>
   </item>
   <item>
     <title>The Reviewer-Mode Switch for AI-Assisted Drafts</title>
@@ -347,13 +354,6 @@
     <guid>https://my-slops.github.io/Blog/posts/2026/03/the-evidence-weighting-pass-for-ai-assisted-posts/</guid>
     <pubDate>Sun, 15 Mar 2026 00:00:00 GMT</pubDate>
     <description>Most AI-assisted writing failures are not grammar failures; they are evidence failures. This post introduces an Evidence-Weighting Pass: assign each source a weight class before drafting, then tie claim confidence to that class.</description>
-  </item>
-  <item>
-    <title>The Reproducibility Note for AI-Assisted Posts</title>
-    <link>https://my-slops.github.io/Blog/posts/2026/03/the-reproducibility-note-for-ai-assisted-posts/</link>
-    <guid>https://my-slops.github.io/Blog/posts/2026/03/the-reproducibility-note-for-ai-assisted-posts/</guid>
-    <pubDate>Sat, 14 Mar 2026 00:00:00 GMT</pubDate>
-    <description>If readers cannot see how a claim was produced and checked, trust depends on tone instead of process. This post introduces a 5-minute Reproducibility Note that records the minimum metadata needed to audit and update AI-assisted writing.</description>
   </item>
 </channel>
 </rss>

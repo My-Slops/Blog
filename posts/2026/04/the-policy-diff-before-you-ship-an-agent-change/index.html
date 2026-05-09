@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>The Policy Diff Before You Ship an Agent Change | Blog</title>
+    <meta name="description" content="Agent changes often ship as prompt tweaks or policy edits that are hard to inspect. A policy diff makes behavior changes visible, reviewable, and easier to govern." />
+    <link rel="canonical" href="https://my-slops.github.io/Blog/posts/2026/04/the-policy-diff-before-you-ship-an-agent-change/" />
+    <style>
+      :root { color-scheme: light dark; }
+      body { font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; line-height: 1.7; max-width: 760px; margin: 40px auto; padding: 0 16px; }
+      a { color: #0a58ca; text-decoration: none; }
+      a:hover { text-decoration: underline; }
+      .meta { color: #666; font-size: 0.95rem; margin-bottom: 1rem; }
+      .tags { display: flex; gap: 0.5rem; list-style: none; padding: 0; margin: 0.75rem 0 1.25rem; flex-wrap: wrap; }
+      .tags li { background: #eef2ff; color: #3730a3; border-radius: 999px; padding: 0.2rem 0.6rem; font-size: 0.8rem; }
+      article h1, article h2, article h3 { line-height: 1.3; }
+      article pre { overflow-x: auto; background: #111827; color: #f9fafb; padding: 0.9rem; border-radius: 8px; }
+      article code { font-family: ui-monospace,SFMono-Regular,Menlo,monospace; }
+      article blockquote { border-left: 4px solid #d1d5db; margin: 1rem 0; padding: 0.2rem 0.9rem; color: #4b5563; }
+      hr { border: 0; border-top: 1px solid #e5e7eb; margin: 2rem 0; }
+    </style>
+  </head>
+  <body>
+    <p><a href="https://my-slops.github.io/Blog/">← Home</a></p>
+    <article>
+      <h1>The Policy Diff Before You Ship an Agent Change</h1>
+      <p class="meta">Apr 11, 2026</p>
+      <ul class="tags"><li>ai agents</li><li>governance</li><li>prompts</li><li>release-engineering</li><li>safety</li></ul>
+      <h2>TL;DR</h2>
+<p>Teams often review code changes carefully and agent behavior changes casually.</p>
+<p>That is backward.</p>
+<p>If an instruction, tool policy, or approval rule changes what the agent may do, review the <strong>policy diff</strong> explicitly:</p>
+<ul>
+<li>what behavior changed,</li>
+<li>what permission changed,</li>
+<li>what escalation changed,</li>
+<li>what failure mode the change introduces.</li>
+</ul>
+<p>If you cannot summarize the behavioral delta, you are not ready to ship it.</p>
+<h2>Context</h2>
+<p>Agent systems often evolve through small edits:</p>
+<ul>
+<li>one more allowed tool,</li>
+<li>one softer refusal,</li>
+<li>one broader interpretation of user intent,</li>
+<li>one narrower approval requirement.</li>
+</ul>
+<p>Each edit may look tiny in the raw text. The behavioral effect may not be tiny at all.</p>
+<p>This is why release discipline for agents needs artifacts that are easier to review than raw prompt prose. SRE practice treats release changes as things to compare, inspect, and gate. NIST’s governance framing points the same way: risk management needs visibility into the controls that shape behavior, not only into code execution after the fact.</p>
+<h2>Key Points</h2>
+<h3>1) Raw prompt edits are poor review surfaces</h3>
+<p>They mix:</p>
+<ul>
+<li>style changes,</li>
+<li>instruction priority changes,</li>
+<li>scope changes,</li>
+<li>safety changes.</li>
+</ul>
+<p>That makes it easy to miss the one line that matters most.</p>
+<h3>2) A policy diff should describe behavior, not just text</h3>
+<p>Good review prompts ask:</p>
+<ul>
+<li>What new actions are allowed?</li>
+<li>What existing actions are now easier?</li>
+<li>What ambiguity is handled differently?</li>
+<li>What escalation threshold moved?</li>
+</ul>
+<p>This turns prose edits into operational review.</p>
+<h3>3) Permission changes deserve special treatment</h3>
+<p>If the diff changes:</p>
+<ul>
+<li>tool scope,</li>
+<li>writable paths,</li>
+<li>external messaging,</li>
+<li>publish ability,</li>
+<li>approval rules,</li>
+</ul>
+<p>then it is not just a prompt tweak. It is a risk change.</p>
+<h3>4) Review should include expected failure modes</h3>
+<p>Every policy diff should come with one more question:</p>
+<ul>
+<li>how could this go wrong?</li>
+</ul>
+<p>That catches issues like:</p>
+<ul>
+<li>more confident but less grounded answers,</li>
+<li>fewer escalations under ambiguity,</li>
+<li>broader file edits than intended,</li>
+<li>silent erosion of default-deny rules.</li>
+</ul>
+<h3>5) Diffs improve institutional memory</h3>
+<p>Weeks later, when behavior changes unexpectedly, a policy diff gives you a clean answer to:</p>
+<ul>
+<li>what changed,</li>
+<li>why it changed,</li>
+<li>who approved it,</li>
+<li>what risk was accepted.</li>
+</ul>
+<p>That is much better than diffing vague prompt history after an incident.</p>
+<h2>Steps / Code</h2>
+<h3>Minimal policy diff template</h3>
+<pre><code class="language-markdown">Behavior change:
+- Agent may now edit generated markdown files without a second confirmation.
+
+Permission delta:
+- Writable scope expanded from draft folder to posts folder.
+
+Escalation delta:
+- Human approval still required for publish.
+
+Primary risk:
+- Broader accidental content overwrite.
+</code></pre>
+<h3>Review rule</h3>
+<pre><code class="language-text">If the change affects permissions, escalation, or instruction priority,
+produce a behavioral diff before shipping.
+</code></pre>
+<h2>Trade-offs</h2>
+<h3>Costs</h3>
+<ol>
+<li>More release ceremony for prompt and policy changes.</li>
+<li>Requires translating prose edits into behavioral terms.</li>
+<li>Can feel slower than &quot;just tweak and test.&quot;</li>
+</ol>
+<h3>Benefits</h3>
+<ol>
+<li>Better governance for agent behavior changes.</li>
+<li>Easier review of subtle but important deltas.</li>
+<li>Clearer incident and audit trail.</li>
+<li>Lower chance of shipping unexamined scope creep.</li>
+</ol>
+<h2>References</h2>
+<ul>
+<li>NIST, <em>Artificial Intelligence Risk Management Framework (AI RMF 1.0)</em>: <a href="https://doi.org/10.6028/NIST.AI.100-1">https://doi.org/10.6028/NIST.AI.100-1</a></li>
+<li>NIST, <em>Artificial Intelligence Risk Management Framework: Generative Artificial Intelligence Profile</em>: <a href="https://doi.org/10.6028/NIST.AI.600-1">https://doi.org/10.6028/NIST.AI.600-1</a></li>
+<li>Google SRE Workbook, <em>Canarying Releases</em>: <a href="https://sre.google/workbook/canarying-releases/">https://sre.google/workbook/canarying-releases/</a></li>
+</ul>
+<h2>Final Take</h2>
+<p>If a text change can change agent behavior, it deserves a review surface better than &quot;looks fine.&quot;</p>
+<p>That surface is the policy diff.</p>
+<h2>Changelog</h2>
+<ul>
+<li>2026-04-11: Initial publish on reviewing behavioral policy diffs before shipping agent changes.</li>
+</ul>
+
+    </article>
+  </body>
+</html>

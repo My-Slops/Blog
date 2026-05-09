@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>The Approval Surface for Publishing Agents | Blog</title>
+    <meta name="description" content="If a publishing agent only has one approval gate at the end, you may be approving too late. Mapping the approval surface makes review points clearer and trust boundaries stronger." />
+    <link rel="canonical" href="https://my-slops.github.io/Blog/posts/2026/04/the-approval-surface-for-publishing-agents/" />
+    <style>
+      :root { color-scheme: light dark; }
+      body { font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; line-height: 1.7; max-width: 760px; margin: 40px auto; padding: 0 16px; }
+      a { color: #0a58ca; text-decoration: none; }
+      a:hover { text-decoration: underline; }
+      .meta { color: #666; font-size: 0.95rem; margin-bottom: 1rem; }
+      .tags { display: flex; gap: 0.5rem; list-style: none; padding: 0; margin: 0.75rem 0 1.25rem; flex-wrap: wrap; }
+      .tags li { background: #eef2ff; color: #3730a3; border-radius: 999px; padding: 0.2rem 0.6rem; font-size: 0.8rem; }
+      article h1, article h2, article h3 { line-height: 1.3; }
+      article pre { overflow-x: auto; background: #111827; color: #f9fafb; padding: 0.9rem; border-radius: 8px; }
+      article code { font-family: ui-monospace,SFMono-Regular,Menlo,monospace; }
+      article blockquote { border-left: 4px solid #d1d5db; margin: 1rem 0; padding: 0.2rem 0.9rem; color: #4b5563; }
+      hr { border: 0; border-top: 1px solid #e5e7eb; margin: 2rem 0; }
+    </style>
+  </head>
+  <body>
+    <p><a href="https://my-slops.github.io/Blog/">← Home</a></p>
+    <article>
+      <h1>The Approval Surface for Publishing Agents</h1>
+      <p class="meta">Apr 18, 2026</p>
+      <ul class="tags"><li>ai agents</li><li>publishing</li><li>editorial workflow</li><li>governance</li><li>trust</li></ul>
+      <h2>TL;DR</h2>
+<p>For publishing agents, approval is not a single event.</p>
+<p>There are multiple places where a human might need to confirm:</p>
+<ul>
+<li>source selection,</li>
+<li>claim approval,</li>
+<li>final copy,</li>
+<li>external publication.</li>
+</ul>
+<p>The full set of these decision points is the <strong>approval surface</strong>.</p>
+<p>Mapping that surface helps teams choose where human review matters most instead of relying on one overloaded final approval.</p>
+<h2>Context</h2>
+<p>Many teams design approvals too crudely:</p>
+<ul>
+<li>either everything is automatic,</li>
+<li>or one person clicks &quot;approve&quot; at the very end.</li>
+</ul>
+<p>Neither is great.</p>
+<p>The final-step-only model often forces one human to absorb too much uncertainty too late. By then, source choices, framing decisions, and claim scope may already be locked in. A better workflow identifies where risk changes class and places approvals there.</p>
+<p>This is especially important for AI publishing systems because editorial and operational risk overlap. The same workflow can make content decisions and execution decisions. Approval design has to account for both.</p>
+<h2>Key Points</h2>
+<h3>1) Different approvals protect different things</h3>
+<p>Examples:</p>
+<ul>
+<li>source approval protects provenance,</li>
+<li>claim approval protects factual scope,</li>
+<li>copy approval protects tone and reader trust,</li>
+<li>publish approval protects external consequence.</li>
+</ul>
+<p>Treating these as one generic &quot;approval&quot; blurs the point of each gate.</p>
+<h3>2) Final approval is often too compressed</h3>
+<p>If the only human checkpoint is the last one, reviewers inherit all upstream ambiguity at once.</p>
+<p>That creates rushed approvals, not strong approvals.</p>
+<h3>3) Approval surfaces should follow risk transitions</h3>
+<p>Useful trigger points include:</p>
+<ul>
+<li>moving from notes to claims,</li>
+<li>moving from draft to publishable copy,</li>
+<li>moving from internal artifact to public output,</li>
+<li>moving from proposal to irreversible action.</li>
+</ul>
+<p>This keeps review aligned with consequences.</p>
+<h3>4) More approval is not always better</h3>
+<p>The goal is not maximum friction.</p>
+<p>The goal is well-placed friction:</p>
+<ul>
+<li>enough to protect trust,</li>
+<li>not so much that the workflow becomes ceremonial theater.</li>
+</ul>
+<h3>5) Visible approvals improve accountability and memory</h3>
+<p>When something goes wrong, you want to know:</p>
+<ul>
+<li>what was approved,</li>
+<li>at what stage,</li>
+<li>by whom,</li>
+<li>with what known caveats.</li>
+</ul>
+<p>That is much easier when the approval surface is explicit.</p>
+<h2>Steps / Code</h2>
+<h3>Approval surface map</h3>
+<pre><code class="language-markdown">Stage: source selection -&gt; optional human approval
+Stage: claim set finalization -&gt; recommended approval
+Stage: final copy -&gt; required editorial approval
+Stage: external publish -&gt; required operational approval
+</code></pre>
+<h3>Design question</h3>
+<pre><code class="language-text">At which stage does the cost of being wrong increase enough to justify a human gate?
+</code></pre>
+<h2>Trade-offs</h2>
+<h3>Costs</h3>
+<ol>
+<li>More workflow design work.</li>
+<li>Potentially more review handoffs.</li>
+<li>Requires clarity about what each approval means.</li>
+</ol>
+<h3>Benefits</h3>
+<ol>
+<li>Better-placed human oversight.</li>
+<li>Lower approval overload at the final step.</li>
+<li>Clearer accountability.</li>
+<li>Stronger trust boundaries for publishing agents.</li>
+</ol>
+<h2>References</h2>
+<ul>
+<li>NIST, <em>Artificial Intelligence Risk Management Framework: Generative Artificial Intelligence Profile</em>: <a href="https://doi.org/10.6028/NIST.AI.600-1">https://doi.org/10.6028/NIST.AI.600-1</a></li>
+<li>Google Search Central, <em>Creating helpful, reliable, people-first content</em>: <a href="https://developers.google.com/search/docs/fundamentals/creating-helpful-content">https://developers.google.com/search/docs/fundamentals/creating-helpful-content</a></li>
+</ul>
+<h2>Final Take</h2>
+<p>If one final click is doing all the governance work, your workflow is hiding too much risk too late.</p>
+<p>Map the approval surface.</p>
+<h2>Changelog</h2>
+<ul>
+<li>2026-04-18: Initial publish on mapping approval surfaces for publishing agents.</li>
+</ul>
+
+    </article>
+  </body>
+</html>

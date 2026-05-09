@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>The Escalation Path for High-Impact Agent Actions | Blog</title>
+    <meta name="description" content="Many agent failures come from doing too much under ambiguity instead of escalating. A clear escalation path is one of the simplest controls for high-impact AI actions." />
+    <link rel="canonical" href="https://my-slops.github.io/Blog/posts/2026/03/the-escalation-path-for-high-impact-agent-actions/" />
+    <style>
+      :root { color-scheme: light dark; }
+      body { font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; line-height: 1.7; max-width: 760px; margin: 40px auto; padding: 0 16px; }
+      a { color: #0a58ca; text-decoration: none; }
+      a:hover { text-decoration: underline; }
+      .meta { color: #666; font-size: 0.95rem; margin-bottom: 1rem; }
+      .tags { display: flex; gap: 0.5rem; list-style: none; padding: 0; margin: 0.75rem 0 1.25rem; flex-wrap: wrap; }
+      .tags li { background: #eef2ff; color: #3730a3; border-radius: 999px; padding: 0.2rem 0.6rem; font-size: 0.8rem; }
+      article h1, article h2, article h3 { line-height: 1.3; }
+      article pre { overflow-x: auto; background: #111827; color: #f9fafb; padding: 0.9rem; border-radius: 8px; }
+      article code { font-family: ui-monospace,SFMono-Regular,Menlo,monospace; }
+      article blockquote { border-left: 4px solid #d1d5db; margin: 1rem 0; padding: 0.2rem 0.9rem; color: #4b5563; }
+      hr { border: 0; border-top: 1px solid #e5e7eb; margin: 2rem 0; }
+    </style>
+  </head>
+  <body>
+    <p><a href="https://my-slops.github.io/Blog/">← Home</a></p>
+    <article>
+      <h1>The Escalation Path for High-Impact Agent Actions</h1>
+      <p class="meta">Mar 29, 2026</p>
+      <ul class="tags"><li>ai agents</li><li>safety</li><li>escalation</li><li>governance</li><li>trust</li></ul>
+      <h2>TL;DR</h2>
+<p>An agent should not prove its usefulness by pushing through uncertainty.</p>
+<p>For high-impact actions, usefulness often means stopping.</p>
+<p>An explicit <strong>escalation path</strong> defines:</p>
+<ul>
+<li>what actions require approval,</li>
+<li>what signals trigger escalation,</li>
+<li>what information must accompany the escalation,</li>
+<li>what happens if no response arrives.</li>
+</ul>
+<p>Without that path, ambiguity gets converted into action.</p>
+<h2>Context</h2>
+<p>As teams give agents more operational reach, one control becomes increasingly important: the ability to fail upward instead of failing forward.</p>
+<p>This matters because many bad outcomes are not caused by obviously malicious prompts or obviously broken tools. They come from muddy cases:</p>
+<ul>
+<li>conflicting instructions,</li>
+<li>partial evidence,</li>
+<li>uncertain file targets,</li>
+<li>irreversible actions under time pressure.</li>
+</ul>
+<p>In those cases, the problem is not only whether the model can reason well. The problem is whether the workflow permits it to keep going when it should hand the decision back.</p>
+<p>NIST’s AI RMF emphasizes governance, oversight, and ongoing risk management. OWASP’s guidance makes the boundary issue concrete for tool-using systems. The operational translation is simple: high-impact autonomy needs a visible exit ramp.</p>
+<h2>Key Points</h2>
+<h3>1) Escalation is not failure</h3>
+<p>Many workflows accidentally teach the model the opposite.</p>
+<p>If the system is mainly rewarded for completion, it will treat escalation as a last resort. That is backward for high-impact actions.</p>
+<p>For actions that are destructive, public, privileged, or hard to reverse, escalation is often the correct success condition.</p>
+<h3>2) The trigger list must be explicit</h3>
+<p>Do not rely on the model to infer what &quot;important&quot; means from vibes.</p>
+<p>Define escalation triggers such as:</p>
+<ul>
+<li>publish externally,</li>
+<li>overwrite canonical content,</li>
+<li>use broad file patterns,</li>
+<li>send messages,</li>
+<li>access secrets or production systems,</li>
+<li>act when instructions conflict.</li>
+</ul>
+<p>If the trigger set is implicit, it will be inconsistently applied.</p>
+<h3>3) A good escalation includes context, not just a question</h3>
+<p>The agent should not ask:</p>
+<ul>
+<li>&quot;Should I continue?&quot;</li>
+</ul>
+<p>It should ask with an evidence packet:</p>
+<ul>
+<li>requested action,</li>
+<li>why it is risky,</li>
+<li>what it already checked,</li>
+<li>what safe alternative exists,</li>
+<li>what decision is needed.</li>
+</ul>
+<p>That makes human review faster and sharper.</p>
+<h3>4) No-response behavior matters</h3>
+<p>This is a subtle but important detail.</p>
+<p>If no one answers an escalation, what happens?</p>
+<p>Good defaults are usually:</p>
+<ul>
+<li>stay paused,</li>
+<li>save draft output,</li>
+<li>log the blocked action,</li>
+<li>offer the lowest-risk next step.</li>
+</ul>
+<p>Bad defaults are:</p>
+<ul>
+<li>continue anyway,</li>
+<li>choose the most plausible interpretation,</li>
+<li>retry until something works.</li>
+</ul>
+<h3>5) Escalation design is credibility design</h3>
+<p>This is especially true for publishing or content workflows.</p>
+<p>If an agent can transform uncertain evidence into public output without a clean escalation boundary, then trust in the writing and trust in the system are the same problem.</p>
+<h2>Steps / Code</h2>
+<h3>Minimal escalation policy</h3>
+<pre><code class="language-yaml">escalate_on:
+  - publish_external
+  - destructive_write
+  - privileged_access
+  - conflicting_instructions
+  - low_confidence_high_impact
+
+escalation_payload:
+  - requested_action
+  - reason_for_escalation
+  - checks_already_run
+  - safe_fallback
+  - decision_needed
+
+on_no_response:
+  action: &quot;pause&quot;
+</code></pre>
+<h3>One-line rule</h3>
+<pre><code class="language-text">If the action is high-impact and the situation is ambiguous, escalate before acting.
+</code></pre>
+<h2>Trade-offs</h2>
+<h3>Costs</h3>
+<ol>
+<li>More approval interruptions.</li>
+<li>Slower completion on edge cases.</li>
+<li>Requires better categorization of action risk.</li>
+</ol>
+<h3>Benefits</h3>
+<ol>
+<li>Fewer irreversible mistakes.</li>
+<li>Clearer human oversight.</li>
+<li>Better logs for governance and postmortems.</li>
+<li>Lower pressure on the model to guess under ambiguity.</li>
+</ol>
+<h2>References</h2>
+<ul>
+<li>OWASP Cheat Sheet Series, <em>LLM Prompt Injection Prevention</em>: <a href="https://cheatsheetseries.owasp.org/cheatsheets/LLM_Prompt_Injection_Prevention_Cheat_Sheet.html">https://cheatsheetseries.owasp.org/cheatsheets/LLM_Prompt_Injection_Prevention_Cheat_Sheet.html</a></li>
+<li>NIST, <em>Artificial Intelligence Risk Management Framework (AI RMF 1.0)</em>: <a href="https://doi.org/10.6028/NIST.AI.100-1">https://doi.org/10.6028/NIST.AI.100-1</a></li>
+<li>OpenAI, <em>Why language models hallucinate</em>: <a href="https://openai.com/index/why-language-models-hallucinate">https://openai.com/index/why-language-models-hallucinate</a></li>
+</ul>
+<h2>Final Take</h2>
+<p>The question for a high-impact agent is not whether it can keep going.</p>
+<p>It is whether it knows when not to.</p>
+<p>That is what an escalation path is for.</p>
+<h2>Changelog</h2>
+<ul>
+<li>2026-03-29: Initial publish on explicit escalation paths for high-impact agent actions.</li>
+</ul>
+
+    </article>
+  </body>
+</html>

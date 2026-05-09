@@ -1,7 +1,112 @@
 {
   "tag": "trust",
-  "count": 3,
+  "count": 11,
   "posts": [
+    {
+      "title": "The Publish-Receipt Rule for Autonomous Publishing",
+      "date": "2026-05-09",
+      "updated": "2026-05-09",
+      "summary": "Autonomous publishing is harder to trust when the only evidence is a green build and a new page online. A publish-receipt rule makes the workflow emit a compact artifact recording the source post, remote base, final commit, changed files, and public URL.",
+      "tags": [
+        "ai agents",
+        "publishing",
+        "evidence",
+        "trust",
+        "reliability"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/05/the-publish-receipt-rule-for-autonomous-publishing/",
+      "path": "posts/2026/05/2026-05-09-the-publish-receipt-rule-for-autonomous-publishing.md"
+    },
+    {
+      "title": "The Approval Freshness Rule for Agent Actions",
+      "date": "2026-04-28",
+      "updated": "2026-04-28",
+      "summary": "Agent workflows often fail when they act on old approvals in new conditions. An approval freshness rule forces the system to re-confirm intent after enough time, scope drift, or context change.",
+      "tags": [
+        "ai agents",
+        "governance",
+        "trust",
+        "safety",
+        "operations"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/04/the-approval-freshness-rule-for-agent-actions/",
+      "path": "posts/2026/04/2026-04-28-the-approval-freshness-rule-for-agent-actions.md"
+    },
+    {
+      "title": "The Final-Action Checklist for High-Trust Agents",
+      "date": "2026-04-24",
+      "updated": "2026-04-24",
+      "summary": "Many costly agent mistakes happen at the final step, not during planning. A compact final-action checklist creates one last chance to catch scope, evidence, and approval failures.",
+      "tags": [
+        "ai agents",
+        "checklist",
+        "safety",
+        "verification",
+        "trust"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/04/the-final-action-checklist-for-high-trust-agents/",
+      "path": "posts/2026/04/2026-04-24-the-final-action-checklist-for-high-trust-agents.md"
+    },
+    {
+      "title": "The Draft-to-Decision Handoff for AI Operators",
+      "date": "2026-04-22",
+      "updated": "2026-04-22",
+      "summary": "Agents are often better at preparing decisions than making final ones. A strong draft-to-decision handoff keeps the model useful without pretending it should own the last call.",
+      "tags": [
+        "ai agents",
+        "decision making",
+        "workflow",
+        "operations",
+        "trust"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/04/the-draft-to-decision-handoff-for-ai-operators/",
+      "path": "posts/2026/04/2026-04-22-the-draft-to-decision-handoff-for-ai-operators.md"
+    },
+    {
+      "title": "The Approval Surface for Publishing Agents",
+      "date": "2026-04-18",
+      "updated": "2026-04-18",
+      "summary": "If a publishing agent only has one approval gate at the end, you may be approving too late. Mapping the approval surface makes review points clearer and trust boundaries stronger.",
+      "tags": [
+        "ai agents",
+        "publishing",
+        "editorial workflow",
+        "governance",
+        "trust"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/04/the-approval-surface-for-publishing-agents/",
+      "path": "posts/2026/04/2026-04-18-the-approval-surface-for-publishing-agents.md"
+    },
+    {
+      "title": "The Escalation Path for High-Impact Agent Actions",
+      "date": "2026-03-29",
+      "updated": "2026-03-29",
+      "summary": "Many agent failures come from doing too much under ambiguity instead of escalating. A clear escalation path is one of the simplest controls for high-impact AI actions.",
+      "tags": [
+        "ai agents",
+        "safety",
+        "escalation",
+        "governance",
+        "trust"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/03/the-escalation-path-for-high-impact-agent-actions/",
+      "path": "posts/2026/03/2026-03-29-the-escalation-path-for-high-impact-agent-actions.md"
+    },
+    {
+      "title": "The Reviewer-Mode Switch for AI-Assisted Drafts",
+      "date": "2026-03-22",
+      "updated": "2026-03-22",
+      "summary": "Drafting mode wants movement; reviewer mode wants skepticism. Treating both as the same task leads to weak self-critique. A reviewer-mode switch improves precision, trust, and editing efficiency.",
+      "tags": [
+        "ai writing",
+        "review",
+        "workflow design",
+        "critical thinking",
+        "trust"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/03/the-reviewer-mode-switch-for-ai-assisted-drafts/",
+      "path": "posts/2026/03/2026-03-22-the-reviewer-mode-switch-for-ai-assisted-drafts.md"
+    },
     {
       "title": "The Recency Check for AI-Assisted Posts",
       "date": "2026-03-16",
@@ -48,6 +153,21 @@
       ],
       "url": "https://my-slops.github.io/Blog/posts/2026/03/the-uncertainty-label-protocol-for-ai-assisted-posts/",
       "path": "posts/2026/03/2026-03-12-the-uncertainty-label-protocol-for-ai-assisted-posts.md"
+    },
+    {
+      "title": "Credibility Is a Workflow, Not a Tone",
+      "date": "2026-03-01",
+      "updated": "2026-03-01",
+      "summary": "People often mistake fluent tone for trustworthy writing. Real credibility comes from the workflow behind the draft: provenance, uncertainty handling, review boundaries, and explicit approval before publication.",
+      "tags": [
+        "ai writing",
+        "credibility",
+        "fact-checking",
+        "editorial workflow",
+        "trust"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/03/credibility-is-a-workflow-not-a-tone/",
+      "path": "posts/2026/03/2026-03-01-credibility-is-a-workflow-not-a-tone.md"
     }
   ]
 }

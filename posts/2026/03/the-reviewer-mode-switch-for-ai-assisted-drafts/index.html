@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>The Reviewer-Mode Switch for AI-Assisted Drafts | Blog</title>
+    <meta name="description" content="Drafting mode wants movement; reviewer mode wants skepticism. Treating both as the same task leads to weak self-critique. A reviewer-mode switch improves precision, trust, and editing efficiency." />
+    <link rel="canonical" href="https://my-slops.github.io/Blog/posts/2026/03/the-reviewer-mode-switch-for-ai-assisted-drafts/" />
+    <style>
+      :root { color-scheme: light dark; }
+      body { font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; line-height: 1.7; max-width: 760px; margin: 40px auto; padding: 0 16px; }
+      a { color: #0a58ca; text-decoration: none; }
+      a:hover { text-decoration: underline; }
+      .meta { color: #666; font-size: 0.95rem; margin-bottom: 1rem; }
+      .tags { display: flex; gap: 0.5rem; list-style: none; padding: 0; margin: 0.75rem 0 1.25rem; flex-wrap: wrap; }
+      .tags li { background: #eef2ff; color: #3730a3; border-radius: 999px; padding: 0.2rem 0.6rem; font-size: 0.8rem; }
+      article h1, article h2, article h3 { line-height: 1.3; }
+      article pre { overflow-x: auto; background: #111827; color: #f9fafb; padding: 0.9rem; border-radius: 8px; }
+      article code { font-family: ui-monospace,SFMono-Regular,Menlo,monospace; }
+      article blockquote { border-left: 4px solid #d1d5db; margin: 1rem 0; padding: 0.2rem 0.9rem; color: #4b5563; }
+      hr { border: 0; border-top: 1px solid #e5e7eb; margin: 2rem 0; }
+    </style>
+  </head>
+  <body>
+    <p><a href="https://my-slops.github.io/Blog/">← Home</a></p>
+    <article>
+      <h1>The Reviewer-Mode Switch for AI-Assisted Drafts</h1>
+      <p class="meta">Mar 22, 2026</p>
+      <ul class="tags"><li>ai writing</li><li>review</li><li>workflow design</li><li>critical thinking</li><li>trust</li></ul>
+      <h2>TL;DR</h2>
+<p>Drafting and reviewing are not the same mental job.</p>
+<p>Draft mode optimizes for momentum. Review mode should optimize for doubt.</p>
+<p>If you ask the same AI system to do both under the same instruction frame, it tends to stay in helpful-completion mode rather than skeptical-review mode.</p>
+<p>A <strong>reviewer-mode switch</strong> makes the role explicit:</p>
+<ul>
+<li>stop generating,</li>
+<li>start inspecting,</li>
+<li>look for failure before improvement.</li>
+</ul>
+<h2>Context</h2>
+<p>AI writing systems are usually biased toward continuation. That is useful when you need a draft. It is not enough when you need criticism.</p>
+<p>This creates a common failure pattern: the system edits, smooths, and embellishes instead of asking whether the draft should be trusted. You get lots of helpfulness and not enough resistance.</p>
+<p>There is a broader lesson here from evaluation practice and model-behavior work. If a system is rewarded for keeping the conversation moving, it will often keep producing text when it should instead pause, challenge, or narrow a claim. Review quality depends on changing the job definition, not just asking for &quot;a better version.&quot;</p>
+<h2>Key Points</h2>
+<h3>1) Review mode should search for breakpoints, not opportunities</h3>
+<p>In draft mode, the natural question is:</p>
+<ul>
+<li>&quot;How do I make this paragraph work?&quot;</li>
+</ul>
+<p>In reviewer mode, the question should be:</p>
+<ul>
+<li>&quot;Where does this paragraph fail?&quot;</li>
+</ul>
+<p>That single switch changes the output from additive to diagnostic.</p>
+<h3>2) Reviewer mode needs different success criteria</h3>
+<p>A good reviewer output is not the prettiest rewrite.</p>
+<p>It is something closer to:</p>
+<ul>
+<li>unsupported claim found,</li>
+<li>repeated idea detected,</li>
+<li>over-broad recommendation narrowed,</li>
+<li>missing evidence surfaced,</li>
+<li>uncertain sentence labeled.</li>
+</ul>
+<p>If your review prompt rewards elegance, it will underperform at skepticism.</p>
+<h3>3) Separate passes reduce self-justifying revisions</h3>
+<p>When the same pass both criticizes and rewrites, the rewrite often hides the original problem before anyone inspected it clearly.</p>
+<p>Better sequence:</p>
+<ol>
+<li>identify failures,</li>
+<li>decide which failures matter,</li>
+<li>revise only after the diagnostic pass.</li>
+</ol>
+<p>That preserves signal.</p>
+<h3>4) Review mode is especially useful for AI-generated confidence</h3>
+<p>One reason AI drafts feel persuasive is that they often sound internally consistent even when the argument is thin.</p>
+<p>Reviewer mode helps by treating fluency as suspicious until supported.</p>
+<p>That is a good discipline for:</p>
+<ul>
+<li>generalizations,</li>
+<li>causal claims,</li>
+<li>references to trends,</li>
+<li>&quot;obvious&quot; conclusions.</li>
+</ul>
+<h3>5) The switch should be explicit enough to reuse</h3>
+<p>You should be able to hand the reviewer prompt to a future version of yourself or another system and get a recognizable style of critique.</p>
+<p>A reusable reviewer mode usually specifies:</p>
+<ul>
+<li>what to inspect,</li>
+<li>what to ignore,</li>
+<li>what counts as a failure,</li>
+<li>when to abstain from rewriting.</li>
+</ul>
+<h2>Steps / Code</h2>
+<h3>Minimal reviewer-mode prompt</h3>
+<pre><code class="language-text">Do not improve style first.
+Review this draft for:
+1) unsupported claims,
+2) certainty that exceeds evidence,
+3) repeated ideas,
+4) weak structural logic.
+
+Return:
+- exact failing sentence,
+- failure type,
+- short reason,
+- whether revision or deletion is better.
+</code></pre>
+<h3>Review sequence</h3>
+<pre><code class="language-text">Draft pass -&gt; reviewer-mode pass -&gt; human decision -&gt; rewrite pass -&gt; final verification
+</code></pre>
+<h2>Trade-offs</h2>
+<h3>Costs</h3>
+<ol>
+<li>Adds an explicit extra pass.</li>
+<li>Can feel slower than direct rewrite loops.</li>
+<li>Requires clearer review standards up front.</li>
+</ol>
+<h3>Benefits</h3>
+<ol>
+<li>Better separation between creation and criticism.</li>
+<li>More useful failure reports.</li>
+<li>Lower chance of polishing over weak reasoning.</li>
+<li>Faster final edits because the real issues are clearer.</li>
+</ol>
+<h2>References</h2>
+<ul>
+<li>OpenAI, <em>Why language models hallucinate</em>: <a href="https://openai.com/index/why-language-models-hallucinate">https://openai.com/index/why-language-models-hallucinate</a></li>
+<li>NIST, <em>Artificial Intelligence Risk Management Framework: Generative Artificial Intelligence Profile</em>: <a href="https://doi.org/10.6028/NIST.AI.600-1">https://doi.org/10.6028/NIST.AI.600-1</a></li>
+<li>Google Search Central, <em>Creating helpful, reliable, people-first content</em>: <a href="https://developers.google.com/search/docs/fundamentals/creating-helpful-content">https://developers.google.com/search/docs/fundamentals/creating-helpful-content</a></li>
+</ul>
+<h2>Final Take</h2>
+<p>If drafting mode is about getting words onto the page, reviewer mode is about protecting the page from those words.</p>
+<p>Treat them as different jobs.</p>
+<p>Your writing will get sharper, and your trust threshold will stop collapsing into helpfulness.</p>
+<h2>Changelog</h2>
+<ul>
+<li>2026-03-22: Initial publish on switching explicitly into reviewer mode for AI-assisted drafts.</li>
+</ul>
+
+    </article>
+  </body>
+</html>
