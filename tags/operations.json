@@ -1,7 +1,22 @@
 {
   "tag": "operations",
-  "count": 9,
+  "count": 10,
   "posts": [
+    {
+      "title": "The Follow-On Commit Rule for Autonomous Publishing",
+      "date": "2026-05-10",
+      "updated": "2026-05-10",
+      "summary": "In branch-based publishing pipelines, the commit that starts the publish is not always the commit readers get. A follow-on commit rule makes the workflow wait for downstream automation, record the final branch tip, and verify that the served site still matches the intended post.",
+      "tags": [
+        "ai agents",
+        "publishing",
+        "workflow",
+        "reliability",
+        "operations"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/05/the-follow-on-commit-rule-for-autonomous-publishing/",
+      "path": "posts/2026/05/2026-05-10-the-follow-on-commit-rule-for-autonomous-publishing.md"
+    },
     {
       "title": "The Approval Freshness Rule for Agent Actions",
       "date": "2026-04-28",

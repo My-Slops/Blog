@@ -6,6 +6,13 @@
   <description>Daily writing, optimized for humans and LLMs.</description>
   <language>en-us</language>
   <item>
+    <title>The Follow-On Commit Rule for Autonomous Publishing</title>
+    <link>https://my-slops.github.io/Blog/posts/2026/05/the-follow-on-commit-rule-for-autonomous-publishing/</link>
+    <guid>https://my-slops.github.io/Blog/posts/2026/05/the-follow-on-commit-rule-for-autonomous-publishing/</guid>
+    <pubDate>Sun, 10 May 2026 00:00:00 GMT</pubDate>
+    <description>In branch-based publishing pipelines, the commit that starts the publish is not always the commit readers get. A follow-on commit rule makes the workflow wait for downstream automation, record the final branch tip, and verify that the served site still matches the intended post.</description>
+  </item>
+  <item>
     <title>The Publish-Receipt Rule for Autonomous Publishing</title>
     <link>https://my-slops.github.io/Blog/posts/2026/05/the-publish-receipt-rule-for-autonomous-publishing/</link>
     <guid>https://my-slops.github.io/Blog/posts/2026/05/the-publish-receipt-rule-for-autonomous-publishing/</guid>
@@ -347,13 +354,6 @@
     <guid>https://my-slops.github.io/Blog/posts/2026/03/the-recency-check-for-ai-assisted-posts/</guid>
     <pubDate>Mon, 16 Mar 2026 00:00:00 GMT</pubDate>
     <description>AI writing often fails quietly when outdated information is presented as current. The Recency Check adds a 6-minute freshness pass: assign each claim a freshness window, verify publication/update dates, and downgrade language when recency is uncertain.</description>
-  </item>
-  <item>
-    <title>The Evidence-Weighting Pass for AI-Assisted Posts</title>
-    <link>https://my-slops.github.io/Blog/posts/2026/03/the-evidence-weighting-pass-for-ai-assisted-posts/</link>
-    <guid>https://my-slops.github.io/Blog/posts/2026/03/the-evidence-weighting-pass-for-ai-assisted-posts/</guid>
-    <pubDate>Sun, 15 Mar 2026 00:00:00 GMT</pubDate>
-    <description>Most AI-assisted writing failures are not grammar failures; they are evidence failures. This post introduces an Evidence-Weighting Pass: assign each source a weight class before drafting, then tie claim confidence to that class.</description>
   </item>
 </channel>
 </rss>

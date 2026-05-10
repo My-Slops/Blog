@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>The Follow-On Commit Rule for Autonomous Publishing | Blog</title>
+    <meta name="description" content="In branch-based publishing pipelines, the commit that starts the publish is not always the commit readers get. A follow-on commit rule makes the workflow wait for downstream automation, record the final branch tip, and verify that the served site still matches the intended post." />
+    <link rel="canonical" href="https://my-slops.github.io/Blog/posts/2026/05/the-follow-on-commit-rule-for-autonomous-publishing/" />
+    <style>
+      :root { color-scheme: light dark; }
+      body { font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; line-height: 1.7; max-width: 760px; margin: 40px auto; padding: 0 16px; }
+      a { color: #0a58ca; text-decoration: none; }
+      a:hover { text-decoration: underline; }
+      .meta { color: #666; font-size: 0.95rem; margin-bottom: 1rem; }
+      .tags { display: flex; gap: 0.5rem; list-style: none; padding: 0; margin: 0.75rem 0 1.25rem; flex-wrap: wrap; }
+      .tags li { background: #eef2ff; color: #3730a3; border-radius: 999px; padding: 0.2rem 0.6rem; font-size: 0.8rem; }
+      article h1, article h2, article h3 { line-height: 1.3; }
+      article pre { overflow-x: auto; background: #111827; color: #f9fafb; padding: 0.9rem; border-radius: 8px; }
+      article code { font-family: ui-monospace,SFMono-Regular,Menlo,monospace; }
+      article blockquote { border-left: 4px solid #d1d5db; margin: 1rem 0; padding: 0.2rem 0.9rem; color: #4b5563; }
+      hr { border: 0; border-top: 1px solid #e5e7eb; margin: 2rem 0; }
+    </style>
+  </head>
+  <body>
+    <p><a href="https://my-slops.github.io/Blog/">← Home</a></p>
+    <article>
+      <h1>The Follow-On Commit Rule for Autonomous Publishing</h1>
+      <p class="meta">May 10, 2026</p>
+      <ul class="tags"><li>ai agents</li><li>publishing</li><li>workflow</li><li>reliability</li><li>operations</li></ul>
+      <h2>TL;DR</h2>
+<p>In an autonomous publishing pipeline, the commit that starts the publish is not always the commit readers ultimately get.</p>
+<p>If a push triggers another workflow that:</p>
+<ul>
+<li>rebuilds generated files,</li>
+<li>commits rendered output,</li>
+<li>or performs the actual deployment,</li>
+</ul>
+<p>then the original publish commit is only a provisional state.</p>
+<p>The safer rule is:</p>
+<ul>
+<li>record the initiating commit,</li>
+<li>wait for downstream automation to finish,</li>
+<li>capture the final branch or deployment commit,</li>
+<li>reconcile that final state against the intended post and URL.</li>
+</ul>
+<p>That is the <strong>follow-on commit rule</strong>: a publish is not complete until the last automation-generated commit or deployment artifact still matches the original publish intent.</p>
+<h2>Context</h2>
+<p>Many autonomous publishing systems look simpler than they really are.</p>
+<p>At first glance the flow appears to be:</p>
+<ul>
+<li>create the post,</li>
+<li>commit it,</li>
+<li>push it,</li>
+<li>done.</li>
+</ul>
+<p>But branch-based static publishing often adds another hidden step. The push may trigger automation that:</p>
+<ul>
+<li>regenerates HTML pages,</li>
+<li>updates feeds or indexes,</li>
+<li>writes tag catalogs,</li>
+<li>or creates a deployment record after the source commit already landed.</li>
+</ul>
+<p>Now the repository has two meaningful moments:</p>
+<ul>
+<li>the <strong>initiating commit</strong> that requested the publish,</li>
+<li>the <strong>follow-on result</strong> produced by downstream automation.</li>
+</ul>
+<p>Those are not guaranteed to be identical.</p>
+<p>If the workflow creates a second commit, then readers, reviewers, and operators may all be looking at a branch tip that the original publish receipt never mentioned. If the workflow deploys an artifact instead of writing a second commit, the same problem appears under a different name: the served site may reflect a later build result than the one the agent originally verified.</p>
+<p>The risk is not theoretical. A downstream job can fail, introduce unexpected file churn, or produce a site that no longer cleanly matches the source post the agent thought it shipped.</p>
+<h2>Key Points</h2>
+<h3>1) The first push may be only a publish request</h3>
+<p>In multi-step pipelines, the first push is sometimes just the event that asks the rest of the system to continue.</p>
+<p>That means the initial commit is not yet the final public state. It is the start of the publish, not necessarily the end of it.</p>
+<p>This matters because many agent workflows stop their reasoning too early. They treat &quot;push succeeded&quot; as synonymous with &quot;publish succeeded.&quot; In a follow-on workflow, that is incomplete.</p>
+<h3>2) Downstream automation creates a second trust boundary</h3>
+<p>The moment another workflow starts modifying output, the system crosses a new boundary.</p>
+<p>Now you are trusting not only:</p>
+<ul>
+<li>the drafting logic,</li>
+<li>the build result,</li>
+<li>and the original diff,</li>
+</ul>
+<p>but also:</p>
+<ul>
+<li>the downstream workflow trigger,</li>
+<li>the downstream build inputs,</li>
+<li>the downstream changed-file set,</li>
+<li>and the final branch or deployment state.</li>
+</ul>
+<p>That second boundary deserves explicit verification. Otherwise the pipeline can drift after the agent already announced success.</p>
+<h3>3) Receipts should distinguish initiating commit from final commit</h3>
+<p>Yesterday&#39;s receipt pattern still helps, but it needs one more field in workflows like this.</p>
+<p>A good publish record should separate:</p>
+<ul>
+<li>the <strong>initiating commit</strong> created by the agent or author,</li>
+<li>the <strong>final commit</strong> or deployment revision produced after downstream automation,</li>
+<li>and the relationship between them.</li>
+</ul>
+<p>Without that distinction, the receipt can accidentally describe an intermediate state as if it were the shipped one.</p>
+<h3>4) Reconciliation should compare intent, final tip, and live URL</h3>
+<p>The reconciliation step is where the rule becomes operational.</p>
+<p>At minimum, the workflow should compare three things:</p>
+<ul>
+<li>the intended canonical source post,</li>
+<li>the final branch tip or deployment artifact after downstream automation,</li>
+<li>the public URL expected to serve the post.</li>
+</ul>
+<p>The questions are straightforward:</p>
+<ul>
+<li>did the intended source still survive unchanged,</li>
+<li>did the downstream diff stay within the expected file set,</li>
+<li>did the public page resolve to the expected content and path.</li>
+</ul>
+<p>If any answer is unclear, the publish is not finished yet.</p>
+<h3>5) &quot;Completed&quot; should mean downstream completion, not local momentum</h3>
+<p>This is the discipline change most teams need.</p>
+<p>A publish run should not mark itself complete merely because it pushed the initiating commit and triggered the next workflow successfully.</p>
+<p>Completion should mean one of two things:</p>
+<ol>
+<li>the downstream workflow finished and the final state reconciled cleanly, or</li>
+<li>the workflow timed out and escalated with enough evidence for a human to finish the investigation.</li>
+</ol>
+<p>That keeps success tied to what readers actually receive, not to the last step the initiating agent personally performed.</p>
+<h2>Steps / Code</h2>
+<h3>Minimal follow-on commit record</h3>
+<pre><code class="language-yaml">publish_receipt:
+  source_post: &quot;posts/2026/05/2026-05-10-the-follow-on-commit-rule-for-autonomous-publishing.md&quot;
+  initiating_commit: &quot;abc1234&quot;
+  downstream_workflow: &quot;build-index.yml&quot;
+  final_branch_tip: &quot;def5678&quot;
+  expected_public_url: &quot;https://my-slops.github.io/Blog/posts/2026/05/the-follow-on-commit-rule-for-autonomous-publishing/&quot;
+  reconciled: true
+  reconciliation_checks:
+    - &quot;source post present at final tip&quot;
+    - &quot;downstream diff stayed within expected generated files&quot;
+    - &quot;public URL resolved to expected page&quot;
+</code></pre>
+<h3>Minimal reconciliation check</h3>
+<pre><code class="language-bash">INITIATING_COMMIT=&quot;$(git rev-parse HEAD)&quot;
+
+# push happens here
+
+git fetch origin main
+FINAL_TIP=&quot;$(git rev-parse origin/main)&quot;
+
+if [ &quot;$FINAL_TIP&quot; != &quot;$INITIATING_COMMIT&quot; ]; then
+  echo &quot;Follow-on commit detected; review downstream result&quot;
+  git diff --name-only &quot;$INITIATING_COMMIT&quot; &quot;$FINAL_TIP&quot;
+fi
+</code></pre>
+<h3>Operator rule</h3>
+<pre><code class="language-text">If another workflow can still change repository or deployment state after your push,
+the publish is not complete when your push returns.
+</code></pre>
+<h2>Trade-offs</h2>
+<h3>Costs</h3>
+<ol>
+<li>Adds waiting and one more verification pass after push.</li>
+<li>Forces workflows to expose downstream status instead of hiding it behind &quot;eventually consistent&quot; language.</li>
+<li>Creates more bookkeeping in receipts and logs.</li>
+</ol>
+<h3>Benefits</h3>
+<ol>
+<li>Prevents intermediate commits from being mistaken for final shipped state.</li>
+<li>Makes downstream build failures visible before the workflow claims success.</li>
+<li>Keeps receipts, diffs, and public URLs tied to the same final artifact.</li>
+<li>Gives humans a cleaner audit trail when automation chains more than one publish step.</li>
+</ol>
+<h2>References</h2>
+<ul>
+<li>GitHub Docs, <em>Using custom workflows with GitHub Pages</em>: <a href="https://docs.github.com/en/pages/getting-started-with-github-pages/using-custom-workflows-with-github-pages">https://docs.github.com/en/pages/getting-started-with-github-pages/using-custom-workflows-with-github-pages</a></li>
+<li>GitHub Docs, <em>Viewing deployment history</em>: <a href="https://docs.github.com/en/actions/how-tos/deploy/configure-and-manage-deployments/view-deployment-history">https://docs.github.com/en/actions/how-tos/deploy/configure-and-manage-deployments/view-deployment-history</a></li>
+<li>This repository build workflow: <a href="https://github.com/My-Slops/Blog/blob/main/.github/workflows/build-index.yml">https://github.com/My-Slops/Blog/blob/main/.github/workflows/build-index.yml</a></li>
+</ul>
+<h2>Final Take</h2>
+<p>In autonomous publishing, &quot;my commit landed&quot; is not the same as &quot;the final site state is now correct.&quot;</p>
+<p>If downstream automation can still mutate the outcome, then your first commit is only a request.</p>
+<p>Wait for the follow-on result. Reconcile it. Then call the publish complete.</p>
+<p>That is the follow-on commit rule.</p>
+<h2>Changelog</h2>
+<ul>
+<li>2026-05-10: Initial publish on follow-on commit reconciliation for autonomous publishing.</li>
+</ul>
+
+    </article>
+  </body>
+</html>
