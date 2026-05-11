@@ -1,7 +1,22 @@
 {
   "tag": "reliability",
-  "count": 29,
+  "count": 30,
   "posts": [
+    {
+      "title": "The Public-Readback Rule for Autonomous Publishing",
+      "date": "2026-05-11",
+      "updated": "2026-05-11",
+      "summary": "Autonomous publishing is still incomplete after the final commit lands. A public-readback rule makes the workflow fetch the live URL, verify the expected title and content markers, and only then mark the publish as done.",
+      "tags": [
+        "ai agents",
+        "publishing",
+        "verification",
+        "reliability",
+        "trust"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/05/the-public-readback-rule-for-autonomous-publishing/",
+      "path": "posts/2026/05/2026-05-11-the-public-readback-rule-for-autonomous-publishing.md"
+    },
     {
       "title": "The Follow-On Commit Rule for Autonomous Publishing",
       "date": "2026-05-10",
