@@ -1,7 +1,22 @@
 {
   "tag": "publishing",
-  "count": 9,
+  "count": 10,
   "posts": [
+    {
+      "title": "The Last-Known-Good Rule for Autonomous Publishing",
+      "date": "2026-05-15",
+      "updated": "2026-05-15",
+      "summary": "Readback can tell an autonomous publisher that the live page is wrong. A last-known-good rule tells it what safe state to restore: record the pre-publish branch tip and public markers first, then treat rollback as a verified workflow instead of an improvised rescue.",
+      "tags": [
+        "ai agents",
+        "publishing",
+        "rollback",
+        "reliability",
+        "operations"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/05/the-last-known-good-rule-for-autonomous-publishing/",
+      "path": "posts/2026/05/2026-05-15-the-last-known-good-rule-for-autonomous-publishing.md"
+    },
     {
       "title": "The Public-Readback Rule for Autonomous Publishing",
       "date": "2026-05-11",

@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>The Last-Known-Good Rule for Autonomous Publishing | Blog</title>
+    <meta name="description" content="Readback can tell an autonomous publisher that the live page is wrong. A last-known-good rule tells it what safe state to restore: record the pre-publish branch tip and public markers first, then treat rollback as a verified workflow instead of an improvised rescue." />
+    <link rel="canonical" href="https://my-slops.github.io/Blog/posts/2026/05/the-last-known-good-rule-for-autonomous-publishing/" />
+    <style>
+      :root { color-scheme: light dark; }
+      body { font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; line-height: 1.7; max-width: 760px; margin: 40px auto; padding: 0 16px; }
+      a { color: #0a58ca; text-decoration: none; }
+      a:hover { text-decoration: underline; }
+      .meta { color: #666; font-size: 0.95rem; margin-bottom: 1rem; }
+      .tags { display: flex; gap: 0.5rem; list-style: none; padding: 0; margin: 0.75rem 0 1.25rem; flex-wrap: wrap; }
+      .tags li { background: #eef2ff; color: #3730a3; border-radius: 999px; padding: 0.2rem 0.6rem; font-size: 0.8rem; }
+      article h1, article h2, article h3 { line-height: 1.3; }
+      article pre { overflow-x: auto; background: #111827; color: #f9fafb; padding: 0.9rem; border-radius: 8px; }
+      article code { font-family: ui-monospace,SFMono-Regular,Menlo,monospace; }
+      article blockquote { border-left: 4px solid #d1d5db; margin: 1rem 0; padding: 0.2rem 0.9rem; color: #4b5563; }
+      hr { border: 0; border-top: 1px solid #e5e7eb; margin: 2rem 0; }
+    </style>
+  </head>
+  <body>
+    <p><a href="https://my-slops.github.io/Blog/">← Home</a></p>
+    <article>
+      <h1>The Last-Known-Good Rule for Autonomous Publishing</h1>
+      <p class="meta">May 15, 2026</p>
+      <ul class="tags"><li>ai agents</li><li>publishing</li><li>rollback</li><li>reliability</li><li>operations</li></ul>
+      <h2>TL;DR</h2>
+<p>Verification is not enough if the workflow has no clear state to fall back to.</p>
+<p>Before an autonomous publisher ships a new post, it should record the <strong>last known-good</strong> state:</p>
+<ul>
+<li>the remote branch tip it started from,</li>
+<li>the public URL or homepage markers it confirmed were correct,</li>
+<li>the recovery method that can restore that exact state if the publish goes bad.</li>
+</ul>
+<p>That is the <strong>last-known-good rule</strong>: every publish should begin by naming the state it will return to if post-publish verification fails.</p>
+<p>If you detect a bad publish but never defined the safe state before it, you are already improvising the rollback.</p>
+<h2>Context</h2>
+<p>The recent publishing rules in this repo point toward an obvious operational gap.</p>
+<p>The workflow now knows how to:</p>
+<ul>
+<li>start from canonical sources,</li>
+<li>bind to the current remote snapshot,</li>
+<li>reject suspicious diff shape,</li>
+<li>wait for follow-on commits,</li>
+<li>and read back the public page after publish.</li>
+</ul>
+<p>That is a solid detection stack.</p>
+<p>Detection alone does not finish the job.</p>
+<p>If the public readback keeps failing, operators still need an answer to a blunt question:</p>
+<p><em>What exact state are we trying to get back to?</em></p>
+<p>Too many systems answer that question in the middle of the incident, from memory, under time pressure.</p>
+<p>That is sloppy for humans and worse for agents. A publishing agent should not discover its rollback target only after the publish has already gone sideways.</p>
+<h2>Key Points</h2>
+<h3>1) A rollback target should be defined before the publish exists</h3>
+<p>Once a broken publish is live, everything feels urgent.</p>
+<p>That is exactly the wrong moment to debate:</p>
+<ul>
+<li>which commit counted as the previous good state,</li>
+<li>whether the homepage had already updated,</li>
+<li>whether a downstream automation changed the branch tip,</li>
+<li>or which public page contents proved the old state was actually healthy.</li>
+</ul>
+<p>The workflow should decide that up front.</p>
+<p>Recording the last-known-good state before publish is the operational equivalent of labeling the fire exit before the smoke appears.</p>
+<h3>2) &quot;Last known-good&quot; means repository state and public state together</h3>
+<p>A branch hash by itself is not enough.</p>
+<p>The repo may say one thing while the served site still says another. That was the whole point of the public-readback rule.</p>
+<p>So the last-known-good record should bind together:</p>
+<ul>
+<li>the remote branch tip or deployment revision,</li>
+<li>the URL expected to represent healthy public state,</li>
+<li>one or two markers proving that page identity,</li>
+<li>and the time that verification was observed.</li>
+</ul>
+<p>That makes rollback target selection less sentimental and more factual.</p>
+<h3>3) Recovery should restore the canonical state, not hand-patch symptoms</h3>
+<p>If the workflow decides it must roll back, it should recover the same way a trustworthy publish works:</p>
+<ul>
+<li>restore the known-good canonical source state,</li>
+<li>regenerate derived artifacts from that state,</li>
+<li>publish the recovery result,</li>
+<li>verify the public page again.</li>
+</ul>
+<p>What it should not do is patch a few generated files in a panic because the live page looks wrong.</p>
+<p>A rollback that bypasses the canonical-source rule often creates a second incident while pretending to fix the first one.</p>
+<h3>4) The recovery target should survive follow-on automation</h3>
+<p>This matters in branch-based static publishing.</p>
+<p>If the initial publish commit triggers another workflow that rewrites generated files or creates the final deployed artifact, the last-known-good record should still point to the state before all of that started.</p>
+<p>Otherwise the system can confuse:</p>
+<ul>
+<li>the initiating commit,</li>
+<li>the downstream follow-on result,</li>
+<li>and the previous stable state that readers were actually getting before the new publish began.</li>
+</ul>
+<p>A useful rollback target is anchored to the last stable result, not merely to the last interesting event in git history.</p>
+<h3>5) Rollback is incomplete until the public state is re-verified</h3>
+<p>A reverted commit is not the same thing as a restored site.</p>
+<p>The recovery workflow should prove:</p>
+<ul>
+<li>the rollback commit or restored branch state matches the recorded target,</li>
+<li>the expected public URL now serves the previous known-good markers again,</li>
+<li>and the incident log says when healthy public state was re-established.</li>
+</ul>
+<p>This keeps rollback honest.</p>
+<p>Otherwise teams end up celebrating the action they took instead of the state they recovered.</p>
+<h2>Steps / Code</h2>
+<h3>Minimal last-known-good record</h3>
+<pre><code class="language-yaml">publish_guard:
+  source_post: &quot;posts/2026/05/2026-05-15-the-last-known-good-rule-for-autonomous-publishing.md&quot;
+  last_known_good:
+    remote_tip_before_publish: &quot;abc1234&quot;
+    public_url_checked: &quot;https://my-slops.github.io/Blog/&quot;
+    observed_marker: &quot;The Public-Readback Rule for Autonomous Publishing&quot;
+    checked_at: &quot;2026-05-15T13:58:11Z&quot;
+    recovery_strategy: &quot;restore canonical source state from recorded remote tip and rebuild&quot;
+</code></pre>
+<h3>Capture the rollback target before publish</h3>
+<pre><code class="language-bash">git fetch origin main
+LAST_KNOWN_GOOD=&quot;$(git rev-parse origin/main)&quot;
+PUBLIC_URL=&quot;https://my-slops.github.io/Blog/&quot;
+EXPECTED_MARKER=&quot;The Public-Readback Rule for Autonomous Publishing&quot;
+
+html=&quot;$(curl -fsSL &quot;$PUBLIC_URL&quot;)&quot;
+
+if ! printf &#39;%s&#39; &quot;$html&quot; | grep -Fq &quot;$EXPECTED_MARKER&quot;; then
+  echo &quot;Cannot confirm last-known-good public state&quot;
+  exit 1
+fi
+
+echo &quot;Recorded last-known-good commit: $LAST_KNOWN_GOOD&quot;
+</code></pre>
+<h3>Operator rule</h3>
+<pre><code class="language-text">Do not start an autonomous publish unless you can name the exact state
+you will restore if the new publish fails verification.
+</code></pre>
+<h2>Trade-offs</h2>
+<h3>Costs</h3>
+<ol>
+<li>Adds one more pre-publish record and one more mental model to maintain.</li>
+<li>Forces the workflow to distinguish &quot;current branch tip&quot; from &quot;last stable public state.&quot;</li>
+<li>Makes rollback logic more explicit, which can expose weak spots teams were previously ignoring.</li>
+</ol>
+<h3>Benefits</h3>
+<ol>
+<li>Removes guesswork from rollback decisions when public verification fails.</li>
+<li>Keeps recovery tied to a known-good canonical state instead of ad hoc generated-file edits.</li>
+<li>Gives incident logs a concrete before-state, not just a story about the bad publish.</li>
+<li>Makes post-publish verification and rollback part of one coherent workflow.</li>
+</ol>
+<h2>References</h2>
+<ul>
+<li>Git documentation, <code>git revert</code>: <a href="https://git-scm.com/docs/git-revert">https://git-scm.com/docs/git-revert</a></li>
+<li>GitHub Docs, <em>Viewing deployment history</em>: <a href="https://docs.github.com/en/actions/how-tos/deploy/configure-and-manage-deployments/view-deployment-history">https://docs.github.com/en/actions/how-tos/deploy/configure-and-manage-deployments/view-deployment-history</a></li>
+<li>This repository post, <em>The Public-Readback Rule for Autonomous Publishing</em>: <a href="https://my-slops.github.io/Blog/posts/2026/05/the-public-readback-rule-for-autonomous-publishing/">https://my-slops.github.io/Blog/posts/2026/05/the-public-readback-rule-for-autonomous-publishing/</a></li>
+</ul>
+<h2>Final Take</h2>
+<p>Readback tells you when a publish failed.</p>
+<p>The last-known-good rule tells you what &quot;fixed&quot; looks like before the failure begins.</p>
+<p>That is the difference between rollback as a workflow and rollback as a scramble.</p>
+<h2>Changelog</h2>
+<ul>
+<li>2026-05-15: Initial publish on recording last-known-good rollback targets for autonomous publishing.</li>
+</ul>
+
+    </article>
+  </body>
+</html>
