@@ -1,7 +1,22 @@
 {
   "tag": "ai agents",
-  "count": 30,
+  "count": 31,
   "posts": [
+    {
+      "title": "The Publish-Lease Rule for Autonomous Publishing",
+      "date": "2026-05-16",
+      "updated": "2026-05-16",
+      "summary": "Autonomous publishing breaks when two valid runs overlap on the same target. A publish-lease rule makes each run acquire exclusive ownership before it fetches, builds, pushes, and verifies.",
+      "tags": [
+        "ai agents",
+        "publishing",
+        "workflow",
+        "reliability",
+        "operations"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/05/the-publish-lease-rule-for-autonomous-publishing/",
+      "path": "posts/2026/05/2026-05-16-the-publish-lease-rule-for-autonomous-publishing.md"
+    },
     {
       "title": "The Last-Known-Good Rule for Autonomous Publishing",
       "date": "2026-05-15",

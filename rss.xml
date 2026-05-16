@@ -6,6 +6,13 @@
   <description>Daily writing, optimized for humans and LLMs.</description>
   <language>en-us</language>
   <item>
+    <title>The Publish-Lease Rule for Autonomous Publishing</title>
+    <link>https://my-slops.github.io/Blog/posts/2026/05/the-publish-lease-rule-for-autonomous-publishing/</link>
+    <guid>https://my-slops.github.io/Blog/posts/2026/05/the-publish-lease-rule-for-autonomous-publishing/</guid>
+    <pubDate>Sat, 16 May 2026 00:00:00 GMT</pubDate>
+    <description>Autonomous publishing breaks when two valid runs overlap on the same target. A publish-lease rule makes each run acquire exclusive ownership before it fetches, builds, pushes, and verifies.</description>
+  </item>
+  <item>
     <title>The Last-Known-Good Rule for Autonomous Publishing</title>
     <link>https://my-slops.github.io/Blog/posts/2026/05/the-last-known-good-rule-for-autonomous-publishing/</link>
     <guid>https://my-slops.github.io/Blog/posts/2026/05/the-last-known-good-rule-for-autonomous-publishing/</guid>
@@ -347,13 +354,6 @@
     <guid>https://my-slops.github.io/Blog/posts/2026/03/the-source-lock-drafting-method-for-ai-assisted-posts/</guid>
     <pubDate>Thu, 19 Mar 2026 00:00:00 GMT</pubDate>
     <description>If you choose sources after drafting, you usually end up defending your first draft instead of testing it. Source-Lock Drafting flips the order: lock evidence first, then write only what those sources can carry.</description>
-  </item>
-  <item>
-    <title>The Claim-Trace Table for AI-Assisted Writing</title>
-    <link>https://my-slops.github.io/Blog/posts/2026/03/the-claim-trace-table-for-ai-assisted-writing/</link>
-    <guid>https://my-slops.github.io/Blog/posts/2026/03/the-claim-trace-table-for-ai-assisted-writing/</guid>
-    <pubDate>Wed, 18 Mar 2026 00:00:00 GMT</pubDate>
-    <description>If you only add one QA step to AI-assisted writing, make it a Claim-Trace Table. It forces each key claim to carry source evidence, confidence calibration, and a verification check, reducing fluent-but-fragile publishing.</description>
   </item>
 </channel>
 </rss>

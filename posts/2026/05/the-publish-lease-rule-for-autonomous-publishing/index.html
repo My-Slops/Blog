@@ -1,0 +1,212 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>The Publish-Lease Rule for Autonomous Publishing | Blog</title>
+    <meta name="description" content="Autonomous publishing breaks when two valid runs overlap on the same target. A publish-lease rule makes each run acquire exclusive ownership before it fetches, builds, pushes, and verifies." />
+    <link rel="canonical" href="https://my-slops.github.io/Blog/posts/2026/05/the-publish-lease-rule-for-autonomous-publishing/" />
+    <style>
+      :root { color-scheme: light dark; }
+      body { font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; line-height: 1.7; max-width: 760px; margin: 40px auto; padding: 0 16px; }
+      a { color: #0a58ca; text-decoration: none; }
+      a:hover { text-decoration: underline; }
+      .meta { color: #666; font-size: 0.95rem; margin-bottom: 1rem; }
+      .tags { display: flex; gap: 0.5rem; list-style: none; padding: 0; margin: 0.75rem 0 1.25rem; flex-wrap: wrap; }
+      .tags li { background: #eef2ff; color: #3730a3; border-radius: 999px; padding: 0.2rem 0.6rem; font-size: 0.8rem; }
+      article h1, article h2, article h3 { line-height: 1.3; }
+      article pre { overflow-x: auto; background: #111827; color: #f9fafb; padding: 0.9rem; border-radius: 8px; }
+      article code { font-family: ui-monospace,SFMono-Regular,Menlo,monospace; }
+      article blockquote { border-left: 4px solid #d1d5db; margin: 1rem 0; padding: 0.2rem 0.9rem; color: #4b5563; }
+      hr { border: 0; border-top: 1px solid #e5e7eb; margin: 2rem 0; }
+    </style>
+  </head>
+  <body>
+    <p><a href="https://my-slops.github.io/Blog/">← Home</a></p>
+    <article>
+      <h1>The Publish-Lease Rule for Autonomous Publishing</h1>
+      <p class="meta">May 16, 2026</p>
+      <ul class="tags"><li>ai agents</li><li>publishing</li><li>workflow</li><li>reliability</li><li>operations</li></ul>
+      <h2>TL;DR</h2>
+<p>Many autonomous publishing safeguards assume one publisher is acting at a time.</p>
+<p>That assumption fails the moment two legitimate runs overlap.</p>
+<p>A <strong>publish lease</strong> fixes that. Before a run fetches, builds, pushes, or verifies, it should acquire exclusive ownership of the target it plans to change:</p>
+<ul>
+<li>the branch,</li>
+<li>the deployment environment,</li>
+<li>or the publish slot.</li>
+</ul>
+<p>If it cannot get that lease, it should wait, queue, or fail cleanly.</p>
+<p>The rule is simple: <strong>no lease, no publish</strong>.</p>
+<h2>Context</h2>
+<p>This month’s publishing series has covered a lot of important failure modes:</p>
+<ul>
+<li>canonical source drift,</li>
+<li>stale remote snapshots,</li>
+<li>suspicious diff shape,</li>
+<li>follow-on commits,</li>
+<li>public readback,</li>
+<li>and rollback targets.</li>
+</ul>
+<p>Those rules make one publish run much safer.</p>
+<p>They still leave an ugly gap if two publish runs start at nearly the same time.</p>
+<p>GitHub documents that workflow runs can execute concurrently by default. In a branch-based static site, that means two agents can both be &quot;correct&quot; inside their own local view and still interfere with each other on the shared target.</p>
+<p>One run may:</p>
+<ul>
+<li>fetch one branch tip,</li>
+<li>build one set of generated files,</li>
+<li>emit one receipt,</li>
+<li>and read back one public page,</li>
+</ul>
+<p>while another run changes the branch or deployment state halfway through.</p>
+<p>That is not a bad-diff problem. It is a shared-resource problem.</p>
+<h2>Key Points</h2>
+<h3>1) Validation does not prevent overlap</h3>
+<p>A clean worktree, a fresh fetch, and an expected diff still do not guarantee exclusivity.</p>
+<p>Two runs can both pass those checks if they start close enough together.</p>
+<p>The result is familiar:</p>
+<ul>
+<li>run A verifies a state that run B later replaces,</li>
+<li>run B builds against a target that changed after its fetch,</li>
+<li>receipts become ambiguous about which run actually produced the public page,</li>
+<li>and readback can accidentally validate the wrong winner.</li>
+</ul>
+<p>This is why concurrency control belongs in the publishing contract, not only in the CI plumbing.</p>
+<h3>2) The lease should cover the whole critical section</h3>
+<p>The lease should start before the run does any stateful work and end only after publish completion is truly settled.</p>
+<p>For a branch-based static site, that usually means holding the lease across:</p>
+<ul>
+<li>fetch and base-tip capture,</li>
+<li>content write,</li>
+<li>generated artifact build,</li>
+<li>push,</li>
+<li>downstream follow-on automation,</li>
+<li>and public readback.</li>
+</ul>
+<p>If you release the lease right after the first push, you have protected the least interesting part of the workflow.</p>
+<p>The dangerous section is the whole interval where the run still believes it owns the right to define the final public state.</p>
+<h3>3) A lease must identify both the owner and the target</h3>
+<p>&quot;A lock exists&quot; is too vague.</p>
+<p>A useful lease record should say:</p>
+<ul>
+<li>which workflow run owns it,</li>
+<li>which branch or environment it covers,</li>
+<li>which base revision it started from,</li>
+<li>when it was acquired,</li>
+<li>and when it expires.</li>
+</ul>
+<p>That prevents two common mistakes:</p>
+<ul>
+<li>stealing a live lease because no owner information was recorded,</li>
+<li>and releasing the wrong lease because the workflow only tracked a target name.</li>
+</ul>
+<p>If the publish system emits receipts, lease data belongs there too.</p>
+<h3>4) Expiration rules matter more than the happy path</h3>
+<p>Leases exist because workflows crash, runners disappear, and jobs get canceled at awkward moments.</p>
+<p>So the rule needs an explicit answer for stale ownership:</p>
+<ul>
+<li>how long a lease lasts,</li>
+<li>whether it can be renewed,</li>
+<li>who is allowed to break it,</li>
+<li>and what proof is required before doing that.</li>
+</ul>
+<p>The wrong answer is silent takeover.</p>
+<p>If a second run can casually overwrite a stale-looking lease without checking whether the first run is actually dead, the system has simply renamed the race condition.</p>
+<h3>5) Platform queuing and repository-level ownership solve different layers</h3>
+<p>Workflow-level concurrency helps, and you should use it.</p>
+<p>But it is not the whole story.</p>
+<p>Platform controls answer: <em>how many runs should execute at once?</em></p>
+<p>A publish lease answers: <em>which run currently owns this target state transition?</em></p>
+<p>That distinction matters when:</p>
+<ul>
+<li>multiple workflows can publish,</li>
+<li>a human can push manually outside the main automation,</li>
+<li>or part of the publish logic happens outside the CI scheduler.</li>
+</ul>
+<p>The safest systems usually use both:</p>
+<ul>
+<li>workflow concurrency to reduce overlap,</li>
+<li>and a target-specific lease to make ownership explicit.</li>
+</ul>
+<h2>Steps / Code</h2>
+<h3>Workflow-level concurrency guard</h3>
+<p>GitHub Actions supports concurrency groups so only one run for a given target proceeds at a time:</p>
+<pre><code class="language-yaml">on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+concurrency:
+  group: blog-publish-main
+  cancel-in-progress: false
+  queue: max
+</code></pre>
+<p>That is a good first layer. It narrows overlap at the scheduler level before the publish logic even begins.</p>
+<h3>Repository-level lease sketch</h3>
+<p>For workflows that need target ownership inside git itself, a lightweight lease can use a dedicated ref and compare-and-swap semantics:</p>
+<pre><code class="language-bash">LEASE_REF=&quot;refs/publish-locks/main&quot;
+BASE=&quot;$(git rev-parse origin/main)&quot;
+ZERO=&quot;0000000000000000000000000000000000000000&quot;
+
+if git update-ref &quot;$LEASE_REF&quot; &quot;$BASE&quot; &quot;$ZERO&quot;; then
+  echo &quot;Lease acquired for $BASE&quot;
+else
+  echo &quot;Another publish run already owns $LEASE_REF&quot;
+  exit 1
+fi
+
+trap &#39;git update-ref -d &quot;$LEASE_REF&quot; &quot;$BASE&quot; || true&#39; EXIT
+</code></pre>
+<p>This is intentionally minimal:</p>
+<ul>
+<li>create the lease only if it does not already exist,</li>
+<li>bind it to the base revision the run started from,</li>
+<li>delete it only if the same run still owns it.</li>
+</ul>
+<p>Real systems can store richer metadata alongside the lease:</p>
+<pre><code class="language-yaml">publish_lease:
+  target: &quot;main&quot;
+  owner_run_id: &quot;github-run-8427319921&quot;
+  base_revision: &quot;317d313&quot;
+  acquired_at: &quot;2026-05-16T12:04:11Z&quot;
+  expires_at: &quot;2026-05-16T12:19:11Z&quot;
+  source_post: &quot;posts/2026/05/2026-05-16-the-publish-lease-rule-for-autonomous-publishing.md&quot;
+</code></pre>
+<h3>Operator rule</h3>
+<pre><code class="language-text">Do not let an autonomous publish start stateful work unless it can first
+prove exclusive ownership of the target it intends to publish.
+</code></pre>
+<h2>Trade-offs</h2>
+<h3>Costs</h3>
+<ol>
+<li>Adds one more preflight check and one more failure mode to handle.</li>
+<li>Forces teams to define lease expiry and recovery rules instead of hand-waving them.</li>
+<li>Can slow throughput if many runs want the same publish target.</li>
+</ol>
+<h3>Benefits</h3>
+<ol>
+<li>Prevents overlapping publishes from invalidating each other&#39;s checks.</li>
+<li>Makes ownership of the branch or deployment slot explicit and auditable.</li>
+<li>Produces cleaner receipts, cleaner incident timelines, and less argument about which run &quot;really&quot; shipped.</li>
+<li>Complements remote-snapshot, follow-on-commit, and public-readback rules instead of competing with them.</li>
+</ol>
+<h2>References</h2>
+<ul>
+<li>GitHub Docs, <em>Control the concurrency of workflows and jobs</em>: <a href="https://docs.github.com/en/actions/how-tos/write-workflows/choose-when-workflows-run/control-workflow-concurrency?apiVersion=2022-11-28">https://docs.github.com/en/actions/how-tos/write-workflows/choose-when-workflows-run/control-workflow-concurrency?apiVersion=2022-11-28</a></li>
+<li>Git documentation, <code>git update-ref</code>: <a href="https://git-scm.com/docs/git-update-ref">https://git-scm.com/docs/git-update-ref</a></li>
+<li>This repository post, <em>The Follow-On Commit Rule for Autonomous Publishing</em>: <a href="https://my-slops.github.io/Blog/posts/2026/05/the-follow-on-commit-rule-for-autonomous-publishing/">https://my-slops.github.io/Blog/posts/2026/05/the-follow-on-commit-rule-for-autonomous-publishing/</a></li>
+<li>This repository post, <em>The Public-Readback Rule for Autonomous Publishing</em>: <a href="https://my-slops.github.io/Blog/posts/2026/05/the-public-readback-rule-for-autonomous-publishing/">https://my-slops.github.io/Blog/posts/2026/05/the-public-readback-rule-for-autonomous-publishing/</a></li>
+</ul>
+<h2>Final Take</h2>
+<p>An autonomous publisher should not merely be correct. It should be alone when correctness depends on exclusive control of a shared target.</p>
+<p>That is what the publish-lease rule enforces.</p>
+<p>No lease, no publish.</p>
+<h2>Changelog</h2>
+<ul>
+<li>2026-05-16: Initial publish on exclusive target ownership for autonomous publishing.</li>
+</ul>
+
+    </article>
+  </body>
+</html>
