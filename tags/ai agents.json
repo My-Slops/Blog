@@ -1,7 +1,22 @@
 {
   "tag": "ai agents",
-  "count": 31,
+  "count": 32,
   "posts": [
+    {
+      "title": "The Repeatable-Build Check for Autonomous Publishing",
+      "date": "2026-05-17",
+      "updated": "2026-05-17",
+      "summary": "Autonomous publishing gets harder to trust when one source revision can generate two materially different site outputs. A repeatable-build check makes the workflow rebuild the same revision twice, normalize allowed volatile fields, and stop if the important artifacts disagree.",
+      "tags": [
+        "ai agents",
+        "publishing",
+        "verification",
+        "release-engineering",
+        "reliability"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/05/the-repeatable-build-check-for-autonomous-publishing/",
+      "path": "posts/2026/05/2026-05-17-the-repeatable-build-check-for-autonomous-publishing.md"
+    },
     {
       "title": "The Publish-Lease Rule for Autonomous Publishing",
       "date": "2026-05-16",

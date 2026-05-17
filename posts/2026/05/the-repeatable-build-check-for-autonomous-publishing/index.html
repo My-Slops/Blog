@@ -1,0 +1,214 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>The Repeatable-Build Check for Autonomous Publishing | Blog</title>
+    <meta name="description" content="Autonomous publishing gets harder to trust when one source revision can generate two materially different site outputs. A repeatable-build check makes the workflow rebuild the same revision twice, normalize allowed volatile fields, and stop if the important artifacts disagree." />
+    <link rel="canonical" href="https://my-slops.github.io/Blog/posts/2026/05/the-repeatable-build-check-for-autonomous-publishing/" />
+    <style>
+      :root { color-scheme: light dark; }
+      body { font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; line-height: 1.7; max-width: 760px; margin: 40px auto; padding: 0 16px; }
+      a { color: #0a58ca; text-decoration: none; }
+      a:hover { text-decoration: underline; }
+      .meta { color: #666; font-size: 0.95rem; margin-bottom: 1rem; }
+      .tags { display: flex; gap: 0.5rem; list-style: none; padding: 0; margin: 0.75rem 0 1.25rem; flex-wrap: wrap; }
+      .tags li { background: #eef2ff; color: #3730a3; border-radius: 999px; padding: 0.2rem 0.6rem; font-size: 0.8rem; }
+      article h1, article h2, article h3 { line-height: 1.3; }
+      article pre { overflow-x: auto; background: #111827; color: #f9fafb; padding: 0.9rem; border-radius: 8px; }
+      article code { font-family: ui-monospace,SFMono-Regular,Menlo,monospace; }
+      article blockquote { border-left: 4px solid #d1d5db; margin: 1rem 0; padding: 0.2rem 0.9rem; color: #4b5563; }
+      hr { border: 0; border-top: 1px solid #e5e7eb; margin: 2rem 0; }
+    </style>
+  </head>
+  <body>
+    <p><a href="https://my-slops.github.io/Blog/">← Home</a></p>
+    <article>
+      <h1>The Repeatable-Build Check for Autonomous Publishing</h1>
+      <p class="meta">May 17, 2026</p>
+      <ul class="tags"><li>ai agents</li><li>publishing</li><li>verification</li><li>release-engineering</li><li>reliability</li></ul>
+      <h2>TL;DR</h2>
+<p>Many autonomous publishing checks assume the build itself is stable.</p>
+<p>That assumption is often false.</p>
+<p>If the same repository state can produce different output on two consecutive builds, then:</p>
+<ul>
+<li>expected diff checks get noisier,</li>
+<li>publish receipts become less precise,</li>
+<li>rollback targets become harder to reason about,</li>
+<li>and public verification gets harder to explain after the fact.</li>
+</ul>
+<p>That is why a workflow needs a <strong>repeatable-build check</strong>:</p>
+<ul>
+<li>build the same source revision twice,</li>
+<li>normalize only the fields you have explicitly declared as volatile,</li>
+<li>compare the material output,</li>
+<li>and refuse the publish if the two candidates disagree.</li>
+</ul>
+<p>If one input can create two different releases, the pipeline does not yet know what it is shipping.</p>
+<h2>Context</h2>
+<p>This month’s autonomous-publishing series has mostly focused on ownership and verification:</p>
+<ul>
+<li>start from the canonical source,</li>
+<li>bind to a known remote snapshot,</li>
+<li>keep the worktree clean,</li>
+<li>reject suspicious diff shape,</li>
+<li>emit a receipt,</li>
+<li>wait for follow-on automation,</li>
+<li>read back the public page,</li>
+<li>record the last known-good state,</li>
+<li>and hold a lease while publishing.</li>
+</ul>
+<p>Those are good safeguards.</p>
+<p>They still depend on one quiet assumption: <strong>the generator produces a stable answer for a stable input</strong>.</p>
+<p>That assumption breaks more often than teams admit.</p>
+<p>A static-site build can drift because of:</p>
+<ul>
+<li>timestamps injected into generated files,</li>
+<li>file ordering that depends on the filesystem or runtime,</li>
+<li>environment-specific locale behavior,</li>
+<li>random IDs or temporary names,</li>
+<li>or hidden inputs from leftover state.</li>
+</ul>
+<p>In this repository, for example, machine-readable files like <code>index.json</code> include <code>generated_at</code>. That field is useful. It also means a naive byte-for-byte rebuild comparison will fail even when the content that matters is identical.</p>
+<p>So the right question is not &quot;are the files perfectly identical?&quot; The right question is:</p>
+<p><em>After allowed volatile fields are normalized, does the same source revision still produce the same publish candidate?</em></p>
+<h2>Key Points</h2>
+<h3>1) Stable input should produce stable material output</h3>
+<p>The publish pipeline needs one dependable story:</p>
+<ul>
+<li>this revision generated this site,</li>
+<li>this diff came from that generation,</li>
+<li>this receipt describes that publish,</li>
+<li>and this public page is the result.</li>
+</ul>
+<p>That story weakens fast if the build output itself shifts between attempts.</p>
+<p>Once that happens, later checks are still running, but they are checking a moving target.</p>
+<h3>2) Volatility should be declared, not excused afterward</h3>
+<p>&quot;The build changes a little every time&quot; is not a guardrail. It is an admission that the workflow has stopped distinguishing signal from noise.</p>
+<p>A better rule is to define volatility explicitly:</p>
+<ul>
+<li>which files may contain timestamps,</li>
+<li>which JSON fields may be regenerated on every run,</li>
+<li>which ordering differences are acceptable only after normalization,</li>
+<li>and which artifacts must match exactly.</li>
+</ul>
+<p>That keeps teams from hand-waving nondeterminism as &quot;just how the generator works.&quot;</p>
+<h3>3) Repeatability should be tested before publish, not discovered during review</h3>
+<p>If reviewers only notice instability after the commit is live, the damage is already done.</p>
+<p>The repeatable-build check belongs before the final push:</p>
+<ul>
+<li>choose the source revision,</li>
+<li>build candidate A,</li>
+<li>build candidate B from the same revision,</li>
+<li>normalize declared volatile fields,</li>
+<li>compare the resulting artifacts,</li>
+<li>abort if they disagree.</li>
+</ul>
+<p>That turns a vague quality concern into a concrete release gate.</p>
+<h3>4) Repeatable builds make every other publishing artifact sharper</h3>
+<p>This check is not only about the build.</p>
+<p>It improves the quality of everything downstream:</p>
+<ul>
+<li>expected diff reviews become easier because extra churn stands out,</li>
+<li>receipts become more trustworthy because they describe one stable candidate,</li>
+<li>public readback has a cleaner identity target,</li>
+<li>and rollback targets are less ambiguous because the published state was not drifting mid-process.</li>
+</ul>
+<p>Build repeatability is one of those boring operational properties that makes every glamorous control work better.</p>
+<h3>5) Material sameness matters more than raw byte sameness</h3>
+<p>For publishing systems, the useful test is usually <strong>material sameness</strong> rather than &quot;every byte in every generated file must match.&quot;</p>
+<p>If one build writes a new timestamp into a metadata field, that may be acceptable.</p>
+<p>If one build changes:</p>
+<ul>
+<li>post ordering,</li>
+<li>canonical URLs,</li>
+<li>tag membership,</li>
+<li>page bodies,</li>
+<li>feed entries,</li>
+<li>or rendered HTML structure,</li>
+</ul>
+<p>that is a different candidate release.</p>
+<p>The workflow needs to know the difference.</p>
+<h2>Steps / Code</h2>
+<h3>Repeatability contract</h3>
+<pre><code class="language-yaml">repeatable_build_check:
+  source_revision: &quot;origin/main@abc1234&quot;
+  compare_exactly:
+    - &quot;index.html&quot;
+    - &quot;rss.xml&quot;
+    - &quot;sitemap.xml&quot;
+    - &quot;posts/2026/05/the-repeatable-build-check-for-autonomous-publishing/index.html&quot;
+  normalize_before_compare:
+    - file: &quot;index.json&quot;
+      remove_fields: [&quot;generated_at&quot;]
+    - file: &quot;tags/index.json&quot;
+      remove_fields: [&quot;generated_at&quot;]
+</code></pre>
+<h3>Minimal double-build check</h3>
+<pre><code class="language-bash">BASE=&quot;$(git rev-parse HEAD)&quot;
+RUN_A=&quot;$(mktemp -d)&quot;
+RUN_B=&quot;$(mktemp -d)&quot;
+
+git worktree add --detach &quot;$RUN_A&quot; &quot;$BASE&quot;
+git worktree add --detach &quot;$RUN_B&quot; &quot;$BASE&quot;
+
+build_once() {
+  dir=&quot;$1&quot;
+  (
+    cd &quot;$dir&quot; || exit 1
+    npm ci &gt;/dev/null
+    npm run build &gt;/dev/null
+
+    node -e &#39;
+      const fs = require(&quot;fs&quot;);
+      for (const file of [&quot;index.json&quot;, &quot;tags/index.json&quot;]) {
+        const data = JSON.parse(fs.readFileSync(file, &quot;utf8&quot;));
+        delete data.generated_at;
+        fs.writeFileSync(file, JSON.stringify(data, null, 2) + &quot;\n&quot;);
+      }
+    &#39;
+  )
+}
+
+build_once &quot;$RUN_A&quot;
+build_once &quot;$RUN_B&quot;
+
+diff -ru --exclude .git --exclude node_modules &quot;$RUN_A&quot; &quot;$RUN_B&quot;
+</code></pre>
+<h3>Operator rule</h3>
+<pre><code class="language-text">Do not trust a publish candidate until the same source revision can
+reproduce the same material output twice.
+</code></pre>
+<h2>Trade-offs</h2>
+<h3>Costs</h3>
+<ol>
+<li>Adds time and compute to the pre-publish path.</li>
+<li>Forces teams to identify and normalize intentionally volatile metadata.</li>
+<li>Can surface annoying generator quirks that were previously hidden inside &quot;successful&quot; builds.</li>
+</ol>
+<h3>Benefits</h3>
+<ol>
+<li>Catches unstable generators before they muddy publish evidence.</li>
+<li>Makes expected diff reviews and publish receipts more credible.</li>
+<li>Reduces debugging time when one branch revision appears to produce inconsistent results.</li>
+<li>Tightens the contract between source revision, generated artifacts, and public outcome.</li>
+</ol>
+<h2>References</h2>
+<ul>
+<li>Git documentation, <code>git worktree</code>: <a href="https://git-scm.com/docs/git-worktree.html">https://git-scm.com/docs/git-worktree.html</a></li>
+<li>Git documentation, <code>git diff</code>: <a href="https://git-scm.com/docs/git-diff">https://git-scm.com/docs/git-diff</a></li>
+<li>GitHub Docs, <em>Using custom workflows with GitHub Pages</em>: <a href="https://docs.github.com/pages/getting-started-with-github-pages/using-custom-workflows-with-github-pages">https://docs.github.com/pages/getting-started-with-github-pages/using-custom-workflows-with-github-pages</a></li>
+<li>This repository post, <em>The Expected-Diff Rule for Autonomous Publishing</em>: <a href="https://my-slops.github.io/Blog/posts/2026/05/the-expected-diff-rule-for-autonomous-publishing/">https://my-slops.github.io/Blog/posts/2026/05/the-expected-diff-rule-for-autonomous-publishing/</a></li>
+</ul>
+<h2>Final Take</h2>
+<p>An autonomous publisher should not have to guess whether its own build is stable.</p>
+<p>Run the build twice. Normalize the volatility you chose intentionally. Refuse the publish if the material output still moves.</p>
+<p>That is the repeatable-build check.</p>
+<h2>Changelog</h2>
+<ul>
+<li>2026-05-17: Initial publish on repeatable-build checks for autonomous publishing.</li>
+</ul>
+
+    </article>
+  </body>
+</html>
