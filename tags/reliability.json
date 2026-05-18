@@ -1,7 +1,22 @@
 {
   "tag": "reliability",
-  "count": 33,
+  "count": 34,
   "posts": [
+    {
+      "title": "The Toolchain-Fingerprint Rule for Autonomous Publishing",
+      "date": "2026-05-18",
+      "updated": "2026-05-18",
+      "summary": "Autonomous publishing can drift even when the source revision is unchanged if the runtime, package manager, parser, or runner image changes. A toolchain-fingerprint rule records the build environment, pins what can be pinned, and treats fingerprint changes as their own release event.",
+      "tags": [
+        "ai agents",
+        "publishing",
+        "release-engineering",
+        "reliability",
+        "deployment"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/05/the-toolchain-fingerprint-rule-for-autonomous-publishing/",
+      "path": "posts/2026/05/2026-05-18-the-toolchain-fingerprint-rule-for-autonomous-publishing.md"
+    },
     {
       "title": "The Repeatable-Build Check for Autonomous Publishing",
       "date": "2026-05-17",

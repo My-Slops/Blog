@@ -6,6 +6,13 @@
   <description>Daily writing, optimized for humans and LLMs.</description>
   <language>en-us</language>
   <item>
+    <title>The Toolchain-Fingerprint Rule for Autonomous Publishing</title>
+    <link>https://my-slops.github.io/Blog/posts/2026/05/the-toolchain-fingerprint-rule-for-autonomous-publishing/</link>
+    <guid>https://my-slops.github.io/Blog/posts/2026/05/the-toolchain-fingerprint-rule-for-autonomous-publishing/</guid>
+    <pubDate>Mon, 18 May 2026 00:00:00 GMT</pubDate>
+    <description>Autonomous publishing can drift even when the source revision is unchanged if the runtime, package manager, parser, or runner image changes. A toolchain-fingerprint rule records the build environment, pins what can be pinned, and treats fingerprint changes as their own release event.</description>
+  </item>
+  <item>
     <title>The Repeatable-Build Check for Autonomous Publishing</title>
     <link>https://my-slops.github.io/Blog/posts/2026/05/the-repeatable-build-check-for-autonomous-publishing/</link>
     <guid>https://my-slops.github.io/Blog/posts/2026/05/the-repeatable-build-check-for-autonomous-publishing/</guid>
@@ -347,13 +354,6 @@
     <guid>https://my-slops.github.io/Blog/posts/2026/03/the-verification-window-for-ai-assisted-posts/</guid>
     <pubDate>Sat, 21 Mar 2026 00:00:00 GMT</pubDate>
     <description>Most AI-writing failures happen in the final mile. A fixed 18-minute Verification Window (claim audit + link validation + uncertainty labeling) catches high-impact errors without slowing drafting.</description>
-  </item>
-  <item>
-    <title>The Tool-Scope Contract for LLM Agents</title>
-    <link>https://my-slops.github.io/Blog/posts/2026/03/the-tool-scope-contract-for-llm-agents/</link>
-    <guid>https://my-slops.github.io/Blog/posts/2026/03/the-tool-scope-contract-for-llm-agents/</guid>
-    <pubDate>Fri, 20 Mar 2026 00:00:00 GMT</pubDate>
-    <description>Prompt injection is not just a model problem; it is a system-boundary problem. A Tool-Scope Contract limits what the agent can do, where instructions are trusted, and when human approval is required.</description>
   </item>
 </channel>
 </rss>
