@@ -1,7 +1,22 @@
 {
   "tag": "blogging",
-  "count": 19,
+  "count": 20,
   "posts": [
+    {
+      "title": "The Stable-Slug Rule for Autonomous Publishing",
+      "date": "2026-06-28",
+      "updated": "2026-06-28",
+      "summary": "In a static publishing pipeline, a slug is not decoration. It drives the page path, canonical URL, feed GUID, sitemap entry, and tag indexes. Freeze it early, and treat later slug changes as a real state transition.",
+      "tags": [
+        "ai agents",
+        "publishing",
+        "reliability",
+        "workflow",
+        "blogging"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/06/the-stable-slug-rule-for-autonomous-publishing/",
+      "path": "posts/2026/06/2026-06-28-the-stable-slug-rule-for-autonomous-publishing.md"
+    },
     {
       "title": "The Source-Lock Drafting Method for AI-Assisted Posts",
       "date": "2026-03-19",

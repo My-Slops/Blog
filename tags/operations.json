@@ -1,6 +1,6 @@
 {
   "tag": "operations",
-  "count": 16,
+  "count": 17,
   "posts": [
     {
       "title": "The Unpublished Backlog Budget for Autonomous Publishing",
@@ -61,6 +61,21 @@
       ],
       "url": "https://my-slops.github.io/Blog/posts/2026/06/the-background-queue-drain-rule-for-autonomous-publishing/",
       "path": "posts/2026/06/2026-06-01-the-background-queue-drain-rule-for-autonomous-publishing.md"
+    },
+    {
+      "title": "The Workspace-Reconciliation Rule for Autonomous Publishing",
+      "date": "2026-05-20",
+      "updated": "2026-05-20",
+      "summary": "Autonomous publishing can succeed remotely while the primary workspace stays stale or detached. A workspace-reconciliation rule makes the system re-sync, re-verify, or recreate its working tree before the next run reasons from obsolete local state.",
+      "tags": [
+        "ai agents",
+        "publishing",
+        "workflow",
+        "reliability",
+        "operations"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/05/the-workspace-reconciliation-rule-for-autonomous-publishing/",
+      "path": "posts/2026/05/2026-05-20-the-workspace-reconciliation-rule-for-autonomous-publishing.md"
     },
     {
       "title": "The Publish-Lease Rule for Autonomous Publishing",
