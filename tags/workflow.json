@@ -1,7 +1,22 @@
 {
   "tag": "workflow",
-  "count": 14,
+  "count": 15,
   "posts": [
+    {
+      "title": "The Builder-Change Separation Rule for Autonomous Publishing",
+      "date": "2026-05-23",
+      "updated": "2026-05-23",
+      "summary": "Autonomous publishing gets ambiguous when a post update and a builder change land together. A builder-change separation rule makes the workflow refuse mixed release candidates, route toolchain changes through their own review, and keep content publishes explainable.",
+      "tags": [
+        "ai agents",
+        "publishing",
+        "release-engineering",
+        "workflow",
+        "reliability"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/05/the-builder-change-separation-rule-for-autonomous-publishing/",
+      "path": "posts/2026/05/2026-05-23-the-builder-change-separation-rule-for-autonomous-publishing.md"
+    },
     {
       "title": "The Publish-Lease Rule for Autonomous Publishing",
       "date": "2026-05-16",
