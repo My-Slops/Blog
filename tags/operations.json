@@ -1,7 +1,22 @@
 {
   "tag": "operations",
-  "count": 12,
+  "count": 13,
   "posts": [
+    {
+      "title": "The Background-Queue Drain Rule for Autonomous Publishing",
+      "date": "2026-06-01",
+      "updated": "2026-06-01",
+      "summary": "Autonomous publishing gets noisy when scheduled draft jobs keep moving the branch during a legitimate content release. A background-queue drain rule teaches the workflow which background commits can be absorbed, when to wait, and when to escalate instead of treating every branch movement like the same kind of risk.",
+      "tags": [
+        "ai agents",
+        "publishing",
+        "workflow",
+        "reliability",
+        "operations"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/06/the-background-queue-drain-rule-for-autonomous-publishing/",
+      "path": "posts/2026/06/2026-06-01-the-background-queue-drain-rule-for-autonomous-publishing.md"
+    },
     {
       "title": "The Publish-Lease Rule for Autonomous Publishing",
       "date": "2026-05-16",

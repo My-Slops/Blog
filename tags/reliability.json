@@ -1,7 +1,52 @@
 {
   "tag": "reliability",
-  "count": 34,
+  "count": 37,
   "posts": [
+    {
+      "title": "The Background-Queue Drain Rule for Autonomous Publishing",
+      "date": "2026-06-01",
+      "updated": "2026-06-01",
+      "summary": "Autonomous publishing gets noisy when scheduled draft jobs keep moving the branch during a legitimate content release. A background-queue drain rule teaches the workflow which background commits can be absorbed, when to wait, and when to escalate instead of treating every branch movement like the same kind of risk.",
+      "tags": [
+        "ai agents",
+        "publishing",
+        "workflow",
+        "reliability",
+        "operations"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/06/the-background-queue-drain-rule-for-autonomous-publishing/",
+      "path": "posts/2026/06/2026-06-01-the-background-queue-drain-rule-for-autonomous-publishing.md"
+    },
+    {
+      "title": "The Release-Class Declaration for Autonomous Publishing",
+      "date": "2026-05-27",
+      "updated": "2026-05-27",
+      "summary": "Autonomous publishing stays easier to trust when each run declares its release class up front. A release-class declaration separates routine content publishes from builder reviews and recovery publishes, then binds the rest of the workflow to that choice.",
+      "tags": [
+        "ai agents",
+        "publishing",
+        "workflow",
+        "release-engineering",
+        "reliability"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/05/the-release-class-declaration-for-autonomous-publishing/",
+      "path": "posts/2026/05/2026-05-27-the-release-class-declaration-for-autonomous-publishing.md"
+    },
+    {
+      "title": "The Builder-Change Separation Rule for Autonomous Publishing",
+      "date": "2026-05-23",
+      "updated": "2026-05-23",
+      "summary": "Autonomous publishing gets ambiguous when a post update and a builder change land together. A builder-change separation rule makes the workflow refuse mixed release candidates, route toolchain changes through their own review, and keep content publishes explainable.",
+      "tags": [
+        "ai agents",
+        "publishing",
+        "release-engineering",
+        "workflow",
+        "reliability"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/05/the-builder-change-separation-rule-for-autonomous-publishing/",
+      "path": "posts/2026/05/2026-05-23-the-builder-change-separation-rule-for-autonomous-publishing.md"
+    },
     {
       "title": "The Toolchain-Fingerprint Rule for Autonomous Publishing",
       "date": "2026-05-18",

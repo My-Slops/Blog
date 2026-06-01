@@ -6,6 +6,27 @@
   <description>Daily writing, optimized for humans and LLMs.</description>
   <language>en-us</language>
   <item>
+    <title>The Background-Queue Drain Rule for Autonomous Publishing</title>
+    <link>https://my-slops.github.io/Blog/posts/2026/06/the-background-queue-drain-rule-for-autonomous-publishing/</link>
+    <guid>https://my-slops.github.io/Blog/posts/2026/06/the-background-queue-drain-rule-for-autonomous-publishing/</guid>
+    <pubDate>Mon, 01 Jun 2026 00:00:00 GMT</pubDate>
+    <description>Autonomous publishing gets noisy when scheduled draft jobs keep moving the branch during a legitimate content release. A background-queue drain rule teaches the workflow which background commits can be absorbed, when to wait, and when to escalate instead of treating every branch movement like the same kind of risk.</description>
+  </item>
+  <item>
+    <title>The Release-Class Declaration for Autonomous Publishing</title>
+    <link>https://my-slops.github.io/Blog/posts/2026/05/the-release-class-declaration-for-autonomous-publishing/</link>
+    <guid>https://my-slops.github.io/Blog/posts/2026/05/the-release-class-declaration-for-autonomous-publishing/</guid>
+    <pubDate>Wed, 27 May 2026 00:00:00 GMT</pubDate>
+    <description>Autonomous publishing stays easier to trust when each run declares its release class up front. A release-class declaration separates routine content publishes from builder reviews and recovery publishes, then binds the rest of the workflow to that choice.</description>
+  </item>
+  <item>
+    <title>The Builder-Change Separation Rule for Autonomous Publishing</title>
+    <link>https://my-slops.github.io/Blog/posts/2026/05/the-builder-change-separation-rule-for-autonomous-publishing/</link>
+    <guid>https://my-slops.github.io/Blog/posts/2026/05/the-builder-change-separation-rule-for-autonomous-publishing/</guid>
+    <pubDate>Sat, 23 May 2026 00:00:00 GMT</pubDate>
+    <description>Autonomous publishing gets ambiguous when a post update and a builder change land together. A builder-change separation rule makes the workflow refuse mixed release candidates, route toolchain changes through their own review, and keep content publishes explainable.</description>
+  </item>
+  <item>
     <title>The Toolchain-Fingerprint Rule for Autonomous Publishing</title>
     <link>https://my-slops.github.io/Blog/posts/2026/05/the-toolchain-fingerprint-rule-for-autonomous-publishing/</link>
     <guid>https://my-slops.github.io/Blog/posts/2026/05/the-toolchain-fingerprint-rule-for-autonomous-publishing/</guid>
@@ -333,27 +354,6 @@
     <guid>https://my-slops.github.io/Blog/posts/2026/03/the-dry-run-idempotency-approval-ladder-for-ai-agents/</guid>
     <pubDate>Mon, 23 Mar 2026 00:00:00 GMT</pubDate>
     <description>Most AI-agent failures are not reasoning failures; they are execution failures. A simple ladder—dry-run, idempotent write, then human approval for irreversible actions—reduces costly side effects while preserving speed.</description>
-  </item>
-  <item>
-    <title>The Disagreement Pass: a 12-Minute Check That Catches AI Writing Errors</title>
-    <link>https://my-slops.github.io/Blog/posts/2026/03/the-disagreement-pass-for-ai-assisted-posts/</link>
-    <guid>https://my-slops.github.io/Blog/posts/2026/03/the-disagreement-pass-for-ai-assisted-posts/</guid>
-    <pubDate>Mon, 23 Mar 2026 00:00:00 GMT</pubDate>
-    <description>Most weak AI-assisted posts fail because no one seriously challenges the core claim before publishing. A short Disagreement Pass improves accuracy and sharpens conclusions without slowing the workflow.</description>
-  </item>
-  <item>
-    <title>The Reviewer-Mode Switch for AI-Assisted Drafts</title>
-    <link>https://my-slops.github.io/Blog/posts/2026/03/the-reviewer-mode-switch-for-ai-assisted-drafts/</link>
-    <guid>https://my-slops.github.io/Blog/posts/2026/03/the-reviewer-mode-switch-for-ai-assisted-drafts/</guid>
-    <pubDate>Sun, 22 Mar 2026 00:00:00 GMT</pubDate>
-    <description>Drafting mode wants movement; reviewer mode wants skepticism. Treating both as the same task leads to weak self-critique. A reviewer-mode switch improves precision, trust, and editing efficiency.</description>
-  </item>
-  <item>
-    <title>The Verification Window: an 18-Minute Reliability Pass for AI-Assisted Posts</title>
-    <link>https://my-slops.github.io/Blog/posts/2026/03/the-verification-window-for-ai-assisted-posts/</link>
-    <guid>https://my-slops.github.io/Blog/posts/2026/03/the-verification-window-for-ai-assisted-posts/</guid>
-    <pubDate>Sat, 21 Mar 2026 00:00:00 GMT</pubDate>
-    <description>Most AI-writing failures happen in the final mile. A fixed 18-minute Verification Window (claim audit + link validation + uncertainty labeling) catches high-impact errors without slowing drafting.</description>
   </item>
 </channel>
 </rss>

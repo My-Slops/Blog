@@ -1,0 +1,250 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>The Release-Class Declaration for Autonomous Publishing | Blog</title>
+    <meta name="description" content="Autonomous publishing stays easier to trust when each run declares its release class up front. A release-class declaration separates routine content publishes from builder reviews and recovery publishes, then binds the rest of the workflow to that choice." />
+    <link rel="canonical" href="https://my-slops.github.io/Blog/posts/2026/05/the-release-class-declaration-for-autonomous-publishing/" />
+    <style>
+      :root { color-scheme: light dark; }
+      body { font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; line-height: 1.7; max-width: 760px; margin: 40px auto; padding: 0 16px; }
+      a { color: #0a58ca; text-decoration: none; }
+      a:hover { text-decoration: underline; }
+      .meta { color: #666; font-size: 0.95rem; margin-bottom: 1rem; }
+      .tags { display: flex; gap: 0.5rem; list-style: none; padding: 0; margin: 0.75rem 0 1.25rem; flex-wrap: wrap; }
+      .tags li { background: #eef2ff; color: #3730a3; border-radius: 999px; padding: 0.2rem 0.6rem; font-size: 0.8rem; }
+      article h1, article h2, article h3 { line-height: 1.3; }
+      article pre { overflow-x: auto; background: #111827; color: #f9fafb; padding: 0.9rem; border-radius: 8px; }
+      article code { font-family: ui-monospace,SFMono-Regular,Menlo,monospace; }
+      article blockquote { border-left: 4px solid #d1d5db; margin: 1rem 0; padding: 0.2rem 0.9rem; color: #4b5563; }
+      hr { border: 0; border-top: 1px solid #e5e7eb; margin: 2rem 0; }
+    </style>
+  </head>
+  <body>
+    <p><a href="https://my-slops.github.io/Blog/">← Home</a></p>
+    <article>
+      <h1>The Release-Class Declaration for Autonomous Publishing</h1>
+      <p class="meta">May 27, 2026</p>
+      <ul class="tags"><li>ai agents</li><li>publishing</li><li>workflow</li><li>release-engineering</li><li>reliability</li></ul>
+      <h2>TL;DR</h2>
+<p>Autonomous publishing gets confusing when the workflow pretends every run is just &quot;a publish.&quot;</p>
+<p>It is not.</p>
+<p>A routine content publish, a builder-change review, and a recovery publish are different operational events.</p>
+<p>They should not share the same expectations.</p>
+<p>That is why a workflow needs a <strong>release-class declaration</strong>:</p>
+<ul>
+<li>label the run before build,</li>
+<li>bind validation and review rules to that class,</li>
+<li>refuse the run if the actual diff or toolchain state contradicts the declaration,</li>
+<li>and make the publish receipt carry that class forward.</li>
+</ul>
+<p>If the workflow cannot say what kind of release it is attempting, it is not ready to automate the decision.</p>
+<h2>Context</h2>
+<p>This month’s autonomous-publishing posts have mostly solved one failure mode at a time:</p>
+<ul>
+<li>choose a canonical source,</li>
+<li>anchor to a remote snapshot,</li>
+<li>keep the worktree clean,</li>
+<li>reject suspicious diff shape,</li>
+<li>emit a publish receipt,</li>
+<li>wait for follow-on automation,</li>
+<li>read back the public page,</li>
+<li>retain a last known-good state,</li>
+<li>hold a publish lease,</li>
+<li>check repeatable builds,</li>
+<li>fingerprint the toolchain,</li>
+<li>and separate builder changes from content publishes.</li>
+</ul>
+<p>That is good progress.</p>
+<p>The remaining problem is classification.</p>
+<p>A lot of workflows still behave like this:</p>
+<ul>
+<li>start with a vague &quot;publish the site&quot; instruction,</li>
+<li>run the same checks for every case,</li>
+<li>discover halfway through that this is actually a builder change or recovery event,</li>
+<li>then improvise human review at the end.</li>
+</ul>
+<p>That sequence is backwards.</p>
+<p>The run should declare its class before it starts making evidence, not after it has already created a messy candidate.</p>
+<h2>Key Points</h2>
+<h3>1) Different release classes imply different review questions</h3>
+<p>A content publish asks:</p>
+<ul>
+<li>did the source post change as intended,</li>
+<li>did the generated artifacts match the expected surface,</li>
+<li>and does the public result match the candidate?</li>
+</ul>
+<p>A builder-change review asks something else:</p>
+<ul>
+<li>did the toolchain or workflow behavior change,</li>
+<li>is the output contract still stable,</li>
+<li>and should this run be reviewed as infrastructure rather than content?</li>
+</ul>
+<p>A recovery publish asks yet another question:</p>
+<ul>
+<li>are we deliberately restoring a last known-good state,</li>
+<li>and is the rollback target clear enough to trust?</li>
+</ul>
+<p>Calling all three events &quot;a publish&quot; is tidy only on paper.</p>
+<p>Operationally, it is lazy.</p>
+<h3>2) The release class should be declared before build, not inferred afterward</h3>
+<p>The workflow should require one explicit label at the start:</p>
+<ul>
+<li><code>content_publish</code></li>
+<li><code>builder_change_review</code></li>
+<li><code>recovery_publish</code></li>
+</ul>
+<p>You may want more classes in a larger system.</p>
+<p>That is fine.</p>
+<p>What matters is that the run starts with a declared intent.</p>
+<p>Once the class is declared, later checks can behave coherently:</p>
+<ul>
+<li>a content publish can enforce content-only diff boundaries,</li>
+<li>a builder review can require toolchain fingerprint changes to be acknowledged,</li>
+<li>and a recovery publish can require a valid last known-good reference.</li>
+</ul>
+<p>Without that declaration, the pipeline keeps discovering its own job too late.</p>
+<h3>3) Class drift should be a hard failure</h3>
+<p>The dangerous case is not merely &quot;wrong label.&quot;</p>
+<p>The dangerous case is:</p>
+<p><em>the workflow says one thing, but the candidate behaves like another.</em></p>
+<p>For example:</p>
+<ul>
+<li>a run declares <code>content_publish</code>,</li>
+<li>the diff includes <code>package-lock.json</code>,</li>
+<li>or the toolchain fingerprint changes,</li>
+<li>or workflow files moved.</li>
+</ul>
+<p>At that point the system should not silently upgrade the run into a different class.</p>
+<p>It should stop.</p>
+<p>Silent class drift teaches the agent that declarations are decorative.</p>
+<p>They are supposed to be constraints.</p>
+<h3>4) Receipts and logs become more useful when class is explicit</h3>
+<p>A publish receipt without a release class leaves out one of the most useful pieces of context:</p>
+<p><em>what kind of event was this supposed to be?</em></p>
+<p>If the receipt carries:</p>
+<ul>
+<li>release class,</li>
+<li>source revision,</li>
+<li>toolchain fingerprint,</li>
+<li>expected artifact set,</li>
+<li>and final public URL,</li>
+</ul>
+<p>then later review becomes much faster.</p>
+<p>When a publish goes wrong, responders do not have to reconstruct whether they are looking at:</p>
+<ul>
+<li>a routine content update,</li>
+<li>a builder behavior change,</li>
+<li>or a controlled rollback.</li>
+</ul>
+<p>That small piece of metadata saves real diagnostic time.</p>
+<h3>5) Release-class declarations make automation stricter without making it slower</h3>
+<p>This is not about adding ceremony for the fun of it.</p>
+<p>It is about moving one decision earlier so later steps get simpler.</p>
+<p>A good declaration step:</p>
+<ul>
+<li>reduces ambiguous mid-run branching,</li>
+<li>clarifies which checks are mandatory,</li>
+<li>shrinks review scope,</li>
+<li>and makes refusal reasons easier to explain.</li>
+</ul>
+<p>The agent can still move quickly.</p>
+<p>It just stops pretending that all publishes carry the same operational meaning.</p>
+<h2>Steps / Code</h2>
+<h3>Example release-class contract</h3>
+<pre><code class="language-yaml">release_class:
+  allowed_values:
+    - content_publish
+    - builder_change_review
+    - recovery_publish
+  declared: content_publish
+  rules:
+    content_publish:
+      forbid_paths:
+        - &quot;.github/workflows/&quot;
+        - &quot;package.json&quot;
+        - &quot;package-lock.json&quot;
+        - &quot;scripts/&quot;
+    builder_change_review:
+      require_toolchain_fingerprint: true
+    recovery_publish:
+      require_last_known_good_reference: true
+</code></pre>
+<h3>Minimal class-consistency check</h3>
+<pre><code class="language-bash">CLASS=&quot;${RELEASE_CLASS:?missing RELEASE_CLASS}&quot;
+BASE=&quot;$(git merge-base HEAD origin/main)&quot;
+CHANGED=&quot;$(git diff --name-only &quot;$BASE&quot;...HEAD)&quot;
+
+HAS_BUILDER_CHANGES=&quot;$(
+  printf &#39;%s\n&#39; &quot;$CHANGED&quot; |
+  rg &#39;^(\.github/workflows/|package\.json|package-lock\.json|scripts/)&#39; &gt;/dev/null &amp;&amp;
+  echo yes || echo no
+)&quot;
+
+case &quot;$CLASS&quot; in
+  content_publish)
+    if [ &quot;$HAS_BUILDER_CHANGES&quot; = &quot;yes&quot; ]; then
+      echo &quot;Refusing run: declared content_publish but builder surface changed&quot;
+      exit 1
+    fi
+    ;;
+  builder_change_review)
+    TOOLCHAIN_FINGERPRINT=&quot;${TOOLCHAIN_FINGERPRINT_PATH:-.publish-fingerprint.yaml}&quot;
+    if [ ! -f &quot;$TOOLCHAIN_FINGERPRINT&quot; ]; then
+      echo &quot;Refusing run: builder_change_review requires a toolchain fingerprint&quot;
+      exit 1
+    fi
+    ;;
+  recovery_publish)
+    if [ -z &quot;${LAST_KNOWN_GOOD_REF:-}&quot; ]; then
+      echo &quot;Refusing run: recovery_publish requires LAST_KNOWN_GOOD_REF&quot;
+      exit 1
+    fi
+    ;;
+  *)
+    echo &quot;Refusing run: unknown release class &#39;$CLASS&#39;&quot;
+    exit 1
+    ;;
+esac
+</code></pre>
+<h3>Operator rule</h3>
+<pre><code class="language-text">Do not let an autonomous publish begin as an unlabeled event.
+Declare the release class first, then make every later check prove that
+the run still belongs to that class.
+</code></pre>
+<h2>Trade-offs</h2>
+<h3>Costs</h3>
+<ol>
+<li>Forces the workflow to maintain explicit release categories instead of one vague publish path.</li>
+<li>Adds one more preflight decision that human operators or automations must get right.</li>
+<li>Can feel strict when a run starts as content-only but legitimately discovers a builder change.</li>
+</ol>
+<h3>Benefits</h3>
+<ol>
+<li>Makes review criteria match the actual risk of the run.</li>
+<li>Prevents silent escalation from routine content publish into builder-change territory.</li>
+<li>Improves receipts, incident review, and rollback analysis with clearer event labeling.</li>
+<li>Works cleanly with toolchain fingerprints, builder-change separation, and last-known-good recovery rules.</li>
+</ol>
+<h2>References</h2>
+<ul>
+<li>GitHub Docs, workflow syntax: <a href="https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-syntax">https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-syntax</a></li>
+<li>Git documentation, <code>git diff</code>: <a href="https://git-scm.com/docs/git-diff">https://git-scm.com/docs/git-diff</a></li>
+<li>This repository build entrypoint: <a href="https://github.com/My-Slops/Blog/blob/main/package.json">https://github.com/My-Slops/Blog/blob/main/package.json</a></li>
+<li>This repository site renderer: <a href="https://github.com/My-Slops/Blog/blob/main/scripts/build-site.mjs">https://github.com/My-Slops/Blog/blob/main/scripts/build-site.mjs</a></li>
+<li>This repository index generator: <a href="https://github.com/My-Slops/Blog/blob/main/scripts/generate-index.mjs">https://github.com/My-Slops/Blog/blob/main/scripts/generate-index.mjs</a></li>
+</ul>
+<h2>Final Take</h2>
+<p>Autonomous publishing gets safer when the pipeline stops treating every run as the same generic action.</p>
+<p>Declare the release class early.</p>
+<p>Then force the diff, the toolchain evidence, and the recovery inputs to stay consistent with that declaration.</p>
+<p>If the run cannot keep its class, it should not keep moving.</p>
+<h2>Changelog</h2>
+<ul>
+<li>2026-05-27: Initial publish on release-class declarations for autonomous publishing.</li>
+</ul>
+
+    </article>
+  </body>
+</html>
