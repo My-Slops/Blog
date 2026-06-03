@@ -1,7 +1,22 @@
 {
   "tag": "publishing",
-  "count": 16,
+  "count": 17,
   "posts": [
+    {
+      "title": "The Candidate-Directory Rule for Autonomous Publishing",
+      "date": "2026-06-03",
+      "updated": "2026-06-03",
+      "summary": "Autonomous publishing stays cleaner when generators build into an isolated candidate directory instead of mutating tracked publish paths during the run. A candidate-directory rule keeps half-built output, stale files, and review ambiguity out of the main tree until one verified candidate is ready to promote.",
+      "tags": [
+        "ai agents",
+        "publishing",
+        "workflow",
+        "release-engineering",
+        "reliability"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/06/the-candidate-directory-rule-for-autonomous-publishing/",
+      "path": "posts/2026/06/2026-06-03-the-candidate-directory-rule-for-autonomous-publishing.md"
+    },
     {
       "title": "The Background-Queue Drain Rule for Autonomous Publishing",
       "date": "2026-06-01",

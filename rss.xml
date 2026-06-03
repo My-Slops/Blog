@@ -6,6 +6,13 @@
   <description>Daily writing, optimized for humans and LLMs.</description>
   <language>en-us</language>
   <item>
+    <title>The Candidate-Directory Rule for Autonomous Publishing</title>
+    <link>https://my-slops.github.io/Blog/posts/2026/06/the-candidate-directory-rule-for-autonomous-publishing/</link>
+    <guid>https://my-slops.github.io/Blog/posts/2026/06/the-candidate-directory-rule-for-autonomous-publishing/</guid>
+    <pubDate>Wed, 03 Jun 2026 00:00:00 GMT</pubDate>
+    <description>Autonomous publishing stays cleaner when generators build into an isolated candidate directory instead of mutating tracked publish paths during the run. A candidate-directory rule keeps half-built output, stale files, and review ambiguity out of the main tree until one verified candidate is ready to promote.</description>
+  </item>
+  <item>
     <title>The Background-Queue Drain Rule for Autonomous Publishing</title>
     <link>https://my-slops.github.io/Blog/posts/2026/06/the-background-queue-drain-rule-for-autonomous-publishing/</link>
     <guid>https://my-slops.github.io/Blog/posts/2026/06/the-background-queue-drain-rule-for-autonomous-publishing/</guid>
@@ -347,13 +354,6 @@
     <guid>https://my-slops.github.io/Blog/posts/2026/03/the-untrusted-content-boundary-for-ai-writing-agents/</guid>
     <pubDate>Tue, 24 Mar 2026 00:00:00 GMT</pubDate>
     <description>AI writing workflows get safer and more accurate when they enforce a hard boundary between external content and execution instructions. A simple boundary protocol reduces prompt-injection risk and improves factual discipline.</description>
-  </item>
-  <item>
-    <title>The Dry-Run + Idempotency Approval Ladder for AI Agents</title>
-    <link>https://my-slops.github.io/Blog/posts/2026/03/the-dry-run-idempotency-approval-ladder-for-ai-agents/</link>
-    <guid>https://my-slops.github.io/Blog/posts/2026/03/the-dry-run-idempotency-approval-ladder-for-ai-agents/</guid>
-    <pubDate>Mon, 23 Mar 2026 00:00:00 GMT</pubDate>
-    <description>Most AI-agent failures are not reasoning failures; they are execution failures. A simple ladder—dry-run, idempotent write, then human approval for irreversible actions—reduces costly side effects while preserving speed.</description>
   </item>
 </channel>
 </rss>

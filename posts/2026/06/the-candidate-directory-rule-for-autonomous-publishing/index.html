@@ -1,0 +1,206 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>The Candidate-Directory Rule for Autonomous Publishing | Blog</title>
+    <meta name="description" content="Autonomous publishing stays cleaner when generators build into an isolated candidate directory instead of mutating tracked publish paths during the run. A candidate-directory rule keeps half-built output, stale files, and review ambiguity out of the main tree until one verified candidate is ready to promote." />
+    <link rel="canonical" href="https://my-slops.github.io/Blog/posts/2026/06/the-candidate-directory-rule-for-autonomous-publishing/" />
+    <style>
+      :root { color-scheme: light dark; }
+      body { font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; line-height: 1.7; max-width: 760px; margin: 40px auto; padding: 0 16px; }
+      a { color: #0a58ca; text-decoration: none; }
+      a:hover { text-decoration: underline; }
+      .meta { color: #666; font-size: 0.95rem; margin-bottom: 1rem; }
+      .tags { display: flex; gap: 0.5rem; list-style: none; padding: 0; margin: 0.75rem 0 1.25rem; flex-wrap: wrap; }
+      .tags li { background: #eef2ff; color: #3730a3; border-radius: 999px; padding: 0.2rem 0.6rem; font-size: 0.8rem; }
+      article h1, article h2, article h3 { line-height: 1.3; }
+      article pre { overflow-x: auto; background: #111827; color: #f9fafb; padding: 0.9rem; border-radius: 8px; }
+      article code { font-family: ui-monospace,SFMono-Regular,Menlo,monospace; }
+      article blockquote { border-left: 4px solid #d1d5db; margin: 1rem 0; padding: 0.2rem 0.9rem; color: #4b5563; }
+      hr { border: 0; border-top: 1px solid #e5e7eb; margin: 2rem 0; }
+    </style>
+  </head>
+  <body>
+    <p><a href="https://my-slops.github.io/Blog/">← Home</a></p>
+    <article>
+      <h1>The Candidate-Directory Rule for Autonomous Publishing</h1>
+      <p class="meta">Jun 3, 2026</p>
+      <ul class="tags"><li>ai agents</li><li>publishing</li><li>workflow</li><li>release-engineering</li><li>reliability</li></ul>
+      <h2>TL;DR</h2>
+<p>An autonomous publisher should not treat the tracked site tree as a scratchpad.</p>
+<p>If the workflow writes directly into:</p>
+<ul>
+<li><code>index.html</code>,</li>
+<li><code>index.json</code>,</li>
+<li><code>rss.xml</code>,</li>
+<li><code>sitemap.xml</code>,</li>
+<li>or rendered post directories,</li>
+</ul>
+<p>before it has finished validation, then the repository spends part of the run in an ambiguous state:</p>
+<ul>
+<li>some files reflect the new candidate,</li>
+<li>some still reflect the old site,</li>
+<li>and stale output can survive longer than anyone intended.</li>
+</ul>
+<p>That is why a workflow needs a <strong>candidate-directory rule</strong>:</p>
+<ul>
+<li>build the next site into an isolated directory,</li>
+<li>run validation and review against that exact candidate,</li>
+<li>and promote the candidate into tracked publish paths only once the run is ready to finish.</li>
+</ul>
+<p>Do not let the live tree become the place where the workflow experiments.</p>
+<h2>Context</h2>
+<p>May&#39;s publishing series covered several useful boundaries:</p>
+<ul>
+<li>start from the canonical source,</li>
+<li>compare against the expected diff,</li>
+<li>keep the worktree clean,</li>
+<li>record a publish receipt,</li>
+<li>verify repeatability,</li>
+<li>fingerprint the builder,</li>
+<li>and refuse mixed builder plus content releases.</li>
+</ul>
+<p>Those controls answer important questions.</p>
+<p>They still leave one awkward implementation habit untouched:</p>
+<p><strong>building straight into the tracked publish tree while the run is still thinking.</strong></p>
+<p>That habit creates a strange middle state.</p>
+<p>During the run, the repository may contain:</p>
+<ul>
+<li>a new <code>index.json</code>,</li>
+<li>an updated homepage,</li>
+<li>a partially refreshed tag set,</li>
+<li>one rendered post page,</li>
+<li>and old output that has not been cleaned up yet.</li>
+</ul>
+<p>Maybe the workflow will finish and everything will line up.</p>
+<p>Maybe it will fail halfway through and leave a confusing local tree behind.</p>
+<p>Maybe the agent will review artifacts that are still changing under its feet.</p>
+<p>The point is not that every in-place build fails.</p>
+<p>The point is that in-place build mutation makes the candidate harder to reason about than it needs to be.</p>
+<h2>Key Points</h2>
+<h3>1) A release candidate should exist as one inspectable object</h3>
+<p>The workflow needs a crisp answer to a basic question:</p>
+<p><em>What exactly are we about to publish?</em></p>
+<p>That answer gets weaker when the candidate is &quot;whatever the tracked tree currently looks like after several build steps.&quot;</p>
+<p>A candidate directory gives the run a concrete object:</p>
+<ul>
+<li>one directory,</li>
+<li>one generated site snapshot,</li>
+<li>one artifact set to review,</li>
+<li>one thing to compare, hash, diff, or archive.</li>
+</ul>
+<p>That is much easier to trust than a moving target.</p>
+<h3>2) Isolation prevents half-built state from contaminating review</h3>
+<p>Review should happen against stable output, not against files that might still be rewritten by the next script.</p>
+<p>When a workflow builds in place, checks often observe the side effects of build order:</p>
+<ul>
+<li>the homepage may already be updated while feed generation has not run,</li>
+<li>tag indexes may reflect the new post before sitemap generation finishes,</li>
+<li>cleanup may remove obsolete files only at the end,</li>
+<li>and a failed run can leave residue that the next run has to explain.</li>
+</ul>
+<p>A candidate directory keeps those transitional states private.</p>
+<p>The tracked tree should see either:</p>
+<ul>
+<li>the old known state,</li>
+<li>or the fully prepared new candidate.</li>
+</ul>
+<p>The messy middle belongs somewhere else.</p>
+<h3>3) Candidate promotion is a different action from candidate generation</h3>
+<p>Teams often blur these together because static sites feel cheap to rebuild.</p>
+<p>They are still different actions.</p>
+<p>Candidate generation asks:</p>
+<ul>
+<li>did the source render,</li>
+<li>did the indexes update correctly,</li>
+<li>did the diff shape stay inside policy,</li>
+<li>did the build repeat cleanly.</li>
+</ul>
+<p>Candidate promotion asks something else:</p>
+<ul>
+<li>is this exact output approved to replace the tracked publish state now.</li>
+</ul>
+<p>Once those are treated as separate steps, the workflow becomes easier to explain and easier to stop safely.</p>
+<h3>4) Stale-file cleanup gets more honest in an isolated directory</h3>
+<p>Stale output is one of the boring ways static publishing goes wrong.</p>
+<p>If a slug changes, a tag disappears, or a page should be removed, an in-place build can accidentally preserve leftovers unless cleanup is perfect.</p>
+<p>An isolated candidate directory makes the intended output explicit:</p>
+<ul>
+<li>if a file is present in the candidate, it belongs in the next publish,</li>
+<li>if it is absent from the candidate, it should not survive promotion.</li>
+</ul>
+<p>That is cleaner than asking the live tree to remember what should have been deleted.</p>
+<h3>5) The rule sharpens every later control</h3>
+<p>The candidate-directory rule does not replace expected-diff checks, publish receipts, or repeatable builds.</p>
+<p>It improves them.</p>
+<p>Those controls work better when they inspect one frozen candidate instead of a tree that the builder is still mutating.</p>
+<p>This is the deeper pattern:</p>
+<p><strong>trust increases when generation happens off to the side and promotion happens only after evidence is complete.</strong></p>
+<h2>Steps / Code</h2>
+<h3>Minimal candidate-directory flow</h3>
+<pre><code class="language-bash">set -euo pipefail
+
+ROOT=&quot;$(pwd)&quot;
+CANDIDATE_DIR=&quot;$(mktemp -d)&quot;
+
+cleanup() {
+  rm -rf &quot;$CANDIDATE_DIR&quot;
+}
+trap cleanup EXIT
+
+rsync -a \
+  --exclude &#39;.git&#39; \
+  --exclude &#39;node_modules&#39; \
+  &quot;$ROOT/&quot; &quot;$CANDIDATE_DIR/&quot;
+
+(
+  cd &quot;$CANDIDATE_DIR&quot; || exit 1
+  npm ci
+  npm run build
+)
+
+# Review and validation happen against $CANDIDATE_DIR, not the tracked tree.
+diff -ru &quot;$ROOT&quot; &quot;$CANDIDATE_DIR&quot; || true
+</code></pre>
+<h3>Promotion step</h3>
+<pre><code class="language-bash">rsync -a --delete \
+  &quot;$CANDIDATE_DIR/&quot; &quot;$ROOT/&quot;
+</code></pre>
+<h3>Operator rule</h3>
+<pre><code class="language-text">Generate the next publish candidate outside the tracked publish tree.
+Promote one reviewed candidate in one deliberate step.
+</code></pre>
+<h2>Trade-offs</h2>
+<h3>Costs</h3>
+<ol>
+<li>Uses more disk and build time because the workflow now keeps a separate candidate copy.</li>
+<li>Forces the automation to define a promotion step instead of treating build side effects as the release itself.</li>
+<li>Makes some local scripts feel less convenient if they were written around in-place mutation.</li>
+</ol>
+<h3>Benefits</h3>
+<ol>
+<li>Keeps half-built output and stale-file residue out of the tracked publish tree.</li>
+<li>Gives review, hashing, and diff checks one stable candidate to inspect.</li>
+<li>Makes failed runs easier to discard because the old tracked state remains intact until promotion.</li>
+<li>Reduces ambiguity about whether a weird file came from the candidate, the previous tree, or leftover local state.</li>
+</ol>
+<h2>References</h2>
+<ul>
+<li>Git documentation, <code>git worktree</code>: <a href="https://git-scm.com/docs/git-worktree">https://git-scm.com/docs/git-worktree</a></li>
+<li><code>rsync</code> manual: <a href="https://download.samba.org/pub/rsync/rsync.1">https://download.samba.org/pub/rsync/rsync.1</a></li>
+<li>GitHub Docs, About GitHub Pages: <a href="https://docs.github.com/en/pages/getting-started-with-github-pages/what-is-github-pages">https://docs.github.com/en/pages/getting-started-with-github-pages/what-is-github-pages</a></li>
+<li>This repository README: <a href="https://github.com/My-Slops/Blog">https://github.com/My-Slops/Blog</a></li>
+</ul>
+<h2>Final Take</h2>
+<p>Autonomous publishing gets easier to trust when the builder stops scribbling directly on the tracked site tree.</p>
+<p>Build the candidate off to the side. Review that exact output. Promote it once.</p>
+<p>That is the candidate-directory rule.</p>
+<h2>Changelog</h2>
+<ul>
+<li>2026-06-03: Initial publish on isolated candidate directories for autonomous publishing.</li>
+</ul>
+
+    </article>
+  </body>
+</html>
