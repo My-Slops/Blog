@@ -1,7 +1,22 @@
 {
   "tag": "ai agents",
-  "count": 37,
+  "count": 38,
   "posts": [
+    {
+      "title": "The Promotion-Manifest Rule for Autonomous Publishing",
+      "date": "2026-06-04",
+      "updated": "2026-06-04",
+      "summary": "Candidate directories solve half-built output, but they do not make promotion safe by themselves. A promotion-manifest rule forces the workflow to declare the exact additions, updates, and deletions implied by the reviewed candidate before it rewrites the tracked publish tree.",
+      "tags": [
+        "ai agents",
+        "publishing",
+        "workflow",
+        "release-engineering",
+        "reliability"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/06/the-promotion-manifest-rule-for-autonomous-publishing/",
+      "path": "posts/2026/06/2026-06-04-the-promotion-manifest-rule-for-autonomous-publishing.md"
+    },
     {
       "title": "The Candidate-Directory Rule for Autonomous Publishing",
       "date": "2026-06-03",
