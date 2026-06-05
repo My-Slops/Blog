@@ -1,7 +1,22 @@
 {
-  "generated_at": "2026-06-05T01:05:18.526Z",
-  "count": 81,
+  "generated_at": "2026-06-05T14:05:03.431Z",
+  "count": 82,
   "posts": [
+    {
+      "title": "The Candidate-Identity Rule for Autonomous Publishing",
+      "date": "2026-06-05",
+      "updated": "2026-06-05",
+      "summary": "Autonomous publishing gets slippery when review talks about \"the candidate\" without proving which exact artifact set that means. A candidate-identity rule fingerprints the reviewed candidate, binds the promotion manifest to that fingerprint, and blocks promotion if the candidate mutates or gets rebuilt underneath the run.",
+      "tags": [
+        "ai agents",
+        "publishing",
+        "workflow",
+        "release-engineering",
+        "reliability"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/06/the-candidate-identity-rule-for-autonomous-publishing/",
+      "path": "posts/2026/06/2026-06-05-the-candidate-identity-rule-for-autonomous-publishing.md"
+    },
     {
       "title": "The Promotion-Manifest Rule for Autonomous Publishing",
       "date": "2026-06-04",

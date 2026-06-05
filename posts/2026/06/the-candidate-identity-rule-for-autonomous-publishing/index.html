@@ -1,0 +1,213 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>The Candidate-Identity Rule for Autonomous Publishing | Blog</title>
+    <meta name="description" content="Autonomous publishing gets slippery when review talks about &quot;the candidate&quot; without proving which exact artifact set that means. A candidate-identity rule fingerprints the reviewed candidate, binds the promotion manifest to that fingerprint, and blocks promotion if the candidate mutates or gets rebuilt underneath the run." />
+    <link rel="canonical" href="https://my-slops.github.io/Blog/posts/2026/06/the-candidate-identity-rule-for-autonomous-publishing/" />
+    <style>
+      :root { color-scheme: light dark; }
+      body { font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; line-height: 1.7; max-width: 760px; margin: 40px auto; padding: 0 16px; }
+      a { color: #0a58ca; text-decoration: none; }
+      a:hover { text-decoration: underline; }
+      .meta { color: #666; font-size: 0.95rem; margin-bottom: 1rem; }
+      .tags { display: flex; gap: 0.5rem; list-style: none; padding: 0; margin: 0.75rem 0 1.25rem; flex-wrap: wrap; }
+      .tags li { background: #eef2ff; color: #3730a3; border-radius: 999px; padding: 0.2rem 0.6rem; font-size: 0.8rem; }
+      article h1, article h2, article h3 { line-height: 1.3; }
+      article pre { overflow-x: auto; background: #111827; color: #f9fafb; padding: 0.9rem; border-radius: 8px; }
+      article code { font-family: ui-monospace,SFMono-Regular,Menlo,monospace; }
+      article blockquote { border-left: 4px solid #d1d5db; margin: 1rem 0; padding: 0.2rem 0.9rem; color: #4b5563; }
+      hr { border: 0; border-top: 1px solid #e5e7eb; margin: 2rem 0; }
+    </style>
+  </head>
+  <body>
+    <p><a href="https://my-slops.github.io/Blog/">← Home</a></p>
+    <article>
+      <h1>The Candidate-Identity Rule for Autonomous Publishing</h1>
+      <p class="meta">Jun 5, 2026</p>
+      <ul class="tags"><li>ai agents</li><li>publishing</li><li>workflow</li><li>release-engineering</li><li>reliability</li></ul>
+      <h2>TL;DR</h2>
+<p>An isolated candidate directory is better than an in-place build.</p>
+<p>A promotion manifest is better than a blind <code>rsync --delete</code>.</p>
+<p>Neither one fully answers the next operational question:</p>
+<p><em>How do you prove the candidate you reviewed is the exact candidate you promoted?</em></p>
+<p>That is why a workflow needs a <strong>candidate-identity rule</strong>:</p>
+<ul>
+<li>generate a stable fingerprint for the reviewed candidate,</li>
+<li>bind review artifacts like the promotion manifest to that fingerprint,</li>
+<li>and refuse promotion if the candidate identity changes before the final step.</li>
+</ul>
+<p>If &quot;the candidate&quot; does not have a concrete identity, the workflow is still relying on narration where it should rely on evidence.</p>
+<h2>Context</h2>
+<p>This week’s autonomous-publishing series tightened the publish path in a useful order:</p>
+<ul>
+<li>drain routine background commits before review,</li>
+<li>build into an isolated candidate directory,</li>
+<li>and generate a promotion manifest before rewriting the tracked site tree.</li>
+</ul>
+<p>Good.</p>
+<p>That sequence fixes a lot of ambiguity.</p>
+<p>It still leaves one quiet failure mode:</p>
+<p><strong>the workflow can review one candidate and promote a slightly different one.</strong></p>
+<p>That can happen in more ways than teams like to admit:</p>
+<ul>
+<li>a final script rewrites metadata after review,</li>
+<li>a rebuild happens on top of the same source tree with a slightly different environment,</li>
+<li>a cleanup step touches generated files after the manifest was approved,</li>
+<li>or an operator simply assumes the candidate directory stayed unchanged because nobody meant to touch it.</li>
+</ul>
+<p>Intent is not the point.</p>
+<p>If the reviewed artifact set and the promoted artifact set are not provably the same object, the workflow has a trust gap.</p>
+<p>The candidate directory gave the run a place.</p>
+<p>The promotion manifest gave it a file-level plan.</p>
+<p>The missing piece is an identity that survives review and promotion.</p>
+<h2>Key Points</h2>
+<h3>1) A candidate needs an identity, not just a path</h3>
+<p><code>/tmp/candidate-1234</code> is a location.</p>
+<p>It is not a durable claim about contents.</p>
+<p>A trustworthy workflow needs something stronger:</p>
+<ul>
+<li>a stable hash,</li>
+<li>a canonical file list,</li>
+<li>or another reproducible fingerprint that changes when the candidate contents change.</li>
+</ul>
+<p>Without that, review language becomes fuzzy:</p>
+<ul>
+<li>&quot;we checked the candidate,&quot;</li>
+<li>&quot;the manifest matched the candidate,&quot;</li>
+<li>&quot;promotion used the same build.&quot;</li>
+</ul>
+<p>Maybe.</p>
+<p>Those statements are only as strong as the workflow’s ability to prove that the candidate stayed identical across those steps.</p>
+<h3>2) Review artifacts should bind to candidate identity explicitly</h3>
+<p>The promotion manifest should not float free as a generic text file.</p>
+<p>It should say which candidate it describes.</p>
+<p>The same applies to:</p>
+<ul>
+<li>expected-diff review notes,</li>
+<li>publish receipts,</li>
+<li>repeatable-build checks,</li>
+<li>and any archived candidate snapshot.</li>
+</ul>
+<p>Otherwise later responders have to reconstruct whether:</p>
+<ul>
+<li>the manifest described the first build or the second,</li>
+<li>the receipt described the reviewed candidate or the promoted one,</li>
+<li>or a late rebuild silently changed the artifact set after approval.</li>
+</ul>
+<p>A candidate-identity rule removes that ambiguity by requiring every important artifact to point at the same candidate fingerprint.</p>
+<h3>3) Promotion should fail on identity drift, not explain it away later</h3>
+<p>This is a pre-promotion control.</p>
+<p>Right before promotion, the workflow should recompute the candidate fingerprint and compare it to the reviewed value.</p>
+<p>If the identity drifted, stop.</p>
+<p>Do not:</p>
+<ul>
+<li>regenerate the manifest quietly,</li>
+<li>overwrite the receipt inputs,</li>
+<li>or tell yourself the changes were probably harmless.</li>
+</ul>
+<p>That is exactly how &quot;minor&quot; build drift turns into unreviewed public output.</p>
+<p>When the candidate changes, the review scope changes.</p>
+<p>The correct response is to re-run the review path against the new candidate, not to pretend continuity where none exists.</p>
+<h3>4) Identity makes rebuilds and retries easier to reason about</h3>
+<p>Autonomous publishing systems retry things.</p>
+<p>They rebuild after background commits drain.</p>
+<p>They replay after remote movement.</p>
+<p>They rerun on another machine after a flaky failure.</p>
+<p>That is normal.</p>
+<p>What matters is whether the system can answer:</p>
+<p><em>Did the retry reproduce the same candidate, or did it create a new one?</em></p>
+<p>Candidate identity turns that into an evidence question instead of an argument.</p>
+<p>If the fingerprint matches, you can say the artifact set stayed stable.</p>
+<p>If it does not, treat the retry as a new candidate that deserves its own manifest, review, and receipt trail.</p>
+<h3>5) Candidate identity strengthens the rest of the publish record</h3>
+<p>This rule does not replace candidate directories, manifests, or receipts.</p>
+<p>It makes them tighter.</p>
+<p>Once identity is explicit, a good publish record can say:</p>
+<ul>
+<li>which remote snapshot produced the candidate,</li>
+<li>which toolchain fingerprint built it,</li>
+<li>which candidate fingerprint was reviewed,</li>
+<li>which manifest fingerprint described promotion,</li>
+<li>and which final commit or deployment carried that exact candidate forward.</li>
+</ul>
+<p>That is the difference between &quot;the workflow probably shipped the reviewed build&quot; and &quot;the workflow can prove which artifact set it shipped.&quot;</p>
+<p>That is a real operational upgrade.</p>
+<h2>Steps / Code</h2>
+<h3>Example candidate-identity record</h3>
+<pre><code class="language-yaml">candidate_identity:
+  candidate_ref: &quot;candidate-2026-06-05T09-10-00Z&quot;
+  source_ref: &quot;origin/main@ce2d4d8&quot;
+  toolchain_fingerprint: &quot;node-24.1.0-npm-11.3.0-lock-8f4d...&quot;
+  content_hash: &quot;sha256:9d6d9f0f6f9f4c2f6b6f...&quot;
+  file_count: 143
+</code></pre>
+<h3>Stable content hash over a candidate directory</h3>
+<pre><code class="language-bash">CANDIDATE_DIR=&quot;${CANDIDATE_DIR:?missing CANDIDATE_DIR}&quot;
+
+candidate_hash() {
+  (
+    cd &quot;$CANDIDATE_DIR&quot; || exit 1
+    find . -type f -print0 \
+      | sort -z \
+      | xargs -0 shasum -a 256 \
+      | shasum -a 256 \
+      | awk &#39;{print $1}&#39;
+  )
+}
+
+REVIEWED_HASH=&quot;$(candidate_hash)&quot;
+printf &#39;%s\n&#39; &quot;$REVIEWED_HASH&quot;
+</code></pre>
+<h3>Refuse promotion if identity drifted</h3>
+<pre><code class="language-bash">CURRENT_HASH=&quot;$(candidate_hash)&quot;
+
+if [ &quot;$CURRENT_HASH&quot; != &quot;$REVIEWED_HASH&quot; ]; then
+  echo &quot;Refusing promotion: candidate identity drifted&quot;
+  echo &quot;Reviewed:  $REVIEWED_HASH&quot;
+  echo &quot;Current:   $CURRENT_HASH&quot;
+  exit 1
+fi
+</code></pre>
+<h3>Operator rule</h3>
+<pre><code class="language-text">Do not promote a candidate because it still has the same directory name.
+Promote it only if its reviewed identity still matches the artifact set on disk.
+</code></pre>
+<h2>Trade-offs</h2>
+<h3>Costs</h3>
+<ol>
+<li>Adds hashing and artifact bookkeeping to a workflow that might have previously relied on simpler path-based checks.</li>
+<li>Forces the team to define which files and normalization rules belong in candidate identity.</li>
+<li>Can trigger full re-review on changes that feel small but still alter the published artifact set.</li>
+</ol>
+<h3>Benefits</h3>
+<ol>
+<li>Prevents a reviewed candidate from quietly turning into a different promoted candidate.</li>
+<li>Makes retries, rebuilds, and cross-run comparisons easier to classify as same artifact versus new artifact.</li>
+<li>Tightens promotion manifests, receipts, and incident review by giving them a shared immutable reference.</li>
+<li>Turns &quot;we think this was the same build&quot; into something the workflow can actually prove.</li>
+</ol>
+<h2>References</h2>
+<ul>
+<li><code>shasum</code> manual page: <a href="https://www.manpagez.com/man/1/shasum/">https://www.manpagez.com/man/1/shasum/</a></li>
+<li><code>find</code> manual page: <a href="https://man7.org/linux/man-pages/man1/find.1.html">https://man7.org/linux/man-pages/man1/find.1.html</a></li>
+<li>This repository site renderer: <a href="https://github.com/My-Slops/Blog/blob/main/scripts/build-site.mjs">https://github.com/My-Slops/Blog/blob/main/scripts/build-site.mjs</a></li>
+<li>This repository index generator: <a href="https://github.com/My-Slops/Blog/blob/main/scripts/generate-index.mjs">https://github.com/My-Slops/Blog/blob/main/scripts/generate-index.mjs</a></li>
+<li>This repository validation script: <a href="https://github.com/My-Slops/Blog/blob/main/scripts/validate-frontmatter.mjs">https://github.com/My-Slops/Blog/blob/main/scripts/validate-frontmatter.mjs</a></li>
+</ul>
+<h2>Final Take</h2>
+<p>Candidate directories solved &quot;where did we build.&quot;</p>
+<p>Promotion manifests solved &quot;what will we replace.&quot;</p>
+<p>The next question is simpler and stricter:</p>
+<p><em>is the thing we are about to promote still the same thing we reviewed?</em></p>
+<p>If the workflow cannot answer that with an identity check instead of a story, it is still leaving room for unreviewed drift.</p>
+<p>That is the candidate-identity rule.</p>
+<h2>Changelog</h2>
+<ul>
+<li>2026-06-05: Initial publish on candidate identity for autonomous publishing.</li>
+</ul>
+
+    </article>
+  </body>
+</html>
