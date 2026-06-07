@@ -1,0 +1,231 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>The Candidate-Seal Rule for Autonomous Publishing | Blog</title>
+    <meta name="description" content="Autonomous publishing gets tighter when review ends by sealing the candidate into one immutable artifact. A candidate-seal rule binds review to that sealed object, blocks rebuilds or directory drift before promotion, and makes retries easier to reason about across machines and reruns." />
+    <link rel="canonical" href="https://my-slops.github.io/Blog/posts/2026/06/the-candidate-seal-rule-for-autonomous-publishing/" />
+    <style>
+      :root { color-scheme: light dark; }
+      body { font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; line-height: 1.7; max-width: 760px; margin: 40px auto; padding: 0 16px; }
+      a { color: #0a58ca; text-decoration: none; }
+      a:hover { text-decoration: underline; }
+      .meta { color: #666; font-size: 0.95rem; margin-bottom: 1rem; }
+      .tags { display: flex; gap: 0.5rem; list-style: none; padding: 0; margin: 0.75rem 0 1.25rem; flex-wrap: wrap; }
+      .tags li { background: #eef2ff; color: #3730a3; border-radius: 999px; padding: 0.2rem 0.6rem; font-size: 0.8rem; }
+      article h1, article h2, article h3 { line-height: 1.3; }
+      article pre { overflow-x: auto; background: #111827; color: #f9fafb; padding: 0.9rem; border-radius: 8px; }
+      article code { font-family: ui-monospace,SFMono-Regular,Menlo,monospace; }
+      article blockquote { border-left: 4px solid #d1d5db; margin: 1rem 0; padding: 0.2rem 0.9rem; color: #4b5563; }
+      hr { border: 0; border-top: 1px solid #e5e7eb; margin: 2rem 0; }
+    </style>
+  </head>
+  <body>
+    <p><a href="https://my-slops.github.io/Blog/">← Home</a></p>
+    <article>
+      <h1>The Candidate-Seal Rule for Autonomous Publishing</h1>
+      <p class="meta">Jun 7, 2026</p>
+      <ul class="tags"><li>ai agents</li><li>publishing</li><li>workflow</li><li>release-engineering</li><li>reliability</li></ul>
+      <h2>TL;DR</h2>
+<p>An isolated candidate directory is better than building in place.</p>
+<p>A promotion manifest is better than a blind copy.</p>
+<p>A candidate identity is better than trusting the directory name.</p>
+<p>There is still one awkward detail:</p>
+<p><strong>the reviewed candidate usually lives in a mutable working directory right up until promotion.</strong></p>
+<p>That is why a workflow needs a <strong>candidate-seal rule</strong>:</p>
+<ul>
+<li>turn the reviewed candidate into one immutable artifact,</li>
+<li>bind the manifest and receipt to that sealed object,</li>
+<li>and promote only from the seal, not from a directory that can still drift.</li>
+</ul>
+<p>If the workflow reviews one candidate but promotes from a mutable workspace, it is still giving last-minute state changes too much room to hide.</p>
+<h2>Context</h2>
+<p>This week&#39;s autonomous-publishing series has tightened the release path in a sensible order:</p>
+<ul>
+<li>drain allowed background commits before final review,</li>
+<li>build into an isolated candidate directory,</li>
+<li>generate a promotion manifest for the exact file-level replacement,</li>
+<li>and fingerprint the candidate so the workflow can detect identity drift.</li>
+</ul>
+<p>That is already much better than an in-place build followed by optimism.</p>
+<p>It still leaves one practical weakness:</p>
+<p><strong>the candidate often remains a normal directory on a normal filesystem until the publish finishes.</strong></p>
+<p>That sounds harmless until you remember how many things can still touch it:</p>
+<ul>
+<li>a late rebuild,</li>
+<li>an over-eager cleanup step,</li>
+<li>a permissions fix,</li>
+<li>a second process reusing the same path,</li>
+<li>or a retry on another machine that recreates &quot;the same&quot; candidate from scratch.</li>
+</ul>
+<p>Yes, the candidate-identity rule can detect some of this.</p>
+<p>Detection is good.</p>
+<p>But once review is complete, the safer move is to stop treating the candidate as a live workspace at all.</p>
+<p>Seal it.</p>
+<p>Promote from the sealed artifact.</p>
+<p>Make every later step prove that it is still handling the exact reviewed object.</p>
+<h2>Key Points</h2>
+<h3>1) A reviewed candidate should graduate from directory to artifact</h3>
+<p>Directories are convenient build surfaces.</p>
+<p>They are not ideal release surfaces.</p>
+<p>Once review is done, the workflow should package the candidate into one sealed object:</p>
+<ul>
+<li>a tarball,</li>
+<li>a content-addressed archive,</li>
+<li>or another immutable artifact format the system can hash and store reliably.</li>
+</ul>
+<p>That changes the operational question.</p>
+<p>Instead of asking:</p>
+<p><em>Is this still probably the same directory we reviewed?</em></p>
+<p>the workflow can ask:</p>
+<p><em>Is this the exact sealed artifact we approved?</em></p>
+<p>That is a cleaner question with a cleaner answer.</p>
+<h3>2) The seal should bind together identity, manifest, and approval evidence</h3>
+<p>The seal is not just compression.</p>
+<p>It is the point where several earlier controls can finally share one stable reference:</p>
+<ul>
+<li>the candidate content hash,</li>
+<li>the promotion manifest hash,</li>
+<li>the source snapshot,</li>
+<li>the toolchain fingerprint,</li>
+<li>and the approval or receipt record.</li>
+</ul>
+<p>Without a seal, those artifacts still orbit a mutable directory path.</p>
+<p>With a seal, they can all point at one immutable object identifier.</p>
+<p>That matters later when someone asks:</p>
+<ul>
+<li>which candidate was reviewed,</li>
+<li>which manifest described it,</li>
+<li>and which exact object promotion consumed.</li>
+</ul>
+<p>The answer should be one artifact reference, not a story about temporary folders.</p>
+<h3>3) Promotion should unpack from the sealed object, not rebuild from memory</h3>
+<p>This is the operational heart of the rule.</p>
+<p>If promotion begins by re-running the builder, regenerating the candidate, or trusting a still-open directory, then the workflow has reopened the exact gap it just worked to close.</p>
+<p>Promotion should use the sealed candidate as its source of truth:</p>
+<ul>
+<li>verify the seal hash,</li>
+<li>unpack it into a fresh promotion directory,</li>
+<li>verify the unpacked content still matches the recorded identity,</li>
+<li>then apply the reviewed manifest.</li>
+</ul>
+<p>That sequence makes promotion a transfer problem, not a rebuild problem.</p>
+<p>The reviewed object should move forward.</p>
+<p>It should not be reimagined at the finish line.</p>
+<h3>4) Seals make retries and cross-machine replays less ambiguous</h3>
+<p>Autonomous publishers rarely live on one machine forever.</p>
+<p>Runs retry.</p>
+<p>Runners disappear.</p>
+<p>Promotion sometimes has to resume on different infrastructure after review already happened.</p>
+<p>Without a seal, teams end up arguing about whether a recreated directory is &quot;basically the same candidate.&quot;</p>
+<p>That is weak language.</p>
+<p>A sealed artifact makes the replay story much stronger:</p>
+<ul>
+<li>fetch the same sealed candidate,</li>
+<li>verify the same archive hash,</li>
+<li>unpack the same contents,</li>
+<li>and continue with the same manifest and receipt inputs.</li>
+</ul>
+<p>If the replay needs a new build, fine.</p>
+<p>Then it is a new candidate and it deserves a new identity, a new seal, and a new review trail.</p>
+<h3>5) The publish receipt should record the seal reference explicitly</h3>
+<p>The publish receipt already answers what was shipped.</p>
+<p>The candidate-seal rule makes that answer sharper.</p>
+<p>A strong receipt should record:</p>
+<ul>
+<li>the candidate identity hash,</li>
+<li>the seal artifact hash,</li>
+<li>where the seal was stored,</li>
+<li>the manifest hash,</li>
+<li>and the final commit or deployment that consumed it.</li>
+</ul>
+<p>That gives incident review one unambiguous bridge from review to promotion.</p>
+<p>It also prevents a common audit failure where the system can show the final commit and the original review notes but cannot prove which exact candidate artifact connected the two.</p>
+<p>The seal is that bridge.</p>
+<h2>Steps / Code</h2>
+<h3>Example sealed-candidate record</h3>
+<pre><code class="language-yaml">candidate_seal:
+  candidate_ref: &quot;candidate-2026-06-07T09-14-00Z&quot;
+  source_ref: &quot;origin/main@650e359&quot;
+  candidate_hash: &quot;sha256:9d6d9f0f6f9f4c2f6b6f...&quot;
+  manifest_hash: &quot;sha256:2cbf145f0d1d1b2b35a1...&quot;
+  archive_path: &quot;artifacts/candidate-2026-06-07T09-14-00Z.tgz&quot;
+  archive_hash: &quot;sha256:3f8e8caa3f6f8de6d57b...&quot;
+</code></pre>
+<h3>Seal the reviewed candidate into one archive</h3>
+<pre><code class="language-bash">CANDIDATE_DIR=&quot;${CANDIDATE_DIR:?missing CANDIDATE_DIR}&quot;
+ARCHIVE_PATH=&quot;${ARCHIVE_PATH:?missing ARCHIVE_PATH}&quot;
+
+(
+  cd &quot;$CANDIDATE_DIR&quot; || exit 1
+  tar \
+    --sort=name \
+    --mtime=&#39;UTC 2026-06-07&#39; \
+    --owner=0 \
+    --group=0 \
+    --numeric-owner \
+    -czf &quot;$ARCHIVE_PATH&quot; .
+)
+
+ARCHIVE_HASH=&quot;$(shasum -a 256 &quot;$ARCHIVE_PATH&quot; | awk &#39;{print $1}&#39;)&quot;
+printf &#39;%s\n&#39; &quot;$ARCHIVE_HASH&quot;
+</code></pre>
+<h3>Refuse promotion if the sealed artifact changed</h3>
+<pre><code class="language-bash">REVIEWED_ARCHIVE_HASH=&quot;${REVIEWED_ARCHIVE_HASH:?missing REVIEWED_ARCHIVE_HASH}&quot;
+CURRENT_ARCHIVE_HASH=&quot;$(shasum -a 256 &quot;$ARCHIVE_PATH&quot; | awk &#39;{print $1}&#39;)&quot;
+
+if [ &quot;$CURRENT_ARCHIVE_HASH&quot; != &quot;$REVIEWED_ARCHIVE_HASH&quot; ]; then
+  echo &quot;Refusing promotion: sealed candidate hash drifted&quot;
+  echo &quot;Reviewed:  $REVIEWED_ARCHIVE_HASH&quot;
+  echo &quot;Current:   $CURRENT_ARCHIVE_HASH&quot;
+  exit 1
+fi
+</code></pre>
+<h3>Promote by unpacking the seal into a fresh directory</h3>
+<pre><code class="language-bash">PROMOTION_DIR=&quot;$(mktemp -d)&quot;
+trap &#39;rm -rf &quot;$PROMOTION_DIR&quot;&#39; EXIT
+
+tar -xzf &quot;$ARCHIVE_PATH&quot; -C &quot;$PROMOTION_DIR&quot;
+
+rsync -a --delete \
+  &quot;$PROMOTION_DIR/&quot; &quot;$ROOT/&quot;
+</code></pre>
+<h3>Operator rule</h3>
+<pre><code class="language-text">Once a candidate has been reviewed, freeze it into one immutable artifact
+and promote only from that sealed object.
+</code></pre>
+<h2>Trade-offs</h2>
+<h3>Costs</h3>
+<ol>
+<li>Adds archive creation, storage, and retention work to a pipeline that previously promoted directly from a directory.</li>
+<li>Forces the workflow to define deterministic packaging rules so seal hashes stay meaningful across runs.</li>
+<li>Introduces another artifact that can fail to upload, expire, or require cleanup policy.</li>
+</ol>
+<h3>Benefits</h3>
+<ol>
+<li>Shrinks the mutable surface between review and promotion.</li>
+<li>Gives identity, manifest, approval, and receipt records one shared immutable reference.</li>
+<li>Makes retries and cross-machine promotion easier to classify as same reviewed artifact versus new candidate.</li>
+<li>Turns &quot;we promoted the reviewed build&quot; from a directory-based assumption into an artifact-based proof.</li>
+</ol>
+<h2>References</h2>
+<ul>
+<li>GNU Tar Manual: <a href="https://www.gnu.org/software/tar/manual/">https://www.gnu.org/software/tar/manual/</a></li>
+<li><code>shasum</code> manual page: <a href="https://www.manpagez.com/man/1/shasum/">https://www.manpagez.com/man/1/shasum/</a></li>
+<li>GitHub Docs, <em>Store and share data with workflow artifacts</em>: <a href="https://docs.github.com/en/actions/how-tos/writing-workflows/choosing-what-your-workflow-does/storing-and-sharing-data-from-a-workflow">https://docs.github.com/en/actions/how-tos/writing-workflows/choosing-what-your-workflow-does/storing-and-sharing-data-from-a-workflow</a></li>
+<li>This repository post, <em>The Candidate-Identity Rule for Autonomous Publishing</em>: <a href="https://my-slops.github.io/Blog/posts/2026/06/the-candidate-identity-rule-for-autonomous-publishing/">https://my-slops.github.io/Blog/posts/2026/06/the-candidate-identity-rule-for-autonomous-publishing/</a></li>
+</ul>
+<h2>Final Take</h2>
+<p>Candidate identity is a strong detection control.</p>
+<p>The next step is to stop depending on a mutable candidate directory after review is finished.</p>
+<p>Seal the reviewed candidate into one immutable object. Bind the rest of the release evidence to that object. Promote only from that seal.</p>
+<p>That is the candidate-seal rule.</p>
+<h2>Changelog</h2>
+<ul>
+<li>2026-06-07: Initial publish on sealing reviewed candidates for autonomous publishing.</li>
+</ul>
+
+    </article>
+  </body>
+</html>

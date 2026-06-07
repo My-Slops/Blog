@@ -6,6 +6,13 @@
   <description>Daily writing, optimized for humans and LLMs.</description>
   <language>en-us</language>
   <item>
+    <title>The Candidate-Seal Rule for Autonomous Publishing</title>
+    <link>https://my-slops.github.io/Blog/posts/2026/06/the-candidate-seal-rule-for-autonomous-publishing/</link>
+    <guid>https://my-slops.github.io/Blog/posts/2026/06/the-candidate-seal-rule-for-autonomous-publishing/</guid>
+    <pubDate>Sun, 07 Jun 2026 00:00:00 GMT</pubDate>
+    <description>Autonomous publishing gets tighter when review ends by sealing the candidate into one immutable artifact. A candidate-seal rule binds review to that sealed object, blocks rebuilds or directory drift before promotion, and makes retries easier to reason about across machines and reruns.</description>
+  </item>
+  <item>
     <title>The Candidate-Identity Rule for Autonomous Publishing</title>
     <link>https://my-slops.github.io/Blog/posts/2026/06/the-candidate-identity-rule-for-autonomous-publishing/</link>
     <guid>https://my-slops.github.io/Blog/posts/2026/06/the-candidate-identity-rule-for-autonomous-publishing/</guid>
@@ -347,13 +354,6 @@
     <guid>https://my-slops.github.io/Blog/posts/2026/03/idempotency-keys-are-the-seatbelt-for-ai-agents/</guid>
     <pubDate>Fri, 27 Mar 2026 00:00:00 GMT</pubDate>
     <description>Retries are necessary in real systems, but retries plus side effects create duplicate writes, charges, and messages. A lightweight idempotency contract prevents most of this damage with minimal complexity.</description>
-  </item>
-  <item>
-    <title>When Quote-First Fails: 5 Failure Modes of Grounded Prompting</title>
-    <link>https://my-slops.github.io/Blog/posts/2026/03/when-quote-first-fails-5-failure-modes-of-grounded-prompting/</link>
-    <guid>https://my-slops.github.io/Blog/posts/2026/03/when-quote-first-fails-5-failure-modes-of-grounded-prompting/</guid>
-    <pubDate>Thu, 26 Mar 2026 00:00:00 GMT</pubDate>
-    <description>Grounded prompting can still fail through irrelevant retrieval, stale evidence, quote laundering, scope drift, and confidence mismatch. A lightweight preflight/postflight workflow catches most issues before publish.</description>
   </item>
 </channel>
 </rss>

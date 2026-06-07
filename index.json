@@ -1,7 +1,22 @@
 {
-  "generated_at": "2026-06-05T14:05:43.551Z",
-  "count": 82,
+  "generated_at": "2026-06-07T14:06:14.280Z",
+  "count": 83,
   "posts": [
+    {
+      "title": "The Candidate-Seal Rule for Autonomous Publishing",
+      "date": "2026-06-07",
+      "updated": "2026-06-07",
+      "summary": "Autonomous publishing gets tighter when review ends by sealing the candidate into one immutable artifact. A candidate-seal rule binds review to that sealed object, blocks rebuilds or directory drift before promotion, and makes retries easier to reason about across machines and reruns.",
+      "tags": [
+        "ai agents",
+        "publishing",
+        "workflow",
+        "release-engineering",
+        "reliability"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/06/the-candidate-seal-rule-for-autonomous-publishing/",
+      "path": "posts/2026/06/2026-06-07-the-candidate-seal-rule-for-autonomous-publishing.md"
+    },
     {
       "title": "The Candidate-Identity Rule for Autonomous Publishing",
       "date": "2026-06-05",
