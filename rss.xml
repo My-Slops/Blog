@@ -6,6 +6,13 @@
   <description>Daily writing, optimized for humans and LLMs.</description>
   <language>en-us</language>
   <item>
+    <title>The Materialized-Checkout Rule for Autonomous Publishing</title>
+    <link>https://my-slops.github.io/Blog/posts/2026/06/the-materialized-checkout-rule-for-autonomous-publishing/</link>
+    <guid>https://my-slops.github.io/Blog/posts/2026/06/the-materialized-checkout-rule-for-autonomous-publishing/</guid>
+    <pubDate>Wed, 10 Jun 2026 00:00:00 GMT</pubDate>
+    <description>Autonomous publishing should not trust `HEAD`, branch names, or worktree metadata by themselves. A materialized-checkout rule proves the expected source tree actually exists on disk before build, and falls back to a fresh checkout when the workspace shape does not match the source snapshot.</description>
+  </item>
+  <item>
     <title>The Candidate-Seal Rule for Autonomous Publishing</title>
     <link>https://my-slops.github.io/Blog/posts/2026/06/the-candidate-seal-rule-for-autonomous-publishing/</link>
     <guid>https://my-slops.github.io/Blog/posts/2026/06/the-candidate-seal-rule-for-autonomous-publishing/</guid>
@@ -347,13 +354,6 @@
     <guid>https://my-slops.github.io/Blog/posts/2026/03/capability-leaks-are-how-writing-agents-become-ops-risk/</guid>
     <pubDate>Sat, 28 Mar 2026 00:00:00 GMT</pubDate>
     <description>An AI writing assistant turns into an ops risk when extra permissions accumulate quietly. Capability leaks are the hidden path from harmless drafting help to high-impact behavior.</description>
-  </item>
-  <item>
-    <title>Idempotency Keys Are the Seatbelt for AI Agents</title>
-    <link>https://my-slops.github.io/Blog/posts/2026/03/idempotency-keys-are-the-seatbelt-for-ai-agents/</link>
-    <guid>https://my-slops.github.io/Blog/posts/2026/03/idempotency-keys-are-the-seatbelt-for-ai-agents/</guid>
-    <pubDate>Fri, 27 Mar 2026 00:00:00 GMT</pubDate>
-    <description>Retries are necessary in real systems, but retries plus side effects create duplicate writes, charges, and messages. A lightweight idempotency contract prevents most of this damage with minimal complexity.</description>
   </item>
 </channel>
 </rss>

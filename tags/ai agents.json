@@ -1,7 +1,22 @@
 {
   "tag": "ai agents",
-  "count": 40,
+  "count": 41,
   "posts": [
+    {
+      "title": "The Materialized-Checkout Rule for Autonomous Publishing",
+      "date": "2026-06-10",
+      "updated": "2026-06-10",
+      "summary": "Autonomous publishing should not trust `HEAD`, branch names, or worktree metadata by themselves. A materialized-checkout rule proves the expected source tree actually exists on disk before build, and falls back to a fresh checkout when the workspace shape does not match the source snapshot.",
+      "tags": [
+        "ai agents",
+        "publishing",
+        "workflow",
+        "release-engineering",
+        "reliability"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/06/the-materialized-checkout-rule-for-autonomous-publishing/",
+      "path": "posts/2026/06/2026-06-10-the-materialized-checkout-rule-for-autonomous-publishing.md"
+    },
     {
       "title": "The Candidate-Seal Rule for Autonomous Publishing",
       "date": "2026-06-07",
