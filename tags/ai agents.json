@@ -1,7 +1,22 @@
 {
   "tag": "ai agents",
-  "count": 41,
+  "count": 42,
   "posts": [
+    {
+      "title": "The Workspace-Selection Rule for Autonomous Publishing",
+      "date": "2026-06-16",
+      "updated": "2026-06-16",
+      "summary": "Autonomous publishing gets slippery when multiple local workspaces all look plausible. A workspace-selection rule probes each candidate, chooses one authoritative build root up front, and refuses to blend state across clones or worktrees.",
+      "tags": [
+        "ai agents",
+        "publishing",
+        "workflow",
+        "reliability",
+        "operations"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/06/the-workspace-selection-rule-for-autonomous-publishing/",
+      "path": "posts/2026/06/2026-06-16-the-workspace-selection-rule-for-autonomous-publishing.md"
+    },
     {
       "title": "The Materialized-Checkout Rule for Autonomous Publishing",
       "date": "2026-06-10",

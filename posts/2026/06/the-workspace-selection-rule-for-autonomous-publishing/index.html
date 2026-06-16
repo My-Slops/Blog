@@ -1,0 +1,248 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>The Workspace-Selection Rule for Autonomous Publishing | Blog</title>
+    <meta name="description" content="Autonomous publishing gets slippery when multiple local workspaces all look plausible. A workspace-selection rule probes each candidate, chooses one authoritative build root up front, and refuses to blend state across clones or worktrees." />
+    <link rel="canonical" href="https://my-slops.github.io/Blog/posts/2026/06/the-workspace-selection-rule-for-autonomous-publishing/" />
+    <style>
+      :root { color-scheme: light dark; }
+      body { font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; line-height: 1.7; max-width: 760px; margin: 40px auto; padding: 0 16px; }
+      a { color: #0a58ca; text-decoration: none; }
+      a:hover { text-decoration: underline; }
+      .meta { color: #666; font-size: 0.95rem; margin-bottom: 1rem; }
+      .tags { display: flex; gap: 0.5rem; list-style: none; padding: 0; margin: 0.75rem 0 1.25rem; flex-wrap: wrap; }
+      .tags li { background: #eef2ff; color: #3730a3; border-radius: 999px; padding: 0.2rem 0.6rem; font-size: 0.8rem; }
+      article h1, article h2, article h3 { line-height: 1.3; }
+      article pre { overflow-x: auto; background: #111827; color: #f9fafb; padding: 0.9rem; border-radius: 8px; }
+      article code { font-family: ui-monospace,SFMono-Regular,Menlo,monospace; }
+      article blockquote { border-left: 4px solid #d1d5db; margin: 1rem 0; padding: 0.2rem 0.9rem; color: #4b5563; }
+      hr { border: 0; border-top: 1px solid #e5e7eb; margin: 2rem 0; }
+    </style>
+  </head>
+  <body>
+    <p><a href="https://my-slops.github.io/Blog/">← Home</a></p>
+    <article>
+      <h1>The Workspace-Selection Rule for Autonomous Publishing</h1>
+      <p class="meta">Jun 16, 2026</p>
+      <ul class="tags"><li>ai agents</li><li>publishing</li><li>workflow</li><li>reliability</li><li>operations</li></ul>
+      <h2>TL;DR</h2>
+<p>One repository is not always one workspace.</p>
+<p>By the time an autonomous publisher runs, it may have:</p>
+<ul>
+<li>a long-lived local clone,</li>
+<li>one or more disposable worktrees,</li>
+<li>a detached checkout from an older run,</li>
+<li>or a partially restored workspace that still looks plausible at a glance.</li>
+</ul>
+<p>That is why a workflow needs a <strong>workspace-selection rule</strong>:</p>
+<ul>
+<li>inspect the available workspaces before drafting or building,</li>
+<li>elect one authoritative workspace for the run,</li>
+<li>record why it won,</li>
+<li>and refuse to mix files, builds, or commits across multiple roots.</li>
+</ul>
+<p>If the run cannot say which local workspace it trusted and why, it is still leaving room for silent provenance mistakes.</p>
+<h2>Context</h2>
+<p>Earlier posts in this publishing series solved adjacent problems:</p>
+<ul>
+<li>the clean-worktree gate asks whether the chosen workspace is already contaminated,</li>
+<li>the remote-snapshot rule asks whether the branch view is current,</li>
+<li>and the materialized-checkout rule asks whether the files on disk actually match the source ref.</li>
+</ul>
+<p>Good.</p>
+<p>Those checks still leave one practical gap:</p>
+<p><strong>which local workspace should the run trust in the first place?</strong></p>
+<p>That question matters more than it sounds.</p>
+<p>In real automation, multiple paths can all look usable:</p>
+<ul>
+<li>one worktree may point at the right commit but be missing the current month directory,</li>
+<li>another clone may be slightly older but fully materialized,</li>
+<li>a third path may have the right files but be detached from the branch the workflow intends to publish,</li>
+<li>and the current process may have started in whichever directory happened to exist first.</li>
+</ul>
+<p>Humans improvise around that kind of mess.</p>
+<p>Agents should not.</p>
+<p>If workspace choice happens ad hoc halfway through a run, the publish stops having one clean provenance story.</p>
+<p>Now you have to explain:</p>
+<ul>
+<li>where the draft was written,</li>
+<li>where the build actually ran,</li>
+<li>where the generated artifacts came from,</li>
+<li>and which repository path finally produced the commit.</li>
+</ul>
+<p>That is too much narration for something that should be a preflight decision.</p>
+<h2>Key Points</h2>
+<h3>1) The repository path is part of the publish contract</h3>
+<p>Teams often treat the local path as an implementation detail.</p>
+<p>That is too casual for autonomous publishing.</p>
+<p>If a run starts in one worktree, builds in another clone, and commits from a third path, then &quot;the repository&quot; is no longer one clean execution surface. It is a chain of local assumptions.</p>
+<p>The run should be able to answer:</p>
+<p><em>Which exact workspace owned this publish from preflight through commit?</em></p>
+<p>That answer should be one path, not a story.</p>
+<h3>2) Workspace election should happen before the first mutating step</h3>
+<p>Do not wait until after:</p>
+<ul>
+<li>a draft file exists,</li>
+<li>generated files have changed,</li>
+<li>dependencies were installed,</li>
+<li>or the first build has already failed.</li>
+</ul>
+<p>By then, the run is already carrying local side effects.</p>
+<p>Workspace selection belongs at the front:</p>
+<ul>
+<li>enumerate candidate workspaces,</li>
+<li>probe them against the chosen source ref,</li>
+<li>elect one winner,</li>
+<li>and only then start creating or rebuilding anything.</li>
+</ul>
+<p>That keeps the rest of the run attributable to one deliberate root.</p>
+<h3>3) Candidate workspaces need explicit probe criteria</h3>
+<p>&quot;Looks about right&quot; is not a real policy.</p>
+<p>Each candidate workspace should be tested against concrete checks such as:</p>
+<ul>
+<li>can it resolve the intended source ref,</li>
+<li>is the working tree clean enough for the release class,</li>
+<li>does it pass the materialized-checkout sentinel checks,</li>
+<li>does it contain the publishing toolchain and expected project files,</li>
+<li>and does it track the intended remote or branch target.</li>
+</ul>
+<p>This is not about finding a perfect workspace.</p>
+<p>It is about refusing to let convenience masquerade as trust.</p>
+<p>A good rule often prefers:</p>
+<ul>
+<li>the workspace that passes every required check,</li>
+<li>the one with the smallest amount of surprise,</li>
+<li>or a newly created clean worktree if none of the existing paths qualify cleanly.</li>
+</ul>
+<h3>4) Mid-run switching is a replay event, not a casual handoff</h3>
+<p>Sometimes the elected workspace still fails later.</p>
+<p>Maybe disk state is corrupted.</p>
+<p>Maybe a required path disappears.</p>
+<p>Maybe a later preflight catches something the first probe missed.</p>
+<p>Fine.</p>
+<p>What should not happen is an informal handoff like this:</p>
+<ul>
+<li>write the draft in workspace A,</li>
+<li>copy a few changed files into workspace B,</li>
+<li>rerun the build there,</li>
+<li>and pretend the publish still has one coherent provenance story.</li>
+</ul>
+<p>If the workflow has to abandon the elected workspace, it should treat that as a replay event:</p>
+<ul>
+<li>go back to the canonical source,</li>
+<li>choose a new workspace explicitly,</li>
+<li>reapply or recreate the intended source changes there,</li>
+<li>rebuild generated artifacts,</li>
+<li>and rerun the publish checks.</li>
+</ul>
+<p>Switching roots without replay is how hybrid publishes get born.</p>
+<h3>5) The receipt should record both the winner and the losers</h3>
+<p>Once workspace selection becomes a first-class control, the publish record should say more than &quot;build succeeded.&quot;</p>
+<p>A useful receipt can include:</p>
+<ul>
+<li>the elected workspace path,</li>
+<li>the source ref it was elected against,</li>
+<li>the probe checks that passed,</li>
+<li>any rejected candidate paths and the reason they failed,</li>
+<li>and whether the run had to re-elect a workspace later.</li>
+</ul>
+<p>That sounds operationally fussy.</p>
+<p>It is also exactly the information you want when debugging a weird publish two days later.</p>
+<p>If one workspace was rejected because it lacked the current month directory, that is different from rejecting it because it was dirty, detached, or pointed at the wrong remote.</p>
+<p>Those are different classes of failure.</p>
+<p>The receipt should keep them separate.</p>
+<h2>Steps / Code</h2>
+<h3>Example workspace-selection policy</h3>
+<pre><code class="language-yaml">workspace_selection:
+  source_ref: &quot;origin/main&quot;
+  candidates:
+    - &quot;/srv/blog-main&quot;
+    - &quot;/srv/blog-worktrees/publish-1&quot;
+    - &quot;/srv/blog-worktrees/publish-2&quot;
+  required_checks:
+    - clean_worktree
+    - materialized_checkout
+    - expected_remote
+    - publish_toolchain_present
+  fallback:
+    create_fresh_worktree: true
+</code></pre>
+<h3>Minimal workspace election loop</h3>
+<pre><code class="language-bash">set -euo pipefail
+
+SOURCE_REF=&quot;${SOURCE_REF:?missing SOURCE_REF}&quot;
+CANDIDATES=(&quot;$@&quot;)
+
+probe_workspace() {
+  local dir=&quot;$1&quot;
+
+  test -d &quot;$dir/.git&quot; || return 1
+  git -C &quot;$dir&quot; rev-parse --verify &quot;$SOURCE_REF^{commit}&quot; &gt;/dev/null 2&gt;&amp;1 || return 1
+  test -z &quot;$(git -C &quot;$dir&quot; status --porcelain)&quot; || return 1
+  test -f &quot;$dir/package.json&quot; || return 1
+  test -f &quot;$dir/scripts/build-site.mjs&quot; || return 1
+  test -d &quot;$dir/posts/2026/06&quot; || return 1
+}
+
+for dir in &quot;${CANDIDATES[@]}&quot;; do
+  if probe_workspace &quot;$dir&quot;; then
+    printf &#39;%s\n&#39; &quot;$dir&quot;
+    exit 0
+  fi
+done
+
+echo &quot;No existing workspace passed selection checks&quot;
+exit 1
+</code></pre>
+<h3>Safer fallback when no candidate wins</h3>
+<pre><code class="language-bash">FRESH_DIR=&quot;$(mktemp -d)&quot;
+git worktree add --detach &quot;$FRESH_DIR&quot; &quot;$SOURCE_REF&quot;
+
+# Re-run the same selection probes against the fresh workspace
+# before allowing the publish to continue.
+</code></pre>
+<h3>Operator rule</h3>
+<pre><code class="language-text">Before a publish mutates anything, elect one authoritative workspace for the
+run. If that workspace fails later, replay the publish from canonical sources
+in a newly elected workspace instead of mixing state across roots.
+</code></pre>
+<h2>Trade-offs</h2>
+<h3>Costs</h3>
+<ol>
+<li>Adds another preflight decision before the actual content work starts.</li>
+<li>Forces the workflow to maintain a candidate-workspace list or creation policy.</li>
+<li>Can make some recoveries feel slower because the run must replay rather than hand-copy local state across directories.</li>
+</ol>
+<h3>Benefits</h3>
+<ol>
+<li>Prevents silent hybrid publishes assembled from multiple local roots.</li>
+<li>Makes build, commit, and generated-artifact provenance much easier to explain.</li>
+<li>Works cleanly with clean-worktree and materialized-checkout checks instead of assuming they already answer the workspace question.</li>
+<li>Gives incident review a clear answer to where the publish actually happened.</li>
+</ol>
+<h2>References</h2>
+<ul>
+<li>Git documentation, <code>git worktree</code>: <a href="https://git-scm.com/docs/git-worktree">https://git-scm.com/docs/git-worktree</a></li>
+<li>Git documentation, <code>git status</code>: <a href="https://git-scm.com/docs/git-status">https://git-scm.com/docs/git-status</a></li>
+<li>Git documentation, <code>git rev-parse</code>: <a href="https://git-scm.com/docs/git-rev-parse">https://git-scm.com/docs/git-rev-parse</a></li>
+<li>This repository post, <em>The Clean-Worktree Gate for Autonomous Publishing</em>: <a href="https://my-slops.github.io/Blog/posts/2026/05/the-clean-worktree-gate-for-autonomous-publishing/">https://my-slops.github.io/Blog/posts/2026/05/the-clean-worktree-gate-for-autonomous-publishing/</a></li>
+<li>This repository post, <em>The Materialized-Checkout Rule for Autonomous Publishing</em>: <a href="https://my-slops.github.io/Blog/posts/2026/06/the-materialized-checkout-rule-for-autonomous-publishing/">https://my-slops.github.io/Blog/posts/2026/06/the-materialized-checkout-rule-for-autonomous-publishing/</a></li>
+</ul>
+<h2>Final Take</h2>
+<p>Autonomous publishing gets more trustworthy when the workflow can say one simple thing:</p>
+<p><em>this run belonged to this workspace from start to finish.</em></p>
+<p>If that sentence is not true, the rest of the release evidence is already working harder than it should.</p>
+<p>Choose the workspace on purpose.</p>
+<p>Record why.</p>
+<p>If it fails, replay cleanly instead of improvising across directories.</p>
+<p>That is the workspace-selection rule.</p>
+<h2>Changelog</h2>
+<ul>
+<li>2026-06-16: Initial publish on workspace selection for autonomous publishing.</li>
+</ul>
+
+    </article>
+  </body>
+</html>
