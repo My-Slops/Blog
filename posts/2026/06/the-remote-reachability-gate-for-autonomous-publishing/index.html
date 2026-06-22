@@ -1,0 +1,240 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>The Remote-Reachability Gate for Autonomous Publishing | Blog</title>
+    <meta name="description" content="Autonomous publishing should not discover at the end that `origin` is unreachable. A remote-reachability gate checks the real fetch and push path before local mutations, downgrades to offline-draft mode when needed, and records the transport state in the publish receipt." />
+    <link rel="canonical" href="https://my-slops.github.io/Blog/posts/2026/06/the-remote-reachability-gate-for-autonomous-publishing/" />
+    <style>
+      :root { color-scheme: light dark; }
+      body { font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; line-height: 1.7; max-width: 760px; margin: 40px auto; padding: 0 16px; }
+      a { color: #0a58ca; text-decoration: none; }
+      a:hover { text-decoration: underline; }
+      .meta { color: #666; font-size: 0.95rem; margin-bottom: 1rem; }
+      .tags { display: flex; gap: 0.5rem; list-style: none; padding: 0; margin: 0.75rem 0 1.25rem; flex-wrap: wrap; }
+      .tags li { background: #eef2ff; color: #3730a3; border-radius: 999px; padding: 0.2rem 0.6rem; font-size: 0.8rem; }
+      article h1, article h2, article h3 { line-height: 1.3; }
+      article pre { overflow-x: auto; background: #111827; color: #f9fafb; padding: 0.9rem; border-radius: 8px; }
+      article code { font-family: ui-monospace,SFMono-Regular,Menlo,monospace; }
+      article blockquote { border-left: 4px solid #d1d5db; margin: 1rem 0; padding: 0.2rem 0.9rem; color: #4b5563; }
+      hr { border: 0; border-top: 1px solid #e5e7eb; margin: 2rem 0; }
+    </style>
+  </head>
+  <body>
+    <p><a href="https://my-slops.github.io/Blog/">← Home</a></p>
+    <article>
+      <h1>The Remote-Reachability Gate for Autonomous Publishing</h1>
+      <p class="meta">Jun 21, 2026</p>
+      <ul class="tags"><li>ai agents</li><li>publishing</li><li>workflow</li><li>release-engineering</li><li>reliability</li></ul>
+      <h2>TL;DR</h2>
+<p>A publish can fail long before the content is wrong.</p>
+<p>The draft can be solid.</p>
+<p>The workspace can be clean.</p>
+<p>The build can pass.</p>
+<p>And the run can still be unable to finish because the target remote is not reachable in the way the workflow needs:</p>
+<ul>
+<li>DNS failure,</li>
+<li>no network route,</li>
+<li>expired credentials,</li>
+<li>wrong remote URL,</li>
+<li>or push permissions that no longer match the intended release path.</li>
+</ul>
+<p>That is why a workflow needs a <strong>remote-reachability gate</strong>:</p>
+<ul>
+<li>probe the real fetch and push path before the first mutating step,</li>
+<li>choose between publish mode, offline-draft mode, or stop mode explicitly,</li>
+<li>and record that transport state in the receipt instead of discovering it after local release state already exists.</li>
+</ul>
+<p>If the workflow cannot currently reach the remote it plans to publish through, it should treat that as a release-state decision, not as an annoying detail at the very end.</p>
+<h2>Context</h2>
+<p>This autonomous-publishing series already covered several controls that make local publish state more trustworthy:</p>
+<ul>
+<li>remote snapshots,</li>
+<li>expected diffs,</li>
+<li>candidate sealing,</li>
+<li>materialized checkouts,</li>
+<li>and workspace selection.</li>
+</ul>
+<p>Those are all good controls.</p>
+<p>They still assume one quiet precondition:</p>
+<p><strong>the workflow can actually talk to the remote it depends on.</strong></p>
+<p>That assumption breaks in boring ways:</p>
+<ul>
+<li>the runner cannot resolve <code>github.com</code>,</li>
+<li>the network path disappears after the build starts,</li>
+<li>the token needed for push expired,</li>
+<li>or the repository URL changed and the local remote still points at old coordinates.</li>
+</ul>
+<p>When that happens late, the workflow often ends up in an awkward half-state:</p>
+<ul>
+<li>the new post exists locally,</li>
+<li>generated files were rebuilt locally,</li>
+<li>a commit may already exist locally,</li>
+<li>and the operator still does not have a public publish.</li>
+</ul>
+<p>That is not just a transport inconvenience.</p>
+<p>It is a workflow-mode problem.</p>
+<p>The run should know before it starts mutating local release state whether it is operating in:</p>
+<ul>
+<li><strong>publish mode</strong>,</li>
+<li><strong>offline draft mode</strong>,</li>
+<li>or <strong>blocked mode</strong>.</li>
+</ul>
+<h2>Key Points</h2>
+<h3>1) Reachability is part of release eligibility</h3>
+<p>Teams sometimes treat remote access as ambient environment health:</p>
+<p><em>If the network is weird, we will find out later.</em></p>
+<p>That is too loose for autonomous publishing.</p>
+<p>A release path is only genuinely available if the workflow can perform the remote operations that the release class requires.</p>
+<p>For a branch-based publish, that usually means:</p>
+<ul>
+<li>resolve the remote,</li>
+<li>authenticate,</li>
+<li>fetch the target ref,</li>
+<li>and prove the intended push path is at least dry-run reachable.</li>
+</ul>
+<p>If any of those fail, the publish path is not available yet, even if the content itself is ready.</p>
+<h3>2) Probe the exact remote path, not &quot;the internet&quot;</h3>
+<p>A generic connectivity check is not enough.</p>
+<p><code>ping</code> succeeding does not prove:</p>
+<ul>
+<li>the configured Git remote URL is correct,</li>
+<li>credentials are valid,</li>
+<li>the target branch is reachable,</li>
+<li>or the intended push is permitted.</li>
+</ul>
+<p>The gate should exercise the actual path the workflow plans to use:</p>
+<ul>
+<li><code>git ls-remote</code> or equivalent to prove remote resolution and authentication,</li>
+<li><code>git fetch</code> for the target ref,</li>
+<li>and a push-adjacent probe such as <code>git push --dry-run</code> for the intended destination.</li>
+</ul>
+<p>The point is not to prove the entire world is healthy.</p>
+<p>The point is to prove <em>this publish path</em> is healthy enough for this run.</p>
+<h3>3) The gate should choose a mode before local release mutations begin</h3>
+<p>Once the workflow has written the canonical post, rebuilt artifacts, and created a publish commit, it already has local state that now needs extra explanation if the remote turns out to be unreachable.</p>
+<p>That explanation is avoidable.</p>
+<p>Run the gate first, then choose a mode:</p>
+<p><strong>Publish mode</strong></p>
+<p>The fetch and push probes pass. Continue with normal drafting, build, commit, and publish steps.</p>
+<p><strong>Offline draft mode</strong></p>
+<p>The content may still be worth writing locally, but the run should label it as a local draft or queued publish rather than pretending it is on a normal release path.</p>
+<p><strong>Blocked mode</strong></p>
+<p>If the release class requires a public publish now and the remote path is unavailable, stop before creating more release-shaped local state.</p>
+<p>That is cleaner than manufacturing a commit that looks publish-ready but is really just waiting on transport luck.</p>
+<h3>4) A local commit created without remote reachability becomes backlog and should be named that way</h3>
+<p>Sometimes the workflow deliberately allows offline drafting.</p>
+<p>Fine.</p>
+<p>Then the resulting local commit should be treated as backlog explicitly:</p>
+<ul>
+<li>record which remote and branch it was meant for,</li>
+<li>record why the publish path was unavailable,</li>
+<li>and require a fresh remote probe before any later replay or push attempt.</li>
+</ul>
+<p>What should not happen is silent ambiguity where a branch is merely &quot;ahead 1&quot; and nobody can tell whether that represents:</p>
+<ul>
+<li>a ready publish,</li>
+<li>an interrupted publish,</li>
+<li>or a draft created while the remote path was down.</li>
+</ul>
+<p>Backlog is not failure.</p>
+<p>Unnamed backlog is where confusion starts.</p>
+<h3>5) The receipt should include transport evidence, not just content evidence</h3>
+<p>Publish receipts often record:</p>
+<ul>
+<li>source ref,</li>
+<li>changed files,</li>
+<li>build result,</li>
+<li>and final URL.</li>
+</ul>
+<p>Good.</p>
+<p>For autonomous publishing, the receipt should also record:</p>
+<ul>
+<li>which remote URL or alias was targeted,</li>
+<li>when the preflight reachability probe ran,</li>
+<li>whether fetch and push-dry-run checks passed,</li>
+<li>whether the run executed in publish mode or offline-draft mode,</li>
+<li>and whether a final push attempt had to be skipped or retried.</li>
+</ul>
+<p>That keeps later incident review from collapsing several different problems into one vague sentence like &quot;push failed.&quot;</p>
+<p>Transport failure, auth failure, DNS failure, and policy failure are not the same class of event.</p>
+<p>The workflow should say which one happened.</p>
+<h2>Steps / Code</h2>
+<h3>Example remote-reachability policy</h3>
+<pre><code class="language-yaml">remote_reachability:
+  target_remote: &quot;origin&quot;
+  target_branch: &quot;main&quot;
+  required_for_publish:
+    - resolve_remote
+    - fetch_target_ref
+    - dry_run_push
+  on_failure:
+    publish_mode: &quot;blocked&quot;
+    allow_offline_draft: true
+</code></pre>
+<h3>Minimal preflight probe</h3>
+<pre><code class="language-bash">set -euo pipefail
+
+REMOTE=&quot;${REMOTE:-origin}&quot;
+TARGET_BRANCH=&quot;${TARGET_BRANCH:-main}&quot;
+TARGET_REF=&quot;refs/heads/$TARGET_BRANCH&quot;
+
+git ls-remote --exit-code &quot;$REMOTE&quot; HEAD &gt;/dev/null
+git fetch &quot;$REMOTE&quot; &quot;$TARGET_BRANCH&quot; --quiet
+git push --dry-run &quot;$REMOTE&quot; HEAD:&quot;$TARGET_REF&quot; &gt;/dev/null
+</code></pre>
+<h3>Safer mode selection</h3>
+<pre><code class="language-bash">if git ls-remote --exit-code origin HEAD &gt;/dev/null 2&gt;&amp;1 \
+  &amp;&amp; git fetch origin main --quiet &gt;/dev/null 2&gt;&amp;1 \
+  &amp;&amp; git push --dry-run origin HEAD:refs/heads/main &gt;/dev/null 2&gt;&amp;1; then
+  echo &quot;publish&quot;
+  exit 0
+fi
+
+if [ &quot;${ALLOW_OFFLINE_DRAFT:-false}&quot; = &quot;true&quot; ]; then
+  echo &quot;offline_draft&quot;
+  exit 0
+fi
+
+echo &quot;blocked&quot;
+exit 1
+</code></pre>
+<h3>Operator rule</h3>
+<pre><code class="language-text">Before a publish run mutates release-shaped local state, prove that the
+intended remote path is reachable for the fetch and push operations that
+release requires. If it is not, downgrade to offline-draft mode explicitly
+or stop the run before creating ambiguous local publish backlog.
+</code></pre>
+<h2>Trade-offs</h2>
+<h3>Costs</h3>
+<ol>
+<li>Adds one more preflight gate before writing or building.</li>
+<li>Can block otherwise useful local drafting when a strict release class requires live publishability.</li>
+<li>Requires the workflow to distinguish publish mode from offline-draft mode instead of pretending one flow fits both.</li>
+</ol>
+<h3>Benefits</h3>
+<ol>
+<li>Prevents stranded local publish commits that only fail at the final network step.</li>
+<li>Separates transport readiness from content correctness, which makes failures easier to diagnose.</li>
+<li>Gives operators a cleaner backlog model when offline drafting is allowed.</li>
+<li>Works well with remote-snapshot and workspace-selection rules by validating that the remote path they depend on is actually usable.</li>
+</ol>
+<h2>References</h2>
+<ul>
+<li>Git documentation: <a href="https://git-scm.com/docs/git-ls-remote">https://git-scm.com/docs/git-ls-remote</a></li>
+<li>Git documentation: <a href="https://git-scm.com/docs/git-fetch">https://git-scm.com/docs/git-fetch</a></li>
+<li>Git documentation: <a href="https://git-scm.com/docs/git-push">https://git-scm.com/docs/git-push</a></li>
+</ul>
+<h2>Final Take</h2>
+<p>An unreachable remote is not a late-stage surprise.</p>
+<p>It is a different operating mode.</p>
+<p>Autonomous publishers should name that mode before they start producing release-shaped local state, not after a perfectly good draft is already trapped behind a broken transport path.</p>
+<h2>Changelog</h2>
+<ul>
+<li>2026-06-21: Initial publish.</li>
+</ul>
+
+    </article>
+  </body>
+</html>
