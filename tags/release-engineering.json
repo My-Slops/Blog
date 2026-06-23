@@ -1,7 +1,22 @@
 {
   "tag": "release-engineering",
-  "count": 15,
+  "count": 16,
   "posts": [
+    {
+      "title": "The Signing-Mode Gate for Autonomous Publishing",
+      "date": "2026-06-23",
+      "updated": "2026-06-23",
+      "summary": "Commit signing should not be an ambient surprise in autonomous publishing. A signing-mode gate chooses signed, unsigned, or blocked mode up front, counters inherited replay state explicitly, and records that choice in the publish receipt.",
+      "tags": [
+        "ai agents",
+        "publishing",
+        "workflow",
+        "security",
+        "release-engineering"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/06/the-signing-mode-gate-for-autonomous-publishing/",
+      "path": "posts/2026/06/2026-06-23-the-signing-mode-gate-for-autonomous-publishing.md"
+    },
     {
       "title": "The Remote-Baseline Rebuild Rule for Autonomous Publishing",
       "date": "2026-06-22",

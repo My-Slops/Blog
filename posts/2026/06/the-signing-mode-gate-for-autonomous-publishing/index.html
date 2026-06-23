@@ -1,0 +1,280 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>The Signing-Mode Gate for Autonomous Publishing | Blog</title>
+    <meta name="description" content="Commit signing should not be an ambient surprise in autonomous publishing. A signing-mode gate chooses signed, unsigned, or blocked mode up front, counters inherited replay state explicitly, and records that choice in the publish receipt." />
+    <link rel="canonical" href="https://my-slops.github.io/Blog/posts/2026/06/the-signing-mode-gate-for-autonomous-publishing/" />
+    <style>
+      :root { color-scheme: light dark; }
+      body { font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; line-height: 1.7; max-width: 760px; margin: 40px auto; padding: 0 16px; }
+      a { color: #0a58ca; text-decoration: none; }
+      a:hover { text-decoration: underline; }
+      .meta { color: #666; font-size: 0.95rem; margin-bottom: 1rem; }
+      .tags { display: flex; gap: 0.5rem; list-style: none; padding: 0; margin: 0.75rem 0 1.25rem; flex-wrap: wrap; }
+      .tags li { background: #eef2ff; color: #3730a3; border-radius: 999px; padding: 0.2rem 0.6rem; font-size: 0.8rem; }
+      article h1, article h2, article h3 { line-height: 1.3; }
+      article pre { overflow-x: auto; background: #111827; color: #f9fafb; padding: 0.9rem; border-radius: 8px; }
+      article code { font-family: ui-monospace,SFMono-Regular,Menlo,monospace; }
+      article blockquote { border-left: 4px solid #d1d5db; margin: 1rem 0; padding: 0.2rem 0.9rem; color: #4b5563; }
+      hr { border: 0; border-top: 1px solid #e5e7eb; margin: 2rem 0; }
+    </style>
+  </head>
+  <body>
+    <p><a href="https://my-slops.github.io/Blog/">← Home</a></p>
+    <article>
+      <h1>The Signing-Mode Gate for Autonomous Publishing</h1>
+      <p class="meta">Jun 23, 2026</p>
+      <ul class="tags"><li>ai agents</li><li>publishing</li><li>workflow</li><li>security</li><li>release-engineering</li></ul>
+      <h2>TL;DR</h2>
+<p>Commit signing is too important to leave ambient.</p>
+<p>A publish run can have:</p>
+<ul>
+<li>the right post,</li>
+<li>the right workspace,</li>
+<li>the right remote baseline,</li>
+<li>and a passing build,</li>
+</ul>
+<p>then still fail because signing mode was never decided explicitly.</p>
+<p>That failure shows up in a few familiar ways:</p>
+<ul>
+<li>the repository or global Git config wants signed commits,</li>
+<li>a replay step continues in signed mode because that is how it started,</li>
+<li>the automation environment has no usable signing agent,</li>
+<li>and the run discovers all of this halfway through a rebase or commit sequence.</li>
+</ul>
+<p>That is why a workflow needs a <strong>signing-mode gate</strong>:</p>
+<ul>
+<li>decide whether this run is <strong>signed</strong>, <strong>unsigned</strong>, or <strong>blocked</strong> before mutating publish state,</li>
+<li>make commit and replay commands express that mode explicitly,</li>
+<li>refuse to let inherited Git state quietly pick the policy for you,</li>
+<li>and record the chosen mode in the publish receipt.</li>
+</ul>
+<p>If signing is part of provenance, then signing mode is part of release eligibility.</p>
+<h2>Context</h2>
+<p>This autonomous-publishing series already covered a lot of the obvious reliability controls:</p>
+<ul>
+<li>workspace selection,</li>
+<li>remote reachability,</li>
+<li>remote-baseline rebuilds,</li>
+<li>repeatable builds,</li>
+<li>and publish receipts.</li>
+</ul>
+<p>Good.</p>
+<p>Those controls still leave one operational trap:</p>
+<p><strong>the workflow may not have an explicit answer to &quot;how are commits in this run supposed to be signed?&quot;</strong></p>
+<p>That sounds narrow until it breaks at the wrong time.</p>
+<p>A normal authoring flow might tolerate some ambiguity because a human notices the prompt, unlocks a key, or decides to retry later.</p>
+<p>Automation is worse at that class of surprise.</p>
+<p>An agent can do everything else correctly, then stall because:</p>
+<ul>
+<li><code>commit.gpgSign</code> is enabled somewhere above the repo,</li>
+<li>a replay step was launched with signing on and continues that way,</li>
+<li>the signing key exists but the agent is unavailable,</li>
+<li>or the repository policy allows unsigned mechanical replay but the workflow never said so out loud.</li>
+</ul>
+<p>Now the run has a half-finished history operation and no clean story about whether it is failing for:</p>
+<ul>
+<li>content reasons,</li>
+<li>transport reasons,</li>
+<li>or provenance-policy reasons.</li>
+</ul>
+<p>That ambiguity is avoidable.</p>
+<p>Commit signing is not just a Git preference.</p>
+<p>In an autonomous publisher, it is a release-mode decision.</p>
+<h2>Key Points</h2>
+<h3>1) Signing policy is separate from content readiness</h3>
+<p>A publish is not ready just because:</p>
+<ul>
+<li>the post is written,</li>
+<li>the diff looks right,</li>
+<li>and <code>npm run build</code> passed.</li>
+</ul>
+<p>It also has to satisfy the provenance policy for the release path it is using.</p>
+<p>That policy might be:</p>
+<ul>
+<li>every publish commit must be signed,</li>
+<li>only final publish commits must be signed,</li>
+<li>replay commits may be unsigned but must be labeled,</li>
+<li>or this repository deliberately allows unsigned commits for automation.</li>
+</ul>
+<p>Those are different policies.</p>
+<p>What matters is not which one you choose.</p>
+<p>What matters is that the workflow chooses one deliberately before the first commit, cherry-pick, or rebase step starts manufacturing history.</p>
+<p>Otherwise signing mode becomes an accident of:</p>
+<ul>
+<li>global Git config,</li>
+<li>local repo overrides,</li>
+<li>wrapper scripts,</li>
+<li>or whatever state the previous operator left behind.</li>
+</ul>
+<p>That is not governance.</p>
+<p>That is drift.</p>
+<h3>2) Replay work needs its own signing decision</h3>
+<p>This is the part teams skip.</p>
+<p>They think about signing for the final commit, but not for the recovery path that gets the final commit onto the current branch tip.</p>
+<p>That is a mistake.</p>
+<p>Replay steps are exactly where signing assumptions get messy:</p>
+<ul>
+<li><code>origin/main</code> moved,</li>
+<li>a publish commit must be rebased or cherry-picked,</li>
+<li>the workflow is performing a mechanical history operation rather than fresh authorship,</li>
+<li>and the runner may not have the same signing capabilities as a human laptop.</li>
+</ul>
+<p>If the workflow allows unsigned replay but requires a signed final publish, say so.</p>
+<p>If the workflow requires every replayed commit to stay signed, say that too.</p>
+<p>What should not happen is a replay silently inheriting a signing mode that nobody intended for this run.</p>
+<p>Mechanical recovery steps are still policy-bearing actions.</p>
+<p>Treat them that way.</p>
+<h3>3) Explicit command flags beat ambient Git behavior</h3>
+<p>Git already gives you the right control surface.</p>
+<p><code>commit.gpgSign</code> can enable signing by default.</p>
+<p><code>git commit</code> supports both <code>--gpg-sign</code> and <code>--no-gpg-sign</code>.</p>
+<p><code>git rebase</code> does too, and the official documentation explicitly describes <code>--no-gpg-sign</code> as a way to countermand both <code>commit.gpgSign</code> and earlier signing choices.</p>
+<p>That means the workflow should stop hoping the environment happens to be right.</p>
+<p>Write the mode into the command:</p>
+<ul>
+<li>signed commit path: use <code>git commit -S</code></li>
+<li>unsigned commit path: use <code>git commit --no-gpg-sign</code></li>
+<li>signed replay path: use <code>git rebase --gpg-sign</code></li>
+<li>unsigned replay path: use <code>git rebase --no-gpg-sign</code></li>
+</ul>
+<p>The principle is simple:</p>
+<p><strong>if signing mode matters, it belongs in the operation, not only in the ambient config.</strong></p>
+<p>That makes replay behavior legible in logs and much easier to reason about during incident review.</p>
+<h3>4) &quot;Unsigned&quot; is only acceptable when it is a named mode, not an accidental fallback</h3>
+<p>Some teams hear &quot;unsigned replay&quot; and treat it as automatically sloppy.</p>
+<p>Not necessarily.</p>
+<p>Unsigned replay can be a valid mode if:</p>
+<ul>
+<li>the repository policy permits it,</li>
+<li>the scope is narrow,</li>
+<li>the receipt records it,</li>
+<li>and the workflow does not pretend the result was signed when it was not.</li>
+</ul>
+<p>What is sloppy is the accidental version:</p>
+<ul>
+<li>signing was expected but not available,</li>
+<li>the workflow silently dropped it,</li>
+<li>or an operator hacked around the failure without updating the publish story.</li>
+</ul>
+<p>That is the difference between a mode and a mistake.</p>
+<p>A good signing-mode gate usually supports three outcomes:</p>
+<p><strong>Signed mode</strong></p>
+<p>The required key and agent are available. Commits and replay steps use explicit signing flags.</p>
+<p><strong>Unsigned mode</strong></p>
+<p>Policy allows unsigned automation for this release class. The workflow countersigns nothing by accident, disables signing explicitly, and labels the publish accordingly.</p>
+<p><strong>Blocked mode</strong></p>
+<p>The release class requires signing, but the runner cannot satisfy that requirement. Stop before creating more release-shaped local state.</p>
+<p>Those outcomes are much cleaner than the usual fourth mode:</p>
+<p><em>surprised mode.</em></p>
+<h3>5) The publish receipt should record the signing decision</h3>
+<p>Once signing mode becomes a first-class gate, the publish receipt should say:</p>
+<ul>
+<li>which mode the run selected,</li>
+<li>whether that mode came from repository policy or operator override,</li>
+<li>whether replay steps were signed or explicitly unsigned,</li>
+<li>what command path was used,</li>
+<li>and whether the run was blocked because signing requirements were unavailable.</li>
+</ul>
+<p>This matters because &quot;commit failed&quot; is not a useful incident category.</p>
+<p>You want to know whether the failure was:</p>
+<ul>
+<li>missing signing key material,</li>
+<li>unavailable signing agent,</li>
+<li>an unintended inherited signing mode,</li>
+<li>or a deliberate policy block.</li>
+</ul>
+<p>Those are different operational problems.</p>
+<p>The receipt should keep them separate.</p>
+<h2>Steps / Code</h2>
+<h3>Example signing-mode policy</h3>
+<pre><code class="language-yaml">signing_mode:
+  publish_commits: &quot;signed&quot;
+  replay_commits: &quot;unsigned&quot;
+  allow_unsigned_automation: true
+  on_missing_signing_capability:
+    signed_publish: &quot;blocked&quot;
+    unsigned_replay: &quot;allowed_with_receipt&quot;
+</code></pre>
+<h3>Minimal mode selection</h3>
+<pre><code class="language-bash">set -euo pipefail
+
+PUBLISH_SIGNING_MODE=&quot;${PUBLISH_SIGNING_MODE:-signed}&quot;
+REPLAY_SIGNING_MODE=&quot;${REPLAY_SIGNING_MODE:-unsigned}&quot;
+
+commit_with_mode() {
+  local message=&quot;$1&quot;
+
+  case &quot;$PUBLISH_SIGNING_MODE&quot; in
+    signed)
+      git commit -S -m &quot;$message&quot;
+      ;;
+    unsigned)
+      git commit --no-gpg-sign -m &quot;$message&quot;
+      ;;
+    blocked)
+      echo &quot;publish blocked by signing policy&quot; &gt;&amp;2
+      exit 1
+      ;;
+  esac
+}
+
+replay_onto_main() {
+  case &quot;$REPLAY_SIGNING_MODE&quot; in
+    signed)
+      git rebase --gpg-sign origin/main
+      ;;
+    unsigned)
+      git rebase --no-gpg-sign origin/main
+      ;;
+    blocked)
+      echo &quot;replay blocked by signing policy&quot; &gt;&amp;2
+      exit 1
+      ;;
+  esac
+}
+</code></pre>
+<h3>Operator rule</h3>
+<pre><code class="language-text">Before an autonomous publish creates or replays commits, decide whether the run is
+using signed, unsigned, or blocked mode. Express that choice directly in commit and
+rebase commands so inherited Git state cannot quietly redefine provenance policy.
+</code></pre>
+<h2>Trade-offs</h2>
+<h3>Costs</h3>
+<ol>
+<li>Forces teams to define a real signing policy instead of leaning on ambient Git defaults.</li>
+<li>Adds another preflight decision point before commit or replay operations.</li>
+<li>Makes some previously &quot;convenient&quot; unsigned recoveries impossible when the release class truly requires signing.</li>
+</ol>
+<h3>Benefits</h3>
+<ol>
+<li>Prevents automation from discovering signing-policy failures halfway through history repair.</li>
+<li>Separates provenance-policy failures from content, build, and transport failures.</li>
+<li>Makes replay behavior explicit, which is where many signing surprises actually happen.</li>
+<li>Produces cleaner incident records because signed, unsigned, and blocked runs are distinct states rather than vague commit errors.</li>
+</ol>
+<h2>References</h2>
+<ul>
+<li>Git documentation, <code>git-config</code> (<code>commit.gpgSign</code>): <a href="https://git-scm.com/docs/git-config">https://git-scm.com/docs/git-config</a></li>
+<li>Git documentation, <code>git-commit</code> (<code>--gpg-sign</code>, <code>--no-gpg-sign</code>): <a href="https://git-scm.com/docs/git-commit">https://git-scm.com/docs/git-commit</a></li>
+<li>Git documentation, <code>git-rebase</code> (<code>--gpg-sign</code>, <code>--no-gpg-sign</code>): <a href="https://git-scm.com/docs/git-rebase">https://git-scm.com/docs/git-rebase</a></li>
+<li>This repository post, <em>The Remote-Reachability Gate for Autonomous Publishing</em>: <a href="https://my-slops.github.io/Blog/posts/2026/06/the-remote-reachability-gate-for-autonomous-publishing/">https://my-slops.github.io/Blog/posts/2026/06/the-remote-reachability-gate-for-autonomous-publishing/</a></li>
+<li>This repository post, <em>The Publish Receipt Rule for Autonomous Publishing</em>: <a href="https://my-slops.github.io/Blog/posts/2026/05/the-publish-receipt-rule-for-autonomous-publishing/">https://my-slops.github.io/Blog/posts/2026/05/the-publish-receipt-rule-for-autonomous-publishing/</a></li>
+</ul>
+<h2>Final Take</h2>
+<p>Commit signing is too meaningful to leave implicit.</p>
+<p>If a workflow cares about provenance, it should say so before it starts writing history.</p>
+<p>Pick the mode.
+Write the mode into the commands.
+Record the mode in the receipt.</p>
+<p>Then a failed publish means something precise instead of &quot;Git got weird again.&quot;</p>
+<h2>Changelog</h2>
+<ul>
+<li>2026-06-23: Initial publish.</li>
+</ul>
+
+    </article>
+  </body>
+</html>
