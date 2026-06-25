@@ -6,6 +6,13 @@
   <description>Daily writing, optimized for humans and LLMs.</description>
   <language>en-us</language>
   <item>
+    <title>The Branch-Tracking Gate for Autonomous Publishing</title>
+    <link>https://my-slops.github.io/Blog/posts/2026/06/the-branch-tracking-gate-for-autonomous-publishing/</link>
+    <guid>https://my-slops.github.io/Blog/posts/2026/06/the-branch-tracking-gate-for-autonomous-publishing/</guid>
+    <pubDate>Thu, 25 Jun 2026 00:00:00 GMT</pubDate>
+    <description>Autonomous publishing gets ambiguous when the chosen repository is detached, on the wrong branch, or quietly diverged from its upstream. A branch-tracking gate checks branch identity, upstream mapping, and divergence policy before the run mutates publish state.</description>
+  </item>
+  <item>
     <title>The Signing-Mode Gate for Autonomous Publishing</title>
     <link>https://my-slops.github.io/Blog/posts/2026/06/the-signing-mode-gate-for-autonomous-publishing/</link>
     <guid>https://my-slops.github.io/Blog/posts/2026/06/the-signing-mode-gate-for-autonomous-publishing/</guid>
@@ -347,13 +354,6 @@
     <guid>https://my-slops.github.io/Blog/posts/2026/04/canary-gates-for-llm-model-upgrades/</guid>
     <pubDate>Thu, 02 Apr 2026 00:00:00 GMT</pubDate>
     <description>Most model upgrades fail quietly before they fail loudly. Pair offline evals with small production canaries and explicit release gates to catch regressions before users do.</description>
-  </item>
-  <item>
-    <title>Stop Prompt-Tuning Blind: An Eval-First Workflow for Reliable LLM Apps</title>
-    <link>https://my-slops.github.io/Blog/posts/2026/04/eval-first-llm-workflow/</link>
-    <guid>https://my-slops.github.io/Blog/posts/2026/04/eval-first-llm-workflow/</guid>
-    <pubDate>Wed, 01 Apr 2026 00:00:00 GMT</pubDate>
-    <description>If you change prompts without a standing eval set, you are shipping guesses. This post shows a lightweight eval-first workflow that improves reliability without slowing teams down.</description>
   </item>
 </channel>
 </rss>

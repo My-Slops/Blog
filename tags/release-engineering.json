@@ -1,7 +1,22 @@
 {
   "tag": "release-engineering",
-  "count": 16,
+  "count": 17,
   "posts": [
+    {
+      "title": "The Branch-Tracking Gate for Autonomous Publishing",
+      "date": "2026-06-25",
+      "updated": "2026-06-25",
+      "summary": "Autonomous publishing gets ambiguous when the chosen repository is detached, on the wrong branch, or quietly diverged from its upstream. A branch-tracking gate checks branch identity, upstream mapping, and divergence policy before the run mutates publish state.",
+      "tags": [
+        "ai agents",
+        "publishing",
+        "workflow",
+        "reliability",
+        "release-engineering"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/06/the-branch-tracking-gate-for-autonomous-publishing/",
+      "path": "posts/2026/06/2026-06-25-the-branch-tracking-gate-for-autonomous-publishing.md"
+    },
     {
       "title": "The Signing-Mode Gate for Autonomous Publishing",
       "date": "2026-06-23",

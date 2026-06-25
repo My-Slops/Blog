@@ -1,0 +1,257 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>The Branch-Tracking Gate for Autonomous Publishing | Blog</title>
+    <meta name="description" content="Autonomous publishing gets ambiguous when the chosen repository is detached, on the wrong branch, or quietly diverged from its upstream. A branch-tracking gate checks branch identity, upstream mapping, and divergence policy before the run mutates publish state." />
+    <link rel="canonical" href="https://my-slops.github.io/Blog/posts/2026/06/the-branch-tracking-gate-for-autonomous-publishing/" />
+    <style>
+      :root { color-scheme: light dark; }
+      body { font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; line-height: 1.7; max-width: 760px; margin: 40px auto; padding: 0 16px; }
+      a { color: #0a58ca; text-decoration: none; }
+      a:hover { text-decoration: underline; }
+      .meta { color: #666; font-size: 0.95rem; margin-bottom: 1rem; }
+      .tags { display: flex; gap: 0.5rem; list-style: none; padding: 0; margin: 0.75rem 0 1.25rem; flex-wrap: wrap; }
+      .tags li { background: #eef2ff; color: #3730a3; border-radius: 999px; padding: 0.2rem 0.6rem; font-size: 0.8rem; }
+      article h1, article h2, article h3 { line-height: 1.3; }
+      article pre { overflow-x: auto; background: #111827; color: #f9fafb; padding: 0.9rem; border-radius: 8px; }
+      article code { font-family: ui-monospace,SFMono-Regular,Menlo,monospace; }
+      article blockquote { border-left: 4px solid #d1d5db; margin: 1rem 0; padding: 0.2rem 0.9rem; color: #4b5563; }
+      hr { border: 0; border-top: 1px solid #e5e7eb; margin: 2rem 0; }
+    </style>
+  </head>
+  <body>
+    <p><a href="https://my-slops.github.io/Blog/">← Home</a></p>
+    <article>
+      <h1>The Branch-Tracking Gate for Autonomous Publishing</h1>
+      <p class="meta">Jun 25, 2026</p>
+      <ul class="tags"><li>ai agents</li><li>publishing</li><li>workflow</li><li>reliability</li><li>release-engineering</li></ul>
+      <h2>TL;DR</h2>
+<p>Picking the right repository path is not enough.</p>
+<p>An autonomous publish can still start from:</p>
+<ul>
+<li>a detached <code>HEAD</code>,</li>
+<li>the wrong local branch,</li>
+<li>a branch with no upstream,</li>
+<li>or a branch that quietly diverged from the release target.</li>
+</ul>
+<p>That is how workflows create commits that are technically valid but operationally awkward:</p>
+<ul>
+<li>the draft lands on a stranded detached commit,</li>
+<li>the branch tracks the wrong remote target,</li>
+<li>or the run discovers too late that local history was already ahead or behind policy.</li>
+</ul>
+<p>That is why a workflow needs a <strong>branch-tracking gate</strong>:</p>
+<ul>
+<li>prove the workspace is attached to the intended local branch,</li>
+<li>prove that branch tracks the intended upstream ref,</li>
+<li>check ahead/behind state against release policy,</li>
+<li>and refuse to draft or build while that relationship is ambiguous.</li>
+</ul>
+<p>If the workflow cannot say which branch it is on, what it tracks, and how far it has drifted, it is not actually ready to publish.</p>
+<h2>Context</h2>
+<p>This autonomous-publishing series already covered several adjacent controls:</p>
+<ul>
+<li>workspace selection,</li>
+<li>materialized checkouts,</li>
+<li>remote snapshots,</li>
+<li>remote reachability,</li>
+<li>and signing-mode gates.</li>
+</ul>
+<p>Good.</p>
+<p>Those controls still leave one very ordinary failure mode:</p>
+<p><strong>the selected workspace is real, but its branch state is not the publish state the workflow thinks it has.</strong></p>
+<p>That happens more often than teams admit.</p>
+<p>A worktree can contain the expected files while still being detached on an older commit.</p>
+<p>A long-lived clone can be attached to a recovery branch that happens to build fine.</p>
+<p>A local <code>main</code> can exist without tracking <code>origin/main</code>.</p>
+<p>Or a branch can already be:</p>
+<ul>
+<li>ahead because of unpublished local backlog,</li>
+<li>behind because the remote advanced,</li>
+<li>or attached to an upstream that belongs to the wrong release path entirely.</li>
+</ul>
+<p>Humans often catch that by squinting at <code>git status</code> and saying, <em>wait, what branch am I actually on?</em></p>
+<p>Automation should not rely on that moment of embarrassment.</p>
+<p>Branch state is not cosmetic.</p>
+<p>It is part of publish provenance.</p>
+<h2>Key Points</h2>
+<h3>1) Branch identity is part of the publish contract</h3>
+<p>When a workflow says it published from &quot;the repo,&quot; that is still too vague.</p>
+<p>It should be able to answer:</p>
+<p><em>Which local branch owned this publish from preflight through push?</em></p>
+<p>That matters because detached <code>HEAD</code> state and wrong-branch state fail differently.</p>
+<p>Detached <code>HEAD</code> means the run may create a commit that is not anchored to the release branch at all.</p>
+<p>Wrong-branch state means the commit may be perfectly attached, just attached to the wrong local history.</p>
+<p>Those are not minor implementation details.</p>
+<p>They change how easy the publish is to review, replay, recover, and explain later.</p>
+<p>If the workflow cannot name the current branch deliberately, it should not be writing release-shaped changes yet.</p>
+<h3>2) Upstream mapping is a separate check from branch name</h3>
+<p>Seeing <code>main</code> in the prompt is not enough.</p>
+<p>A local branch name only tells you one part of the story.</p>
+<p>The workflow also needs to know what that branch tracks.</p>
+<p><code>main</code> tracking <code>origin/main</code> is one relationship.</p>
+<p><code>main</code> tracking <code>origin/gh-pages</code>, <code>upstream/main</code>, or nothing at all is another.</p>
+<p>That is why the gate should distinguish at least four states:</p>
+<ul>
+<li>detached <code>HEAD</code>,</li>
+<li>attached branch with no upstream,</li>
+<li>attached branch with the wrong upstream,</li>
+<li>and attached branch with the expected upstream.</li>
+</ul>
+<p>Only the last one is a clean default for autonomous publishing.</p>
+<p>The rest may still be recoverable, but they are recovery states, not authoring states.</p>
+<p>If the workflow plans to publish to <code>origin/main</code>, then the upstream relation should say that explicitly before the first draft line is written.</p>
+<h3>3) Ahead/behind state is policy, not trivia</h3>
+<p>Teams often treat branch divergence as informational:</p>
+<p><em>ahead 1, behind 2, whatever, we will sort it out later.</em></p>
+<p>That is too casual for automation.</p>
+<p>Ahead/behind state tells the workflow whether its local branch is already carrying surprises.</p>
+<p>Examples:</p>
+<ul>
+<li><strong>ahead</strong> may mean there is unpublished local backlog that needs to be named and reconciled,</li>
+<li><strong>behind</strong> may mean the remote baseline moved and the run is already stale,</li>
+<li><strong>ahead and behind</strong> may mean the branch needs replay work before any new content is added.</li>
+</ul>
+<p>Those are release-mode decisions.</p>
+<p>Some workflows may allow a branch to be ahead by one known backlog commit.</p>
+<p>Some may require <code>+0 -0</code> before drafting.</p>
+<p>Some may allow behind state only if the run first fetches and rebinds to a fresh remote snapshot.</p>
+<p>The exact threshold can vary.</p>
+<p>What should not vary is whether the workflow has a threshold at all.</p>
+<p>Branch divergence should be evaluated as a gate, not read as trivia after the run has already mutated local state.</p>
+<h3>4) Repair branch state before drafting, not after</h3>
+<p>Once the new post exists on disk, branch ambiguity becomes harder to unwind cleanly.</p>
+<p>Now you have to explain:</p>
+<ul>
+<li>whether the draft was written on detached history,</li>
+<li>whether the commit was authored on the wrong local branch,</li>
+<li>and whether replay preserved intent or just rescued a mistake.</li>
+</ul>
+<p>That is avoidable.</p>
+<p>If the branch-tracking gate fails, the workflow should stop and repair first:</p>
+<ul>
+<li>switch to the intended branch,</li>
+<li>set or correct the upstream mapping,</li>
+<li>fetch and reconcile divergence according to policy,</li>
+<li>or elect a different workspace and replay from canonical source there.</li>
+</ul>
+<p>What it should not do is this:</p>
+<p><em>write the post anyway, then figure out branch reality later.</em></p>
+<p>That is the branch equivalent of building in a dirty tree and promising to clean it up after success.</p>
+<p>The recovery may work.</p>
+<p>The provenance story gets worse.</p>
+<h3>5) The receipt should record branch identity, upstream, and divergence</h3>
+<p>Once branch tracking becomes a first-class control, the publish record should say more than &quot;pushed commit X.&quot;</p>
+<p>A useful receipt can include:</p>
+<ul>
+<li>the local branch name,</li>
+<li>whether <code>HEAD</code> was attached or detached at preflight,</li>
+<li>the upstream ref the branch tracked,</li>
+<li>ahead/behind counts at the time of authoring,</li>
+<li>and any branch repair performed before the publish continued.</li>
+</ul>
+<p>That matters because branch failures are not all the same.</p>
+<p>A detached publish candidate is a different problem from:</p>
+<ul>
+<li>an untracked local branch,</li>
+<li>a branch that tracks the wrong upstream,</li>
+<li>or a branch that was already ahead by unpublished backlog.</li>
+</ul>
+<p>Those states deserve different fixes.</p>
+<p>The receipt should keep them separate.</p>
+<h2>Steps / Code</h2>
+<h3>Example branch-tracking policy</h3>
+<pre><code class="language-yaml">branch_tracking:
+  required_local_branch: &quot;main&quot;
+  required_upstream_ref: &quot;refs/remotes/origin/main&quot;
+  allowed_divergence:
+    ahead: 0
+    behind: 0
+  on_failure:
+    detached_head: &quot;blocked&quot;
+    missing_upstream: &quot;blocked&quot;
+    wrong_upstream: &quot;blocked&quot;
+    divergence: &quot;fetch_and_reconcile_before_drafting&quot;
+</code></pre>
+<h3>Minimal preflight gate</h3>
+<pre><code class="language-bash">set -euo pipefail
+
+REQUIRED_BRANCH=&quot;${REQUIRED_BRANCH:-main}&quot;
+REQUIRED_UPSTREAM_REF=&quot;${REQUIRED_UPSTREAM_REF:-refs/remotes/origin/main}&quot;
+
+CURRENT_BRANCH=&quot;$(git branch --show-current)&quot;
+test -n &quot;$CURRENT_BRANCH&quot; || {
+  echo &quot;branch gate failed: detached HEAD&quot; &gt;&amp;2
+  exit 1
+}
+
+test &quot;$CURRENT_BRANCH&quot; = &quot;$REQUIRED_BRANCH&quot; || {
+  echo &quot;branch gate failed: on &#39;$CURRENT_BRANCH&#39;, expected &#39;$REQUIRED_BRANCH&#39;&quot; &gt;&amp;2
+  exit 1
+}
+
+UPSTREAM_REF=&quot;$(git rev-parse --symbolic-full-name @{upstream} 2&gt;/dev/null)&quot; || {
+  echo &quot;branch gate failed: no upstream configured&quot; &gt;&amp;2
+  exit 1
+}
+
+test &quot;$UPSTREAM_REF&quot; = &quot;$REQUIRED_UPSTREAM_REF&quot; || {
+  echo &quot;branch gate failed: upstream is &#39;$UPSTREAM_REF&#39;&quot; &gt;&amp;2
+  exit 1
+}
+
+BRANCH_STATUS=&quot;$(git status --porcelain=v2 --branch)&quot;
+AHEAD_BEHIND=&quot;$(printf &#39;%s\n&#39; &quot;$BRANCH_STATUS&quot; | awk &#39;/^# branch.ab / {print $3 &quot; &quot; $4}&#39;)&quot;
+
+test &quot;$AHEAD_BEHIND&quot; = &quot;+0 -0&quot; || {
+  echo &quot;branch gate failed: divergence is &#39;$AHEAD_BEHIND&#39;&quot; &gt;&amp;2
+  exit 1
+}
+</code></pre>
+<h3>Operator rule</h3>
+<pre><code class="language-text">Before an autonomous publish writes the post, builds artifacts, or creates a commit,
+prove that HEAD is attached to the intended local branch, that the branch tracks the
+intended upstream, and that divergence is within policy. If any of those checks fail,
+repair branch state first or replay from canonical source in a correctly attached
+workspace.
+</code></pre>
+<h2>Trade-offs</h2>
+<h3>Costs</h3>
+<ol>
+<li>Adds another preflight check before any content work begins.</li>
+<li>Forces the workflow to define an actual divergence policy instead of hand-waving around ahead/behind state.</li>
+<li>Blocks some &quot;it probably still works&quot; recoveries where a human might be tempted to author on detached or mismatched branch state.</li>
+</ol>
+<h3>Benefits</h3>
+<ol>
+<li>Prevents stranded publish commits created on detached history.</li>
+<li>Separates wrong-branch problems from wrong-workspace and wrong-remote problems.</li>
+<li>Makes replay decisions cleaner because divergence is detected before new local mutations appear.</li>
+<li>Produces more credible publish evidence by recording the exact branch relationship that owned the run.</li>
+</ol>
+<h2>References</h2>
+<ul>
+<li>Git documentation, <code>git branch</code> (<code>--show-current</code>, upstream configuration): <a href="https://git-scm.com/docs/git-branch">https://git-scm.com/docs/git-branch</a></li>
+<li>Git documentation, <code>git rev-parse</code> (<code>@{upstream}</code> syntax): <a href="https://git-scm.com/docs/git-rev-parse">https://git-scm.com/docs/git-rev-parse</a></li>
+<li>Git documentation, <code>git status</code> (<code>--branch</code>, porcelain v2 branch headers): <a href="https://git-scm.com/docs/git-status">https://git-scm.com/docs/git-status</a></li>
+<li>This repository post, <em>The Workspace-Selection Rule for Autonomous Publishing</em>: <a href="https://my-slops.github.io/Blog/posts/2026/06/the-workspace-selection-rule-for-autonomous-publishing/">https://my-slops.github.io/Blog/posts/2026/06/the-workspace-selection-rule-for-autonomous-publishing/</a></li>
+<li>This repository post, <em>The Remote-Snapshot Rule for Autonomous Publishing</em>: <a href="https://my-slops.github.io/Blog/posts/2026/05/the-remote-snapshot-rule-for-autonomous-publishing/">https://my-slops.github.io/Blog/posts/2026/05/the-remote-snapshot-rule-for-autonomous-publishing/</a></li>
+</ul>
+<h2>Final Take</h2>
+<p>Autonomous publishing should not discover branch reality halfway through authoring.</p>
+<p>Pick the workspace first.</p>
+<p>Then ask a stricter question:</p>
+<p><em>is this workspace actually attached to the branch and upstream the publish intends to trust?</em></p>
+<p>If the answer is fuzzy, stop there.</p>
+<p>Fix branch state before the draft exists, not after the commit needs a rescue story.</p>
+<p>That is the branch-tracking gate.</p>
+<h2>Changelog</h2>
+<ul>
+<li>2026-06-25: Initial publish.</li>
+</ul>
+
+    </article>
+  </body>
+</html>
