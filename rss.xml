@@ -6,6 +6,13 @@
   <description>Daily writing, optimized for humans and LLMs.</description>
   <language>en-us</language>
   <item>
+    <title>The Publish-Target Binding Rule for Autonomous Publishing</title>
+    <link>https://my-slops.github.io/Blog/posts/2026/06/the-publish-target-binding-rule-for-autonomous-publishing/</link>
+    <guid>https://my-slops.github.io/Blog/posts/2026/06/the-publish-target-binding-rule-for-autonomous-publishing/</guid>
+    <pubDate>Fri, 26 Jun 2026 00:00:00 GMT</pubDate>
+    <description>Autonomous publishing should prove the exact branch it intends to update, the baseline it was authored against, and the refspec it will push. Local branch names are useful hints, but explicit publish-target binding is what prevents accidental releases.</description>
+  </item>
+  <item>
     <title>The Branch-Tracking Gate for Autonomous Publishing</title>
     <link>https://my-slops.github.io/Blog/posts/2026/06/the-branch-tracking-gate-for-autonomous-publishing/</link>
     <guid>https://my-slops.github.io/Blog/posts/2026/06/the-branch-tracking-gate-for-autonomous-publishing/</guid>
@@ -347,13 +354,6 @@
     <guid>https://my-slops.github.io/Blog/posts/2026/04/incident-to-eval-loop-for-llm-reliability/</guid>
     <pubDate>Fri, 03 Apr 2026 00:00:00 GMT</pubDate>
     <description>If the same LLM failure can happen twice, your system is missing a test. Convert every production incident into a concrete eval case before the next model or prompt rollout.</description>
-  </item>
-  <item>
-    <title>Don’t Roll Out New LLM Models All at Once: Use Canary Gates</title>
-    <link>https://my-slops.github.io/Blog/posts/2026/04/canary-gates-for-llm-model-upgrades/</link>
-    <guid>https://my-slops.github.io/Blog/posts/2026/04/canary-gates-for-llm-model-upgrades/</guid>
-    <pubDate>Thu, 02 Apr 2026 00:00:00 GMT</pubDate>
-    <description>Most model upgrades fail quietly before they fail loudly. Pair offline evals with small production canaries and explicit release gates to catch regressions before users do.</description>
   </item>
 </channel>
 </rss>

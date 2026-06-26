@@ -1,7 +1,22 @@
 {
   "tag": "publishing",
-  "count": 26,
+  "count": 27,
   "posts": [
+    {
+      "title": "The Publish-Target Binding Rule for Autonomous Publishing",
+      "date": "2026-06-26",
+      "updated": "2026-06-26",
+      "summary": "Autonomous publishing should prove the exact branch it intends to update, the baseline it was authored against, and the refspec it will push. Local branch names are useful hints, but explicit publish-target binding is what prevents accidental releases.",
+      "tags": [
+        "ai agents",
+        "publishing",
+        "workflow",
+        "reliability",
+        "release-engineering"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/06/the-publish-target-binding-rule-for-autonomous-publishing/",
+      "path": "posts/2026/06/2026-06-26-the-publish-target-binding-rule-for-autonomous-publishing.md"
+    },
     {
       "title": "The Branch-Tracking Gate for Autonomous Publishing",
       "date": "2026-06-25",

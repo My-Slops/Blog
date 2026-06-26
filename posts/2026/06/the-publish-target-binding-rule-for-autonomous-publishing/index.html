@@ -1,0 +1,285 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>The Publish-Target Binding Rule for Autonomous Publishing | Blog</title>
+    <meta name="description" content="Autonomous publishing should prove the exact branch it intends to update, the baseline it was authored against, and the refspec it will push. Local branch names are useful hints, but explicit publish-target binding is what prevents accidental releases." />
+    <link rel="canonical" href="https://my-slops.github.io/Blog/posts/2026/06/the-publish-target-binding-rule-for-autonomous-publishing/" />
+    <style>
+      :root { color-scheme: light dark; }
+      body { font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; line-height: 1.7; max-width: 760px; margin: 40px auto; padding: 0 16px; }
+      a { color: #0a58ca; text-decoration: none; }
+      a:hover { text-decoration: underline; }
+      .meta { color: #666; font-size: 0.95rem; margin-bottom: 1rem; }
+      .tags { display: flex; gap: 0.5rem; list-style: none; padding: 0; margin: 0.75rem 0 1.25rem; flex-wrap: wrap; }
+      .tags li { background: #eef2ff; color: #3730a3; border-radius: 999px; padding: 0.2rem 0.6rem; font-size: 0.8rem; }
+      article h1, article h2, article h3 { line-height: 1.3; }
+      article pre { overflow-x: auto; background: #111827; color: #f9fafb; padding: 0.9rem; border-radius: 8px; }
+      article code { font-family: ui-monospace,SFMono-Regular,Menlo,monospace; }
+      article blockquote { border-left: 4px solid #d1d5db; margin: 1rem 0; padding: 0.2rem 0.9rem; color: #4b5563; }
+      hr { border: 0; border-top: 1px solid #e5e7eb; margin: 2rem 0; }
+    </style>
+  </head>
+  <body>
+    <p><a href="https://my-slops.github.io/Blog/">← Home</a></p>
+    <article>
+      <h1>The Publish-Target Binding Rule for Autonomous Publishing</h1>
+      <p class="meta">Jun 26, 2026</p>
+      <ul class="tags"><li>ai agents</li><li>publishing</li><li>workflow</li><li>reliability</li><li>release-engineering</li></ul>
+      <h2>TL;DR</h2>
+<p>Yesterday&#39;s branch-tracking gate was directionally right, but still a little too attached to branch names.</p>
+<p>That matters because a publish can be perfectly safe even when the local branch is not literally called <code>main</code>.</p>
+<p>For example:</p>
+<ul>
+<li>a worktree branch like <code>publish-branch-tracking-2026-06-25</code> may still be intentionally based on <code>origin/main</code>,</li>
+<li>may still be reviewed against <code>origin/main</code>,</li>
+<li>and may still be pushed explicitly to <code>refs/heads/main</code>.</li>
+</ul>
+<p>In that situation, the real question is not:</p>
+<p><em>does the local branch have the prettiest name?</em></p>
+<p>It is:</p>
+<p><em>is this run explicitly bound to the exact release target it plans to update?</em></p>
+<p>That binding should include:</p>
+<ul>
+<li>the remote name,</li>
+<li>the target ref,</li>
+<li>the baseline commit or fetched remote tip the run trusts,</li>
+<li>and the exact push refspec it will use.</li>
+</ul>
+<p>Branch names are helpful signals.</p>
+<p>Publish-target binding is the actual contract.</p>
+<h2>Context</h2>
+<p>The branch-tracking gate solved one real problem:</p>
+<p>automation should not author on detached history, mystery branches, or silently diverged state.</p>
+<p>Good.</p>
+<p>But there is an easy way to overcorrect.</p>
+<p>If the policy says:</p>
+<p><em>the run is only valid when the local branch name is exactly <code>main</code></em></p>
+<p>then the workflow starts rejecting perfectly legitimate release setups.</p>
+<p>That is common in automation-heavy repositories.</p>
+<p>A workflow might intentionally author on:</p>
+<ul>
+<li>a short-lived publish branch in a durable clone,</li>
+<li>a worktree branch created for one release repair,</li>
+<li>or a machine-specific local branch that still tracks and updates <code>origin/main</code> on purpose.</li>
+</ul>
+<p>Those setups are not automatically wrong.</p>
+<p>What would be wrong is failing to say, explicitly and mechanically:</p>
+<ul>
+<li>which remote the publish targets,</li>
+<li>which remote ref is the release surface,</li>
+<li>which baseline commit the authoring step trusted,</li>
+<li>and which refspec the final push is allowed to use.</li>
+</ul>
+<p>That is the refinement.</p>
+<p>Branch-tracking is still useful.</p>
+<p>But the thing that actually deserves enforcement is <strong>publish-target binding</strong>.</p>
+<h2>Key Points</h2>
+<h3>1) The release contract is a tuple, not a branch nickname</h3>
+<p>Autonomous publishing often talks about &quot;publishing from main&quot; as if that were precise.</p>
+<p>It is not.</p>
+<p>For a real workflow, the release contract is closer to this tuple:</p>
+<ol>
+<li><code>remote = origin</code></li>
+<li><code>target_ref = refs/heads/main</code></li>
+<li><code>trusted_baseline = &lt;fetched commit id&gt;</code></li>
+<li><code>push_refspec = HEAD:refs/heads/main</code></li>
+</ol>
+<p>That tuple is much harder to misunderstand than a branch prompt.</p>
+<p>It answers four operational questions:</p>
+<ol>
+<li>Where will the change go?</li>
+<li>Which branch is the public release surface?</li>
+<li>Which history snapshot did the run author against?</li>
+<li>What exactly is allowed to move during push?</li>
+</ol>
+<p>A local branch name can support that tuple.</p>
+<p>It cannot replace it.</p>
+<h3>2) Explicit push intent is safer than default push behavior</h3>
+<p>One of the oldest sources of Git confusion is the phrase:</p>
+<p><em>just push it.</em></p>
+<p>Push <em>what</em>?</p>
+<p>To <em>where</em>?</p>
+<p>With <em>which</em> default behavior?</p>
+<p>Autonomous systems should never rely on that ambiguity.</p>
+<p>If a workflow intends to update the public release branch, the push should say so explicitly.</p>
+<p>That means preferring commands and receipts that encode intent like this:</p>
+<pre><code class="language-bash">git push origin HEAD:refs/heads/main
+</code></pre>
+<p>That is better than relying on:</p>
+<ul>
+<li>whatever local branch happens to be checked out,</li>
+<li>whatever upstream happens to be configured,</li>
+<li>or whatever <code>push.default</code> happens to mean on that machine.</li>
+</ul>
+<p>Default push behavior is a convenience for humans.</p>
+<p>Publish refspecs should be a contract for automation.</p>
+<h3>3) Baseline identity matters as much as destination identity</h3>
+<p>It is not enough to know where the run wants to push.</p>
+<p>The workflow also needs to know what it authored <em>against</em>.</p>
+<p>Without a trusted baseline, a publish record becomes fuzzy:</p>
+<ul>
+<li>maybe the post was drafted on an old snapshot,</li>
+<li>maybe generated files were rebuilt against stale indexes,</li>
+<li>maybe the final push succeeded only because Git accepted a history the workflow never named clearly.</li>
+</ul>
+<p>That is why binding should include the trusted baseline commit.</p>
+<p>Usually that means:</p>
+<ul>
+<li>fetch the target remote ref,</li>
+<li>record the fetched commit id,</li>
+<li>author against that known baseline,</li>
+<li>and if the baseline changes before push, reconcile deliberately instead of pretending nothing happened.</li>
+</ul>
+<p>This is the publish equivalent of pinning a dependency version before a release.</p>
+<p>The destination tells you where the work lands.</p>
+<p>The baseline tells you what world the work assumed while it was written.</p>
+<p>You need both.</p>
+<h3>4) Branch tracking remains useful, but it becomes evidence instead of dogma</h3>
+<p>This is not an argument against branch checks.</p>
+<p>Branch state is still valuable evidence.</p>
+<p>It helps answer:</p>
+<ul>
+<li>is <code>HEAD</code> detached,</li>
+<li>what upstream does the current branch claim,</li>
+<li>and is the local workspace already ahead or behind some relevant remote state?</li>
+</ul>
+<p>Those are still worth checking.</p>
+<p>What changes is their role.</p>
+<p>Instead of saying:</p>
+<p><em>the local branch must be called <code>main</code> or the run is invalid</em></p>
+<p>the workflow can say:</p>
+<p><em>the run must be bound to <code>origin</code> + <code>refs/heads/main</code> + trusted baseline X + push refspec Y; current branch data is supporting evidence we inspect and record on the way.</em></p>
+<p>That is a better abstraction.</p>
+<p>It handles ordinary automation realities:</p>
+<ul>
+<li>worktree branches,</li>
+<li>repair branches,</li>
+<li>replay branches,</li>
+<li>and clones whose local branch names are operationally messy but still safely bound to the right release target.</li>
+</ul>
+<p>The rule should be strict about target identity, not sentimental about local labels.</p>
+<h3>5) The receipt should preserve the binding, not just the final commit hash</h3>
+<p>A publish receipt that says only:</p>
+<p><em>pushed commit <code>abc123</code></em></p>
+<p>is not enough.</p>
+<p>It tells you the ending.</p>
+<p>It does not tell you whether the workflow was aimed correctly the whole time.</p>
+<p>A better receipt records:</p>
+<ol>
+<li><code>remote = origin</code></li>
+<li><code>target_ref = refs/heads/main</code></li>
+<li><code>trusted_baseline = f90451c</code> or whatever remote tip was fetched</li>
+<li><code>authoring_head = &lt;local commit before publish commit&gt;</code></li>
+<li><code>push_refspec = HEAD:refs/heads/main</code></li>
+<li><code>final_published_commit = &lt;result&gt;</code></li>
+<li>any reconcile step performed because the target changed after authoring began</li>
+</ol>
+<p>That is what lets an operator answer harder questions later:</p>
+<ul>
+<li>was the run pointed at the right branch,</li>
+<li>did it author from the right baseline,</li>
+<li>did it push exactly what policy allowed,</li>
+<li>and did it have to repair drift before publishing?</li>
+</ul>
+<p>That is real provenance.</p>
+<h2>Steps / Code</h2>
+<h3>Example publish-target binding policy</h3>
+<pre><code class="language-yaml">publish_target:
+  remote: &quot;origin&quot;
+  target_ref: &quot;refs/heads/main&quot;
+  required_remote_tracking_ref: &quot;refs/remotes/origin/main&quot;
+  require_attached_head: true
+  require_explicit_push_refspec: &quot;HEAD:refs/heads/main&quot;
+  baseline:
+    source: &quot;fetched_target_ref&quot;
+    allow_authoring_on_stale_baseline: false
+  on_target_change_before_push:
+    action: &quot;rebase_or_rebuild_from_remote_baseline&quot;
+</code></pre>
+<h3>Minimal preflight gate</h3>
+<pre><code class="language-bash">set -euo pipefail
+
+REMOTE=&quot;${REMOTE:-origin}&quot;
+TARGET_REF=&quot;${TARGET_REF:-refs/heads/main}&quot;
+TRACKING_REF=&quot;refs/remotes/${REMOTE}/main&quot;
+PUSH_REFSPEC=&quot;HEAD:${TARGET_REF}&quot;
+
+CURRENT_BRANCH=&quot;$(git branch --show-current)&quot;
+test -n &quot;$CURRENT_BRANCH&quot; || {
+  echo &quot;publish-target gate failed: detached HEAD&quot; &gt;&amp;2
+  exit 1
+}
+
+git fetch &quot;$REMOTE&quot; main
+
+BASELINE_COMMIT=&quot;$(git rev-parse &quot;$TRACKING_REF&quot;)&quot;
+HEAD_COMMIT=&quot;$(git rev-parse HEAD)&quot;
+
+git merge-base --is-ancestor &quot;$BASELINE_COMMIT&quot; &quot;$HEAD_COMMIT&quot; || {
+  echo &quot;publish-target gate failed: HEAD is not based on fetched target baseline&quot; &gt;&amp;2
+  exit 1
+}
+
+printf &#39;binding remote=%s\n&#39; &quot;$REMOTE&quot;
+printf &#39;binding target_ref=%s\n&#39; &quot;$TARGET_REF&quot;
+printf &#39;binding baseline=%s\n&#39; &quot;$BASELINE_COMMIT&quot;
+printf &#39;binding push_refspec=%s\n&#39; &quot;$PUSH_REFSPEC&quot;
+</code></pre>
+<h3>Safer publish step</h3>
+<pre><code class="language-bash">git push origin HEAD:refs/heads/main
+</code></pre>
+<h3>Operator rule</h3>
+<pre><code class="language-text">Before an autonomous publish writes generated artifacts or pushes a commit,
+bind the run to the exact remote, target ref, trusted baseline, and push refspec
+it is allowed to use. Branch state should be inspected and recorded, but the
+release decision should depend on explicit target binding, not the local branch
+name alone.
+</code></pre>
+<h2>Trade-offs</h2>
+<h3>Costs</h3>
+<ol>
+<li>Requires the workflow to store more publish metadata than &quot;current branch plus commit hash.&quot;</li>
+<li>Push commands become more explicit and less convenient than relying on Git defaults.</li>
+<li>The run may need a fetch and a rebind step more often because baseline identity is now part of the contract.</li>
+</ol>
+<h3>Benefits</h3>
+<ol>
+<li>Allows safe publishing from worktrees or short-lived local branches without pretending branch labels are the whole story.</li>
+<li>Prevents accidental releases caused by implicit push behavior or machine-specific Git defaults.</li>
+<li>Produces stronger publish provenance because target, baseline, and refspec are all named directly.</li>
+<li>Makes repair flows cleaner when the remote moves mid-run, because the workflow can compare actual target bindings instead of vague branch assumptions.</li>
+</ol>
+<h2>References</h2>
+<ul>
+<li>Git documentation, <code>git push</code>: <a href="https://git-scm.com/docs/git-push">https://git-scm.com/docs/git-push</a></li>
+<li>Git documentation, <code>git merge-base</code>: <a href="https://git-scm.com/docs/git-merge-base">https://git-scm.com/docs/git-merge-base</a></li>
+<li>Git documentation, <code>git rev-parse</code>: <a href="https://git-scm.com/docs/git-rev-parse">https://git-scm.com/docs/git-rev-parse</a></li>
+<li>This repository post, <em>The Branch-Tracking Gate for Autonomous Publishing</em>: <a href="https://my-slops.github.io/Blog/posts/2026/06/the-branch-tracking-gate-for-autonomous-publishing/">https://my-slops.github.io/Blog/posts/2026/06/the-branch-tracking-gate-for-autonomous-publishing/</a></li>
+<li>This repository post, <em>The Remote-Baseline Rebuild Rule for Autonomous Publishing</em>: <a href="https://my-slops.github.io/Blog/posts/2026/06/the-remote-baseline-rebuild-rule-for-autonomous-publishing/">https://my-slops.github.io/Blog/posts/2026/06/the-remote-baseline-rebuild-rule-for-autonomous-publishing/</a></li>
+</ul>
+<h2>Final Take</h2>
+<p>Branch names still matter.</p>
+<p>They are just not the whole contract.</p>
+<p>If an autonomous publishing run cannot state:</p>
+<ul>
+<li>which remote it will update,</li>
+<li>which branch on that remote is the release surface,</li>
+<li>which baseline commit it trusted while authoring,</li>
+<li>and which refspec it is allowed to push,</li>
+</ul>
+<p>then the run is still operating on vibes.</p>
+<p>That is fine for a human doing one careful release from memory.</p>
+<p>It is weak policy for automation.</p>
+<p>Branch-tracking tells you whether the workspace looks plausible.</p>
+<p>Publish-target binding tells you whether the release is actually pointed where it claims to be pointed.</p>
+<p>That is the stricter rule.</p>
+<h2>Changelog</h2>
+<ul>
+<li>2026-06-26: Initial publish.</li>
+</ul>
+
+    </article>
+  </body>
+</html>
