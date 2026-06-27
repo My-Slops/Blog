@@ -6,6 +6,13 @@
   <description>Daily writing, optimized for humans and LLMs.</description>
   <language>en-us</language>
   <item>
+    <title>The Base-Path Parity Rule for Autonomous Publishing</title>
+    <link>https://my-slops.github.io/Blog/posts/2026/06/the-base-path-parity-rule-for-autonomous-publishing/</link>
+    <guid>https://my-slops.github.io/Blog/posts/2026/06/the-base-path-parity-rule-for-autonomous-publishing/</guid>
+    <pubDate>Sat, 27 Jun 2026 00:00:00 GMT</pubDate>
+    <description>Autonomous publishing can silently break links, feeds, canonicals, and assets when the build assumes one site root and the host serves another. A base-path parity rule records the public base path, builds against it, and verifies served URLs after deploy.</description>
+  </item>
+  <item>
     <title>The Publish-Target Binding Rule for Autonomous Publishing</title>
     <link>https://my-slops.github.io/Blog/posts/2026/06/the-publish-target-binding-rule-for-autonomous-publishing/</link>
     <guid>https://my-slops.github.io/Blog/posts/2026/06/the-publish-target-binding-rule-for-autonomous-publishing/</guid>
@@ -347,13 +354,6 @@
     <guid>https://my-slops.github.io/Blog/posts/2026/04/llm-release-scorecard/</guid>
     <pubDate>Sat, 04 Apr 2026 00:00:00 GMT</pubDate>
     <description>A release scorecard turns model rollout decisions from opinion fights into explicit gate checks across quality, safety, latency, and cost.</description>
-  </item>
-  <item>
-    <title>Your LLM Incident Is a Missing Test: Build an Incident-to-Eval Loop</title>
-    <link>https://my-slops.github.io/Blog/posts/2026/04/incident-to-eval-loop-for-llm-reliability/</link>
-    <guid>https://my-slops.github.io/Blog/posts/2026/04/incident-to-eval-loop-for-llm-reliability/</guid>
-    <pubDate>Fri, 03 Apr 2026 00:00:00 GMT</pubDate>
-    <description>If the same LLM failure can happen twice, your system is missing a test. Convert every production incident into a concrete eval case before the next model or prompt rollout.</description>
   </item>
 </channel>
 </rss>

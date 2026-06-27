@@ -1,7 +1,22 @@
 {
-  "generated_at": "2026-06-26T14:04:45.829Z",
-  "count": 90,
+  "generated_at": "2026-06-27T20:02:40.345Z",
+  "count": 91,
   "posts": [
+    {
+      "title": "The Base-Path Parity Rule for Autonomous Publishing",
+      "date": "2026-06-27",
+      "updated": "2026-06-27",
+      "summary": "Autonomous publishing can silently break links, feeds, canonicals, and assets when the build assumes one site root and the host serves another. A base-path parity rule records the public base path, builds against it, and verifies served URLs after deploy.",
+      "tags": [
+        "ai agents",
+        "publishing",
+        "deployment",
+        "verification",
+        "reliability"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/06/the-base-path-parity-rule-for-autonomous-publishing/",
+      "path": "posts/2026/06/2026-06-27-the-base-path-parity-rule-for-autonomous-publishing.md"
+    },
     {
       "title": "The Publish-Target Binding Rule for Autonomous Publishing",
       "date": "2026-06-26",
