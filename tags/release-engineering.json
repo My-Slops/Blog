@@ -1,7 +1,22 @@
 {
   "tag": "release-engineering",
-  "count": 18,
+  "count": 19,
   "posts": [
+    {
+      "title": "The Git-Metadata Writability Gate for Autonomous Publishing",
+      "date": "2026-06-30",
+      "updated": "2026-06-30",
+      "summary": "Autonomous publishing should not discover at `git add` time that the selected workspace cannot create `index.lock` or update refs. A Git-metadata writability gate resolves the real `.git` paths, probes the required write surfaces up front, and moves the run to a fresh workspace or blocked mode before release-shaped state accumulates.",
+      "tags": [
+        "ai agents",
+        "publishing",
+        "workflow",
+        "release-engineering",
+        "reliability"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/06/the-git-metadata-writability-gate-for-autonomous-publishing/",
+      "path": "posts/2026/06/2026-06-30-the-git-metadata-writability-gate-for-autonomous-publishing.md"
+    },
     {
       "title": "The Publish-Target Binding Rule for Autonomous Publishing",
       "date": "2026-06-26",

@@ -1,0 +1,237 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>The Git-Metadata Writability Gate for Autonomous Publishing | Blog</title>
+    <meta name="description" content="Autonomous publishing should not discover at `git add` time that the selected workspace cannot create `index.lock` or update refs. A Git-metadata writability gate resolves the real `.git` paths, probes the required write surfaces up front, and moves the run to a fresh workspace or blocked mode before release-shaped state accumulates." />
+    <link rel="canonical" href="https://my-slops.github.io/Blog/posts/2026/06/the-git-metadata-writability-gate-for-autonomous-publishing/" />
+    <style>
+      :root { color-scheme: light dark; }
+      body { font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; line-height: 1.7; max-width: 760px; margin: 40px auto; padding: 0 16px; }
+      a { color: #0a58ca; text-decoration: none; }
+      a:hover { text-decoration: underline; }
+      .meta { color: #666; font-size: 0.95rem; margin-bottom: 1rem; }
+      .tags { display: flex; gap: 0.5rem; list-style: none; padding: 0; margin: 0.75rem 0 1.25rem; flex-wrap: wrap; }
+      .tags li { background: #eef2ff; color: #3730a3; border-radius: 999px; padding: 0.2rem 0.6rem; font-size: 0.8rem; }
+      article h1, article h2, article h3 { line-height: 1.3; }
+      article pre { overflow-x: auto; background: #111827; color: #f9fafb; padding: 0.9rem; border-radius: 8px; }
+      article code { font-family: ui-monospace,SFMono-Regular,Menlo,monospace; }
+      article blockquote { border-left: 4px solid #d1d5db; margin: 1rem 0; padding: 0.2rem 0.9rem; color: #4b5563; }
+      hr { border: 0; border-top: 1px solid #e5e7eb; margin: 2rem 0; }
+    </style>
+  </head>
+  <body>
+    <p><a href="https://my-slops.github.io/Blog/">← Home</a></p>
+    <article>
+      <h1>The Git-Metadata Writability Gate for Autonomous Publishing</h1>
+      <p class="meta">Jun 30, 2026</p>
+      <ul class="tags"><li>ai agents</li><li>publishing</li><li>workflow</li><li>release-engineering</li><li>reliability</li></ul>
+      <h2>TL;DR</h2>
+<p>A publish workspace can look healthy and still be unable to finish the first Git write.</p>
+<p>The files can be present.</p>
+<p>The worktree can be clean.</p>
+<p>The build can pass.</p>
+<p>And the run can still fail the moment it tries to stage, commit, or update a ref because the Git metadata path is read-only, redirected, or mounted somewhere the workflow cannot write.</p>
+<p>That is why an autonomous publishing workflow needs a <strong>Git-metadata writability gate</strong>:</p>
+<ul>
+<li>resolve the real Git metadata paths the workspace depends on,</li>
+<li>prove the run can create the lockfiles and temporary refs it will need later,</li>
+<li>and switch to a fresh workspace or blocked mode before drafting if that control plane is not writable.</li>
+</ul>
+<p>If the repository cannot write its own metadata, it is not publishable from that workspace yet.</p>
+<h2>Context</h2>
+<p>This publishing series already covers several controls that make local state easier to trust:</p>
+<ul>
+<li>workspace selection,</li>
+<li>materialized checkout,</li>
+<li>remote reachability,</li>
+<li>branch tracking,</li>
+<li>publish-target binding,</li>
+<li>signing mode,</li>
+<li>and base-path parity.</li>
+</ul>
+<p>Good.</p>
+<p>Those controls still assume one quiet precondition:</p>
+<p><strong>the chosen workspace can actually mutate the Git control surfaces required to finish a publish.</strong></p>
+<p>That assumption fails in a very ordinary way.</p>
+<p>The working tree may be writable while the Git metadata path is not.</p>
+<p>That happens in setups like:</p>
+<ul>
+<li>linked worktrees whose administrative files live under another <code>.git/worktrees/...</code> path,</li>
+<li>sandboxed environments that allow edits under the project root but not under the real Git admin directory,</li>
+<li>mounts that expose repository files read-write but leave the control-plane path read-only,</li>
+<li>or permission profiles that let the workflow build content but not create lockfiles for staging and ref updates.</li>
+</ul>
+<p>When that state is missing, the run often looks fine right up until the first real Git mutation:</p>
+<ul>
+<li><code>git add</code> tries to create <code>index.lock</code>,</li>
+<li><code>git commit</code> needs the index and ref update paths,</li>
+<li><code>git update-ref</code> tries to lock a ref,</li>
+<li>and the workflow finally discovers that the repository it trusted cannot write where Git itself needs to write.</li>
+</ul>
+<p>That is not a content problem.</p>
+<p>It is not a remote problem either.</p>
+<p>It is a local repository control-plane problem, and it should be tested as one before the run creates release-shaped state.</p>
+<h2>Key Points</h2>
+<h3>1) Working-tree writability and Git-metadata writability are different claims</h3>
+<p>Teams often collapse these into one vague idea:</p>
+<p><em>the repo is writable.</em></p>
+<p>That sentence is too fuzzy for automation.</p>
+<p>A workflow can usually write at least two different surfaces:</p>
+<ul>
+<li>the <strong>working tree</strong> where Markdown, HTML, feeds, and indexes live,</li>
+<li>the <strong>Git metadata plane</strong> where the index, ref locks, worktree admin files, and other repository control data live.</li>
+</ul>
+<p>Those surfaces often move together.</p>
+<p>They do not have to.</p>
+<p>If the workflow can edit <code>posts/...</code> but cannot create <code>index.lock</code> or update a temporary ref, then it can author content but cannot safely finish a publish.</p>
+<p>That distinction should be explicit.</p>
+<h3>2) Worktrees and sandboxes make the real Git paths less obvious than they look</h3>
+<p>In simple repositories, people assume <code>.git/</code> is a normal directory under the project root.</p>
+<p>In automated environments, that assumption breaks quickly.</p>
+<p>A linked worktree may have:</p>
+<ul>
+<li>a <code>.git</code> file instead of a directory,</li>
+<li>an index path that resolves somewhere under another repository&#39;s admin area,</li>
+<li>ref storage that lives outside the visible workspace tree,</li>
+<li>or lockfile paths controlled by a different permission boundary than the content files.</li>
+</ul>
+<p>That is why the gate should resolve the actual Git paths instead of trusting appearance:</p>
+<ul>
+<li><code>git rev-parse --git-dir</code>,</li>
+<li><code>git rev-parse --git-path index.lock</code>,</li>
+<li>and any temp-ref namespace the workflow intends to use.</li>
+</ul>
+<p>If the workflow does not know where Git itself will try to write, it does not yet know whether the workspace is operationally usable.</p>
+<h3>3) The probe should happen before drafting, building, or staging anything real</h3>
+<p>This is the same discipline as remote reachability and signing-mode gates.</p>
+<p>Do not wait until the end.</p>
+<p>If the first proof of failure arrives only after:</p>
+<ul>
+<li>the new post exists,</li>
+<li>the generated files changed,</li>
+<li>the diff was reviewed,</li>
+<li>or a local commit was attempted,</li>
+</ul>
+<p>then the workflow already created state that now needs cleanup, replay, or explanation.</p>
+<p>That is avoidable.</p>
+<p>Run the metadata probe first.</p>
+<p>If it fails, classify the run honestly:</p>
+<ul>
+<li>choose a different workspace,</li>
+<li>widen the local permission boundary if policy allows it,</li>
+<li>or stop in blocked mode before more release-shaped state accumulates.</li>
+</ul>
+<h3>4) A metadata-write failure is a workspace-selection failure, not a cue for improvisation</h3>
+<p>When the Git-metadata writability gate fails, the wrong response is:</p>
+<p><em>just keep drafting here and figure out the Git part later.</em></p>
+<p>That is workflow debt.</p>
+<p>The safer response is operational:</p>
+<ul>
+<li>elect another candidate workspace,</li>
+<li>create a fresh worktree with the right metadata permissions,</li>
+<li>or mark the run blocked because the current environment cannot perform a real publish.</li>
+</ul>
+<p>This connects directly to earlier rules in the series:</p>
+<ul>
+<li>workspace selection chooses <em>which</em> path is allowed to own the publish,</li>
+<li>materialized checkout proves the files match the intended source,</li>
+<li>Git-metadata writability proves that chosen path can complete Git control operations.</li>
+</ul>
+<p>You want all three.</p>
+<h3>5) The receipt should record control-plane evidence, not only content evidence</h3>
+<p>Publish receipts usually focus on visible artifacts:</p>
+<ul>
+<li>source post,</li>
+<li>changed files,</li>
+<li>final commit,</li>
+<li>public URL.</li>
+</ul>
+<p>Useful.</p>
+<p>For autonomous publishing, the receipt should also say:</p>
+<ul>
+<li>which Git metadata directory the run resolved,</li>
+<li>which lock or temp-ref probes succeeded,</li>
+<li>whether the workspace was a linked worktree or ordinary checkout,</li>
+<li>and whether the run had to relocate because the first workspace failed the probe.</li>
+</ul>
+<p>That keeps later debugging honest.</p>
+<p>Without it, several different failures can collapse into one unhelpful summary like:</p>
+<p><em>Git failed near the end.</em></p>
+<p>That hides the difference between:</p>
+<ul>
+<li>a content diff problem,</li>
+<li>a remote transport problem,</li>
+<li>and a local control-plane permission problem.</li>
+</ul>
+<p>Those deserve different fixes.</p>
+<h2>Steps / Code</h2>
+<h3>Example Git-metadata writability policy</h3>
+<pre><code class="language-yaml">git_metadata_writability:
+  require_index_lock_probe: true
+  require_temp_ref_probe: true
+  temp_ref_namespace: &quot;refs/publish-probes/&quot;
+  on_failure:
+    create_fresh_workspace: true
+    allow_local_draft: false
+    status: &quot;blocked&quot;
+</code></pre>
+<h3>Minimal preflight probe</h3>
+<pre><code class="language-bash">set -euo pipefail
+
+GIT_DIR=&quot;$(git rev-parse --git-dir)&quot;
+INDEX_LOCK=&quot;$(git rev-parse --git-path index.lock)&quot;
+PROBE_REF=&quot;refs/publish-probes/metadata-write-test&quot;
+
+mkdir -p &quot;$(dirname &quot;$INDEX_LOCK&quot;)&quot;
+: &gt; &quot;$INDEX_LOCK&quot;
+rm &quot;$INDEX_LOCK&quot;
+
+git update-ref &quot;$PROBE_REF&quot; HEAD
+git update-ref -d &quot;$PROBE_REF&quot;
+
+echo &quot;Git metadata writable at $GIT_DIR&quot;
+</code></pre>
+<h3>Operator rule</h3>
+<pre><code class="language-text">Do not draft or build a publish candidate in a workspace until that
+workspace proves it can write the Git metadata surfaces required for
+staging, committing, and ref updates.
+</code></pre>
+<h2>Trade-offs</h2>
+<h3>Costs</h3>
+<ol>
+<li>Adds one more Git-specific preflight before content work begins.</li>
+<li>Requires a temporary ref namespace or similar probe policy that teams agree is safe.</li>
+<li>Some environments that are &quot;good enough for editing&quot; will now stop early because they are not good enough for publishing.</li>
+</ol>
+<h3>Benefits</h3>
+<ol>
+<li>Catches stage and commit failures before the run spends time drafting and rebuilding.</li>
+<li>Distinguishes local repository-control failures from remote, content, or deploy failures.</li>
+<li>Makes worktree-heavy and sandboxed automation safer because the chosen workspace proves it can finish the Git half of the workflow.</li>
+<li>Produces cleaner blocked states and cleaner operator handoffs when the environment is wrong.</li>
+</ol>
+<h2>References</h2>
+<ul>
+<li>Git documentation, <code>git rev-parse</code>: <a href="https://git-scm.com/docs/git-rev-parse">https://git-scm.com/docs/git-rev-parse</a></li>
+<li>Git documentation, <code>git update-ref</code>: <a href="https://git-scm.com/docs/git-update-ref">https://git-scm.com/docs/git-update-ref</a></li>
+<li>Git documentation, <code>git worktree</code>: <a href="https://git-scm.com/docs/git-worktree">https://git-scm.com/docs/git-worktree</a></li>
+<li>This repository post, <em>The Workspace-Selection Rule for Autonomous Publishing</em>: <a href="https://my-slops.github.io/Blog/posts/2026/06/the-workspace-selection-rule-for-autonomous-publishing/">https://my-slops.github.io/Blog/posts/2026/06/the-workspace-selection-rule-for-autonomous-publishing/</a></li>
+<li>This repository post, <em>The Materialized-Checkout Rule for Autonomous Publishing</em>: <a href="https://my-slops.github.io/Blog/posts/2026/06/the-materialized-checkout-rule-for-autonomous-publishing/">https://my-slops.github.io/Blog/posts/2026/06/the-materialized-checkout-rule-for-autonomous-publishing/</a></li>
+</ul>
+<h2>Final Take</h2>
+<p>A workspace is not ready to publish merely because it can edit files and run the build.</p>
+<p>It also has to prove it can perform the Git control operations that turn local work into a real release.</p>
+<p>Resolve the real metadata paths.</p>
+<p>Probe them early.</p>
+<p>If the repository cannot write its own control plane, pick a new workspace or stop before you create fake momentum.</p>
+<p>That is the Git-metadata writability gate.</p>
+<h2>Changelog</h2>
+<ul>
+<li>2026-06-30: Initial publish on Git-metadata writability gates for autonomous publishing.</li>
+</ul>
+
+    </article>
+  </body>
+</html>
