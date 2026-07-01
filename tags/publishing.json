@@ -1,7 +1,22 @@
 {
   "tag": "publishing",
-  "count": 29,
+  "count": 30,
   "posts": [
+    {
+      "title": "The Calendar-Coverage Check for Autonomous Publishing",
+      "date": "2026-07-01",
+      "updated": "2026-07-01",
+      "summary": "A daily publishing automation can fail quietly while the rest of the repo still looks clean. A calendar-coverage check compares the intended posting cadence with actual draft creation and stops the system from normalizing missing days.",
+      "tags": [
+        "ai agents",
+        "publishing",
+        "monitoring",
+        "reliability",
+        "workflow"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/07/the-calendar-coverage-check-for-autonomous-publishing/",
+      "path": "posts/2026/07/2026-07-01-the-calendar-coverage-check-for-autonomous-publishing.md"
+    },
     {
       "title": "The Git-Metadata Writability Gate for Autonomous Publishing",
       "date": "2026-06-30",

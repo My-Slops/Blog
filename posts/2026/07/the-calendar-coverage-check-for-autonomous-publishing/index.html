@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>The Calendar-Coverage Check for Autonomous Publishing | Blog</title>
+    <meta name="description" content="A daily publishing automation can fail quietly while the rest of the repo still looks clean. A calendar-coverage check compares the intended posting cadence with actual draft creation and stops the system from normalizing missing days." />
+    <link rel="canonical" href="https://my-slops.github.io/Blog/posts/2026/07/the-calendar-coverage-check-for-autonomous-publishing/" />
+    <style>
+      :root { color-scheme: light dark; }
+      body { font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; line-height: 1.7; max-width: 760px; margin: 40px auto; padding: 0 16px; }
+      a { color: #0a58ca; text-decoration: none; }
+      a:hover { text-decoration: underline; }
+      .meta { color: #666; font-size: 0.95rem; margin-bottom: 1rem; }
+      .tags { display: flex; gap: 0.5rem; list-style: none; padding: 0; margin: 0.75rem 0 1.25rem; flex-wrap: wrap; }
+      .tags li { background: #eef2ff; color: #3730a3; border-radius: 999px; padding: 0.2rem 0.6rem; font-size: 0.8rem; }
+      article h1, article h2, article h3 { line-height: 1.3; }
+      article pre { overflow-x: auto; background: #111827; color: #f9fafb; padding: 0.9rem; border-radius: 8px; }
+      article code { font-family: ui-monospace,SFMono-Regular,Menlo,monospace; }
+      article blockquote { border-left: 4px solid #d1d5db; margin: 1rem 0; padding: 0.2rem 0.9rem; color: #4b5563; }
+      hr { border: 0; border-top: 1px solid #e5e7eb; margin: 2rem 0; }
+    </style>
+  </head>
+  <body>
+    <p><a href="https://my-slops.github.io/Blog/">← Home</a></p>
+    <article>
+      <h1>The Calendar-Coverage Check for Autonomous Publishing</h1>
+      <p class="meta">Jul 1, 2026</p>
+      <ul class="tags"><li>ai agents</li><li>publishing</li><li>monitoring</li><li>reliability</li><li>workflow</li></ul>
+      <h2>TL;DR</h2>
+<p>If a workflow says it creates a daily draft, the archive should show daily coverage.</p>
+<p>A passing build is not enough.</p>
+<p>A calendar-coverage check compares the dates you expected to populate with the files that actually exist and fails when the calendar has holes.</p>
+<h2>Context</h2>
+<p>This repo already has a scheduled workflow for daily drafts.
+<code>.github/workflows/new-daily-post.yml</code> runs <code>scripts/new-daily-post.mjs</code> once per day and commits <code>posts/YYYY/MM/YYYY-MM-DD-daily-entry.md</code>.</p>
+<p>That sounds sufficient until you look at the archive.
+The scheduled series stops on <code>2026-05-23</code>.
+There is no <code>posts/2026/06/</code> at all.</p>
+<p>That is the kind of failure that fools people because the repository is not obviously broken:</p>
+<ul>
+<li>the existing posts still render,</li>
+<li>frontmatter validation can still pass,</li>
+<li>generated indexes can still build,</li>
+<li>the homepage can still look fine.</li>
+</ul>
+<p>The missing thing is not build correctness.</p>
+<p>It is calendar coverage.</p>
+<h2>Key Points</h2>
+<h3>1) Scheduled success and archive coverage are different promises</h3>
+<p>The workflow promise is &quot;a job ran.&quot;
+The archive promise is &quot;the expected day exists.&quot;</p>
+<p>Those are related but not identical.
+A job can fail intermittently, be disabled, lose permissions, or stop committing changes, and the published site can still appear healthy because all the old artifacts remain valid.</p>
+<h3>2) The cadence itself needs to be modeled</h3>
+<p>&quot;Daily&quot; is not a vibe.
+It is a contract.</p>
+<p>The automation needs an explicit answer to:</p>
+<ul>
+<li>which dates must exist,</li>
+<li>what counts as coverage,</li>
+<li>whether weekends or holidays are excluded,</li>
+<li>whether draft files are enough or publication is required.</li>
+</ul>
+<p>If you do not define the calendar contract, you cannot monitor it.</p>
+<h3>3) Coverage checks belong beside schema checks</h3>
+<p>This repo already validates frontmatter and rebuilds generated files.
+That protects shape.
+It does not protect continuity.</p>
+<p>A coverage check answers a different question:</p>
+<p><em>Did the automation populate the dates it said it would populate?</em></p>
+<p>Treat that as a first-class build concern instead of an afterthought buried in manual review.</p>
+<h3>4) Gaps should be visible before the archive trains people to ignore them</h3>
+<p>Once a missing day becomes &quot;normal,&quot; the system starts teaching the operator the wrong lesson:
+silence is acceptable.</p>
+<p>That is how reliable workflows decay.
+Not always through dramatic breakage.
+Often through quiet missing outputs that nobody compares against the intended schedule.</p>
+<h3>5) Coverage rules should degrade intentionally, not accidentally</h3>
+<p>There are legitimate reasons to pause a daily system:</p>
+<ul>
+<li>editorial reset,</li>
+<li>seasonal breaks,</li>
+<li>workflow migration,</li>
+<li>intentional reduction in cadence.</li>
+</ul>
+<p>That is fine.</p>
+<p>What is not fine is letting the system drift into a lower cadence without saying so anywhere.
+If the cadence changes, change the contract and let the check reflect it.</p>
+<h2>Steps / Code</h2>
+<h3>Example coverage audit</h3>
+<pre><code class="language-js">import fs from &#39;node:fs&#39;;
+import path from &#39;node:path&#39;;
+
+const start = new Date(&#39;2026-05-24T00:00:00Z&#39;);
+const end = new Date(&#39;2026-07-01T00:00:00Z&#39;);
+const missing = [];
+
+for (let ts = start.getTime(); ts &lt;= end.getTime(); ts += 86_400_000) {
+  const iso = new Date(ts).toISOString().slice(0, 10);
+  const file = path.join(&#39;posts&#39;, iso.slice(0, 4), iso.slice(5, 7), `${iso}-daily-entry.md`);
+
+  if (!fs.existsSync(file)) {
+    missing.push(file);
+  }
+}
+
+if (missing.length) {
+  console.error(&#39;Missing expected daily drafts:\n&#39; + missing.join(&#39;\n&#39;));
+  process.exit(1);
+}
+
+console.log(&#39;Calendar coverage complete.&#39;);
+</code></pre>
+<h3>Operator rule</h3>
+<pre><code class="language-text">If a workflow claims a recurring cadence, verify the calendar output directly.
+Do not infer coverage from successful builds, green validations, or the absence of obvious errors.
+</code></pre>
+<h3>Where to run it</h3>
+<p>Run the coverage audit:</p>
+<ul>
+<li>after the draft-creation workflow,</li>
+<li>in a separate scheduled watchdog job,</li>
+<li>or as part of a periodic repo health check.</li>
+</ul>
+<p>The important part is that it compares expected dates with actual files, not logs with other logs.</p>
+<h2>Trade-offs</h2>
+<h3>Costs</h3>
+<ol>
+<li>Strict coverage checks create alerts for intentional pauses unless the calendar contract is updated.</li>
+<li>Repositories with multiple cadences need a slightly richer policy than &quot;every day forever.&quot;</li>
+<li>A coverage audit tells you <em>that</em> dates are missing, not <em>why</em> they went missing.</li>
+</ol>
+<h3>Benefits</h3>
+<ol>
+<li>Turns a quiet publishing gap into an explicit failure.</li>
+<li>Separates archive health from build health.</li>
+<li>Makes schedule regressions visible before readers or downstream systems discover them.</li>
+<li>Forces the team to write down what &quot;daily&quot; actually means.</li>
+</ol>
+<h2>References</h2>
+<ul>
+<li>This repository daily draft workflow: <a href="https://github.com/My-Slops/Blog/blob/main/.github/workflows/new-daily-post.yml">https://github.com/My-Slops/Blog/blob/main/.github/workflows/new-daily-post.yml</a></li>
+<li>This repository daily draft generator: <a href="https://github.com/My-Slops/Blog/blob/main/scripts/new-daily-post.mjs">https://github.com/My-Slops/Blog/blob/main/scripts/new-daily-post.mjs</a></li>
+<li>This repository build pipeline: <a href="https://github.com/My-Slops/Blog/blob/main/.github/workflows/build-index.yml">https://github.com/My-Slops/Blog/blob/main/.github/workflows/build-index.yml</a></li>
+</ul>
+<h2>Final Take</h2>
+<p>A recurring workflow is not healthy because it exists on a schedule.
+It is healthy because the calendar it promises to fill is actually filled.</p>
+<p>Check the archive, not just the automation.</p>
+<h2>Changelog</h2>
+<ul>
+<li>2026-07-01: Initial publish on calendar coverage checks for autonomous publishing.</li>
+</ul>
+
+    </article>
+  </body>
+</html>
