@@ -1,7 +1,22 @@
 {
   "tag": "ai agents",
-  "count": 50,
+  "count": 51,
   "posts": [
+    {
+      "title": "The Repository-Reality Check for Autonomous Publishing",
+      "date": "2026-07-03",
+      "updated": "2026-07-03",
+      "summary": "Autonomous publishing breaks trust when the workflow continues from remembered state that the current repository cannot verify. A repository-reality check forces the agent to prove its continuity assumptions against the repo it can actually see, then rebuild its plan from that evidence if the assumptions fail.",
+      "tags": [
+        "ai agents",
+        "publishing",
+        "verification",
+        "trust",
+        "reliability"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/07/the-repository-reality-check-for-autonomous-publishing/",
+      "path": "posts/2026/07/2026-07-03-the-repository-reality-check-for-autonomous-publishing.md"
+    },
     {
       "title": "The Calendar-Coverage Check for Autonomous Publishing",
       "date": "2026-07-01",

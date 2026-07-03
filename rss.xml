@@ -6,6 +6,13 @@
   <description>Daily writing, optimized for humans and LLMs.</description>
   <language>en-us</language>
   <item>
+    <title>The Repository-Reality Check for Autonomous Publishing</title>
+    <link>https://my-slops.github.io/Blog/posts/2026/07/the-repository-reality-check-for-autonomous-publishing/</link>
+    <guid>https://my-slops.github.io/Blog/posts/2026/07/the-repository-reality-check-for-autonomous-publishing/</guid>
+    <pubDate>Fri, 03 Jul 2026 00:00:00 GMT</pubDate>
+    <description>Autonomous publishing breaks trust when the workflow continues from remembered state that the current repository cannot verify. A repository-reality check forces the agent to prove its continuity assumptions against the repo it can actually see, then rebuild its plan from that evidence if the assumptions fail.</description>
+  </item>
+  <item>
     <title>The Calendar-Coverage Check for Autonomous Publishing</title>
     <link>https://my-slops.github.io/Blog/posts/2026/07/the-calendar-coverage-check-for-autonomous-publishing/</link>
     <guid>https://my-slops.github.io/Blog/posts/2026/07/the-calendar-coverage-check-for-autonomous-publishing/</guid>
@@ -347,13 +354,6 @@
     <guid>https://my-slops.github.io/Blog/posts/2026/04/prompt-change-journal-for-agentic-systems/</guid>
     <pubDate>Tue, 07 Apr 2026 00:00:00 GMT</pubDate>
     <description>A prompt change journal records intent, expected effect, and observed impact so teams can debug regressions faster in agentic workflows.</description>
-  </item>
-  <item>
-    <title>Eval Debt Ledger: A Practical System for LLM Reliability Drift</title>
-    <link>https://my-slops.github.io/Blog/posts/2026/04/eval-debt-ledger-for-llm-teams/</link>
-    <guid>https://my-slops.github.io/Blog/posts/2026/04/eval-debt-ledger-for-llm-teams/</guid>
-    <pubDate>Mon, 06 Apr 2026 00:00:00 GMT</pubDate>
-    <description>Track uncaught failures as eval debt so incidents become prioritized test coverage, not recurring surprises.</description>
   </item>
 </channel>
 </rss>
