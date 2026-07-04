@@ -1,0 +1,271 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>The Remote-Ref Freshness Gate for Autonomous Publishing | Blog</title>
+    <meta name="description" content="Autonomous publishing gets fooled when a workspace compares itself against stale cached tracking refs and calls that repository reality. A remote-ref freshness gate fetches the target ref in the current run, records the fetched object id, and refuses branch or push decisions that rely on older local cache state." />
+    <link rel="canonical" href="https://my-slops.github.io/Blog/posts/2026/07/the-remote-ref-freshness-gate-for-autonomous-publishing/" />
+    <style>
+      :root { color-scheme: light dark; }
+      body { font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; line-height: 1.7; max-width: 760px; margin: 40px auto; padding: 0 16px; }
+      a { color: #0a58ca; text-decoration: none; }
+      a:hover { text-decoration: underline; }
+      .meta { color: #666; font-size: 0.95rem; margin-bottom: 1rem; }
+      .tags { display: flex; gap: 0.5rem; list-style: none; padding: 0; margin: 0.75rem 0 1.25rem; flex-wrap: wrap; }
+      .tags li { background: #eef2ff; color: #3730a3; border-radius: 999px; padding: 0.2rem 0.6rem; font-size: 0.8rem; }
+      article h1, article h2, article h3 { line-height: 1.3; }
+      article pre { overflow-x: auto; background: #111827; color: #f9fafb; padding: 0.9rem; border-radius: 8px; }
+      article code { font-family: ui-monospace,SFMono-Regular,Menlo,monospace; }
+      article blockquote { border-left: 4px solid #d1d5db; margin: 1rem 0; padding: 0.2rem 0.9rem; color: #4b5563; }
+      hr { border: 0; border-top: 1px solid #e5e7eb; margin: 2rem 0; }
+    </style>
+  </head>
+  <body>
+    <p><a href="https://my-slops.github.io/Blog/">← Home</a></p>
+    <article>
+      <h1>The Remote-Ref Freshness Gate for Autonomous Publishing</h1>
+      <p class="meta">Jul 4, 2026</p>
+      <ul class="tags"><li>ai agents</li><li>publishing</li><li>workflow</li><li>reliability</li><li>verification</li></ul>
+      <h2>TL;DR</h2>
+<p><code>origin/main</code> is not the remote.</p>
+<p>It is a cached local tracking ref.</p>
+<p>That sounds obvious until an autonomous workflow starts treating that cache as if it were fresh truth:</p>
+<ul>
+<li>it computes ahead/behind counts against an old fetch,</li>
+<li>it decides whether the branch is publishable,</li>
+<li>it compares one workspace against another,</li>
+<li>and it writes new release-shaped state based on repository facts that may already be wrong.</li>
+</ul>
+<p>That is why autonomous publishing needs a <strong>remote-ref freshness gate</strong>:</p>
+<ul>
+<li>fetch the target ref in the workspace that will own the publish,</li>
+<li>bind later branch and divergence checks to that fetched object id,</li>
+<li>and refuse to draft, build, or push when the workflow is still reasoning from stale tracking refs.</li>
+</ul>
+<p>Branch tracking is useful.</p>
+<p>Remote reachability is useful.</p>
+<p>Neither means much if the tracked remote ref was never refreshed in the current run.</p>
+<h2>Context</h2>
+<p>This series already covered several controls that make a publish easier to trust:</p>
+<ul>
+<li>remote reachability,</li>
+<li>remote-baseline rebuilds,</li>
+<li>branch tracking,</li>
+<li>workspace selection,</li>
+<li>materialized checkouts,</li>
+<li>and Git-metadata writability.</li>
+</ul>
+<p>Good.</p>
+<p>Those controls still depend on one quiet assumption:</p>
+<p><strong>the workspace has a current view of the remote ref it is using for those decisions.</strong></p>
+<p>That assumption fails in a very ordinary way.</p>
+<p>One checkout may say:</p>
+<ul>
+<li>attached to <code>main</code>,</li>
+<li>tracking <code>origin/main</code>,</li>
+<li>behind by 70 commits.</li>
+</ul>
+<p>Another checkout of the same repository may say:</p>
+<ul>
+<li>attached to a different branch,</li>
+<li>also tracking <code>origin/main</code>,</li>
+<li>behind by 5 commits.</li>
+</ul>
+<p>Those outputs can both be internally consistent.</p>
+<p>They can still be describing different cached views of the same remote.</p>
+<p>That is the trap.</p>
+<p>Teams often speak about &quot;repository reality&quot; as if a local checkout simply has it.</p>
+<p>In Git, a lot of that reality is cached until you refresh it.</p>
+<p>The workflow therefore needs a narrower claim:</p>
+<p><em>before trusting branch state, prove that the remote-tracking ref was refreshed in this workspace for this run.</em></p>
+<p>Without that gate, the automation can produce a cleanly reasoned publish from stale premises.</p>
+<h2>Key Points</h2>
+<h3>1) Remote-tracking refs are local cache, not live remote state</h3>
+<p><code>refs/remotes/origin/main</code> lives in the local repository.</p>
+<p>It is updated when the repository fetches.</p>
+<p>Until then, it is just the last known local picture of the remote branch.</p>
+<p>That distinction matters because automation tends to over-trust Git status output:</p>
+<ul>
+<li><code>behind 5</code>,</li>
+<li><code>up to date</code>,</li>
+<li><code>ahead 1</code>,</li>
+<li>or <code>ahead 1, behind 2</code>.</li>
+</ul>
+<p>Those numbers are only meaningful relative to the tracking ref currently stored in that workspace.</p>
+<p>If the fetch is old, the numbers are old.</p>
+<p>The workflow should never collapse these two claims into one:</p>
+<ul>
+<li><em>I have a remote-tracking ref.</em></li>
+<li><em>That remote-tracking ref is fresh enough to drive publish decisions.</em></li>
+</ul>
+<p>Only the second claim is operationally useful.</p>
+<h3>2) Branch and divergence checks are downstream from ref freshness</h3>
+<p>The branch-tracking gate asks good questions:</p>
+<ul>
+<li>am I attached,</li>
+<li>which local branch owns the run,</li>
+<li>what upstream is configured,</li>
+<li>how far ahead or behind am I?</li>
+</ul>
+<p>Those checks assume the upstream ref is worth trusting.</p>
+<p>If the workspace never refreshed <code>origin/main</code>, the gate can return precise answers to the wrong baseline.</p>
+<p>That is not a branch-tracking success.</p>
+<p>It is a stale-input success.</p>
+<p>The remote-ref freshness gate therefore belongs earlier in preflight:</p>
+<ol>
+<li>refresh the target ref,</li>
+<li>record the fetched object id,</li>
+<li>then run branch and divergence policy against that exact fetched baseline.</li>
+</ol>
+<p>Otherwise the workflow ends up auditing its own cache instead of the repository it thinks it is publishing to.</p>
+<h3>3) Workspace disagreement is a warning sign, not an operator curiosity</h3>
+<p>When two local workspaces disagree about remote state, the wrong reaction is:</p>
+<p><em>weird, but one of them will probably still push.</em></p>
+<p>That is how autonomous publishing drifts from controlled release work into lucky release work.</p>
+<p>Disagreement between workspaces usually means one of these things:</p>
+<ul>
+<li>one workspace fetched recently and the other did not,</li>
+<li>one workspace is looking at a different remote or ref namespace,</li>
+<li>one repository copy is stale enough that all derived checks are suspect,</li>
+<li>or the run is about to compare content changes against the wrong baseline.</li>
+</ul>
+<p>The gate should make that state actionable.</p>
+<p>If the workspace chosen for publish cannot produce a current target ref, it should not keep authoring locally while promising to reconcile reality later.</p>
+<p>Select a different workspace.
+Refresh the ref.
+Or stop.</p>
+<p>What the workflow should not do is continue building confidence on top of a branch comparison it has not actually refreshed.</p>
+<h3>4) Freshness should be run-scoped, not vague</h3>
+<p>People often describe ref freshness with fuzzy language:</p>
+<ul>
+<li>&quot;I fetched earlier,&quot;</li>
+<li>&quot;this clone is usually current,&quot;</li>
+<li>&quot;the remote probably has not moved much.&quot;</li>
+</ul>
+<p>That is not a gate.</p>
+<p>A gate needs a concrete rule.</p>
+<p>The simplest useful rule is:</p>
+<p><strong>no branch, divergence, or push decision may rely on a remote-tracking ref unless the workflow fetched that target ref in the current run.</strong></p>
+<p>Some teams may allow a bounded freshness window:</p>
+<ul>
+<li>fetched within 5 minutes,</li>
+<li>fetched within 30 minutes if no authoring happened,</li>
+<li>re-fetch required before push if the run crossed a time limit.</li>
+</ul>
+<p>Fine.</p>
+<p>The important part is that freshness becomes explicit policy instead of a hazy feeling about a familiar clone.</p>
+<p>This is especially important for long-running writing workflows.</p>
+<p>A run may:</p>
+<ul>
+<li>pick a workspace,</li>
+<li>draft content,</li>
+<li>build generated pages,</li>
+<li>pause for review,</li>
+<li>and only later try to push.</li>
+</ul>
+<p>At that point, the original fetch may no longer be good enough.</p>
+<p>The gate should define when to refresh again instead of pretending that one fetch makes the whole run timeless.</p>
+<h3>5) The publish receipt should record which remote baseline was actually trusted</h3>
+<p>If freshness is a first-class gate, the receipt should prove it happened.</p>
+<p>A useful publish record can include:</p>
+<ul>
+<li>the remote name and target branch,</li>
+<li>the fetched object id trusted for preflight,</li>
+<li>the time that ref was refreshed,</li>
+<li>the workspace path that performed the fetch,</li>
+<li>and whether a second fetch was required before push.</li>
+</ul>
+<p>That matters because &quot;published from <code>main</code>&quot; is too vague once multiple workspaces exist.</p>
+<p>You want to know which repository copy refreshed the target ref and which exact remote baseline the run trusted while it made release decisions.</p>
+<p>Without that evidence, later debugging becomes guesswork:</p>
+<ul>
+<li>was the workspace stale,</li>
+<li>was the ref never refreshed,</li>
+<li>did the remote move after drafting,</li>
+<li>or did the push fail because the run reasoned from an old baseline?</li>
+</ul>
+<p>Those are different failures.</p>
+<p>The receipt should keep them different.</p>
+<h2>Steps / Code</h2>
+<h3>Example remote-ref freshness policy</h3>
+<pre><code class="language-yaml">remote_ref_freshness:
+  remote: &quot;origin&quot;
+  target_branch: &quot;main&quot;
+  require_fetch_in_current_run: true
+  max_ref_age_seconds_before_push: 900
+  on_fetch_failure: &quot;blocked&quot;
+  on_expired_ref_before_push: &quot;refetch_then_recheck_divergence&quot;
+</code></pre>
+<h3>Minimal preflight gate</h3>
+<pre><code class="language-bash">set -euo pipefail
+
+REMOTE=&quot;origin&quot;
+BRANCH=&quot;main&quot;
+REF=&quot;refs/remotes/$REMOTE/$BRANCH&quot;
+
+git fetch --quiet &quot;$REMOTE&quot; &quot;$BRANCH&quot;
+
+FETCHED_OID=&quot;$(git rev-parse FETCH_HEAD)&quot;
+TRACKING_OID=&quot;$(git rev-parse &quot;$REF&quot;)&quot;
+FETCHED_AT=&quot;$(date -u +%Y-%m-%dT%H:%M:%SZ)&quot;
+
+if [ &quot;$FETCHED_OID&quot; != &quot;$TRACKING_OID&quot; ]; then
+  echo &quot;Tracking ref does not match current fetch for $REF&quot; &gt;&amp;2
+  exit 1
+fi
+
+printf &#39;remote=%s\nbranch=%s\nref=%s\noid=%s\nfetched_at=%s\n&#39; \
+  &quot;$REMOTE&quot; \
+  &quot;$BRANCH&quot; \
+  &quot;$REF&quot; \
+  &quot;$TRACKING_OID&quot; \
+  &quot;$FETCHED_AT&quot;
+</code></pre>
+<h3>Follow-up branch check</h3>
+<pre><code class="language-bash">TARGET_REF=&quot;refs/remotes/origin/main&quot;
+COUNTS=&quot;$(git rev-list --left-right --count HEAD...$TARGET_REF)&quot;
+
+printf &#39;ahead_behind=%s\n&#39; &quot;$COUNTS&quot;
+</code></pre>
+<h3>Operator rule</h3>
+<pre><code class="language-text">Do not trust ahead/behind counts, &quot;up to date&quot; status, or publish readiness
+until the target remote-tracking ref has been refreshed in the workspace that
+will own the publish.
+</code></pre>
+<h2>Trade-offs</h2>
+<h3>Costs</h3>
+<ol>
+<li>Adds an extra fetch step to runs that previously relied on cached refs.</li>
+<li>Can block authoring in offline or restricted environments unless the workflow supports an explicit degraded mode.</li>
+<li>Long-running drafts may need a second fetch before push, which adds another preflight pass.</li>
+</ol>
+<h3>Benefits</h3>
+<ol>
+<li>Prevents branch policy from reasoning against stale local cache state.</li>
+<li>Makes workspace disagreement visible before release-shaped changes accumulate.</li>
+<li>Gives later build, replay, and push decisions a concrete remote baseline instead of a vague local assumption.</li>
+<li>Produces better publish receipts because the trusted remote object id is explicit.</li>
+</ol>
+<h2>References</h2>
+<ul>
+<li>Git documentation, <code>git-fetch</code>: <a href="https://git-scm.com/docs/git-fetch">https://git-scm.com/docs/git-fetch</a></li>
+<li>Git documentation, <code>gitrevisions</code>: <a href="https://git-scm.com/docs/gitrevisions">https://git-scm.com/docs/gitrevisions</a></li>
+<li>This repository branch-tracking post: <a href="https://github.com/My-Slops/Blog/blob/main/posts/2026/06/2026-06-25-the-branch-tracking-gate-for-autonomous-publishing.md">https://github.com/My-Slops/Blog/blob/main/posts/2026/06/2026-06-25-the-branch-tracking-gate-for-autonomous-publishing.md</a></li>
+<li>This repository remote-baseline rebuild post: <a href="https://github.com/My-Slops/Blog/blob/main/posts/2026/06/2026-06-22-the-remote-baseline-rebuild-rule-for-autonomous-publishing.md">https://github.com/My-Slops/Blog/blob/main/posts/2026/06/2026-06-22-the-remote-baseline-rebuild-rule-for-autonomous-publishing.md</a></li>
+</ul>
+<h2>Final Take</h2>
+<p>Remote-tracking refs are useful because they cache remote state.</p>
+<p>They are dangerous when a workflow forgets that they are cache.</p>
+<p>Fetch first.
+Bind branch checks to that fetched ref.
+Refresh again before push when the run has gone stale.</p>
+<p>That is the remote-ref freshness gate.</p>
+<h2>Changelog</h2>
+<ul>
+<li>2026-07-04: Initial publish on remote-ref freshness gates for autonomous publishing.</li>
+</ul>
+
+    </article>
+  </body>
+</html>

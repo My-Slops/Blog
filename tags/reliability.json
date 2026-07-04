@@ -1,7 +1,22 @@
 {
   "tag": "reliability",
-  "count": 50,
+  "count": 51,
   "posts": [
+    {
+      "title": "The Remote-Ref Freshness Gate for Autonomous Publishing",
+      "date": "2026-07-04",
+      "updated": "2026-07-04",
+      "summary": "Autonomous publishing gets fooled when a workspace compares itself against stale cached tracking refs and calls that repository reality. A remote-ref freshness gate fetches the target ref in the current run, records the fetched object id, and refuses branch or push decisions that rely on older local cache state.",
+      "tags": [
+        "ai agents",
+        "publishing",
+        "workflow",
+        "reliability",
+        "verification"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/07/the-remote-ref-freshness-gate-for-autonomous-publishing/",
+      "path": "posts/2026/07/2026-07-04-the-remote-ref-freshness-gate-for-autonomous-publishing.md"
+    },
     {
       "title": "The Calendar-Coverage Check for Autonomous Publishing",
       "date": "2026-07-01",
