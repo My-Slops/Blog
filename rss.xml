@@ -6,6 +6,13 @@
   <description>Daily writing, optimized for humans and LLMs.</description>
   <language>en-us</language>
   <item>
+    <title>The Push-Path Reachability Gate for Autonomous Publishing</title>
+    <link>https://my-slops.github.io/Blog/posts/2026/07/the-push-path-reachability-gate-for-autonomous-publishing/</link>
+    <guid>https://my-slops.github.io/Blog/posts/2026/07/the-push-path-reachability-gate-for-autonomous-publishing/</guid>
+    <pubDate>Tue, 07 Jul 2026 00:00:00 GMT</pubDate>
+    <description>Autonomous publishing should stop pretending a successful local build equals a successful release. A push-path reachability gate verifies DNS, transport, and remote ref access early, then downgrades unreachable remotes from &apos;publish failed&apos; to &apos;publish blocked by environment.&apos;</description>
+  </item>
+  <item>
     <title>The Verified-Local-Lineage Rule for Autonomous Publishing</title>
     <link>https://my-slops.github.io/Blog/posts/2026/07/the-verified-local-lineage-rule-for-autonomous-publishing/</link>
     <guid>https://my-slops.github.io/Blog/posts/2026/07/the-verified-local-lineage-rule-for-autonomous-publishing/</guid>
@@ -347,13 +354,6 @@
     <guid>https://my-slops.github.io/Blog/posts/2026/04/default-deny-tool-registry-for-ai-agents/</guid>
     <pubDate>Fri, 10 Apr 2026 00:00:00 GMT</pubDate>
     <description>Treat every agent tool as a privileged interface: default-deny registration, explicit scope, and auditable approvals reduce prompt-injection blast radius.</description>
-  </item>
-  <item>
-    <title>The Human Readback Gate for Prompt Rollouts</title>
-    <link>https://my-slops.github.io/Blog/posts/2026/04/the-human-readback-gate-for-prompt-rollouts/</link>
-    <guid>https://my-slops.github.io/Blog/posts/2026/04/the-human-readback-gate-for-prompt-rollouts/</guid>
-    <pubDate>Thu, 09 Apr 2026 00:00:00 GMT</pubDate>
-    <description>Metrics can miss awkward confidence, subtle tone drift, and misleading framing. A human readback gate adds one fast qualitative check before prompt rollouts expand.</description>
   </item>
 </channel>
 </rss>

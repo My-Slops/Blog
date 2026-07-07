@@ -1,7 +1,22 @@
 {
   "tag": "workflow",
-  "count": 32,
+  "count": 33,
   "posts": [
+    {
+      "title": "The Push-Path Reachability Gate for Autonomous Publishing",
+      "date": "2026-07-07",
+      "updated": "2026-07-07",
+      "summary": "Autonomous publishing should stop pretending a successful local build equals a successful release. A push-path reachability gate verifies DNS, transport, and remote ref access early, then downgrades unreachable remotes from 'publish failed' to 'publish blocked by environment.'",
+      "tags": [
+        "ai agents",
+        "publishing",
+        "release-engineering",
+        "workflow",
+        "reliability"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/07/the-push-path-reachability-gate-for-autonomous-publishing/",
+      "path": "posts/2026/07/2026-07-07-the-push-path-reachability-gate-for-autonomous-publishing.md"
+    },
     {
       "title": "The Verified-Local-Lineage Rule for Autonomous Publishing",
       "date": "2026-07-06",
