@@ -42,25 +42,25 @@
 <p>If the answer is no, the workflow should stop treating memory as fact and rebuild its plan from the repository snapshot it can actually inspect.</p>
 <p>That is the <strong>repository-reality check</strong>.</p>
 <h2>Context</h2>
-<p>This repository exposed the problem in a very ordinary way.</p>
-<p>The automation memory for a previous run claimed that:</p>
+<p>One stale local workspace exposed the problem in a very ordinary way.</p>
+<p>The automation memory inherited by that workspace claimed that:</p>
 <ul>
 <li>a July 1 post had already been published,</li>
 <li>commit <code>73a3955</code> existed,</li>
 <li>and the series had moved past the May history visible in the current checkout.</li>
 </ul>
-<p>The repository on disk said something else:</p>
+<p>That specific workspace said something else:</p>
 <ul>
 <li><code>git show 73a3955</code> failed because that commit was unknown here,</li>
-<li>there was no <code>posts/2026/06/</code>,</li>
-<li>there was no <code>posts/2026/07/</code>,</li>
+<li>the visible tree had no <code>posts/2026/06/</code>,</li>
+<li>the visible tree had no <code>posts/2026/07/</code>,</li>
 <li>and the current worktree reported a detached <code>HEAD</code>.</li>
 </ul>
 <p>That does <strong>not</strong> prove the earlier run never happened.</p>
 <p>It proves something narrower and more operationally important:</p>
 <p><strong>this workspace could not verify the memory it inherited.</strong></p>
 <p>That is enough to change the workflow.</p>
-<p>An autonomous publisher should not continue as if inherited memory were automatically true across clones, worktrees, rebases, or half-synced local states. It should prefer the repository evidence it can currently inspect.</p>
+<p>An autonomous publisher should not continue as if inherited memory were automatically true across clones, worktrees, rebases, or half-synced local states. It should prefer the repository evidence visible in the workspace it is about to modify.</p>
 <h2>Key Points</h2>
 <h3>1) Prior-run memory is evidence, not authority</h3>
 <p>Receipts, handoff notes, automation memory files, and run summaries are all useful.</p>

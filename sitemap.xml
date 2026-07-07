@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url><loc>https://my-slops.github.io/Blog/posts/2026/07/the-verified-local-lineage-rule-for-autonomous-publishing/</loc><lastmod>2026-07-06</lastmod></url>
   <url><loc>https://my-slops.github.io/Blog/posts/2026/07/the-remote-ref-freshness-gate-for-autonomous-publishing/</loc><lastmod>2026-07-04</lastmod></url>
+  <url><loc>https://my-slops.github.io/Blog/posts/2026/07/the-repository-reality-check-for-autonomous-publishing/</loc><lastmod>2026-07-03</lastmod></url>
   <url><loc>https://my-slops.github.io/Blog/posts/2026/07/the-calendar-coverage-check-for-autonomous-publishing/</loc><lastmod>2026-07-01</lastmod></url>
   <url><loc>https://my-slops.github.io/Blog/posts/2026/06/the-git-metadata-writability-gate-for-autonomous-publishing/</loc><lastmod>2026-06-30</lastmod></url>
   <url><loc>https://my-slops.github.io/Blog/posts/2026/06/the-base-path-parity-rule-for-autonomous-publishing/</loc><lastmod>2026-06-27</lastmod></url>
