@@ -26,12 +26,11 @@ Retry-After: 60
 
 That is a useful stop signal, but it is a poor scheduling interface. The caller has already spent work, may have a queue full of similar requests, and now has to guess whether all of them should wait, fail, or retry together.
 
-The better contract gives a client a visible budget while it can still make a choice. RFC 9331 standardizes `RateLimit-Limit`, `RateLimit-Remaining`, and `RateLimit-Reset` fields for this purpose. A client can defer nonurgent work, meter a batch, or reserve capacity for an interactive request before it receives a 429.
+The better contract gives a client a visible budget while it can still make a choice. The IETF HTTPAPI working-group draft proposes `RateLimit-Policy` and `RateLimit` fields for this purpose. As of July 8, 2026, this is a draft, so APIs should document the version and semantics they implement. A client can defer nonurgent work, meter a batch, or reserve capacity for an interactive request before it receives a 429.
 
 ```http
-RateLimit-Limit: 1000;w=3600
-RateLimit-Remaining: 47
-RateLimit-Reset: 180
+RateLimit-Policy: "hourly";q=1000;w=3600
+RateLimit: "hourly";r=47;t=180
 ```
 
 ## A number is not a policy unless it is scoped
@@ -48,7 +47,7 @@ This is where many client libraries become noisy. They treat every 429 as an inv
 
 ## References
 
-- [RFC 9331: The RateLimit Fields for HTTP](https://www.rfc-editor.org/rfc/rfc9331) standardizes limit, remaining, and reset fields (January 2023).
+- [IETF HTTPAPI RateLimit header fields draft](https://github.com/ietf-wg-httpapi/ratelimit-headers/blob/9b4bc45c6be50e3e2455e9d6835b7537698d8ec4/draft-ietf-httpapi-ratelimit-headers.md), in the repository revision available before July 8, 2026, proposes quota policies and available quota hints. It is not a published RFC.
 - [RFC 6585, section 4](https://www.rfc-editor.org/rfc/rfc6585#section-4) defines `429 Too Many Requests`.
 
 ## Final take

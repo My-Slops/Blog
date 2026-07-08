@@ -32,10 +32,9 @@
 Retry-After: 60
 </code></pre>
 <p>That is a useful stop signal, but it is a poor scheduling interface. The caller has already spent work, may have a queue full of similar requests, and now has to guess whether all of them should wait, fail, or retry together.</p>
-<p>The better contract gives a client a visible budget while it can still make a choice. RFC 9331 standardizes <code>RateLimit-Limit</code>, <code>RateLimit-Remaining</code>, and <code>RateLimit-Reset</code> fields for this purpose. A client can defer nonurgent work, meter a batch, or reserve capacity for an interactive request before it receives a 429.</p>
-<pre><code class="language-http">RateLimit-Limit: 1000;w=3600
-RateLimit-Remaining: 47
-RateLimit-Reset: 180
+<p>The better contract gives a client a visible budget while it can still make a choice. The IETF HTTPAPI working-group draft proposes <code>RateLimit-Policy</code> and <code>RateLimit</code> fields for this purpose. As of July 8, 2026, this is a draft, so APIs should document the version and semantics they implement. A client can defer nonurgent work, meter a batch, or reserve capacity for an interactive request before it receives a 429.</p>
+<pre><code class="language-http">RateLimit-Policy: &quot;hourly&quot;;q=1000;w=3600
+RateLimit: &quot;hourly&quot;;r=47;t=180
 </code></pre>
 <h2>A number is not a policy unless it is scoped</h2>
 <p>“47 requests remain” is ambiguous without the identity and resource it applies to. Is that a per-user, per-token, per-tenant, per-route, or global budget? Does a request cost one unit or vary by operation? Does an unsuccessful request consume capacity? A useful API documents those dimensions and makes the response headers agree with the enforcement path.</p>
@@ -45,7 +44,7 @@ RateLimit-Reset: 180
 <p>This is where many client libraries become noisy. They treat every 429 as an invitation for every waiting task to retry at the same second. Add jitter, bound the queue, and prefer a local scheduler that sees the shared budget. A response header cannot rescue an unbounded producer.</p>
 <h2>References</h2>
 <ul>
-<li><a href="https://www.rfc-editor.org/rfc/rfc9331">RFC 9331: The RateLimit Fields for HTTP</a> standardizes limit, remaining, and reset fields (January 2023).</li>
+<li><a href="https://github.com/ietf-wg-httpapi/ratelimit-headers/blob/9b4bc45c6be50e3e2455e9d6835b7537698d8ec4/draft-ietf-httpapi-ratelimit-headers.md">IETF HTTPAPI RateLimit header fields draft</a>, in the repository revision available before July 8, 2026, proposes quota policies and available quota hints. It is not a published RFC.</li>
 <li><a href="https://www.rfc-editor.org/rfc/rfc6585#section-4">RFC 6585, section 4</a> defines <code>429 Too Many Requests</code>.</li>
 </ul>
 <h2>Final take</h2>
