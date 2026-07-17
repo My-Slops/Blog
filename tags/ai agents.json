@@ -1,7 +1,22 @@
 {
   "tag": "ai agents",
-  "count": 55,
+  "count": 56,
   "posts": [
+    {
+      "title": "The Attachment-Bias Check for Autonomous Publishing",
+      "date": "2026-07-17",
+      "updated": "2026-07-17",
+      "summary": "Autonomous publishing should not prefer an attached checkout just because it looks tidier in `git status`. An attachment-bias check compares candidate workspaces by verified post corpus and commit freshness first, then repairs branch attachment on the winning candidate instead of regressing to older attached history.",
+      "tags": [
+        "ai agents",
+        "publishing",
+        "workflow",
+        "reliability",
+        "verification"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/07/the-attachment-bias-check-for-autonomous-publishing/",
+      "path": "posts/2026/07/2026-07-17-the-attachment-bias-check-for-autonomous-publishing.md"
+    },
     {
       "title": "The Recovery-Pointer Rule for Autonomous Publishing",
       "date": "2026-07-11",
