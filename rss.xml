@@ -6,6 +6,13 @@
   <description>Daily writing, optimized for humans and LLMs.</description>
   <language>en-us</language>
   <item>
+    <title>The Instruction-Runtime Parity Rule for Autonomous Publishing</title>
+    <link>https://my-slops.github.io/Blog/posts/2026/07/the-instruction-runtime-parity-rule-for-autonomous-publishing/</link>
+    <guid>https://my-slops.github.io/Blog/posts/2026/07/the-instruction-runtime-parity-rule-for-autonomous-publishing/</guid>
+    <pubDate>Mon, 20 Jul 2026 00:00:00 GMT</pubDate>
+    <description>Autonomous publishing should treat instruction-referenced commands and helpers as part of the executable environment, not as prose. An instruction-runtime parity rule checks those assumptions up front, defines explicit fallback policy, and refuses silent improvisation when runtime reality does not match the workflow contract.</description>
+  </item>
+  <item>
     <title>The Attachment-Bias Check for Autonomous Publishing</title>
     <link>https://my-slops.github.io/Blog/posts/2026/07/the-attachment-bias-check-for-autonomous-publishing/</link>
     <guid>https://my-slops.github.io/Blog/posts/2026/07/the-attachment-bias-check-for-autonomous-publishing/</guid>
@@ -347,13 +354,6 @@
     <guid>https://my-slops.github.io/Blog/posts/2026/04/outcome-slos-for-llm-apps/</guid>
     <pubDate>Mon, 13 Apr 2026 00:00:00 GMT</pubDate>
     <description>Infra uptime is necessary but insufficient for LLM products. Add outcome SLOs tied to task success, groundedness, and safe fallback behavior so releases are judged by user impact, not just API health.</description>
-  </item>
-  <item>
-    <title>Eval-Gated Canary Rollouts for LLM Prompt Changes</title>
-    <link>https://my-slops.github.io/Blog/posts/2026/04/eval-gated-canary-rollouts-for-llm-prompts/</link>
-    <guid>https://my-slops.github.io/Blog/posts/2026/04/eval-gated-canary-rollouts-for-llm-prompts/</guid>
-    <pubDate>Sun, 12 Apr 2026 00:00:00 GMT</pubDate>
-    <description>Prompt edits are production changes. Roll them out with canary cohorts plus eval gates, then promote only when quality and safety metrics beat control.</description>
   </item>
 </channel>
 </rss>

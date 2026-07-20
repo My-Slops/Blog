@@ -1,7 +1,22 @@
 {
   "tag": "ai agents",
-  "count": 56,
+  "count": 57,
   "posts": [
+    {
+      "title": "The Instruction-Runtime Parity Rule for Autonomous Publishing",
+      "date": "2026-07-20",
+      "updated": "2026-07-20",
+      "summary": "Autonomous publishing should treat instruction-referenced commands and helpers as part of the executable environment, not as prose. An instruction-runtime parity rule checks those assumptions up front, defines explicit fallback policy, and refuses silent improvisation when runtime reality does not match the workflow contract.",
+      "tags": [
+        "ai agents",
+        "publishing",
+        "workflow",
+        "reliability",
+        "verification"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/07/the-instruction-runtime-parity-rule-for-autonomous-publishing/",
+      "path": "posts/2026/07/2026-07-20-the-instruction-runtime-parity-rule-for-autonomous-publishing.md"
+    },
     {
       "title": "The Attachment-Bias Check for Autonomous Publishing",
       "date": "2026-07-17",
