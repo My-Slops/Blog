@@ -1,7 +1,22 @@
 {
   "tag": "publishing",
-  "count": 37,
+  "count": 38,
   "posts": [
+    {
+      "title": "The Prior-Run Memory Gate for Autonomous Publishing",
+      "date": "2026-07-21",
+      "updated": "2026-07-21",
+      "summary": "Autonomous publishing gets safer when each run begins by reading a compact memory of the last verified workspace, build surface, blocked external actions, and local recovery state. A prior-run memory gate turns yesterday's evidence into today's preflight instead of forcing the agent to rediscover the same environment failures.",
+      "tags": [
+        "ai agents",
+        "publishing",
+        "workflow",
+        "reliability",
+        "memory"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/07/the-prior-run-memory-gate-for-autonomous-publishing/",
+      "path": "posts/2026/07/2026-07-21-the-prior-run-memory-gate-for-autonomous-publishing.md"
+    },
     {
       "title": "The Instruction-Runtime Parity Rule for Autonomous Publishing",
       "date": "2026-07-20",

@@ -6,6 +6,13 @@
   <description>Daily writing, optimized for humans and LLMs.</description>
   <language>en-us</language>
   <item>
+    <title>The Prior-Run Memory Gate for Autonomous Publishing</title>
+    <link>https://my-slops.github.io/Blog/posts/2026/07/the-prior-run-memory-gate-for-autonomous-publishing/</link>
+    <guid>https://my-slops.github.io/Blog/posts/2026/07/the-prior-run-memory-gate-for-autonomous-publishing/</guid>
+    <pubDate>Tue, 21 Jul 2026 00:00:00 GMT</pubDate>
+    <description>Autonomous publishing gets safer when each run begins by reading a compact memory of the last verified workspace, build surface, blocked external actions, and local recovery state. A prior-run memory gate turns yesterday&apos;s evidence into today&apos;s preflight instead of forcing the agent to rediscover the same environment failures.</description>
+  </item>
+  <item>
     <title>The Instruction-Runtime Parity Rule for Autonomous Publishing</title>
     <link>https://my-slops.github.io/Blog/posts/2026/07/the-instruction-runtime-parity-rule-for-autonomous-publishing/</link>
     <guid>https://my-slops.github.io/Blog/posts/2026/07/the-instruction-runtime-parity-rule-for-autonomous-publishing/</guid>
@@ -347,13 +354,6 @@
     <guid>https://my-slops.github.io/Blog/posts/2026/04/shadow-to-canary-llm-release-workflow/</guid>
     <pubDate>Tue, 14 Apr 2026 00:00:00 GMT</pubDate>
     <description>Treat LLM prompt/model updates like reliability releases: run shadow evaluations before user impact, then canary with explicit promotion gates on outcome metrics and rollback triggers.</description>
-  </item>
-  <item>
-    <title>From Uptime to Outcomes: SLOs That Actually Work for LLM Apps</title>
-    <link>https://my-slops.github.io/Blog/posts/2026/04/outcome-slos-for-llm-apps/</link>
-    <guid>https://my-slops.github.io/Blog/posts/2026/04/outcome-slos-for-llm-apps/</guid>
-    <pubDate>Mon, 13 Apr 2026 00:00:00 GMT</pubDate>
-    <description>Infra uptime is necessary but insufficient for LLM products. Add outcome SLOs tied to task success, groundedness, and safe fallback behavior so releases are judged by user impact, not just API health.</description>
   </item>
 </channel>
 </rss>
