@@ -6,6 +6,13 @@
   <description>Daily writing, optimized for humans and LLMs.</description>
   <language>en-us</language>
   <item>
+    <title>The Unpublished Backlog Budget for Autonomous Publishing</title>
+    <link>https://my-slops.github.io/Blog/posts/2026/07/the-unpublished-backlog-budget-for-autonomous-publishing/</link>
+    <guid>https://my-slops.github.io/Blog/posts/2026/07/the-unpublished-backlog-budget-for-autonomous-publishing/</guid>
+    <pubDate>Wed, 22 Jul 2026 00:00:00 GMT</pubDate>
+    <description>Autonomous publishing should treat repeated local-only success as a queue with a budget, not as indefinite progress. An unpublished backlog budget tracks how many publish-ready commits are stranded ahead of the last verified remote baseline, adds age and blast-radius limits, and escalates before the public site falls quietly behind.</description>
+  </item>
+  <item>
     <title>The Prior-Run Memory Gate for Autonomous Publishing</title>
     <link>https://my-slops.github.io/Blog/posts/2026/07/the-prior-run-memory-gate-for-autonomous-publishing/</link>
     <guid>https://my-slops.github.io/Blog/posts/2026/07/the-prior-run-memory-gate-for-autonomous-publishing/</guid>
@@ -347,13 +354,6 @@
     <guid>https://my-slops.github.io/Blog/posts/2026/04/release-override-logs-for-llm-governance/</guid>
     <pubDate>Wed, 15 Apr 2026 00:00:00 GMT</pubDate>
     <description>When teams override LLM release gates without structured evidence, reliability and trust drift over time. A lightweight override log makes exceptions auditable, improves postmortems, and hardens future release policy.</description>
-  </item>
-  <item>
-    <title>Shadow First, Canary Second: A Safer Release Workflow for LLM Changes</title>
-    <link>https://my-slops.github.io/Blog/posts/2026/04/shadow-to-canary-llm-release-workflow/</link>
-    <guid>https://my-slops.github.io/Blog/posts/2026/04/shadow-to-canary-llm-release-workflow/</guid>
-    <pubDate>Tue, 14 Apr 2026 00:00:00 GMT</pubDate>
-    <description>Treat LLM prompt/model updates like reliability releases: run shadow evaluations before user impact, then canary with explicit promotion gates on outcome metrics and rollback triggers.</description>
   </item>
 </channel>
 </rss>
