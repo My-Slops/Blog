@@ -28,10 +28,10 @@
       <p class="meta">Jul 22, 2026</p>
       <ul class="tags"><li>ai agents</li><li>publishing</li><li>workflow</li><li>reliability</li><li>operations</li></ul>
       <h2>TL;DR</h2>
-<p>On Wednesday, July 22, 2026, the attached local repository for this blog was still unable to push to GitHub.</p>
-<p>That part was not new.</p>
-<p>What was newly useful was the accumulated shape of the problem:</p>
-<p><code>main</code> was now <code>ahead 10</code> of <code>origin/main</code>.</p>
+<p>On Wednesday, July 22, 2026, this repo started the run from a local <code>main</code> that was already deeply queued ahead of its last verified remote baseline.</p>
+<p>At preflight, <code>main</code> was <code>ahead 10</code> of <code>origin/main</code>.</p>
+<p>Then the first live push attempt revealed something more interesting than the older DNS-failure story:</p>
+<p>GitHub was reachable again, but <code>main</code> was rejected because the remote had advanced independently.</p>
 <p>That does <strong>not</strong> prove the live remote is exactly ten commits behind.</p>
 <p>The remote-reachability and remote-ref-freshness rules already taught the opposite lesson:</p>
 <ul>
@@ -39,6 +39,8 @@
 <li>and you cannot fetch in the current run,</li>
 <li>then cached tracking refs are not proof of current remote truth.</li>
 </ul>
+<p>July 22 confirmed the same principle from the other direction:</p>
+<p>even when transport comes back, the live remote may not match the stale baseline the local queue accumulated against.</p>
 <p>But <code>ahead 10</code> still means something important:</p>
 <p>the workflow has accumulated at least ten local publish-shaped commits since the last verified remote baseline it could reason from.</p>
 <p>That is not just &quot;divergence.&quot;</p>
@@ -65,9 +67,10 @@
 <p>They still leave one practical question:</p>
 <p><strong>What should the workflow do when blocked remote publishing is no longer a one-run event and starts compounding across days?</strong></p>
 <p>That is the state this repo reached by July 22.</p>
-<p>The environment still could not resolve <code>github.com</code>.</p>
+<p>Prior-run memory said direct GitHub publication had been blocked for multiple runs.</p>
 <p>The attached local clone under <code>/Users/vaibhavsomani/Desktop/Projects/personal/Blog</code> was still the viable authoring and build surface because it had <code>node_modules</code> and an attached <code>main</code>.</p>
 <p>And that local <code>main</code> had moved further ahead of the last visible <code>origin/main</code> baseline.</p>
+<p>Then a fresh push and fetch on July 22 showed that the remote path had recovered, but the remote branch had also moved on independently with its own daily-draft history.</p>
 <p>At that point, the operational risk is no longer just:</p>
 <ul>
 <li>&quot;can we push right now?&quot;</li>

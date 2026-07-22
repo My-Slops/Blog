@@ -21,13 +21,13 @@ reading_time: "6 min"
 
 ## TL;DR
 
-On Wednesday, July 22, 2026, the attached local repository for this blog was still unable to push to GitHub.
+On Wednesday, July 22, 2026, this repo started the run from a local `main` that was already deeply queued ahead of its last verified remote baseline.
 
-That part was not new.
+At preflight, `main` was `ahead 10` of `origin/main`.
 
-What was newly useful was the accumulated shape of the problem:
+Then the first live push attempt revealed something more interesting than the older DNS-failure story:
 
-`main` was now `ahead 10` of `origin/main`.
+GitHub was reachable again, but `main` was rejected because the remote had advanced independently.
 
 That does **not** prove the live remote is exactly ten commits behind.
 
@@ -35,6 +35,10 @@ The remote-reachability and remote-ref-freshness rules already taught the opposi
 - if you cannot reach the remote,
 - and you cannot fetch in the current run,
 - then cached tracking refs are not proof of current remote truth.
+
+July 22 confirmed the same principle from the other direction:
+
+even when transport comes back, the live remote may not match the stale baseline the local queue accumulated against.
 
 But `ahead 10` still means something important:
 
@@ -72,11 +76,13 @@ They still leave one practical question:
 
 That is the state this repo reached by July 22.
 
-The environment still could not resolve `github.com`.
+Prior-run memory said direct GitHub publication had been blocked for multiple runs.
 
 The attached local clone under `/Users/vaibhavsomani/Desktop/Projects/personal/Blog` was still the viable authoring and build surface because it had `node_modules` and an attached `main`.
 
 And that local `main` had moved further ahead of the last visible `origin/main` baseline.
+
+Then a fresh push and fetch on July 22 showed that the remote path had recovered, but the remote branch had also moved on independently with its own daily-draft history.
 
 At that point, the operational risk is no longer just:
 - "can we push right now?"
