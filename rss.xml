@@ -6,6 +6,13 @@
   <description>Daily writing, optimized for humans and LLMs.</description>
   <language>en-us</language>
   <item>
+    <title>The Backlog-Rejoin Gate for Autonomous Publishing</title>
+    <link>https://my-slops.github.io/Blog/posts/2026/07/the-backlog-rejoin-gate-for-autonomous-publishing/</link>
+    <guid>https://my-slops.github.io/Blog/posts/2026/07/the-backlog-rejoin-gate-for-autonomous-publishing/</guid>
+    <pubDate>Thu, 23 Jul 2026 00:00:00 GMT</pubDate>
+    <description>Autonomous publishing should treat the first successful contact with the remote after a local-only backlog as a rejoin event, not as permission to push blindly. A backlog-rejoin gate fetches the live branch, measures divergence, merges or replays canonical source intent, rebuilds from the remote-inclusive baseline, and returns to normal publish mode only after the queue is collapsed.</description>
+  </item>
+  <item>
     <title>The Unpublished Backlog Budget for Autonomous Publishing</title>
     <link>https://my-slops.github.io/Blog/posts/2026/07/the-unpublished-backlog-budget-for-autonomous-publishing/</link>
     <guid>https://my-slops.github.io/Blog/posts/2026/07/the-unpublished-backlog-budget-for-autonomous-publishing/</guid>
@@ -347,13 +354,6 @@
     <guid>https://my-slops.github.io/Blog/posts/2026/04/the-rollback-drill-for-agent-workflows/</guid>
     <pubDate>Thu, 16 Apr 2026 00:00:00 GMT</pubDate>
     <description>If you have never rehearsed rollback for an agent workflow, you probably do not have rollback. A lightweight drill exposes missing controls before they matter.</description>
-  </item>
-  <item>
-    <title>Release Override Logs Are the Missing Layer in LLM Governance</title>
-    <link>https://my-slops.github.io/Blog/posts/2026/04/release-override-logs-for-llm-governance/</link>
-    <guid>https://my-slops.github.io/Blog/posts/2026/04/release-override-logs-for-llm-governance/</guid>
-    <pubDate>Wed, 15 Apr 2026 00:00:00 GMT</pubDate>
-    <description>When teams override LLM release gates without structured evidence, reliability and trust drift over time. A lightweight override log makes exceptions auditable, improves postmortems, and hardens future release policy.</description>
   </item>
 </channel>
 </rss>

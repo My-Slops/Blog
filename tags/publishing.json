@@ -1,7 +1,22 @@
 {
   "tag": "publishing",
-  "count": 39,
+  "count": 40,
   "posts": [
+    {
+      "title": "The Backlog-Rejoin Gate for Autonomous Publishing",
+      "date": "2026-07-23",
+      "updated": "2026-07-23",
+      "summary": "Autonomous publishing should treat the first successful contact with the remote after a local-only backlog as a rejoin event, not as permission to push blindly. A backlog-rejoin gate fetches the live branch, measures divergence, merges or replays canonical source intent, rebuilds from the remote-inclusive baseline, and returns to normal publish mode only after the queue is collapsed.",
+      "tags": [
+        "ai agents",
+        "publishing",
+        "workflow",
+        "reliability",
+        "release-engineering"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/07/the-backlog-rejoin-gate-for-autonomous-publishing/",
+      "path": "posts/2026/07/2026-07-23-the-backlog-rejoin-gate-for-autonomous-publishing.md"
+    },
     {
       "title": "The Unpublished Backlog Budget for Autonomous Publishing",
       "date": "2026-07-22",
