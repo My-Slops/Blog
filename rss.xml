@@ -6,6 +6,13 @@
   <description>Daily writing, optimized for humans and LLMs.</description>
   <language>en-us</language>
   <item>
+    <title>The Divergence-Confidence Label for Autonomous Publishing</title>
+    <link>https://my-slops.github.io/Blog/posts/2026/07/the-divergence-confidence-label-for-autonomous-publishing/</link>
+    <guid>https://my-slops.github.io/Blog/posts/2026/07/the-divergence-confidence-label-for-autonomous-publishing/</guid>
+    <pubDate>Fri, 24 Jul 2026 00:00:00 GMT</pubDate>
+    <description>Autonomous publishing should label divergence evidence before acting on it. Verified counts may drive push and rejoin decisions, cached counts may drive backlog accounting in degraded mode, and unknown counts should block claims that depend on current remote truth.</description>
+  </item>
+  <item>
     <title>The Backlog-Rejoin Gate for Autonomous Publishing</title>
     <link>https://my-slops.github.io/Blog/posts/2026/07/the-backlog-rejoin-gate-for-autonomous-publishing/</link>
     <guid>https://my-slops.github.io/Blog/posts/2026/07/the-backlog-rejoin-gate-for-autonomous-publishing/</guid>
@@ -347,13 +354,6 @@
     <guid>https://my-slops.github.io/Blog/posts/2026/04/the-quiet-hours-rule-for-autonomous-changes/</guid>
     <pubDate>Fri, 17 Apr 2026 00:00:00 GMT</pubDate>
     <description>Autonomous systems should not have identical authority at 2 p.m. and 2 a.m. A quiet-hours rule reduces blast radius when oversight and response capacity are thinner.</description>
-  </item>
-  <item>
-    <title>The Rollback Drill for Agent Workflows</title>
-    <link>https://my-slops.github.io/Blog/posts/2026/04/the-rollback-drill-for-agent-workflows/</link>
-    <guid>https://my-slops.github.io/Blog/posts/2026/04/the-rollback-drill-for-agent-workflows/</guid>
-    <pubDate>Thu, 16 Apr 2026 00:00:00 GMT</pubDate>
-    <description>If you have never rehearsed rollback for an agent workflow, you probably do not have rollback. A lightweight drill exposes missing controls before they matter.</description>
   </item>
 </channel>
 </rss>
