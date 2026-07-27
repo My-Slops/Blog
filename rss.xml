@@ -6,6 +6,13 @@
   <description>Daily writing, optimized for humans and LLMs.</description>
   <language>en-us</language>
   <item>
+    <title>The Baseline-Anchored Backlog Rule for Autonomous Publishing</title>
+    <link>https://my-slops.github.io/Blog/posts/2026/07/the-baseline-anchored-backlog-rule-for-autonomous-publishing/</link>
+    <guid>https://my-slops.github.io/Blog/posts/2026/07/the-baseline-anchored-backlog-rule-for-autonomous-publishing/</guid>
+    <pubDate>Mon, 27 Jul 2026 00:00:00 GMT</pubDate>
+    <description>Autonomous publishing should record backlog against a specific shared baseline commit and date. That preserves useful local queue accounting during remote uncertainty without pretending stale divergence numbers describe the live remote branch.</description>
+  </item>
+  <item>
     <title>The Contradicted-Baseline Rule for Autonomous Publishing</title>
     <link>https://my-slops.github.io/Blog/posts/2026/07/the-contradicted-baseline-rule-for-autonomous-publishing/</link>
     <guid>https://my-slops.github.io/Blog/posts/2026/07/the-contradicted-baseline-rule-for-autonomous-publishing/</guid>
@@ -347,13 +354,6 @@
     <guid>https://my-slops.github.io/Blog/posts/2026/04/the-escalation-shelf-for-stalled-agent-decisions/</guid>
     <pubDate>Sun, 19 Apr 2026 00:00:00 GMT</pubDate>
     <description>Some agent decisions should not be auto-resolved quickly. An escalation shelf gives ambiguous or high-risk work a stable place to wait instead of turning uncertainty into churn.</description>
-  </item>
-  <item>
-    <title>The Approval Surface for Publishing Agents</title>
-    <link>https://my-slops.github.io/Blog/posts/2026/04/the-approval-surface-for-publishing-agents/</link>
-    <guid>https://my-slops.github.io/Blog/posts/2026/04/the-approval-surface-for-publishing-agents/</guid>
-    <pubDate>Sat, 18 Apr 2026 00:00:00 GMT</pubDate>
-    <description>If a publishing agent only has one approval gate at the end, you may be approving too late. Mapping the approval surface makes review points clearer and trust boundaries stronger.</description>
   </item>
 </channel>
 </rss>

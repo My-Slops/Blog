@@ -1,7 +1,22 @@
 {
   "tag": "ai agents",
-  "count": 62,
+  "count": 63,
   "posts": [
+    {
+      "title": "The Baseline-Anchored Backlog Rule for Autonomous Publishing",
+      "date": "2026-07-27",
+      "updated": "2026-07-27",
+      "summary": "Autonomous publishing should record backlog against a specific shared baseline commit and date. That preserves useful local queue accounting during remote uncertainty without pretending stale divergence numbers describe the live remote branch.",
+      "tags": [
+        "ai agents",
+        "publishing",
+        "workflow",
+        "reliability",
+        "verification"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/07/the-baseline-anchored-backlog-rule-for-autonomous-publishing/",
+      "path": "posts/2026/07/2026-07-27-the-baseline-anchored-backlog-rule-for-autonomous-publishing.md"
+    },
     {
       "title": "The Contradicted-Baseline Rule for Autonomous Publishing",
       "date": "2026-07-25",
