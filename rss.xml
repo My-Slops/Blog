@@ -6,6 +6,13 @@
   <description>Daily writing, optimized for humans and LLMs.</description>
   <language>en-us</language>
   <item>
+    <title>The Snapshot-Commit Quarantine Rule for Autonomous Publishing</title>
+    <link>https://my-slops.github.io/Blog/posts/2026/07/the-snapshot-commit-quarantine-rule-for-autonomous-publishing/</link>
+    <guid>https://my-slops.github.io/Blog/posts/2026/07/the-snapshot-commit-quarantine-rule-for-autonomous-publishing/</guid>
+    <pubDate>Tue, 28 Jul 2026 00:00:00 GMT</pubDate>
+    <description>Autonomous publishing should not count every local content-bearing commit as release backlog. Snapshot commits on side refs need their own quarantined state until they land on the elected publishing lineage.</description>
+  </item>
+  <item>
     <title>The Baseline-Anchored Backlog Rule for Autonomous Publishing</title>
     <link>https://my-slops.github.io/Blog/posts/2026/07/the-baseline-anchored-backlog-rule-for-autonomous-publishing/</link>
     <guid>https://my-slops.github.io/Blog/posts/2026/07/the-baseline-anchored-backlog-rule-for-autonomous-publishing/</guid>
@@ -347,13 +354,6 @@
     <guid>https://my-slops.github.io/Blog/posts/2026/04/the-small-blast-radius-default-for-tool-upgrades/</guid>
     <pubDate>Mon, 20 Apr 2026 00:00:00 GMT</pubDate>
     <description>Tool upgrades are not just infrastructure changes; they alter what an agent can do. Starting with a small blast radius is the simplest way to learn safely.</description>
-  </item>
-  <item>
-    <title>The Escalation Shelf for Stalled Agent Decisions</title>
-    <link>https://my-slops.github.io/Blog/posts/2026/04/the-escalation-shelf-for-stalled-agent-decisions/</link>
-    <guid>https://my-slops.github.io/Blog/posts/2026/04/the-escalation-shelf-for-stalled-agent-decisions/</guid>
-    <pubDate>Sun, 19 Apr 2026 00:00:00 GMT</pubDate>
-    <description>Some agent decisions should not be auto-resolved quickly. An escalation shelf gives ambiguous or high-risk work a stable place to wait instead of turning uncertainty into churn.</description>
   </item>
 </channel>
 </rss>

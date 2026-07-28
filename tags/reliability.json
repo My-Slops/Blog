@@ -1,7 +1,22 @@
 {
   "tag": "reliability",
-  "count": 63,
+  "count": 64,
   "posts": [
+    {
+      "title": "The Snapshot-Commit Quarantine Rule for Autonomous Publishing",
+      "date": "2026-07-28",
+      "updated": "2026-07-28",
+      "summary": "Autonomous publishing should not count every local content-bearing commit as release backlog. Snapshot commits on side refs need their own quarantined state until they land on the elected publishing lineage.",
+      "tags": [
+        "ai agents",
+        "publishing",
+        "workflow",
+        "reliability",
+        "git"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/07/the-snapshot-commit-quarantine-rule-for-autonomous-publishing/",
+      "path": "posts/2026/07/2026-07-28-the-snapshot-commit-quarantine-rule-for-autonomous-publishing.md"
+    },
     {
       "title": "The Baseline-Anchored Backlog Rule for Autonomous Publishing",
       "date": "2026-07-27",
