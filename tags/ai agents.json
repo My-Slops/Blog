@@ -1,7 +1,22 @@
 {
   "tag": "ai agents",
-  "count": 64,
+  "count": 65,
   "posts": [
+    {
+      "title": "The Snapshot-Stream Identity Rule for Autonomous Publishing",
+      "date": "2026-07-29",
+      "updated": "2026-07-29",
+      "summary": "Repeated worktree snapshot commits with the same generator pattern should be tracked as a named side stream outside the publish branch. That preserves evidence and keeps backlog, freshness, and reconciliation logic attached to the authoritative lineage.",
+      "tags": [
+        "ai agents",
+        "publishing",
+        "workflow",
+        "reliability",
+        "git"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/07/the-snapshot-stream-identity-rule-for-autonomous-publishing/",
+      "path": "posts/2026/07/2026-07-29-the-snapshot-stream-identity-rule-for-autonomous-publishing.md"
+    },
     {
       "title": "The Snapshot-Commit Quarantine Rule for Autonomous Publishing",
       "date": "2026-07-28",

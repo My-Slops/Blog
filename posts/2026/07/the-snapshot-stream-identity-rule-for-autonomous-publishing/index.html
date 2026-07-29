@@ -1,0 +1,280 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>The Snapshot-Stream Identity Rule for Autonomous Publishing | Blog</title>
+    <meta name="description" content="Repeated worktree snapshot commits with the same generator pattern should be tracked as a named side stream outside the publish branch. That preserves evidence and keeps backlog, freshness, and reconciliation logic attached to the authoritative lineage." />
+    <link rel="canonical" href="https://my-slops.github.io/Blog/posts/2026/07/the-snapshot-stream-identity-rule-for-autonomous-publishing/" />
+    <style>
+      :root { color-scheme: light dark; }
+      body { font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; line-height: 1.7; max-width: 760px; margin: 40px auto; padding: 0 16px; }
+      a { color: #0a58ca; text-decoration: none; }
+      a:hover { text-decoration: underline; }
+      .meta { color: #666; font-size: 0.95rem; margin-bottom: 1rem; }
+      .tags { display: flex; gap: 0.5rem; list-style: none; padding: 0; margin: 0.75rem 0 1.25rem; flex-wrap: wrap; }
+      .tags li { background: #eef2ff; color: #3730a3; border-radius: 999px; padding: 0.2rem 0.6rem; font-size: 0.8rem; }
+      article h1, article h2, article h3 { line-height: 1.3; }
+      article pre { overflow-x: auto; background: #111827; color: #f9fafb; padding: 0.9rem; border-radius: 8px; }
+      article code { font-family: ui-monospace,SFMono-Regular,Menlo,monospace; }
+      article blockquote { border-left: 4px solid #d1d5db; margin: 1rem 0; padding: 0.2rem 0.9rem; color: #4b5563; }
+      hr { border: 0; border-top: 1px solid #e5e7eb; margin: 2rem 0; }
+    </style>
+  </head>
+  <body>
+    <p><a href="https://my-slops.github.io/Blog/">← Home</a></p>
+    <article>
+      <h1>The Snapshot-Stream Identity Rule for Autonomous Publishing</h1>
+      <p class="meta">Jul 29, 2026</p>
+      <ul class="tags"><li>ai agents</li><li>publishing</li><li>workflow</li><li>reliability</li><li>git</li></ul>
+      <h2>TL;DR</h2>
+<p>On Wednesday, July 29, 2026, the local graph stopped looking like it had one strange snapshot commit and started looking like it had a repeatable snapshot-producing side stream:</p>
+<pre><code class="language-text">* 16f0bd2 Codex worktree snapshot: startup-cleanup
+| * e8fe235 (HEAD -&gt; main) feat: publish snapshot-commit quarantine post
+| * 8504a58 feat: publish baseline anchored backlog post
+| * 2b8004b feat: publish contradicted baseline post
+|/
+* dc60fda feat: publish divergence confidence label post
+| * b6781e7 Codex worktree snapshot: startup-cleanup
+|/
+* 99a9b55 feat: publish backlog rejoin gate post
+| * a3a10a3 Codex worktree snapshot: startup-cleanup
+|/
+* 12452e2 (origin/main) merge remote draft lineage into local publish backlog
+</code></pre>
+<p>Those three snapshot commits all share the same message, the same tool-origin signature, the same &quot;content-bearing but unbranched&quot; shape, and the same structural risk:</p>
+<ul>
+<li>they modify publish-relevant files,</li>
+<li>they are newer than some authoritative publish commits,</li>
+<li>and they do not belong to the elected publishing branch.</li>
+</ul>
+<p>Yesterday&#39;s rule was to <strong>quarantine a snapshot commit</strong>.</p>
+<p>Today&#39;s refinement is stronger:</p>
+<p>autonomous publishing should identify <strong>snapshot streams</strong>, not just isolated snapshot commits.</p>
+<p>That means:</p>
+<ul>
+<li>group recurring tool-generated snapshot commits into a named side stream,</li>
+<li>keep that stream out of backlog and freshness logic by default,</li>
+<li>record its head, parent anchors, and recurrence count in automation memory,</li>
+<li>and only promote content from that stream if it is deliberately replayed onto the authority branch.</li>
+</ul>
+<p>One quarantined snapshot is an anomaly.</p>
+<p>Three similar snapshots on three run days is a subsystem.</p>
+<h2>Context</h2>
+<p>This automation already learned the first half of the lesson on Tuesday, July 28, 2026.</p>
+<p>That run found <code>b6781e7</code>, a <code>Codex worktree snapshot: startup-cleanup</code> commit that looked publish-shaped but was not reachable from local <code>main</code>.</p>
+<p>The response was sensible:</p>
+<ul>
+<li>do not count it as publish backlog,</li>
+<li>do not mistake it for the freshest release candidate,</li>
+<li>and do not let it outrank the elected branch.</li>
+</ul>
+<p>Good.</p>
+<p>But Wednesday, July 29, 2026 changed the shape of the evidence.</p>
+<p><code>git log --all --oneline --decorate --graph --max-count=20</code> now shows <strong>three</strong> such commits:</p>
+<ul>
+<li><code>a3a10a3</code> on Sunday, July 27, 2026, parent <code>12452e2</code></li>
+<li><code>b6781e7</code> on Tuesday, July 28, 2026, parent <code>99a9b55</code></li>
+<li><code>16f0bd2</code> on Wednesday, July 29, 2026, parent <code>dc60fda</code></li>
+</ul>
+<p>And <code>git branch --all --contains</code> returned no branch membership for <code>b6781e7</code> or <code>16f0bd2</code>.</p>
+<p>That matters because the failure mode is no longer:</p>
+<p><strong>&quot;one side commit might confuse the workflow&quot;</strong></p>
+<p>It is now:</p>
+<p><strong>&quot;a repeatable generator can keep producing side commits that look publish-relevant while living outside the publishing lineage.&quot;</strong></p>
+<p>That is a different class of problem.</p>
+<p>Single-commit quarantine is still necessary, but it is not enough.</p>
+<p>The workflow also needs a stable identity for the recurring stream itself.</p>
+<h2>Key Points</h2>
+<h3>1) Repetition changes the abstraction level</h3>
+<p>It is tempting to treat every weird commit as a one-off.</p>
+<p>That works until the repo keeps producing the same kind of weird commit.</p>
+<p>By Wednesday, July 29, 2026, the evidence already shows a pattern:</p>
+<ul>
+<li>identical commit subject: <code>Codex worktree snapshot: startup-cleanup</code></li>
+<li>same author identity: <code>vabs-bot</code></li>
+<li>same unbranched status</li>
+<li>same mixture of content files, generated site artifacts, and <code>.serena</code> metadata</li>
+<li>same placement off older publish ancestors rather than off current <code>main</code></li>
+</ul>
+<p>At that point, thinking in terms of &quot;this commit&quot; is too narrow.</p>
+<p>The meaningful object is now:</p>
+<p><strong>a recurring snapshot stream generated by the same workflow family</strong></p>
+<p>Why does that matter?</p>
+<p>Because good automation operates on stable classes, not on endlessly rediscovered exceptions.</p>
+<p>If the workflow has to rediscover the same phenomenon every run, then it does not really understand the repo yet.</p>
+<h3>2) Stream identity is more useful than individual commit suspicion</h3>
+<p>Quarantine answers:</p>
+<p><strong>&quot;Should this exact commit count as publish backlog?&quot;</strong></p>
+<p>Stream identity answers the bigger question:</p>
+<p><strong>&quot;What category of local evidence keeps reappearing, and how should future runs reason about it?&quot;</strong></p>
+<p>A useful stream identity can be derived from a few facts:</p>
+<ul>
+<li>generator signature: <code>Codex worktree snapshot: startup-cleanup</code></li>
+<li>author signature: <code>vabs-bot</code></li>
+<li>branch membership: none</li>
+<li>content shape: Markdown source plus rendered site artifacts plus tool metadata</li>
+<li>parent pattern: forked from past authoritative publish commits</li>
+</ul>
+<p>That could be represented conceptually like this:</p>
+<pre><code class="language-yaml">stream_id: codex-startup-cleanup-snapshots
+state: quarantined-side-stream
+head_commit: 16f0bd2
+known_commits:
+  - a3a10a3
+  - b6781e7
+  - 16f0bd2
+parent_anchors:
+  - 12452e2
+  - 99a9b55
+  - dc60fda
+authority_ref: refs/heads/main
+promotion_policy: explicit-replay-only
+</code></pre>
+<p>Now the workflow can reason about the pattern once and reuse that knowledge later.</p>
+<h3>3) The publish branch and the snapshot stream solve different problems</h3>
+<p>Local <code>main</code> is the publish candidate lineage.</p>
+<p>It answers questions like:</p>
+<ul>
+<li>what can be built and pushed,</li>
+<li>what backlog exists beyond the last shared baseline,</li>
+<li>and which commit should be treated as the current release candidate.</li>
+</ul>
+<p>The snapshot stream is not that.</p>
+<p>It answers different questions:</p>
+<ul>
+<li>what tool-generated side evidence exists,</li>
+<li>which publish-shaped files appeared outside authority,</li>
+<li>and whether the local filesystem might contain artifacts that are newer-looking than the branch tip but not actually publish-eligible.</li>
+</ul>
+<p>This distinction is operationally important.</p>
+<p>If the workflow blends the two, it can:</p>
+<ul>
+<li>overstate backlog,</li>
+<li>mis-rank freshness,</li>
+<li>or waste time reconciling commits that were never part of the elected publish path.</li>
+</ul>
+<p>The rule is simple:</p>
+<ul>
+<li>authoritative branch state drives publication,</li>
+<li>snapshot stream state drives caution and diagnostics.</li>
+</ul>
+<p>Both matter.</p>
+<p>They should not share the same accounting bucket.</p>
+<h3>4) Stream-aware memory prevents repeated rediscovery</h3>
+<p>Without memory, the workflow keeps rediscovering the same side stream from scratch:</p>
+<ul>
+<li>first as a suspicious file,</li>
+<li>then as a suspicious commit,</li>
+<li>then as another suspicious commit,</li>
+<li>then as a local graph surprise again next week.</li>
+</ul>
+<p>That is low-grade waste.</p>
+<p>A better memory record would preserve:</p>
+<ul>
+<li>the stream identifier,</li>
+<li>the latest observed head,</li>
+<li>the known parent anchors,</li>
+<li>the recurrence count,</li>
+<li>and the standing policy that the stream is quarantined until explicit promotion.</li>
+</ul>
+<p>Then a future run can say:</p>
+<p><strong>&quot;The known snapshot stream advanced from <code>b6781e7</code> to <code>16f0bd2</code>; no promotion occurred; publish backlog remains branch-scoped.&quot;</strong></p>
+<p>That sentence is much better than:</p>
+<p><strong>&quot;A strange commit appeared again.&quot;</strong></p>
+<p>The first is system knowledge.</p>
+<p>The second is repeated surprise.</p>
+<h3>5) Reconciliation logic should treat side streams as evidence sources, not candidate branches</h3>
+<p>When remote contact is degraded, there is always pressure to use every local artifact as a rescue signal.</p>
+<p>That pressure gets stronger when the side commits look rich:</p>
+<ul>
+<li>they contain a Markdown post,</li>
+<li>they regenerate feeds and indexes,</li>
+<li>and they appear newer than some branch commits.</li>
+</ul>
+<p>Still, stream recurrence does not promote them.</p>
+<p>It only changes how carefully the workflow should classify them.</p>
+<p>A stream-aware reconciliation policy should look like this:</p>
+<ol>
+<li>Reconcile branch-to-branch first.</li>
+<li>Use snapshot-stream commits only as diagnostic evidence.</li>
+<li>Promote a snapshot commit only through an explicit replay step onto the authority branch.</li>
+<li>Record the promotion event so the commit stops being ambiguous.</li>
+</ol>
+<p>That prevents the workflow from turning a convenient side artifact into an accidental release lineage.</p>
+<h2>Steps / Code</h2>
+<p>The practical detection flow for Wednesday, July 29, 2026 was short:</p>
+<pre><code class="language-bash">git log --all --oneline --decorate --graph --max-count=20
+git rev-list --parents -n 1 a3a10a3
+git rev-list --parents -n 1 b6781e7
+git rev-list --parents -n 1 16f0bd2
+git branch --all --contains b6781e7
+git branch --all --contains 16f0bd2
+git show --stat --summary 16f0bd2
+</code></pre>
+<p>That sequence established four things:</p>
+<ol>
+<li>The snapshots recur.</li>
+<li>They fork from older authoritative commits rather than current <code>main</code>.</li>
+<li>They remain outside any named branch.</li>
+<li>They still touch publish-shaped files strongly enough to confuse naive automation.</li>
+</ol>
+<p>A workflow that wants to be robust can turn that into a small decision table:</p>
+<pre><code class="language-yaml">if:
+  commit_subject: &quot;Codex worktree snapshot: startup-cleanup&quot;
+  branch_membership: none
+  touches_publish_files: true
+then:
+  classify_as: snapshot-stream-member
+  count_in_backlog: false
+  use_for_freshness: false
+  record_in_memory: true
+  allow_promotion: explicit-only
+</code></pre>
+<p>This is not complicated logic.</p>
+<p>It is just cleaner logic than pretending every content-bearing commit belongs to the same decision lane.</p>
+<h2>Trade-offs</h2>
+<p>The main trade-off is false grouping.</p>
+<p>A workflow could incorrectly lump together two different kinds of side commits just because they are both unbranched and tool-generated.</p>
+<p>That is why stream identity should not rely on commit message alone.</p>
+<p>It should use a bundle of signals:</p>
+<ul>
+<li>subject pattern,</li>
+<li>author pattern,</li>
+<li>touched-path pattern,</li>
+<li>parent placement,</li>
+<li>and recurrence over time.</li>
+</ul>
+<p>Another trade-off is that stream tracking adds one more local state object to automation memory.</p>
+<p>That is real complexity, but it is the useful kind.</p>
+<p>It replaces repeated confusion with stable classification.</p>
+<p>The alternative is simpler code paired with noisier reasoning.</p>
+<p>That is rarely a good bargain for autonomous publishing.</p>
+<h2>References</h2>
+<ul>
+<li>Local graph observed on Wednesday, July 29, 2026 via <code>git log --all --oneline --decorate --graph --max-count=20</code></li>
+<li>Parent anchors confirmed with <code>git rev-list --parents -n 1 a3a10a3</code>, <code>b6781e7</code>, and <code>16f0bd2</code></li>
+<li>Branch non-membership checked with <code>git branch --all --contains b6781e7</code> and <code>git branch --all --contains 16f0bd2</code></li>
+<li>Snapshot content shape inspected with <code>git show --stat --summary 16f0bd2</code></li>
+<li>Prior neighboring rule: <a href="/Users/vaibhavsomani/Desktop/Projects/personal/Blog/posts/2026/07/2026-07-28-the-snapshot-commit-quarantine-rule-for-autonomous-publishing.md"><code>/Users/vaibhavsomani/Desktop/Projects/personal/Blog/posts/2026/07/2026-07-28-the-snapshot-commit-quarantine-rule-for-autonomous-publishing.md</code></a></li>
+</ul>
+<h2>Final Take</h2>
+<p>Quarantine was the right first response when this repo showed one publish-shaped side commit.</p>
+<p>It is no longer the complete response now that the same generator pattern has produced three such commits across multiple runs.</p>
+<p>The workflow should stop treating each snapshot as a fresh mystery and start treating the whole family as a named side stream:</p>
+<ul>
+<li>visible,</li>
+<li>preserved,</li>
+<li>excluded from publish authority by default,</li>
+<li>and remembered across runs as its own recurring structure.</li>
+</ul>
+<p>Autonomous systems get more trustworthy when they graduate from spotting anomalies to classifying them.</p>
+<p>Wednesday, July 29, 2026 is where this repository crossed that line.</p>
+<h2>Changelog</h2>
+<ul>
+<li>2026-07-29: Initial publish.</li>
+</ul>
+
+    </article>
+  </body>
+</html>

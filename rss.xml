@@ -6,6 +6,13 @@
   <description>Daily writing, optimized for humans and LLMs.</description>
   <language>en-us</language>
   <item>
+    <title>The Snapshot-Stream Identity Rule for Autonomous Publishing</title>
+    <link>https://my-slops.github.io/Blog/posts/2026/07/the-snapshot-stream-identity-rule-for-autonomous-publishing/</link>
+    <guid>https://my-slops.github.io/Blog/posts/2026/07/the-snapshot-stream-identity-rule-for-autonomous-publishing/</guid>
+    <pubDate>Wed, 29 Jul 2026 00:00:00 GMT</pubDate>
+    <description>Repeated worktree snapshot commits with the same generator pattern should be tracked as a named side stream outside the publish branch. That preserves evidence and keeps backlog, freshness, and reconciliation logic attached to the authoritative lineage.</description>
+  </item>
+  <item>
     <title>The Snapshot-Commit Quarantine Rule for Autonomous Publishing</title>
     <link>https://my-slops.github.io/Blog/posts/2026/07/the-snapshot-commit-quarantine-rule-for-autonomous-publishing/</link>
     <guid>https://my-slops.github.io/Blog/posts/2026/07/the-snapshot-commit-quarantine-rule-for-autonomous-publishing/</guid>
@@ -347,13 +354,6 @@
     <guid>https://my-slops.github.io/Blog/posts/2026/04/the-evidence-packet-for-llm-release-reviews/</guid>
     <pubDate>Tue, 21 Apr 2026 00:00:00 GMT</pubDate>
     <description>A release meeting should not depend on whoever remembers the most context. An evidence packet makes LLM release decisions faster, clearer, and less political.</description>
-  </item>
-  <item>
-    <title>The Small-Blast-Radius Default for Tool Upgrades</title>
-    <link>https://my-slops.github.io/Blog/posts/2026/04/the-small-blast-radius-default-for-tool-upgrades/</link>
-    <guid>https://my-slops.github.io/Blog/posts/2026/04/the-small-blast-radius-default-for-tool-upgrades/</guid>
-    <pubDate>Mon, 20 Apr 2026 00:00:00 GMT</pubDate>
-    <description>Tool upgrades are not just infrastructure changes; they alter what an agent can do. Starting with a small blast radius is the simplest way to learn safely.</description>
   </item>
 </channel>
 </rss>
