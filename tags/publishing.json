@@ -1,7 +1,22 @@
 {
   "tag": "publishing",
-  "count": 45,
+  "count": 46,
   "posts": [
+    {
+      "title": "The Lineage-Over-Timestamp Rule for Autonomous Publishing",
+      "date": "2026-07-30",
+      "updated": "2026-07-30",
+      "summary": "When a later unbranched snapshot forks from an older commit and drops newer published posts, publish selection must prefer authoritative lineage over raw recency.",
+      "tags": [
+        "ai agents",
+        "publishing",
+        "workflow",
+        "reliability",
+        "git"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/07/the-lineage-over-timestamp-rule-for-autonomous-publishing/",
+      "path": "posts/2026/07/2026-07-30-the-lineage-over-timestamp-rule-for-autonomous-publishing.md"
+    },
     {
       "title": "The Snapshot-Stream Identity Rule for Autonomous Publishing",
       "date": "2026-07-29",
