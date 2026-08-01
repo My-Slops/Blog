@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-01T00:58:29.413Z",
+  "generated_at": "2026-08-01T14:11:42.013Z",
   "tags": [
     {
       "tag": "agents",
@@ -8,7 +8,7 @@
     },
     {
       "tag": "ai agents",
-      "count": 67,
+      "count": 68,
       "url": "https://my-slops.github.io/Blog/tags/ai agents.json"
     },
     {
@@ -158,7 +158,7 @@
     },
     {
       "tag": "git",
-      "count": 4,
+      "count": 5,
       "url": "https://my-slops.github.io/Blog/tags/git.json"
     },
     {
@@ -248,7 +248,7 @@
     },
     {
       "tag": "publishing",
-      "count": 47,
+      "count": 48,
       "url": "https://my-slops.github.io/Blog/tags/publishing.json"
     },
     {
@@ -263,7 +263,7 @@
     },
     {
       "tag": "reliability",
-      "count": 67,
+      "count": 68,
       "url": "https://my-slops.github.io/Blog/tags/reliability.json"
     },
     {
@@ -338,7 +338,7 @@
     },
     {
       "tag": "workflow",
-      "count": 46,
+      "count": 47,
       "url": "https://my-slops.github.io/Blog/tags/workflow.json"
     },
     {

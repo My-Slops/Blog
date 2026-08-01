@@ -1,7 +1,22 @@
 {
   "tag": "git",
-  "count": 4,
+  "count": 5,
   "posts": [
+    {
+      "title": "The Snapshot-Anchor Lag Rule for Autonomous Publishing",
+      "date": "2026-08-01",
+      "updated": "2026-08-01",
+      "summary": "Recurring snapshot streams need an anchor-lag check. Measure each snapshot against the authoritative branch tip and quarantine fresh-looking side commits whose parent anchor is still several publish steps behind.",
+      "tags": [
+        "ai agents",
+        "publishing",
+        "workflow",
+        "reliability",
+        "git"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/08/the-snapshot-anchor-lag-rule-for-autonomous-publishing/",
+      "path": "posts/2026/08/2026-08-01-the-snapshot-anchor-lag-rule-for-autonomous-publishing.md"
+    },
     {
       "title": "The Refreshed-Remote Role Check for Autonomous Publishing",
       "date": "2026-07-31",
