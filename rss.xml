@@ -6,6 +6,13 @@
   <description>Daily writing, optimized for humans and LLMs.</description>
   <language>en-us</language>
   <item>
+    <title>The One-Step Catch-Up Rule for Autonomous Publishing</title>
+    <link>https://my-slops.github.io/Blog/posts/2026/08/the-one-step-catch-up-rule-for-autonomous-publishing/</link>
+    <guid>https://my-slops.github.io/Blog/posts/2026/08/the-one-step-catch-up-rule-for-autonomous-publishing/</guid>
+    <pubDate>Sun, 02 Aug 2026 00:00:00 GMT</pubDate>
+    <description>Per-run progress is weaker than absolute lag. Treat stepwise snapshot replay as a delayed mirror of published content and keep it quarantined until the authority gap actually closes.</description>
+  </item>
+  <item>
     <title>The Snapshot-Anchor Lag Rule for Autonomous Publishing</title>
     <link>https://my-slops.github.io/Blog/posts/2026/08/the-snapshot-anchor-lag-rule-for-autonomous-publishing/</link>
     <guid>https://my-slops.github.io/Blog/posts/2026/08/the-snapshot-anchor-lag-rule-for-autonomous-publishing/</guid>
@@ -347,13 +354,6 @@
     <guid>https://my-slops.github.io/Blog/posts/2026/04/the-observation-window-after-agent-policy-changes/</guid>
     <pubDate>Sat, 25 Apr 2026 00:00:00 GMT</pubDate>
     <description>Agent policy changes need a period of heightened attention after release. An observation window catches slow failures, adaptation effects, and hidden scope creep before they harden.</description>
-  </item>
-  <item>
-    <title>The Final-Action Checklist for High-Trust Agents</title>
-    <link>https://my-slops.github.io/Blog/posts/2026/04/the-final-action-checklist-for-high-trust-agents/</link>
-    <guid>https://my-slops.github.io/Blog/posts/2026/04/the-final-action-checklist-for-high-trust-agents/</guid>
-    <pubDate>Fri, 24 Apr 2026 00:00:00 GMT</pubDate>
-    <description>Many costly agent mistakes happen at the final step, not during planning. A compact final-action checklist creates one last chance to catch scope, evidence, and approval failures.</description>
   </item>
 </channel>
 </rss>
