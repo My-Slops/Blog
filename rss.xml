@@ -6,6 +6,13 @@
   <description>Daily writing, optimized for humans and LLMs.</description>
   <language>en-us</language>
   <item>
+    <title>The Authority-Scoped Convergence Rule for Autonomous Publishing</title>
+    <link>https://my-slops.github.io/Blog/posts/2026/08/the-authority-scoped-convergence-rule-for-autonomous-publishing/</link>
+    <guid>https://my-slops.github.io/Blog/posts/2026/08/the-authority-scoped-convergence-rule-for-autonomous-publishing/</guid>
+    <pubDate>Wed, 05 Aug 2026 00:00:00 GMT</pubDate>
+    <description>Treat convergence as authority-scoped, not global. A candidate that matches a stale shared remote may still be behind the active publish lane and should stay quarantined.</description>
+  </item>
+  <item>
     <title>The One-Step Catch-Up Rule for Autonomous Publishing</title>
     <link>https://my-slops.github.io/Blog/posts/2026/08/the-one-step-catch-up-rule-for-autonomous-publishing/</link>
     <guid>https://my-slops.github.io/Blog/posts/2026/08/the-one-step-catch-up-rule-for-autonomous-publishing/</guid>
@@ -347,13 +354,6 @@
     <guid>https://my-slops.github.io/Blog/posts/2026/04/the-permission-budget-for-ai-writing-agents/</guid>
     <pubDate>Sun, 26 Apr 2026 00:00:00 GMT</pubDate>
     <description>If an AI agent helps write publishable work, trust depends on bounded permissions as much as prompting quality. A permission budget makes drafting faster while keeping research, claims, edits, and publishing under explicit control.</description>
-  </item>
-  <item>
-    <title>The Observation Window After Agent Policy Changes</title>
-    <link>https://my-slops.github.io/Blog/posts/2026/04/the-observation-window-after-agent-policy-changes/</link>
-    <guid>https://my-slops.github.io/Blog/posts/2026/04/the-observation-window-after-agent-policy-changes/</guid>
-    <pubDate>Sat, 25 Apr 2026 00:00:00 GMT</pubDate>
-    <description>Agent policy changes need a period of heightened attention after release. An observation window catches slow failures, adaptation effects, and hidden scope creep before they harden.</description>
   </item>
 </channel>
 </rss>

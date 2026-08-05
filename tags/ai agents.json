@@ -1,7 +1,22 @@
 {
   "tag": "ai agents",
-  "count": 69,
+  "count": 70,
   "posts": [
+    {
+      "title": "The Authority-Scoped Convergence Rule for Autonomous Publishing",
+      "date": "2026-08-05",
+      "updated": "2026-08-05",
+      "summary": "Treat convergence as authority-scoped, not global. A candidate that matches a stale shared remote may still be behind the active publish lane and should stay quarantined.",
+      "tags": [
+        "ai agents",
+        "publishing",
+        "workflow",
+        "reliability",
+        "git"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/08/the-authority-scoped-convergence-rule-for-autonomous-publishing/",
+      "path": "posts/2026/08/2026-08-05-the-authority-scoped-convergence-rule-for-autonomous-publishing.md"
+    },
     {
       "title": "The One-Step Catch-Up Rule for Autonomous Publishing",
       "date": "2026-08-02",
