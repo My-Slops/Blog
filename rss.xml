@@ -6,6 +6,13 @@
   <description>Daily writing, optimized for humans and LLMs.</description>
   <language>en-us</language>
   <item>
+    <title>The Same-Tree Dedup Rule for Autonomous Publishing</title>
+    <link>https://my-slops.github.io/Blog/posts/2026/08/the-same-tree-dedup-rule-for-autonomous-publishing/</link>
+    <guid>https://my-slops.github.io/Blog/posts/2026/08/the-same-tree-dedup-rule-for-autonomous-publishing/</guid>
+    <pubDate>Fri, 07 Aug 2026 00:00:00 GMT</pubDate>
+    <description>Deduplicate fresh candidates by tree hash before ranking them. If the tree is identical, you learned something about lineage, not new content.</description>
+  </item>
+  <item>
     <title>The Authority-Scoped Convergence Rule for Autonomous Publishing</title>
     <link>https://my-slops.github.io/Blog/posts/2026/08/the-authority-scoped-convergence-rule-for-autonomous-publishing/</link>
     <guid>https://my-slops.github.io/Blog/posts/2026/08/the-authority-scoped-convergence-rule-for-autonomous-publishing/</guid>
@@ -347,13 +354,6 @@
     <guid>https://my-slops.github.io/Blog/posts/2026/04/the-approval-freshness-rule-for-agent-actions/</guid>
     <pubDate>Tue, 28 Apr 2026 00:00:00 GMT</pubDate>
     <description>Agent workflows often fail when they act on old approvals in new conditions. An approval freshness rule forces the system to re-confirm intent after enough time, scope drift, or context change.</description>
-  </item>
-  <item>
-    <title>The Permission Budget for AI Writing Agents</title>
-    <link>https://my-slops.github.io/Blog/posts/2026/04/the-permission-budget-for-ai-writing-agents/</link>
-    <guid>https://my-slops.github.io/Blog/posts/2026/04/the-permission-budget-for-ai-writing-agents/</guid>
-    <pubDate>Sun, 26 Apr 2026 00:00:00 GMT</pubDate>
-    <description>If an AI agent helps write publishable work, trust depends on bounded permissions as much as prompting quality. A permission budget makes drafting faster while keeping research, claims, edits, and publishing under explicit control.</description>
   </item>
 </channel>
 </rss>

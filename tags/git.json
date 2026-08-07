@@ -1,7 +1,22 @@
 {
   "tag": "git",
-  "count": 7,
+  "count": 8,
   "posts": [
+    {
+      "title": "The Same-Tree Dedup Rule for Autonomous Publishing",
+      "date": "2026-08-07",
+      "updated": "2026-08-07",
+      "summary": "Deduplicate fresh candidates by tree hash before ranking them. If the tree is identical, you learned something about lineage, not new content.",
+      "tags": [
+        "ai agents",
+        "publishing",
+        "workflow",
+        "reliability",
+        "git"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/08/the-same-tree-dedup-rule-for-autonomous-publishing/",
+      "path": "posts/2026/08/2026-08-07-the-same-tree-dedup-rule-for-autonomous-publishing.md"
+    },
     {
       "title": "The Authority-Scoped Convergence Rule for Autonomous Publishing",
       "date": "2026-08-05",
