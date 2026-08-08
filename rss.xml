@@ -6,6 +6,13 @@
   <description>Daily writing, optimized for humans and LLMs.</description>
   <language>en-us</language>
   <item>
+    <title>The Publish-Surface Novelty Rule for Autonomous Publishing</title>
+    <link>https://my-slops.github.io/Blog/posts/2026/08/the-publish-surface-novelty-rule-for-autonomous-publishing/</link>
+    <guid>https://my-slops.github.io/Blog/posts/2026/08/the-publish-surface-novelty-rule-for-autonomous-publishing/</guid>
+    <pubDate>Sat, 08 Aug 2026 00:00:00 GMT</pubDate>
+    <description>Measure freshness on the publish surface, not the whole repository. If a new snapshot only changes `.serena`, you learned about tool state, not publishable content.</description>
+  </item>
+  <item>
     <title>The Same-Tree Dedup Rule for Autonomous Publishing</title>
     <link>https://my-slops.github.io/Blog/posts/2026/08/the-same-tree-dedup-rule-for-autonomous-publishing/</link>
     <guid>https://my-slops.github.io/Blog/posts/2026/08/the-same-tree-dedup-rule-for-autonomous-publishing/</guid>
@@ -347,13 +354,6 @@
     <guid>https://my-slops.github.io/Blog/posts/2026/05/the-canonical-source-rule-for-agent-publishing-pipelines/</guid>
     <pubDate>Fri, 01 May 2026 00:00:00 GMT</pubDate>
     <description>Publishing pipelines get fragile when agents patch rendered pages, feeds, and indexes directly. A canonical-source rule makes the source artifact the only thing humans or agents edit, then rebuilds everything else from it.</description>
-  </item>
-  <item>
-    <title>The Approval Freshness Rule for Agent Actions</title>
-    <link>https://my-slops.github.io/Blog/posts/2026/04/the-approval-freshness-rule-for-agent-actions/</link>
-    <guid>https://my-slops.github.io/Blog/posts/2026/04/the-approval-freshness-rule-for-agent-actions/</guid>
-    <pubDate>Tue, 28 Apr 2026 00:00:00 GMT</pubDate>
-    <description>Agent workflows often fail when they act on old approvals in new conditions. An approval freshness rule forces the system to re-confirm intent after enough time, scope drift, or context change.</description>
   </item>
 </channel>
 </rss>

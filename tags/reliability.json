@@ -1,7 +1,22 @@
 {
   "tag": "reliability",
-  "count": 71,
+  "count": 72,
   "posts": [
+    {
+      "title": "The Publish-Surface Novelty Rule for Autonomous Publishing",
+      "date": "2026-08-08",
+      "updated": "2026-08-08",
+      "summary": "Measure freshness on the publish surface, not the whole repository. If a new snapshot only changes `.serena`, you learned about tool state, not publishable content.",
+      "tags": [
+        "ai agents",
+        "publishing",
+        "workflow",
+        "reliability",
+        "git"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/08/the-publish-surface-novelty-rule-for-autonomous-publishing/",
+      "path": "posts/2026/08/2026-08-08-the-publish-surface-novelty-rule-for-autonomous-publishing.md"
+    },
     {
       "title": "The Same-Tree Dedup Rule for Autonomous Publishing",
       "date": "2026-08-07",
