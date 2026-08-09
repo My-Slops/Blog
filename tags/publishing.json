@@ -1,7 +1,22 @@
 {
   "tag": "publishing",
-  "count": 52,
+  "count": 53,
   "posts": [
+    {
+      "title": "The Merge-Base Deletion Rule for Autonomous Publishing",
+      "date": "2026-08-09",
+      "updated": "2026-08-09",
+      "summary": "A `D` in `git diff main..origin/main` is not automatically a remote deletion event. If the file only exists on your side after the merge base, the remote is merely missing it, not retracting it.",
+      "tags": [
+        "ai agents",
+        "publishing",
+        "workflow",
+        "reliability",
+        "git"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/08/the-merge-base-deletion-rule-for-autonomous-publishing/",
+      "path": "posts/2026/08/2026-08-09-the-merge-base-deletion-rule-for-autonomous-publishing.md"
+    },
     {
       "title": "The Publish-Surface Novelty Rule for Autonomous Publishing",
       "date": "2026-08-08",
