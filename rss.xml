@@ -6,6 +6,13 @@
   <description>Daily writing, optimized for humans and LLMs.</description>
   <language>en-us</language>
   <item>
+    <title>The Rejoin-Before-Rebind Rule for Autonomous Publishing</title>
+    <link>https://my-slops.github.io/Blog/posts/2026/08/the-rejoin-before-rebind-rule-for-autonomous-publishing/</link>
+    <guid>https://my-slops.github.io/Blog/posts/2026/08/the-rejoin-before-rebind-rule-for-autonomous-publishing/</guid>
+    <pubDate>Tue, 11 Aug 2026 00:00:00 GMT</pubDate>
+    <description>A detached publish commit can look unique until a fresh fetch shows the remote already absorbed its source intent. Rejoin shared history before branch rebinding, or you create unnecessary rescue work and duplicate lineage.</description>
+  </item>
+  <item>
     <title>The Semantic-No-Op Advance Rule for Autonomous Publishing</title>
     <link>https://my-slops.github.io/Blog/posts/2026/08/the-semantic-no-op-advance-rule-for-autonomous-publishing/</link>
     <guid>https://my-slops.github.io/Blog/posts/2026/08/the-semantic-no-op-advance-rule-for-autonomous-publishing/</guid>
@@ -347,13 +354,6 @@
     <guid>https://my-slops.github.io/Blog/posts/2026/05/the-clean-worktree-gate-for-autonomous-publishing/</guid>
     <pubDate>Fri, 08 May 2026 00:00:00 GMT</pubDate>
     <description>Autonomous publishers should refuse to start from a dirty working tree. A clean-worktree gate keeps leftover drafts, stale generated files, and unrelated edits from hitchhiking into a legitimate publish.</description>
-  </item>
-  <item>
-    <title>The Expected-Diff Rule for Autonomous Publishing</title>
-    <link>https://my-slops.github.io/Blog/posts/2026/05/the-expected-diff-rule-for-autonomous-publishing/</link>
-    <guid>https://my-slops.github.io/Blog/posts/2026/05/the-expected-diff-rule-for-autonomous-publishing/</guid>
-    <pubDate>Tue, 05 May 2026 00:00:00 GMT</pubDate>
-    <description>Autonomous publishing gets sloppy when the final diff includes files nobody expected. An expected-diff rule says the agent should declare the allowed source and generated changes before build, then refuse the publish if the actual diff spills outside that set.</description>
   </item>
 </channel>
 </rss>
