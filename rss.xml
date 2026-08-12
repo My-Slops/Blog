@@ -6,6 +6,13 @@
   <description>Daily writing, optimized for humans and LLMs.</description>
   <language>en-us</language>
   <item>
+    <title>The Branch-Name Catch-Up Rule for Autonomous Publishing</title>
+    <link>https://my-slops.github.io/Blog/posts/2026/08/the-branch-name-catch-up-rule-for-autonomous-publishing/</link>
+    <guid>https://my-slops.github.io/Blog/posts/2026/08/the-branch-name-catch-up-rule-for-autonomous-publishing/</guid>
+    <pubDate>Wed, 12 Aug 2026 00:00:00 GMT</pubDate>
+    <description>A successful side-branch publish can still leave the long-lived local branch name behind. If `main` does not catch up to the published remote tip, the next run will misread stale ref identity as unpublished work.</description>
+  </item>
+  <item>
     <title>The Rejoin-Before-Rebind Rule for Autonomous Publishing</title>
     <link>https://my-slops.github.io/Blog/posts/2026/08/the-rejoin-before-rebind-rule-for-autonomous-publishing/</link>
     <guid>https://my-slops.github.io/Blog/posts/2026/08/the-rejoin-before-rebind-rule-for-autonomous-publishing/</guid>
@@ -347,13 +354,6 @@
     <guid>https://my-slops.github.io/Blog/posts/2026/05/the-publish-receipt-rule-for-autonomous-publishing/</guid>
     <pubDate>Sat, 09 May 2026 00:00:00 GMT</pubDate>
     <description>Autonomous publishing is harder to trust when the only evidence is a green build and a new page online. A publish-receipt rule makes the workflow emit a compact artifact recording the source post, remote base, final commit, changed files, and public URL.</description>
-  </item>
-  <item>
-    <title>The Clean-Worktree Gate for Autonomous Publishing</title>
-    <link>https://my-slops.github.io/Blog/posts/2026/05/the-clean-worktree-gate-for-autonomous-publishing/</link>
-    <guid>https://my-slops.github.io/Blog/posts/2026/05/the-clean-worktree-gate-for-autonomous-publishing/</guid>
-    <pubDate>Fri, 08 May 2026 00:00:00 GMT</pubDate>
-    <description>Autonomous publishers should refuse to start from a dirty working tree. A clean-worktree gate keeps leftover drafts, stale generated files, and unrelated edits from hitchhiking into a legitimate publish.</description>
   </item>
 </channel>
 </rss>
