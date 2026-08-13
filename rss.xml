@@ -6,6 +6,13 @@
   <description>Daily writing, optimized for humans and LLMs.</description>
   <language>en-us</language>
   <item>
+    <title>The Scheduled-Window Rule for Autonomous Publishing</title>
+    <link>https://my-slops.github.io/Blog/posts/2026/08/the-scheduled-window-rule-for-autonomous-publishing/</link>
+    <guid>https://my-slops.github.io/Blog/posts/2026/08/the-scheduled-window-rule-for-autonomous-publishing/</guid>
+    <pubDate>Thu, 13 Aug 2026 00:00:00 GMT</pubDate>
+    <description>A scheduled draft workflow can be late without being broken. Classify cron time as earliest eligibility and use an observed delay window before declaring a missing run.</description>
+  </item>
+  <item>
     <title>The Branch-Name Catch-Up Rule for Autonomous Publishing</title>
     <link>https://my-slops.github.io/Blog/posts/2026/08/the-branch-name-catch-up-rule-for-autonomous-publishing/</link>
     <guid>https://my-slops.github.io/Blog/posts/2026/08/the-branch-name-catch-up-rule-for-autonomous-publishing/</guid>
@@ -347,13 +354,6 @@
     <guid>https://my-slops.github.io/Blog/posts/2026/05/the-follow-on-commit-rule-for-autonomous-publishing/</guid>
     <pubDate>Sun, 10 May 2026 00:00:00 GMT</pubDate>
     <description>In branch-based publishing pipelines, the commit that starts the publish is not always the commit readers get. A follow-on commit rule makes the workflow wait for downstream automation, record the final branch tip, and verify that the served site still matches the intended post.</description>
-  </item>
-  <item>
-    <title>The Publish-Receipt Rule for Autonomous Publishing</title>
-    <link>https://my-slops.github.io/Blog/posts/2026/05/the-publish-receipt-rule-for-autonomous-publishing/</link>
-    <guid>https://my-slops.github.io/Blog/posts/2026/05/the-publish-receipt-rule-for-autonomous-publishing/</guid>
-    <pubDate>Sat, 09 May 2026 00:00:00 GMT</pubDate>
-    <description>Autonomous publishing is harder to trust when the only evidence is a green build and a new page online. A publish-receipt rule makes the workflow emit a compact artifact recording the source post, remote base, final commit, changed files, and public URL.</description>
   </item>
 </channel>
 </rss>
