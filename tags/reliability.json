@@ -1,7 +1,22 @@
 {
   "tag": "reliability",
-  "count": 77,
+  "count": 78,
   "posts": [
+    {
+      "title": "The Remote-Draft-Tail Rule for Autonomous Publishing",
+      "date": "2026-08-14",
+      "updated": "2026-08-14",
+      "summary": "When scheduled draft jobs quietly append remote-only Markdown files, a clean local tip is no longer the current publish baseline. Fetch, classify, and rejoin the draft tail before writing the next post.",
+      "tags": [
+        "ai agents",
+        "publishing",
+        "workflow",
+        "reliability",
+        "git"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/08/the-remote-draft-tail-rule-for-autonomous-publishing/",
+      "path": "posts/2026/08/2026-08-14-the-remote-draft-tail-rule-for-autonomous-publishing.md"
+    },
     {
       "title": "The Scheduled-Window Rule for Autonomous Publishing",
       "date": "2026-08-13",

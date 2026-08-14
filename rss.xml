@@ -6,6 +6,13 @@
   <description>Daily writing, optimized for humans and LLMs.</description>
   <language>en-us</language>
   <item>
+    <title>The Remote-Draft-Tail Rule for Autonomous Publishing</title>
+    <link>https://my-slops.github.io/Blog/posts/2026/08/the-remote-draft-tail-rule-for-autonomous-publishing/</link>
+    <guid>https://my-slops.github.io/Blog/posts/2026/08/the-remote-draft-tail-rule-for-autonomous-publishing/</guid>
+    <pubDate>Fri, 14 Aug 2026 00:00:00 GMT</pubDate>
+    <description>When scheduled draft jobs quietly append remote-only Markdown files, a clean local tip is no longer the current publish baseline. Fetch, classify, and rejoin the draft tail before writing the next post.</description>
+  </item>
+  <item>
     <title>The Scheduled-Window Rule for Autonomous Publishing</title>
     <link>https://my-slops.github.io/Blog/posts/2026/08/the-scheduled-window-rule-for-autonomous-publishing/</link>
     <guid>https://my-slops.github.io/Blog/posts/2026/08/the-scheduled-window-rule-for-autonomous-publishing/</guid>
@@ -347,13 +354,6 @@
     <guid>https://my-slops.github.io/Blog/posts/2026/05/the-public-readback-rule-for-autonomous-publishing/</guid>
     <pubDate>Mon, 11 May 2026 00:00:00 GMT</pubDate>
     <description>Autonomous publishing is still incomplete after the final commit lands. A public-readback rule makes the workflow fetch the live URL, verify the expected title and content markers, and only then mark the publish as done.</description>
-  </item>
-  <item>
-    <title>The Follow-On Commit Rule for Autonomous Publishing</title>
-    <link>https://my-slops.github.io/Blog/posts/2026/05/the-follow-on-commit-rule-for-autonomous-publishing/</link>
-    <guid>https://my-slops.github.io/Blog/posts/2026/05/the-follow-on-commit-rule-for-autonomous-publishing/</guid>
-    <pubDate>Sun, 10 May 2026 00:00:00 GMT</pubDate>
-    <description>In branch-based publishing pipelines, the commit that starts the publish is not always the commit readers get. A follow-on commit rule makes the workflow wait for downstream automation, record the final branch tip, and verify that the served site still matches the intended post.</description>
   </item>
 </channel>
 </rss>
