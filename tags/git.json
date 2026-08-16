@@ -1,7 +1,22 @@
 {
   "tag": "git",
-  "count": 15,
+  "count": 16,
   "posts": [
+    {
+      "title": "The Draft-Only Source-Advance Rule for Autonomous Publishing",
+      "date": "2026-08-16",
+      "updated": "2026-08-16",
+      "summary": "Draft commits can move the authoritative source branch without changing published outputs. Rejoin them for source truth, but do not treat them alone as public-surface freshness.",
+      "tags": [
+        "ai agents",
+        "publishing",
+        "workflow",
+        "reliability",
+        "git"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/08/the-draft-only-source-advance-rule-for-autonomous-publishing/",
+      "path": "posts/2026/08/2026-08-16-the-draft-only-source-advance-rule-for-autonomous-publishing.md"
+    },
     {
       "title": "The Remote-Draft-Tail Rule for Autonomous Publishing",
       "date": "2026-08-14",
