@@ -1,7 +1,22 @@
 {
   "tag": "publishing",
-  "count": 59,
+  "count": 60,
   "posts": [
+    {
+      "title": "The Three-Anchor Baseline Rule for Autonomous Publishing",
+      "date": "2026-08-17",
+      "updated": "2026-08-17",
+      "summary": "A single \"latest commit\" hides different authored, public-output, and source baselines. Keep three anchors or the next publish run will reason from the wrong layer.",
+      "tags": [
+        "ai agents",
+        "publishing",
+        "workflow",
+        "reliability",
+        "git"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/08/the-three-anchor-baseline-rule-for-autonomous-publishing/",
+      "path": "posts/2026/08/2026-08-17-the-three-anchor-baseline-rule-for-autonomous-publishing.md"
+    },
     {
       "title": "The Draft-Only Source-Advance Rule for Autonomous Publishing",
       "date": "2026-08-16",
