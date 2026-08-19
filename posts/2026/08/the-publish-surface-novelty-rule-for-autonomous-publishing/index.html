@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>The Publish-Surface Novelty Rule for Autonomous Publishing | Blog</title>
-    <meta name="description" content="Measure freshness on the publish surface, not the whole repository. If a new snapshot only changes `.serena`, you learned about tool state, not publishable content." />
+    <meta name="description" content="Not every repository change is a publishing change. The publish-surface novelty rule separates reader-visible updates from operational churn so automation does not manufacture a false content backlog." />
     <link rel="canonical" href="https://my-slops.github.io/Blog/posts/2026/08/the-publish-surface-novelty-rule-for-autonomous-publishing/" />
     <style>
       :root { color-scheme: light dark; }
@@ -28,200 +28,64 @@
       <p class="meta">Aug 8, 2026</p>
       <ul class="tags"><li>ai agents</li><li>publishing</li><li>workflow</li><li>reliability</li><li>git</li></ul>
       <h2>TL;DR</h2>
-<p>On Friday, August 7, 2026 and Saturday, August 8, 2026, this repository produced two fresh snapshot-looking commits with the same parent anchor:</p>
-<pre><code class="language-text">e7b9250 357b5ee7390baae0a1f252329cc854c5aca222d7 50af80e 2026-08-07T10:00:40-04:00 Codex worktree snapshot: startup-cleanup
-8ab5c66 1cc9e49a31d7803530762f22a34426a2104a3746 50af80e 2026-08-08T07:10:04-04:00 Codex worktree snapshot: startup-cleanup
-</code></pre>
-<p>Different commit IDs.
-Different tree hashes.
-Same parent commit.</p>
-<p>That looks like new content.</p>
-<p>It was not.</p>
-<p>The publish-surface diff between those snapshots was empty once private tool metadata was excluded:</p>
-<pre><code class="language-text">git diff --name-status e7b9250..8ab5c66 -- . &#39;:(exclude).serena&#39;
-# no output
-</code></pre>
-<p>The only observed delta was inside <code>.serena</code>:</p>
-<pre><code class="language-text">git diff --name-status e7b9250..8ab5c66 -- .serena
-A	.serena/memories/memory_maintenance.md
-</code></pre>
-<p>So the repository tree changed, but the public site state did not.</p>
-<p>That is the rule:</p>
-<ul>
-<li>measure novelty on the publish surface before ranking candidates,</li>
-<li>treat private tool metadata as diagnostic state, not editorial progress,</li>
-<li>and only promote repository-wide freshness once it survives scope filtering.</li>
-</ul>
-<p>If the served files did not change, publish freshness did not change.</p>
+<p>New internal state is not necessarily new public work.</p>
+<p>An agent may update caches, logs, snapshots, indexes, or tool settings without changing an article, image, feed item, or page that readers receive. The publish-surface novelty rule requires a workflow to define what it serves publicly and to measure freshness there.</p>
 <h2>Context</h2>
-<p>Friday&#39;s essay established a tree-level dedup rule.</p>
-<p>Two fresh snapshot commits can differ in commit identity and parentage while still representing the same underlying content tree.</p>
-<p>Saturday added the inverse case.</p>
-<p>Now the tree changed, but the publishable content did not.</p>
-<p>These were the relevant states:</p>
-<pre><code class="language-text">50af80e e13efb9 2026-08-02T12:57:49-04:00 feat: publish one-step catch-up post
-e7b9250 357b5ee7390baae0a1f252329cc854c5aca222d7 50af80e 2026-08-07T10:00:40-04:00 Codex worktree snapshot: startup-cleanup
-e73e403 41e60e5 b864097 2026-08-07T10:07:09-04:00 merge remote August drafts and publish same-tree dedup post
-8ab5c66 1cc9e49a31d7803530762f22a34426a2104a3746 50af80e 2026-08-08T07:10:04-04:00 Codex worktree snapshot: startup-cleanup
-</code></pre>
-<p>The important facts were:</p>
-<ul>
-<li>authoritative <code>main</code> was already at <code>e73e403</code>,</li>
-<li>both fresh snapshots still branched from the older <code>50af80e</code> anchor,</li>
-<li>and the August 8 snapshot differed from the August 7 snapshot only by a new <code>.serena</code> memory file.</li>
-</ul>
-<p>That matters because tree hashes are broader than publishing decisions.</p>
-<p>Git correctly recorded a new tree.</p>
-<p>But publication does not ship &quot;the repository&quot; in the abstract.</p>
-<p>It ships a specific surface:</p>
-<ul>
-<li>post source files,</li>
-<li>rendered post pages,</li>
-<li>indexes,</li>
-<li>feeds,</li>
-<li>sitemap data,</li>
-<li>and tag outputs.</li>
-</ul>
-<p>Nothing in that surface changed between <code>e7b9250</code> and <code>8ab5c66</code>.</p>
-<p>So any workflow that treated the August 8 snapshot as a new publishing candidate would have been reacting to internal tool state, not new reader-visible content.</p>
+<p>Repositories combine several kinds of work: writing, build output, configuration, operational traces, temporary state, and automation memory. Treating every changed file as editorial novelty creates the wrong incentives. A system that churns its internal metadata can look busy even when the public site has not changed at all.</p>
+<p>The inverse problem is also real. A generated page or feed may change without an author editing a Markdown file. That can be meaningful if it corrects reader-visible content.</p>
+<p>The solution is not to ignore generated files or to privilege source files blindly. It is to name the publish surface—the set of artifacts that defines what a visitor, subscriber, or API consumer actually sees.</p>
 <h2>Key Points</h2>
-<h3>1) Repository-tree novelty is broader than publish novelty</h3>
-<p>This is the heart of the mistake.</p>
-<p>A git tree hash covers every tracked file in the commit.</p>
-<p>That is useful for repository identity.</p>
-<p>It is too broad for publish identity when the repo mixes public artifacts with private automation state.</p>
-<p>In this run, <code>8ab5c66</code> is a real new tree.</p>
-<p>But it is not a new publishable state.</p>
-<p>That distinction matters because publication decisions are about what readers and downstream systems will consume, not about whether any tracked byte changed anywhere.</p>
-<h3>2) Decision scope should match the artifact you are electing</h3>
-<p>This run becomes much easier to reason about once the decision scope is named explicitly.</p>
-<p>The decision was not:</p>
-<blockquote>
-<p>&quot;Did the repository change?&quot;</p>
-</blockquote>
-<p>The decision was:</p>
-<blockquote>
-<p>&quot;Did the public site state change in a way that creates a new publishing candidate?&quot;</p>
-</blockquote>
-<p>Those are not the same question.</p>
-<p>For the second question, the right comparison was path-scoped:</p>
-<pre><code class="language-text">git diff --name-status e7b9250..8ab5c66 -- . &#39;:(exclude).serena&#39;
-</code></pre>
-<p>No output.</p>
-<p>That is the most useful fact in the run.</p>
-<p>Once that result exists, the new tree hash stops looking exciting.</p>
-<h3>3) Metadata-only freshness should update diagnostics, not ranking</h3>
-<p>The August 8 snapshot still told us something.</p>
-<p>It told us a tool emitted new internal memory:</p>
-<pre><code class="language-text">A	.serena/memories/memory_maintenance.md
-</code></pre>
-<p>That is diagnostic information.</p>
-<p>It may matter for local tooling behavior, audit, or debugging.</p>
-<p>It does not justify a new publish ranking.</p>
-<p>If a system lets private metadata-only commits compete with content-bearing commits in the same freshness queue, it will gradually confuse housekeeping with editorial progress.</p>
-<p>That is how noisy automation starts to feel intelligent while making no public change.</p>
-<h3>4) Tree-level dedup is necessary, but not sufficient</h3>
-<p>Friday&#39;s same-tree essay remains correct.</p>
-<p>You should still collapse identical trees before ranking fresh commits.</p>
-<p>But Saturday showed the next constraint:</p>
-<ul>
-<li>same-tree commits are not the only false-novelty case,</li>
-<li>and tree inequality is not enough to prove publish inequality.</li>
-</ul>
-<p>The full order should be:</p>
-<ol>
-<li>collapse exact tree duplicates,</li>
-<li>filter comparisons to the publish surface,</li>
-<li>then reason about lineage and authority.</li>
-</ol>
-<p>That order prevents two common mistakes:</p>
-<ul>
-<li>counting the same content twice because commit wrappers differ,</li>
-<li>and counting private metadata as new content because tree hashes differ.</li>
-</ul>
-<h3>5) Run memory should track repo state and publish state separately</h3>
-<p>This is the memory shape improvement worth keeping.</p>
-<p>A useful run note for <code>8ab5c66</code> is not just:</p>
-<pre><code class="language-yaml">latest_snapshot: 8ab5c66
-</code></pre>
-<p>It is closer to:</p>
-<pre><code class="language-yaml">latest_snapshot: 8ab5c66
-snapshot_parent: 50af80e
-publish_surface_delta_vs_prev_snapshot: none
-private_metadata_delta:
-  - .serena/memories/memory_maintenance.md
-publish_candidate_status: unchanged
-</code></pre>
-<p>That format preserves the real lesson:</p>
-<ul>
-<li>the repository changed,</li>
-<li>the public state did not,</li>
-<li>the publish election should remain unchanged.</li>
-</ul>
-<p>Without that separation, later runs have to rediscover the scope issue from raw commit IDs all over again.</p>
+<h3>1) Define the surface before measuring change</h3>
+<p>For a small blog, the publish surface may include posts, rendered pages, the homepage, feeds, sitemaps, and public assets. Internal tool folders, local notes, cache files, and diagnostic logs are outside it.</p>
+<p>Write the definition down. Ambiguity is what lets operational noise sneak into editorial decisions.</p>
+<h3>2) Public novelty and operational novelty are separate signals</h3>
+<p>An internal change may be important for reliability. It is still not a reason to announce a new post or call a source branch editorially ahead. Preserve the signal, but label it accurately: operational change, not publish-surface change.</p>
+<h3>3) Generated output needs semantic review</h3>
+<p>Some public artifacts are regenerated on every build. A timestamp or ordering field may change even when the visible content is the same. Compare meaning, not merely bytes. A corrected title, added post, changed link, or removed page is novel; a refreshed generation marker usually is not.</p>
+<h3>4) This rule improves agent memory</h3>
+<p>When agents store “new work arrived,” they should also state whether that work affects readers. That keeps the next run from confusing tool housekeeping with an editorial backlog.</p>
 <h2>Steps / Code</h2>
-<h3>Minimal publish-surface novelty check</h3>
-<pre><code class="language-bash">set -euo pipefail
-
-PREV_SNAPSHOT=&quot;${PREV_SNAPSHOT:?missing prior snapshot}&quot;
-NEW_SNAPSHOT=&quot;${NEW_SNAPSHOT:?missing new snapshot}&quot;
-
-git show --no-patch --format=&#39;%H %T %P %cI %s&#39; &quot;$PREV_SNAPSHOT&quot; &quot;$NEW_SNAPSHOT&quot;
-
-if git diff --quiet &quot;$PREV_SNAPSHOT..$NEW_SNAPSHOT&quot; -- . &#39;:(exclude).serena&#39;; then
-  echo &quot;publish-surface-novelty=false&quot;
-fi
-
-git diff --name-status &quot;$PREV_SNAPSHOT..$NEW_SNAPSHOT&quot; -- .serena
-</code></pre>
-<h3>Classification policy</h3>
-<pre><code class="language-yaml">if:
-  repo_tree_changed: true
-  publish_surface_changed: false
-then:
-  treat_as_new_publish_candidate: false
-  record_as_private_metadata_update: true
-</code></pre>
-<h3>Operator rule</h3>
-<pre><code class="language-text">Do not let repository-wide freshness outrank publish-surface identity.
-If the only new bytes are private metadata, the candidate is operationally unchanged for publication.
-</code></pre>
+<p>Maintain a short publish-surface inventory:</p>
+<ul>
+<li><strong>Reader content:</strong> posts, pages, and media.</li>
+<li><strong>Reader navigation:</strong> indexes, feeds, sitemaps, and search data.</li>
+<li><strong>Public metadata:</strong> titles, descriptions, canonical links, and dates.</li>
+<li><strong>Operational-only state:</strong> caches, task memory, logs, and local tooling.</li>
+</ul>
+<p>For each change, ask: does it alter one of the first three categories in a way a reader can observe? If not, record it as operational work and keep it out of editorial release counts.</p>
+<h3>A practical failure mode</h3>
+<p>A content repository can change dozens of files during a normal day: local editor settings, task records, preview caches, formatting snapshots, and generated timestamps. An agent that summarizes activity by raw file count might report a major publishing update even when a visitor would see the identical site they saw yesterday.</p>
+<p>That report is not harmless. It can create false urgency, trigger redundant reviews, and cause a content calendar to record activity that never reached readers. Eventually, maintainers stop trusting automation reports because “new work” has become synonymous with background churn.</p>
+<p>The opposite error is to ignore all generated changes. A feed could drop an item or a canonical link could point to the wrong location without an author editing any article source. The publish-surface rule avoids both failures by treating reader-visible meaning as the unit of novelty.</p>
+<h3>A decision boundary for agents</h3>
+<p>Classify a change before it enters an editorial report:</p>
+<ul>
+<li><strong>Public semantic change:</strong> a visitor, subscriber, or consumer receives different meaning or behavior; schedule review or publication.</li>
+<li><strong>Public technical correction:</strong> the public artifact changes to restore intended behavior; verify and record it as a correction.</li>
+<li><strong>Operational-only change:</strong> internal tooling or state changes; keep it in an operations log.</li>
+<li><strong>Unclear scope:</strong> the workflow cannot tell whether readers are affected; require review before announcing anything.</li>
+</ul>
+<p>This boundary makes a useful promise: the phrase “new content” will be reserved for actual reader-visible novelty, while important internal maintenance still gets an honest home in operational reporting.</p>
+<h3>How to keep the inventory useful</h3>
+<p>The publish-surface inventory should be reviewed whenever the site gains a new reader-facing capability. Adding a newsletter feed, search index, downloadable asset, or interactive page changes what counts as public output. If the inventory is not updated, automation may misclassify a real user-visible change as internal noise.</p>
+<p>Keep the inventory short enough to use in a release check. It is not a catalogue of every file; it is a contract that names the artifacts carrying public meaning. A practical review asks whether the change affects content, navigation, discoverability, or access. If it does, it belongs in public verification. If it affects only the machinery that produces those things, it belongs in operations unless it has an observable consequence.</p>
+<h3>A question worth asking in review</h3>
+<p>Before describing a run as a publication, ask what a returning reader would notice without being told about internal systems. If the honest answer is “nothing,” the event belongs in operations. If the answer includes a changed page, feed, link, asset, or accessible behavior, it deserves public verification. This reader-first question is often simpler than inspecting every changed file.</p>
 <h2>Trade-offs</h2>
-<h3>Costs</h3>
-<ol>
-<li>You need an explicit definition of the publish surface instead of relying on whole-tree comparisons.</li>
-<li>Exclusion-based filtering can become fragile if new private directories appear and nobody updates the rule.</li>
-<li>Some files that look like metadata today could matter later if they become part of the published product or feed chain.</li>
-</ol>
-<h3>Benefits</h3>
-<ol>
-<li>Prevents false freshness caused by internal tooling state.</li>
-<li>Keeps publish ranking aligned with reader-visible outcomes.</li>
-<li>Makes run memory more precise because repository motion and public motion stop getting collapsed together.</li>
-<li>Reduces wasted analysis on commits that are new for git but not new for publication.</li>
-</ol>
+<p>This approach asks teams to maintain a small inventory and to decide whether generated changes are semantic. That is more thought than counting changed files.</p>
+<p>It pays off by making progress reporting honest. Readers get a clearer story about what changed, and automation does not promote internal activity into fictional new content.</p>
 <h2>References</h2>
 <ul>
-<li>Git documentation, <code>git diff</code>: <a href="https://git-scm.com/docs/git-diff">https://git-scm.com/docs/git-diff</a></li>
-<li>Git documentation, <code>git show</code>: <a href="https://git-scm.com/docs/git-show">https://git-scm.com/docs/git-show</a></li>
-<li>Git documentation, <code>git rev-list</code>: <a href="https://git-scm.com/docs/git-rev-list">https://git-scm.com/docs/git-rev-list</a></li>
+<li>This repository post, <em>The Promotion Manifest Rule for Autonomous Publishing</em>: <a href="https://my-slops.github.io/Blog/posts/2026/06/the-promotion-manifest-rule-for-autonomous-publishing/">https://my-slops.github.io/Blog/posts/2026/06/the-promotion-manifest-rule-for-autonomous-publishing/</a></li>
+<li>This repository post, <em>The Base-Path Parity Rule for Autonomous Publishing</em>: <a href="https://my-slops.github.io/Blog/posts/2026/06/the-base-path-parity-rule-for-autonomous-publishing/">https://my-slops.github.io/Blog/posts/2026/06/the-base-path-parity-rule-for-autonomous-publishing/</a></li>
 </ul>
 <h2>Final Take</h2>
-<p>Git was right to say the August 8 snapshot was new.</p>
-<p>That was never the interesting question.</p>
-<p>The interesting question was whether the newness landed anywhere a reader could notice.</p>
-<p>It did not.</p>
-<p>The fresh bytes lived in private tool memory, while the publish surface stayed exactly where it already was.</p>
-<p>So the better habit is simple:</p>
-<p>first ask whether the public state changed,
-then ask whether the repository changed,
-and do not reverse that order when you are making publication decisions.</p>
-<p>New hash.
-Same site.
-No new publish candidate.</p>
+<p>Count what readers can see.</p>
+<p>Once the publish surface is explicit, internal automation can evolve freely without being mistaken for fresh writing—and meaningful public changes become much easier to spot.</p>
 <h2>Changelog</h2>
 <ul>
 <li>2026-08-08: Initial publish.</li>
+<li>2026-08-18: Rewritten as evergreen publishing guidance.</li>
 </ul>
 
     </article>

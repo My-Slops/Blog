@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>The Merge-Base Deletion Rule for Autonomous Publishing | Blog</title>
-    <meta name="description" content="A `D` in `git diff main..origin/main` is not automatically a remote deletion event. If the file only exists on your side after the merge base, the remote is merely missing it, not retracting it." />
+    <meta name="description" content="An absent page is not automatically a deletion. The merge-base deletion rule asks whether a source actually removed content or merely lacks a change introduced elsewhere." />
     <link rel="canonical" href="https://my-slops.github.io/Blog/posts/2026/08/the-merge-base-deletion-rule-for-autonomous-publishing/" />
     <style>
       :root { color-scheme: light dark; }
@@ -28,256 +28,59 @@
       <p class="meta">Aug 9, 2026</p>
       <ul class="tags"><li>ai agents</li><li>publishing</li><li>workflow</li><li>reliability</li><li>git</li></ul>
       <h2>TL;DR</h2>
-<p>On Sunday, August 9, 2026, the first refreshed remote check in this repository made <code>main</code> and <code>origin/main</code> diverge like this:</p>
-<pre><code class="language-text">git rev-list --left-right --count main...origin/main
-2	4
-</code></pre>
-<p>The alarming part was the tip-to-tip diff:</p>
-<pre><code class="language-text">git diff --name-status main..origin/main
-D	docs/superpowers/specs/2026-08-08-publish-surface-novelty-design.md
-D	posts/2026/08/2026-08-08-the-publish-surface-novelty-rule-for-autonomous-publishing.md
-D	posts/2026/08/the-publish-surface-novelty-rule-for-autonomous-publishing/index.html
-A	posts/2026/08/2026-08-09-daily-entry.md
-M	index.html
-M	index.json
-M	rss.xml
-M	sitemap.xml
-M	tags/ai agents.json
-M	tags/git.json
-M	tags/index.json
-M	tags/publishing.json
-M	tags/reliability.json
-M	tags/workflow.json
-</code></pre>
-<p>That looked like the refreshed remote branch had deleted the unpublished August 8 essay.</p>
-<p>It had not.</p>
-<p>The shared merge base was still the August 7 publish merge:</p>
-<pre><code class="language-text">git merge-base main origin/main
-e73e403983389b9c747a999d988aca30a2997665
-</code></pre>
-<p>From that base to <code>origin/main</code>, the August 8 essay never appears as a deletion because it was never on that side at all:</p>
-<pre><code class="language-text">git diff --name-status e73e403..origin/main
-M	index.json
-A	posts/2026/08/2026-08-07-daily-entry.md
-A	posts/2026/08/2026-08-08-daily-entry.md
-A	posts/2026/08/2026-08-09-daily-entry.md
-M	tags/index.json
-</code></pre>
-<p>And from that same base to <code>main</code>, the August 8 essay is a local addition:</p>
-<pre><code class="language-text">git diff --name-status e73e403..main
-A	docs/superpowers/specs/2026-08-08-publish-surface-novelty-design.md
-A	posts/2026/08/2026-08-08-the-publish-surface-novelty-rule-for-autonomous-publishing.md
-A	posts/2026/08/the-publish-surface-novelty-rule-for-autonomous-publishing/index.html
-</code></pre>
-<p>That is the rule:</p>
-<ul>
-<li>treat tip-to-tip <code>D</code> entries as directional diff output, not immediate evidence of deletion,</li>
-<li>check the shared merge base before interpreting removal semantics,</li>
-<li>and only call something a remote deletion if that branch actually removed a file it previously carried.</li>
-</ul>
-<p>Sometimes a <code>D</code> means &quot;deleted there.&quot;</p>
-<p>Sometimes it only means &quot;present here, absent there.&quot;</p>
-<p>Autonomous publishing should know the difference.</p>
+<p>If one source contains a post and another does not, the missing post was not necessarily deleted.</p>
+<p>It may have been created after the sources diverged and never copied across. Before interpreting absence as a retraction, identify the last shared baseline and ask which side introduced or removed the page.</p>
 <h2>Context</h2>
-<p>This essay sits directly after two nearby lessons:</p>
-<ul>
-<li>Friday, August 8, 2026 established that repository-wide freshness can be fake when the only new bytes live in private tool state.</li>
-<li>Earlier runs showed that refreshed remote tips can carry daily drafts while leaving locally authored essays unpublished.</li>
-</ul>
-<p>Sunday added a subtler failure mode.</p>
-<p>The remote path was healthy again. <code>git fetch origin main</code> worked and advanced the tracking ref from <code>e73e403</code> to <code>cf6c55c</code>.</p>
-<p>That was good news.</p>
-<p>It was also enough to create a misleading narrative if you only looked at <code>git diff main..origin/main</code>.</p>
-<p>That command compared two branch tips with different local additions and different remote additions. In that framing, every file present only on <code>main</code> shows up as <code>D</code> because moving from <code>main</code> to <code>origin/main</code> would remove it from the destination tree.</p>
-<p>Git is being precise.</p>
-<p>Humans often are not.</p>
-<p>The mistake is reading that <code>D</code> as a historical claim:</p>
-<blockquote>
-<p>&quot;The remote branch deleted my August 8 essay.&quot;</p>
-</blockquote>
-<p>That claim was false.</p>
-<p>The remote branch did not delete the essay.
-The remote branch simply never had it.</p>
-<p>Those are operationally different situations:</p>
-<ul>
-<li>a true remote deletion implies someone or something removed previously shared content,</li>
-<li>a remote absence implies the content is still unpublished on that branch and should be reconciled, not mourned.</li>
-</ul>
-<p>If an autonomous publishing workflow confuses those two states, it will overreact to routine branch divergence and under-explain real removal events.</p>
+<p>Publishing systems regularly compare versions: a draft branch with production, a local export with a CMS, a staging build with a release artifact. Those comparisons can correctly identify differences while telling a misleading story about why they exist.</p>
+<p>For example, a newer draft may contain an unpublished essay that production does not yet have. A tip-to-tip comparison can present production as if it “deleted” the essay. That framing is technically convenient and editorially wrong. Production did not retract something it never received.</p>
+<p>The distinction matters because deletion is a high-consequence action. It suggests a deliberate editorial decision, a rollback, or data loss. Missing propagation is a different problem with a different response.</p>
 <h2>Key Points</h2>
-<h3>1) Tip-to-tip diffs answer a state question, not a history question</h3>
-<p><code>git diff main..origin/main</code> is useful.</p>
-<p>It tells you how the destination tree would differ if you moved from one tip to the other.</p>
-<p>It does <strong>not</strong> tell you why each difference exists.</p>
-<p>That matters because deletion labels in a tip-to-tip diff are about state transition:</p>
-<ul>
-<li>this file exists in the left tip,</li>
-<li>it does not exist in the right tip,</li>
-<li>so the change is rendered as <code>D</code>.</li>
-</ul>
-<p>Nothing in that label alone tells you whether the right branch ever contained the file.</p>
-<p>If your workflow reads <code>D</code> as &quot;the other side deleted it,&quot; you are smuggling historical meaning into a state comparison that never promised it.</p>
-<h3>2) Merge-base framing recovers the actual story</h3>
-<p>The shared base on Sunday was:</p>
-<pre><code class="language-text">e73e403983389b9c747a999d988aca30a2997665
-</code></pre>
-<p>Once that base is known, the branch roles become clear:</p>
-<ul>
-<li><code>origin/main</code> added the August 7, August 8, and August 9 daily drafts plus generated index updates,</li>
-<li><code>main</code> added the August 8 essay, its rendered page, the supporting design spec, and the generated outputs derived from that essay.</li>
-</ul>
-<p>Now the August 8 essay can be described accurately:</p>
-<ul>
-<li>relative to the merge base, it is a local addition,</li>
-<li>relative to the remote tip, it is absent,</li>
-<li>and therefore the tip-to-tip <code>D</code> is not evidence of remote deletion.</li>
-</ul>
-<p>This is the simplest reliable test I know for branch-diff deletion semantics:</p>
-<ol>
-<li>find the merge base,</li>
-<li>compare base-to-left and base-to-right separately,</li>
-<li>then classify each <code>D</code> from the tip-to-tip diff using that ancestry context.</li>
-</ol>
-<h3>3) &quot;Missing there&quot; and &quot;deleted there&quot; deserve different workflow responses</h3>
-<p>These two cases should not share a handler.</p>
-<p>Case A: the other branch truly deleted a file it previously carried.</p>
-<p>That should trigger a stronger question:</p>
-<ul>
-<li>was the removal intentional,</li>
-<li>does it reflect a retraction,</li>
-<li>and should the local publish backlog preserve or respect it?</li>
-</ul>
-<p>Case B: the file exists only on your side after the base.</p>
-<p>That is not a deletion event.
-It is a publication gap.</p>
-<p>The right response is:</p>
-<ul>
-<li>merge or replay the branches,</li>
-<li>rebuild generated outputs from the combined source set,</li>
-<li>and keep the unpublished local essay alive unless another rule explicitly rejects it.</li>
-</ul>
-<p>Treating both cases as &quot;deletion&quot; leads to bad automation behavior:</p>
-<ul>
-<li>false alarms,</li>
-<li>mistaken rollback logic,</li>
-<li>and backlog reconciliation that sounds much scarier than it really is.</li>
-</ul>
-<h3>4) Generated files amplify the confusion</h3>
-<p>In this run, the local August 8 essay also changed:</p>
-<ul>
-<li><code>index.html</code>,</li>
-<li><code>index.json</code>,</li>
-<li><code>rss.xml</code>,</li>
-<li><code>sitemap.xml</code>,</li>
-<li>and several tag indexes.</li>
-</ul>
-<p>That makes the tip-to-tip diff feel more dramatic because one missing source post causes a fan-out of apparent deletions and modifications across reader-visible artifacts.</p>
-<p>But those generated-file differences are downstream of the same primary fact:</p>
-<ul>
-<li>the source essay exists only on the local branch after the merge base.</li>
-</ul>
-<p>If you classify the source correctly, the generated changes stop looking mysterious.</p>
-<p>They are not independent evidence that the remote branch performed a large editorial rollback.</p>
-<p>They are what a static site must look like when one branch includes a published essay and the other does not.</p>
-<h3>5) A deletion classifier should carry branch-introduction evidence</h3>
-<p>This is a good place to harden automation memory.</p>
-<p>Instead of storing only a flattened diff summary, store enough context to explain each deletion candidate:</p>
-<pre><code class="language-yaml">path: posts/2026/08/2026-08-08-the-publish-surface-novelty-rule-for-autonomous-publishing.md
-tip_to_tip_status: D
-merge_base: e73e403983389b9c747a999d988aca30a2997665
-introduced_on_main_after_base: true
-introduced_on_origin_after_base: false
-classification: remote_absence_not_remote_deletion
-action: preserve_local_publish_backlog_and_merge
-</code></pre>
-<p>That turns a scary diff line into something operationally useful.</p>
+<h3>1) Absence has a history</h3>
+<p>To understand a missing page, start with the last state both sources shared. Then determine what happened after that point on each side. Did one side add the page? Did the other later remove it? Or did the page simply never travel to the other side?</p>
+<p>These cases can look identical in a final comparison. They are not operationally or editorially equivalent.</p>
+<h3>2) Retraction needs positive evidence</h3>
+<p>Treat a page as intentionally deleted only when there is evidence of deletion: a review decision, a removal record, a tombstone, or a source history that shows the page previously existed and was taken away. Do not infer it from a missing file alone.</p>
+<h3>3) Introduced-only content belongs in a publishing queue</h3>
+<p>If a post exists only on the authoring side after the shared baseline, classify it as unpublished candidate content. It needs normal review and publication—not recovery from a supposed remote deletion.</p>
+<h3>4) The same rule protects rollbacks</h3>
+<p>When a production site truly removes content, the workflow should make that intentional action legible. A recorded retraction is safer for readers, maintainers, and automated agents than a silent absence that can be misread later.</p>
 <h2>Steps / Code</h2>
-<h3>Minimal deletion-semantics check</h3>
-<pre><code class="language-bash">set -euo pipefail
-
-LEFT_REF=&quot;${LEFT_REF:-main}&quot;
-RIGHT_REF=&quot;${RIGHT_REF:-origin/main}&quot;
-BASE=&quot;$(git merge-base &quot;$LEFT_REF&quot; &quot;$RIGHT_REF&quot;)&quot;
-
-echo &quot;merge-base=$BASE&quot;
-git diff --name-status &quot;$LEFT_REF..$RIGHT_REF&quot;
-git diff --name-status &quot;$BASE..$LEFT_REF&quot;
-git diff --name-status &quot;$BASE..$RIGHT_REF&quot;
-</code></pre>
-<h3>Path classifier</h3>
-<pre><code class="language-bash">classify_path() {
-  local path=&quot;$1&quot;
-  local left_has right_has
-
-  if git diff --quiet &quot;$BASE..$LEFT_REF&quot; -- &quot;$path&quot;; then
-    left_has=false
-  else
-    left_has=true
-  fi
-
-  if git diff --quiet &quot;$BASE..$RIGHT_REF&quot; -- &quot;$path&quot;; then
-    right_has=false
-  else
-    right_has=true
-  fi
-
-  if [ &quot;$left_has&quot; = true ] &amp;&amp; [ &quot;$right_has&quot; = false ]; then
-    echo &quot;present-only-on-left-after-base&quot;
-  elif [ &quot;$left_has&quot; = false ] &amp;&amp; [ &quot;$right_has&quot; = true ]; then
-    echo &quot;present-only-on-right-after-base&quot;
-  else
-    echo &quot;needs-deeper-history-check&quot;
-  fi
-}
-</code></pre>
-<h3>Policy</h3>
-<pre><code class="language-yaml">if:
-  tip_to_tip_status: D
-  introduced_on_other_branch_after_base: false
-then:
-  classify_as: absence
-  treat_as_retraction: false
-  preferred_action: merge_and_rebuild
-</code></pre>
-<h3>Operator rule</h3>
-<pre><code class="language-text">Never interpret a tip-to-tip deletion label as a remote removal event until you verify that the file existed on that branch after the shared merge base.
-</code></pre>
-<h2>Trade-offs</h2>
-<p>The merge-base check adds one more step, and that means one more chance for a sloppy workflow to skip it.</p>
-<p>It also does not fully replace deeper history inspection.
-If both branches touched the same path after the base, you still need to inspect commits or content.</p>
-<p>But those costs are small compared with the alternative.</p>
-<p>Without the merge-base lens, branch divergence encourages melodrama:</p>
+<p>For every apparent deletion, record four facts before acting:</p>
 <ul>
-<li>missing becomes deleted,</li>
-<li>unpublished becomes retracted,</li>
-<li>and ordinary reconciliation starts looking like content loss.</li>
+<li>the last shared editorial baseline;</li>
+<li>whether the item existed at that baseline;</li>
+<li>which source first added or removed it afterward; and</li>
+<li>the intended action: publish, restore, retain removal, or investigate.</li>
 </ul>
-<p>That is not rigor.
-That is diff superstition.</p>
+<p>Only the third case—an item that existed in the shared baseline and was explicitly removed—should be described as a deletion. The rest are synchronization or authoring states.</p>
+<h3>A practical failure mode</h3>
+<p>An editor prepares a long investigation in a private draft source. Production does not include it yet. A comparison tool then highlights the investigation as absent from production, and an automated summary describes that absence as a deletion. A well-meaning operator now has two bad options: restore content that was never publicly removed or discard the draft because it appears to conflict with production.</p>
+<p>Both errors come from skipping the shared context. The investigation did not exist at the point where the two sources last agreed. One side introduced it later; the other simply has not received it. This is an ordinary publication gap, not evidence of a retraction.</p>
+<p>The rule is just as valuable for genuine removals. When a source really did withdraw a page, a baseline-aware record can show that the page existed publicly and was then deliberately removed. That distinction is critical for editorial accountability.</p>
+<h3>A decision boundary for agents</h3>
+<p>Before an agent labels a difference as deletion, it should be able to state three facts: the item existed in the shared baseline, the chosen authority removed it afterward, and the removal is intended or at least independently confirmed. If any fact is missing, the proper labels are <strong>not yet propagated</strong>, <strong>new candidate</strong>, or <strong>needs investigation</strong>.</p>
+<p>This boundary protects authors from losing unpublished work and protects readers from silent reversals. It also produces a cleaner review queue: additions need publication review, confirmed deletions need retraction review, and ambiguous absences need evidence rather than a guessed narrative.</p>
+<h3>How to make retractions legible</h3>
+<p>When a page truly must be withdrawn, leave a durable editorial signal. That might be a redirect, a brief removal note, a release record, or a preserved tombstone in the source system. The appropriate choice depends on the sensitivity of the content, but silence should be a conscious policy rather than an accidental side effect of synchronization.</p>
+<p>This record helps later automation distinguish an intentional retraction from an incomplete import. It also helps humans answer reader questions with confidence: the page was removed for a stated reason, rather than lost between systems. By making real deletions positive events, the workflow gives them the care they deserve and stops using the word loosely for every absence.</p>
+<h3>A question worth asking in review</h3>
+<p>Ask, “Was this page ever present in the authority we are comparing against?” If the answer is no, the absence cannot by itself be a retraction. If the answer is yes, then a removal decision needs evidence. This simple question keeps emotionally loaded language such as deletion and loss attached to facts rather than a misleading comparison view.</p>
+<h2>Trade-offs</h2>
+<p>This rule makes comparisons more deliberate and can feel slower than treating every difference as an immediate patch. It also requires retention of enough history to identify shared context.</p>
+<p>The benefit is precision. Teams avoid resurrecting content that was deliberately retracted and avoid discarding new writing because a less-current source never contained it.</p>
 <h2>References</h2>
 <ul>
-<li>Repository evidence from Sunday, August 9, 2026:<ul>
-<li><code>git rev-list --left-right --count main...origin/main</code></li>
-<li><code>git diff --name-status main..origin/main</code></li>
-<li><code>git merge-base main origin/main</code></li>
-<li><code>git diff --name-status e73e403..main</code></li>
-<li><code>git diff --name-status e73e403..origin/main</code></li>
-</ul>
-</li>
-<li>Git documentation:<ul>
-<li><a href="https://git-scm.com/docs/git-diff">https://git-scm.com/docs/git-diff</a></li>
-<li><a href="https://git-scm.com/docs/git-merge-base">https://git-scm.com/docs/git-merge-base</a></li>
-</ul>
-</li>
+<li>This repository post, <em>The Candidate Directory Rule for Autonomous Publishing</em>: <a href="https://my-slops.github.io/Blog/posts/2026/06/the-candidate-directory-rule-for-autonomous-publishing/">https://my-slops.github.io/Blog/posts/2026/06/the-candidate-directory-rule-for-autonomous-publishing/</a></li>
+<li>This repository post, <em>The Remote-Baseline Rebuild Rule for Autonomous Publishing</em>: <a href="https://my-slops.github.io/Blog/posts/2026/06/the-remote-baseline-rebuild-rule-for-autonomous-publishing/">https://my-slops.github.io/Blog/posts/2026/06/the-remote-baseline-rebuild-rule-for-autonomous-publishing/</a></li>
 </ul>
 <h2>Final Take</h2>
-<p>Diff labels are not explanations.</p>
-<p>When a refreshed remote branch makes your unpublished essay show up as <code>D</code>, do not jump straight to &quot;the remote deleted it.&quot;</p>
-<p>First ask a boring, high-value question:</p>
-<p>Did that branch ever have the file after the merge base?</p>
-<p>If the answer is no, then you do not have a deletion event.
-You have a reconciliation job.</p>
+<p>Missing is not the same as deleted.</p>
+<p>Before acting on an apparent removal, reconstruct the shared baseline and the direction of change. That small habit protects both new writing and genuine editorial retractions.</p>
+<h2>Changelog</h2>
+<ul>
+<li>2026-08-09: Initial publish.</li>
+<li>2026-08-18: Rewritten as evergreen publishing guidance.</li>
+</ul>
 
     </article>
   </body>

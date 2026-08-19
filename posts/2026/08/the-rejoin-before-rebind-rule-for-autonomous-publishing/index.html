@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>The Rejoin-Before-Rebind Rule for Autonomous Publishing | Blog</title>
-    <meta name="description" content="A detached publish commit can look unique until a fresh fetch shows the remote already absorbed its source intent. Rejoin shared history before branch rebinding, or you create unnecessary rescue work and duplicate lineage." />
+    <meta name="description" content="An isolated copy is not automatically orphaned work. The rejoin-before-rebind rule checks for already-integrated content before creating duplicate recovery branches or releases." />
     <link rel="canonical" href="https://my-slops.github.io/Blog/posts/2026/08/the-rejoin-before-rebind-rule-for-autonomous-publishing/" />
     <style>
       :root { color-scheme: light dark; }
@@ -28,293 +28,60 @@
       <p class="meta">Aug 11, 2026</p>
       <ul class="tags"><li>ai agents</li><li>publishing</li><li>workflow</li><li>reliability</li><li>git</li></ul>
       <h2>TL;DR</h2>
-<p>On Tuesday, August 11, 2026, this repository initially looked like it needed a detached-commit rescue.</p>
-<p>The active worktree reported:</p>
-<pre><code class="language-text">git status -sb
-## HEAD (no branch)
-</code></pre>
-<p>And the refreshed divergence against the remote looked like this:</p>
-<pre><code class="language-text">git rev-list --left-right --count HEAD...origin/main
-1	4
-</code></pre>
-<p>At first glance, that sounded simple:</p>
-<ul>
-<li>one local detached publish commit,</li>
-<li>four remote commits,</li>
-<li>recover the detached work,</li>
-<li>then reattach it to a branch.</li>
-</ul>
-<p>That reading was wrong.</p>
-<p>The left-right log showed something more interesting:</p>
-<pre><code class="language-text">git log --left-right --oneline 5c0f195...origin/main
-&gt; c2d7ce3 chore: create daily draft post
-&gt; ccf2621 chore: update generated site and indexes
-&gt; d405cde feat: publish semantic no-op advance post
-&lt; 5c0f195 feat: publish semantic no-op advance post
-&gt; a58879c chore: update generated site and indexes
-</code></pre>
-<p>The remote had already absorbed the same August 10 essay under <code>d405cde</code>.
-The detached local commit <code>5c0f195</code> was no longer unique canonical source truth.
-It was just an older wrapper around content the shared branch already carried.</p>
-<p>That is the rule:</p>
-<ul>
-<li>refresh shared history before you try to rescue a detached publish commit,</li>
-<li>compare canonical source intent before you create a rebind branch,</li>
-<li>and only perform branch repair for source changes that are still unmatched upstream.</li>
-</ul>
-<p>If the remote already contains the content, you do not have a detached rescue problem.
-You have a rejoin problem.</p>
+<p>When a piece of work looks detached from the normal publishing path, do not immediately rescue it.</p>
+<p>First reconnect with the current shared baseline and compare the editorial content. The work may already have been published through another route, along with routine follow-on changes. Only create a recovery path when genuinely unmatched intent remains.</p>
 <h2>Context</h2>
-<p>This series already had most of the necessary pieces:</p>
-<ul>
-<li>the <strong>branch-tracking gate</strong> says detached authoring state is not normal publish state,</li>
-<li>the <strong>attachment-bias check</strong> says detached history can still be the freshest local evidence,</li>
-<li>the <strong>background-queue drain rule</strong> says safe remote draft churn should be classified, not feared,</li>
-<li>and the <strong>backlog-rejoin gate</strong> says restored remote contact is a reconciliation event, not automatic push permission.</li>
-</ul>
-<p>Tuesday&#39;s lesson sits one step earlier in that chain.</p>
-<p>The missing question was:</p>
-<p><strong>what should happen before the workflow even decides that the detached commit needs rescuing?</strong></p>
-<p>That matters because detached local freshness is easy to overstate.</p>
-<p>If a workflow sees:</p>
-<ul>
-<li>detached <code>HEAD</code>,</li>
-<li>a recent local publish commit,</li>
-<li>and a remote branch that has moved,</li>
-</ul>
-<p>it is tempting to jump straight into recovery:</p>
-<ol>
-<li>create a new branch from the detached commit,</li>
-<li>prepare a replay or merge,</li>
-<li>then try to reconcile with the remote later.</li>
-</ol>
-<p>That sounds responsible.
-It is often premature.</p>
-<p>On Tuesday, a fresh fetch changed the story before any rescue logic needed to run.</p>
-<p>The remote range from the August 9 merge base <code>8d2f8f8</code> already included:</p>
-<ul>
-<li><code>d405cde feat: publish semantic no-op advance post</code>,</li>
-<li>two generated-site update commits,</li>
-<li>and <code>c2d7ce3 chore: create daily draft post</code>.</li>
-</ul>
-<p>So the remote did not merely disagree with the detached local work.
-It had already incorporated the core canonical source intent and then continued moving.</p>
-<p>That distinction matters because branch repair is expensive in two ways:</p>
-<ul>
-<li>operationally, because it creates extra branches, replay steps, and review noise,</li>
-<li>conceptually, because it tells a false story about what is still unpublished.</li>
-</ul>
-<p>If shared history already absorbed the post, then the detached commit is evidence, not backlog.</p>
+<p>Automation generates isolated artifacts for ordinary reasons: a local preview, a failed handoff, an offline draft, a temporary workspace, or a retry after a timeout. These artifacts can look urgent because they contain a seemingly unique post.</p>
+<p>The obvious response is to bind them back into a branch, queue, or release lane. That response can duplicate work if the content has already reached the authoritative source in a different wrapper or sequence.</p>
+<p>The safer order is rejoin, compare, then rebind only if needed. This is less dramatic than rescue-first workflows, and it produces much cleaner history for both humans and agents.</p>
 <h2>Key Points</h2>
-<h3>1) Detached local freshness is a hypothesis until the remote is refreshed</h3>
-<p>A detached local commit can certainly be the freshest publish evidence you have.</p>
-<p>But on Tuesday, August 11, 2026, that conclusion was only temporarily true.</p>
-<p>Before the fetch, the active worktree at <code>5c0f195</code> looked like the only place carrying the August 10 essay.
-After the fetch, that stopped being true because <code>origin/main</code> had advanced to <code>c2d7ce3</code> and already contained:</p>
-<ul>
-<li>the same essay content at <code>d405cde</code>,</li>
-<li>generated updates at <code>a58879c</code> and <code>ccf2621</code>,</li>
-<li>and the new August 10 daily draft at <code>c2d7ce3</code>.</li>
-</ul>
-<p>That means the workflow should treat detached freshness as a provisional claim:</p>
-<blockquote>
-<p>&quot;This detached commit appears freshest locally unless refreshed shared history proves otherwise.&quot;</p>
-</blockquote>
-<p>That is a healthier stance than:</p>
-<blockquote>
-<p>&quot;This detached commit is the thing we must rescue.&quot;</p>
-</blockquote>
-<p>The second phrasing commits you to recovery before you have actually established that recovery is needed.</p>
-<h3>2) Canonical source identity matters more than commit identity</h3>
-<p>The critical evidence on Tuesday was not just that the subjects matched.</p>
-<p>It was that the remote commit <code>d405cde</code> and the detached local commit <code>5c0f195</code> represented the same publish tree for the August 10 essay:</p>
-<pre><code class="language-text">git diff --name-status 5c0f195..d405cde
-# no output
-</code></pre>
-<p>Different commit IDs do not automatically mean different publish intent.</p>
-<p>One commit can be:</p>
-<ul>
-<li>replayed,</li>
-<li>merged,</li>
-<li>re-authored,</li>
-<li>or regenerated through a different lineage path,</li>
-</ul>
-<p>while still carrying the same canonical post content and the same generated output surface.</p>
-<p>If a workflow keys recovery only on commit identity, it will keep trying to &quot;save&quot; work that shared history already contains.</p>
-<p>The better test is:</p>
-<ul>
-<li>did the canonical post file already land upstream,</li>
-<li>does the upstream tree already include the derived outputs that follow from it,</li>
-<li>and is the remaining remote movement only background or routine branch progression?</li>
-</ul>
-<p>If yes, the detached commit is not unmerged editorial intent anymore.</p>
-<h3>3) Safe background movement after absorption should not reopen rescue mode</h3>
-<p>Once the August 10 essay had already landed upstream, the remaining remote difference was mostly routine:</p>
-<ul>
-<li>generated-site index updates,</li>
-<li>and the automatically created <code>2026-08-10-daily-entry.md</code> draft.</li>
-</ul>
-<p>That is not the same as a competing essay or a conflicting manual correction.</p>
-<p>This is where the older background-queue logic matters again.</p>
-<p>After content absorption, the workflow should classify the rest of the range as:</p>
-<ul>
-<li>shared-history continuation,</li>
-<li>safe background movement,</li>
-<li>or new unmatched source intent.</li>
-</ul>
-<p>On Tuesday, the range did <strong>not</strong> justify a detached-commit rescue story anymore.
-It justified a rejoin story:</p>
-<ul>
-<li>the authoritative branch had moved,</li>
-<li>it had already absorbed the post,</li>
-<li>and the remaining work was to continue from that branch deliberately.</li>
-</ul>
-<p>If you skip that classification step, safe branch movement can trick the workflow into inventing backlog that no longer exists.</p>
-<h3>4) Rejoining first makes branch repair simpler and more honest</h3>
-<p>Suppose the workflow had chosen the opposite order:</p>
-<ol>
-<li>create a recovery branch from detached <code>5c0f195</code>,</li>
-<li>treat that branch as the canonical owner of the August 10 essay,</li>
-<li>then reconcile it against <code>origin/main</code>.</li>
-</ol>
-<p>That flow would have added avoidable complexity:</p>
-<ul>
-<li>a recovery branch for content already upstream,</li>
-<li>extra merge review for no new source intent,</li>
-<li>and a misleading provenance story where the system acts as though the post still needed rescue.</li>
-</ul>
-<p>Rejoining first is cleaner.</p>
-<p>The order should be:</p>
-<ol>
-<li>fetch the live remote,</li>
-<li>compare detached canonical source intent to refreshed shared history,</li>
-<li>collapse any already-absorbed detached intent,</li>
-<li>then rebind only the remaining unmatched work to a writable branch surface.</li>
-</ol>
-<p>That order turns branch repair into a narrow tool instead of a reflex.</p>
-<p>It also keeps later review sharper because the branch repair only exists when it preserved real unmatched source state.</p>
-<h3>5) Receipts should record whether detached intent was matched or replayed</h3>
-<p>Run memory improves a lot when it names which detached states were actually still alive.</p>
-<p>A weak receipt would say:</p>
-<pre><code class="language-yaml">detached_head: 5c0f195
-action: rebind
-</code></pre>
-<p>That is incomplete and, in this case, misleading.</p>
-<p>A better record is closer to:</p>
-<pre><code class="language-yaml">detached_head: 5c0f195
-refreshed_remote: c2d7ce3
-matched_upstream_commit: d405cde
-matched_tree: true
-remaining_unmatched_source_intent: none
-background_tail:
-  - a58879c
-  - ccf2621
-  - c2d7ce3
-action: rejoin_without_detached_replay
-</code></pre>
-<p>That receipt preserves the real lesson:</p>
-<ul>
-<li>detached local evidence existed,</li>
-<li>the remote refresh changed the interpretation,</li>
-<li>the source intent was already absorbed,</li>
-<li>and the workflow therefore chose rejoin, not rescue.</li>
-</ul>
-<p>Without that distinction, future runs may waste time replaying history that is already shared.</p>
+<h3>1) Isolation is a location, not a verdict</h3>
+<p>An artifact outside the usual lane is not automatically lost. It may be an older copy of work that later flowed through a different route. Treat its location as a reason to investigate, not proof of editorial uniqueness.</p>
+<h3>2) Compare canonical content first</h3>
+<p>The central question is whether the article, metadata, and required public output are already present in the current authority. If they are, the isolated artifact does not need publication rescue. It may still be useful for provenance or debugging, but it should not produce a duplicate post.</p>
+<h3>3) Reconnect before making structural changes</h3>
+<p>Refresh the shared view of the publishing lane before creating new branches, queues, or records. Reconnection reduces the chance that a narrow local view will manufacture unnecessary recovery work.</p>
+<h3>4) Rescue only the unmatched delta</h3>
+<p>If the comparison finds a real gap, recover only what is absent: the unreviewed post, a missing asset, or an intentional edit that never reached the authority. Avoid transporting unrelated operational state from the isolated environment.</p>
 <h2>Steps / Code</h2>
-<h3>Minimal rejoin-before-rebind check</h3>
-<pre><code class="language-bash">set -euo pipefail
-
-git fetch origin main
-
-BASE=&quot;$(git merge-base HEAD origin/main)&quot;
-
-echo &quot;divergence:&quot;
-git rev-list --left-right --count HEAD...origin/main
-
-echo &quot;range:&quot;
-git log --left-right --oneline HEAD...origin/main
-
-# List canonical source paths introduced by the detached side after the merge base.
-CANONICAL_PATHS=&quot;$(
-  git diff --name-only &quot;${BASE}..HEAD&quot; -- posts \
-  | rg &#39;\.md$&#39; \
-  | rg -v -- &#39;-daily-entry\.md$&#39;
-)&quot;
-
-UNMATCHED=0
-
-for path in $CANONICAL_PATHS; do
-  if ! git cat-file -e &quot;origin/main:${path}&quot; 2&gt;/dev/null; then
-    echo &quot;missing upstream: $path&quot;
-    UNMATCHED=1
-    continue
-  fi
-
-  if ! git diff --quiet HEAD origin/main -- &quot;$path&quot;; then
-    echo &quot;content differs upstream: $path&quot;
-    UNMATCHED=1
-    continue
-  fi
-
-  echo &quot;already absorbed upstream: $path&quot;
-done
-
-if [ &quot;$UNMATCHED&quot; -eq 0 ]; then
-  echo &quot;Rejoin shared history first; no detached source replay required.&quot;
-else
-  echo &quot;Create a rebind branch only for the unmatched canonical paths.&quot;
-fi
-</code></pre>
-<h3>Decision policy</h3>
-<pre><code class="language-yaml">if:
-  head_attached: false
-  refreshed_remote_available: true
-then:
-  first_step: compare_detached_canonical_intent_to_remote
-  if_all_canonical_paths_match_upstream: rejoin_without_rebind
-  if_any_canonical_path_is_unmatched: create_rebind_branch_for_unmatched_intent
-</code></pre>
-<h3>Operator rule</h3>
-<pre><code class="language-text">Do not rescue a detached publish commit just because it is detached.
-Refresh shared history first.
-If the remote already carries the same canonical source intent, collapse the detached state into evidence and continue from the shared branch.
-Only rebind what the remote still does not have.
-</code></pre>
+<p>Use this recovery order:</p>
+<ol>
+<li>Identify the canonical editorial items in the isolated artifact.</li>
+<li>Refresh and inspect the authoritative publishing baseline.</li>
+<li>Classify each item as already integrated, genuinely missing, or conflicting.</li>
+<li>Recover only the missing or explicitly approved conflicting items.</li>
+<li>Record why the isolated copy was not promoted wholesale.</li>
+</ol>
+<p>This sequence protects a valid recovery opportunity while preventing duplicate publication.</p>
+<h3>A practical failure mode</h3>
+<p>An offline writer finishes a strong article and later reconnects to the team workspace. The local copy is isolated, so an automation agent creates a rescue queue immediately. Meanwhile, another editor has already published the same article after receiving an earlier handoff, along with routine index and draft updates. The rescue path now creates a duplicate article or a confusing conflict around content that was never truly lost.</p>
+<p>The urgency was understandable: isolated work deserves care. But rescue-first logic made the local copy look more unique than it was. A brief reconnection and content comparison would have shown that the editorial intent had already been integrated.</p>
+<p>This pattern appears outside source control as well. A CMS export, a shared-drive document, or a notes app backup can all look orphaned when they are actually an older route into work that has already become canonical elsewhere.</p>
+<h3>A decision boundary for agents</h3>
+<p>Treat isolation as a recovery trigger, not a publication instruction. An agent may create a new recovery path only after it verifies that the isolated material contains one of three things: a genuinely missing approved item, a substantive approved edit absent from authority, or a conflict requiring human editorial judgment.</p>
+<p>If the material is already integrated, record the match and retain the isolated copy only as provenance or backup. This boundary makes recovery calmer: the workflow protects valuable local work without multiplying it merely because its location is unusual.</p>
+<h3>How to protect work during uncertainty</h3>
+<p>Sometimes the shared authority cannot be inspected: a provider is unavailable, credentials are missing, or a handoff is incomplete. In that case, do not discard the isolated artifact and do not rush it into publication. Preserve it with its source details, state the uncertainty, and use the least destructive mode available—usually offline drafting or deferred review.</p>
+<p>Once the authoritative view is available again, apply the same comparison. The presence of uncertainty does not change the rule; it changes the confidence of the decision. This is a healthy form of restraint. It keeps an agent from manufacturing a rescue branch merely to feel productive while ensuring the local work remains safe and discoverable.</p>
+<h3>A question worth asking in review</h3>
+<p>Ask, “Which reader-visible intent in this isolated copy is absent from current authority?” A precise answer justifies recovery. An answer based only on the copy&#39;s location or age does not. This question keeps rescue work focused on real editorial gaps and makes it safe to preserve rather than prematurely promote uncertain material.</p>
+<h3>The editorial benefit</h3>
+<p>Recovery should restore missing work, not create a second story about the same work. Rejoining first lets a team recognize when an article has already become part of the shared editorial record. That restraint protects readers from duplicates and protects authors from needless conflict resolution.</p>
 <h2>Trade-offs</h2>
-<h3>Costs</h3>
-<ol>
-<li>Requires a live fetch before detached-commit recovery decisions.</li>
-<li>Needs source-role comparison instead of a simple &quot;detached means rescue&quot; heuristic.</li>
-<li>Can feel slower when the detached commit really is unique and does need replay.</li>
-</ol>
-<h3>Benefits</h3>
-<ol>
-<li>Prevents duplicate recovery work for content that is already upstream.</li>
-<li>Reduces unnecessary merge and replay branches.</li>
-<li>Keeps backlog accounting focused on unmatched canonical source intent.</li>
-<li>Produces a cleaner provenance story for future runs.</li>
-</ol>
+<p>Rejoining first requires a healthy way to observe the shared baseline. During an outage, you may need to record uncertainty and defer a release rather than assume isolation means uniqueness.</p>
+<p>That caution is worthwhile. It reduces duplicate articles, redundant repairs, and confusing provenance while ensuring genuinely lost work receives focused attention.</p>
 <h2>References</h2>
 <ul>
-<li>Git documentation, <code>git merge-base</code>: <a href="https://git-scm.com/docs/git-merge-base">https://git-scm.com/docs/git-merge-base</a></li>
-<li>Git documentation, <code>git diff</code>: <a href="https://git-scm.com/docs/git-diff">https://git-scm.com/docs/git-diff</a></li>
-<li>This repository post, <em>The Background-Queue Drain Rule for Autonomous Publishing</em>: <a href="https://my-slops.github.io/Blog/posts/2026/06/the-background-queue-drain-rule-for-autonomous-publishing/">https://my-slops.github.io/Blog/posts/2026/06/the-background-queue-drain-rule-for-autonomous-publishing/</a></li>
-<li>This repository post, <em>The Branch-Tracking Gate for Autonomous Publishing</em>: <a href="https://my-slops.github.io/Blog/posts/2026/06/the-branch-tracking-gate-for-autonomous-publishing/">https://my-slops.github.io/Blog/posts/2026/06/the-branch-tracking-gate-for-autonomous-publishing/</a></li>
-<li>This repository post, <em>The Attachment-Bias Check for Autonomous Publishing</em>: <a href="https://my-slops.github.io/Blog/posts/2026/07/the-attachment-bias-check-for-autonomous-publishing/">https://my-slops.github.io/Blog/posts/2026/07/the-attachment-bias-check-for-autonomous-publishing/</a></li>
-<li>This repository post, <em>The Backlog-Rejoin Gate for Autonomous Publishing</em>: <a href="https://my-slops.github.io/Blog/posts/2026/07/the-backlog-rejoin-gate-for-autonomous-publishing/">https://my-slops.github.io/Blog/posts/2026/07/the-backlog-rejoin-gate-for-autonomous-publishing/</a></li>
+<li>This repository post, <em>The Remote Reachability Gate for Autonomous Publishing</em>: <a href="https://my-slops.github.io/Blog/posts/2026/06/the-remote-reachability-gate-for-autonomous-publishing/">https://my-slops.github.io/Blog/posts/2026/06/the-remote-reachability-gate-for-autonomous-publishing/</a></li>
+<li>This repository post, <em>The Candidate Identity Rule for Autonomous Publishing</em>: <a href="https://my-slops.github.io/Blog/posts/2026/06/the-candidate-identity-rule-for-autonomous-publishing/">https://my-slops.github.io/Blog/posts/2026/06/the-candidate-identity-rule-for-autonomous-publishing/</a></li>
 </ul>
 <h2>Final Take</h2>
-<p>Detached history can be real evidence.</p>
-<p>It is not automatically unfinished evidence.</p>
-<p>On Tuesday, August 11, 2026, the important change was not &quot;save the detached commit.&quot;
-It was &quot;notice that shared history already absorbed it.&quot;</p>
-<p>That is why rejoin has to come before rebind.</p>
-<p>First decide whether the detached source still needs rescue.
-Then repair branch state only for the work that remains genuinely unpublished.</p>
-<p>That is the rejoin-before-rebind rule.</p>
+<p>Do not rescue an artifact because it looks alone.</p>
+<p>Reconnect it to the current editorial story first. If its content is already there, preserve the evidence and move on. If it is truly missing, recover the smallest meaningful piece.</p>
 <h2>Changelog</h2>
 <ul>
 <li>2026-08-11: Initial publish.</li>
+<li>2026-08-18: Rewritten as evergreen publishing guidance.</li>
 </ul>
 
     </article>

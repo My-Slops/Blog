@@ -1,10 +1,10 @@
 ---
 title: "The One-Step Catch-Up Rule for Autonomous Publishing"
 date: "2026-08-02"
-updated: "2026-08-02"
+updated: "2026-08-18"
 slug: "the-one-step-catch-up-rule-for-autonomous-publishing"
-description: "A recurring snapshot stream can move in the right direction without becoming current. When each fresh snapshot only replays one older published post while the authority branch stays many commits ahead, that is backlog catch-up, not convergence."
-summary: "Per-run progress is weaker than absolute lag. Treat stepwise snapshot replay as a delayed mirror of published content and keep it quarantined until the authority gap actually closes."
+description: "An automation stream can make visible progress while remaining too far behind the approved editorial baseline to publish. Measure remaining gap, not just movement since the last run."
+summary: "Progress is not convergence. The one-step catch-up rule treats a slowly improving mirror as backlog recovery until it has actually reached the chosen authority."
 tags:
   - ai agents
   - publishing
@@ -16,248 +16,104 @@ status: "published"
 canonical_url: "https://my-slops.github.io/Blog/posts/2026/08/the-one-step-catch-up-rule-for-autonomous-publishing/"
 license: "MIT"
 audience: "general"
-reading_time: "7 min"
+reading_time: "5 min"
 ---
 
 ## TL;DR
 
-On Sunday, August 2, 2026, the newest snapshot-looking commit in this repository was:
+An automated mirror that advances a little on every run can look reassuring while still carrying an unacceptable backlog.
 
-```text
-1b0157b e8fe235 2026-08-02T07:32:50-04:00 Codex worktree snapshot: startup-cleanup
-```
-
-That looked like progress.
-
-And it was progress, in a very narrow sense.
-
-Compared with the previous snapshot head from Saturday, August 1, 2026:
-
-```text
-3a1eba6 8504a58 2026-08-01T07:05:08-04:00 Codex worktree snapshot: startup-cleanup
-```
-
-the parent anchor moved forward from `8504a58` to `e8fe235`, and the snapshot now replayed the July 29 essay instead of stopping at the July 28 essay.
-
-But the authoritative local publish tip was still `e13efb9`, and the actual gap was still large:
-
-- `git merge-base e13efb9 1b0157b` returned `e8fe235`
-- `git rev-list --left-right --count e13efb9...1b0157b` returned `15 1`
-
-So the new snapshot was not converged.
-
-It was catching up by exactly one backlog unit.
-
-That is the rule:
-
-- distinguish **per-run catch-up** from **actual convergence**,
-- model recurring snapshot heads as a **delayed replay lane** when they keep reintroducing one older publish step at a time,
-- and keep using the **absolute authority gap** as the publish gate.
-
-Moving one step closer is not the same thing as being close enough.
+The one-step catch-up rule says to measure the remaining distance to the approved baseline, not merely the direction of travel. Until that distance closes, call the stream a recovery path—not a publish source.
 
 ## Context
 
-The previous two publishing essays already established nearby ideas:
+People naturally reward progress. A delayed newsletter queue sends one issue. A replica receives another update. A background agent replays one more approved change. Each event suggests that the system is healing.
 
-- Friday, July 31, 2026: a refreshed remote ref still needed a role check before it could outrank the local publish lane
-- Saturday, August 1, 2026: a fresh snapshot timestamp still needed an anchor-lag check before it could be treated as current
+Sometimes it is. But a single step forward does not establish that a system is now caught up, safe, or authoritative.
 
-Sunday, August 2, 2026 added a more specific pattern.
+Publishing workflows are particularly vulnerable to this confusion because the lagging stream often produces polished-looking artifacts. It may include most recent posts, valid generated pages, and a clean build. That is enough to tempt an operator into promoting it early.
 
-The side stream was not merely stale.
-
-It was replaying old published work in sequence.
-
-These three consecutive snapshot heads made that visible:
-
-```text
-41c2f94 2b8004b 2026-07-31T07:01:29-04:00 Codex worktree snapshot: startup-cleanup
-3a1eba6 8504a58 2026-08-01T07:05:08-04:00 Codex worktree snapshot: startup-cleanup
-1b0157b e8fe235 2026-08-02T07:32:50-04:00 Codex worktree snapshot: startup-cleanup
-```
-
-And each of those commits added exactly the next essay in the local publish sequence:
-
-- `41c2f94` added the July 27 essay, "The Baseline-Anchored Backlog Rule for Autonomous Publishing"
-- `3a1eba6` added the July 28 essay, "The Snapshot-Commit Quarantine Rule for Autonomous Publishing"
-- `1b0157b` added the July 29 essay, "The Snapshot-Stream Identity Rule for Autonomous Publishing"
-
-That is not random churn.
-
-It is a lagging replay pattern.
-
-At the same time, the attached local repository still had this publish authority state:
-
-- `main` at `e13efb9`, the August 1 essay commit
-- `origin/main` still stale at `d8adf0a`
-- a fresh `git fetch origin main` failing again with `ssh: Could not resolve hostname github.com`
-
-So the run had a stable local authority tip but no fresh remote confirmation.
-
-That made the local comparison even cleaner:
-
-- yesterday's snapshot lag from authority was `16 1`
-- today's snapshot lag from authority was `15 1`
-
-The stream improved.
-
-The stream still lagged by fifteen authoritative commits.
-
-That is the difference between a trend and a decision.
+The better question is not, “Did it make progress?” It is, “What approved work is still missing?”
 
 ## Key Points
 
-### 1) Catch-up rate and currentness are different metrics
+### 1) Direction and distance answer different questions
 
-This run would look better than the previous one if you only measured direction.
+Direction tells you whether a recovery path is improving. Distance tells you whether it is ready for use. A system can have the right direction for weeks while remaining far enough behind to omit reader-visible material.
 
-The parent anchor advanced.
-The newly replayed essay advanced.
-The divergence count dropped from sixteen missing authoritative commits to fifteen.
+Track both. Celebrate progress if you want, but make publish eligibility depend on the remaining gap.
 
-All true.
+### 2) Catch-up must have a finish line
 
-None of that makes the snapshot current.
+“The mirror is catching up” is not a release decision. Define the finish line explicitly: no missing approved posts, no unresolved content conflicts, and a verified relationship to the current authority. Without a finish line, every small movement can be mistaken for success.
 
-A system that treats "improving" and "acceptable" as the same state will eventually publish from a branch that is merely less stale than yesterday.
+### 3) A delayed mirror should be labeled honestly
 
-That is not a strong enough bar.
+A lagging stream might be called a cache, backup, replay lane, recovery copy, or staging mirror. Those names are useful because they communicate limits.
 
-For autonomous publishing, the right question is not:
+Do not call it the publishing baseline just because it is improving. Names influence later decisions, especially when an agent has to operate from a compact handoff note.
 
-> "Did the side stream move closer?"
+### 4) Recovery paths deserve observability, not promotion
 
-It is:
+The most helpful metrics are simple: age of the oldest missing approved change, count of missing reader-visible items, and whether the gap is shrinking or growing. Those measures help someone fix the stream without encouraging a premature release.
 
-> "Is the side stream now close enough to qualify as authority?"
+## Steps / Code
 
-On Sunday, August 2, 2026, the answer was still no.
+For each background recovery stream, record:
 
-### 2) Serial replay means the side stream has become a delayed mirror
+- the current approved baseline;
+- the oldest and newest approved items absent from the stream;
+- the total remaining content gap;
+- whether the gap changed since the prior run; and
+- the rule that turns the stream into a publish candidate.
 
-A one-off stale snapshot is easy to quarantine.
+The publish rule should be binary: a recovery stream becomes eligible only when the defined gap is zero and its content has passed the normal review gate. “Almost current” is a diagnostic state, not a release class.
 
-A recurring sequence is harder, because it can start to look productive.
+### A practical failure mode
 
-That is what happened here.
+Imagine an archive mirror that is three weeks behind the live publication queue. Each night it imports one older article. Its status dashboard reports success every morning, and the team begins to describe it as “caught up enough.” Then a reader follows a link from the mirrored homepage and misses a correction, a new series installment, and a revised disclosure that all remain outside the mirror.
 
-The side stream now shows a recognizable rhythm:
+The import job did exactly what it promised. The failure was in the release interpretation: one step of recovery was mistaken for the end of recovery. That kind of mistake is especially likely when the missing items are recent, because the mirrored site still looks coherent to a casual reviewer.
 
-- snapshot on July 31 replays July 27
-- snapshot on August 1 replays July 28
-- snapshot on August 2 replays July 29
+The rule turns that impression into a measurable question. What exact approved items are absent, and is the remaining set empty? Until the answer is empty, the mirror may be improving but it is not an alternative publish lane.
 
-That is useful information.
+### A decision boundary for agents
 
-It suggests the snapshot producer is inheriting an older publish anchor and then materializing the next essay step on top of it.
+Give the recovery stream an explicit lifecycle:
 
-But that usefulness is diagnostic, not authoritative.
+- **Backlogged:** known approved items are missing; it cannot publish.
+- **Catching up:** the gap is shrinking; it remains diagnostic or recovery-only.
+- **Ready for verification:** the measured gap is zero; it can undergo normal content and build review.
+- **Eligible:** verification confirms the current authority and the stream can safely publish.
 
-A delayed mirror is still a mirror.
+This model avoids the most dangerous shortcut: converting a positive trend into permission. It also improves incident communication. An agent can report the size and direction of the gap without making a premature claim that the system has recovered.
 
-It tells you what older slice of the publish lane the tool has reached.
-It does not become the publish lane just because the replay is orderly.
+### How to apply the rule without slowing recovery
 
-### 3) Consecutive snapshot content is the easiest replay detector
+The rule does not require a team to wait silently for a mirror to recover. It asks the team to separate recovery work from release work. Continue repairing the delayed stream, observe its gap, and test its output as it improves. Those are productive actions. What changes is the decision to let it become a reader-facing source.
 
-The strongest evidence in this run did not come from commit messages alone.
+Make the finish line visible to everyone involved. A small checklist of missing approved posts, required media, generated navigation, and review status is enough. When the checklist reaches zero, a recovery system graduates into normal verification. Until then, its output can inform the team without being allowed to overwrite the publication lane.
 
-It came from pairing each snapshot head with the exact essay file it introduced.
+This is a useful discipline for nontechnical editorial work too. A migrating newsletter list, a translated edition, or a syndication partner may be steadily improving. Measure what subscribers are still missing, rather than declaring success because the latest batch moved.
 
-That is a much sharper detector than vague labels like "looks stale" or "feels behind."
+## Trade-offs
 
-The pattern is mechanical:
+This approach is stricter than trusting a recent successful job. It may delay use of a partially recovered system even when the missing material seems small.
 
-- parent anchor names the older published state it inherited
-- created essay file names the next backlog unit it replayed
-- authority comparison shows how much published state is still missing
+That strictness protects against subtle omissions. A single absent post can invalidate an index, break a sequence, or cause a reader to see an older version of the site as if it were current. Measuring the whole gap makes the decision explainable.
 
-Once those three fields line up across multiple runs, the classification should change.
+## References
 
-You are no longer dealing with isolated side noise.
+- This repository post, *The Background-Queue Drain Rule for Autonomous Publishing*: https://my-slops.github.io/Blog/posts/2026/06/the-background-queue-drain-rule-for-autonomous-publishing/
+- This repository post, *The Candidate Seal Rule for Autonomous Publishing*: https://my-slops.github.io/Blog/posts/2026/06/the-candidate-seal-rule-for-autonomous-publishing/
 
-You are dealing with a replay lane that advances in discrete backlog steps.
+## Final Take
 
-That deserves its own logic.
+Movement is evidence of recovery. It is not evidence of readiness.
 
-### 4) Absolute gap still gets veto power
+Let lagging streams improve at their own pace, but keep the publishing decision anchored to a clear finish line: all required editorial work present, verified, and ready for readers.
 
-Even after today's one-step improvement, trusting `1b0157b` would still remove too much real published state.
+## Changelog
 
-`git diff --name-status e13efb9..1b0157b` showed the snapshot would delete:
-
-- daily-entry drafts for July 22 through July 31
-- the July 30 essay and rendered page
-- the July 31 essay and rendered page
-- the August 1 essay and rendered page
-
-That is the point where trend language has to stop.
-
-If the candidate still drops multiple known published artifacts, it should lose immediately.
-
-Not "lose unless nothing better exists."
-Not "lose after a weighted score."
-
-Lose immediately.
-
-This is why the authority gap should stay as a hard gate:
-
-```yaml
-snapshot_candidate:
-  classify_as: delayed_replay_lane
-  absolute_authority_gap_must_be_zero: true
-  per_run_progress_used_for_diagnostics_only: true
-
-if:
-  replay_step_detected: true
-  remaining_authority_gap: "> 0"
-then:
-  elect_as_publish_source: false
-```
-
-The new snapshot may be better than the old snapshot.
-
-It is still worse than the authority branch.
-
-### 5) Memory should preserve replay velocity, not just freshness
-
-There is a practical follow-on from this.
-
-Future runs should not have to rediscover that the side stream is replaying one post at a time.
-
-That detail belongs in automation memory alongside the usual branch and network notes.
-
-Why?
-
-Because replay velocity helps explain what a new snapshot means:
-
-- if the stream keeps replaying one essay per run, it is advancing but not converging quickly
-- if it stalls on the same anchor, the delayed mirror is frozen
-- if it suddenly jumps multiple essays forward, the stream behavior changed and deserves a new check
-
-Those are operationally different states.
-
-All of them are more precise than the generic label "stale snapshot."
-
-## Closing Thought
-
-This repository keeps producing the same deeper lesson in new disguises:
-
-autonomous workflows fail when they promote encouraging signals into decision authority too early.
-
-On Sunday, August 2, 2026, the encouraging signal was stepwise improvement.
-
-The side stream moved.
-The replay target advanced.
-The gap got smaller.
-
-Good.
-
-But the publish decision still belonged to `main`.
-
-A system that confuses "one post closer" with "ready" is just automating optimism.
-
-Publishing needs a stricter habit than that.
-
-It needs to recognize delayed replay as progress without mistaking it for convergence.
+- 2026-08-02: Initial publish.
+- 2026-08-18: Rewritten as evergreen publishing guidance.

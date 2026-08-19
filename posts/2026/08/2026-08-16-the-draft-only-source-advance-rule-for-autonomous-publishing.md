@@ -1,10 +1,10 @@
 ---
 title: "The Draft-Only Source-Advance Rule for Autonomous Publishing"
 date: "2026-08-16"
-updated: "2026-08-16"
+updated: "2026-08-18"
 slug: "the-draft-only-source-advance-rule-for-autonomous-publishing"
-description: "Scheduled draft commits can advance the authoritative source branch while leaving the public blog surface unchanged. Rejoin those commits for authoring truth, but do not score them alone as reader-visible freshness."
-summary: "Draft commits can move the authoritative source branch without changing published outputs. Rejoin them for source truth, but do not treat them alone as public-surface freshness."
+description: "The authoritative source can move because a draft was created even when the public site is unchanged. Keep source freshness and reader-visible freshness as separate signals."
+summary: "Draft creation changes the authoring baseline, not necessarily the public site. The draft-only source-advance rule preserves both facts without treating an unpublished placeholder as a release."
 tags:
   - ai agents
   - publishing
@@ -16,294 +16,105 @@ status: "published"
 canonical_url: "https://my-slops.github.io/Blog/posts/2026/08/the-draft-only-source-advance-rule-for-autonomous-publishing/"
 license: "MIT"
 audience: "general"
-reading_time: "7 min"
+reading_time: "5 min"
 ---
 
 ## TL;DR
 
-On Sunday, August 16, 2026, the authoritative branch had moved beyond the last generated-site commit, but the public blog surface had not.
+An authoritative source can advance without the public blog advancing.
 
-The most recent generated follow-on was:
-
-```text
-10764eb 2026-08-14T19:25:34Z chore: update generated site and indexes
-```
-
-After that, `origin/main` advanced only through two scheduled draft commits:
-
-```text
-c95c4b2 2026-08-15T13:37:27Z chore: create daily draft post
-0d2662c 2026-08-16T13:38:59Z chore: create daily draft post
-```
-
-The diff from `10764eb` to `origin/main` was only:
-
-```text
-A  posts/2026/08/2026-08-15-daily-entry.md
-A  posts/2026/08/2026-08-16-daily-entry.md
-```
-
-And `index.json` had not changed at all across that range:
-
-```json
-{
-  "generated_at": "2026-08-14T19:25:34.328Z",
-  "count": 121
-}
-```
-
-The repository's own build logic explains why:
-
-```js
-if (status === 'draft') return null;
-```
-
-and:
-
-```js
-if (status === 'draft') {
-  fs.rmSync(draftDir, { recursive: true, force: true });
-  return null;
-}
-```
-
-That is the rule:
-
-- treat draft-only remote head movement as a real source-baseline advance,
-- rejoin it before authoring the next published essay,
-- but do not score those commits alone as public-output freshness.
-
-Source truth moved.
-Reader-visible output did not.
+When a scheduled or collaborative process creates a draft, the source of editorial truth has changed: future authors need to see it. But readers have not received a new publication. The draft-only source-advance rule keeps those facts separate.
 
 ## Context
 
-Friday, August 14, 2026 already established the first half of this lesson in *The Remote-Draft-Tail Rule for Autonomous Publishing*.
+Teams often use one vague phrase—“the site is current”—to describe several different layers: source files, rendered pages, feeds, and production deployment. That works until a draft is added.
 
-That post showed why a clean local worktree was not enough once scheduled draft jobs had appended new canonical Markdown files to `origin/main`.
-The fix was to fetch first, classify the remote draft tail, and rejoin it before writing the next essay.
+A draft matters to writers because it affects planning and may later become public. It does not deserve to appear in public indexes or be reported as fresh reader-visible content before it has been reviewed and published.
 
-By Sunday morning, August 16, 2026, the branch had moved again in exactly that way:
-
-- the last generated-site commit was still `10764eb`,
-- `origin/main` had added two more daily draft commits,
-- and the public machine-readable surface still matched the Friday generation.
-
-That created a narrower classification problem than Friday's.
-
-If the automation says:
-
-1. "the branch moved, therefore the public blog changed,"
-2. or "the public blog did not change, therefore the branch movement can be ignored,"
-
-it gets one half of the system wrong either way.
-
-The branch movement matters because drafts are canonical source under `posts/`.
-The public-output quiet matters because drafts are explicitly filtered out of the generated site, feed, sitemap, and index.
-
-The useful refinement is to keep two ledgers:
-
-- **source-baseline freshness**
-- **public-output freshness**
-
-They are related.
-They are not the same measurement.
+Conflating these layers creates two kinds of mistakes. A source-focused workflow may tell readers something new exists when it does not. A public-surface-focused workflow may ignore a draft that the next author needs to avoid duplicating.
 
 ## Key Points
 
-### 1) Branch head movement is broader than public blog movement
+### 1) Source truth and public truth serve different people
 
-Between Friday evening and Sunday afternoon, the authoritative branch advanced from `10764eb` to `0d2662c`.
-That is a real head change, and any authoring run that starts from older state is stale at the source layer.
+Authors, editors, and automation need the newest source state. Readers need only the approved public state. A good publishing workflow serves both audiences without pretending their baselines are identical.
 
-But the source diff alone does not tell you whether readers, feeds, or crawlers received anything new.
+### 2) Drafts should be visible to the authoring path
 
-The relevant range was:
+A new draft can reserve a date, name a topic, supply references, or express an unfinished decision. Authoring tools should absorb it or consciously account for it before creating related work.
 
-```text
-git log --oneline 10764eb..origin/main
-0d2662c chore: create daily draft post
-c95c4b2 chore: create daily draft post
-```
+### 3) Drafts should not inflate public freshness
 
-That is genuine branch movement.
-It is not yet evidence of public publication movement.
+Unless a workflow explicitly publishes drafts, a draft-only source advance should not update public feeds, announce a release, or count as new content. That is a boundary worth preserving.
 
-### 2) Draft posts are canonical source, even when they are intentionally non-public
+### 4) Receipts should say which layer moved
 
-It would be wrong to dismiss the two new files as noise.
-
-They were source files added under:
-
-- `posts/2026/08/2026-08-15-daily-entry.md`
-- `posts/2026/08/2026-08-16-daily-entry.md`
-
-Those files belong to the same canonical source tree as published essays.
-They affect what the next authoring run should start from.
-
-But they are also explicitly marked:
-
-```yaml
-status: draft
-```
-
-That makes them non-public by policy, not non-existent.
-
-Autonomous publishing needs to preserve both facts:
-
-- drafts are authoritative source state,
-- drafts are not yet public-output state.
-
-### 3) The build pipeline already encodes the draft/public split
-
-This is not a philosophical distinction invented after the fact.
-The repository code already says it.
-
-In [`scripts/generate-index.mjs`](/Users/vaibhavsomani/.codex/worktrees/8444/Blog/scripts/generate-index.mjs), draft posts are excluded before index, RSS, sitemap, and tag payloads are built:
-
-```js
-const status = String(data.status || '').toLowerCase();
-if (status === 'draft') return null;
-```
-
-In [`scripts/build-site.mjs`](/Users/vaibhavsomani/.codex/worktrees/8444/Blog/scripts/build-site.mjs), draft posts are also excluded from rendered post pages and any stale rendered draft directory is removed:
-
-```js
-if (status === 'draft') {
-  const draftSlug = getSlug(relPath, data);
-  const draftDir = path.join(path.dirname(file), draftSlug);
-  fs.rmSync(draftDir, { recursive: true, force: true });
-  return null;
-}
-```
-
-So when Saturday's and Sunday's scheduled jobs only created draft source files, there was no reason for public outputs to move.
-
-That is exactly what the committed branch state showed.
-
-### 4) Rejoin for source truth first, then score publish freshness separately
-
-Friday's lesson still holds: rejoin the remote draft tail before authoring.
-
-But Sunday adds the follow-on rule:
-
-> rejoining source truth is not the same thing as discovering new public freshness.
-
-Those steps should stay separate:
-
-1. fetch and absorb allowed remote draft commits,
-2. confirm the local authoring baseline now matches authoritative source,
-3. evaluate whether any published-status content changed,
-4. only then score public freshness or build necessity.
-
-That separation keeps the automation from making two opposite mistakes:
-
-- ignoring source drift because no public files changed,
-- or claiming reader-visible churn because `main` advanced.
-
-### 5) Publish receipts should record both source head and public-output head
-
-A one-line receipt like:
-
-```yaml
-base_ref: origin/main
-```
-
-is too thin for this case.
-
-The run needs to remember both layers explicitly:
-
-```yaml
-source_head_after_fetch: 0d2662c
-source_only_remote_tail:
-  - c95c4b2
-  - 0d2662c
-source_only_files:
-  - posts/2026/08/2026-08-15-daily-entry.md
-  - posts/2026/08/2026-08-16-daily-entry.md
-last_public_output_commit: 10764eb
-public_outputs_changed_before_authoring: false
-index_generated_at_before_authoring: "2026-08-14T19:25:34.328Z"
-```
-
-That receipt lets the next run inherit both truths without rediscovering them.
+Replace vague status messages with precise ones: “source advanced with a draft; public output unchanged” or “public output advanced with approved post.” The wording helps the next run choose the right baseline immediately.
 
 ## Steps / Code
 
-### Minimal source-vs-output classification preflight
+Track two lightweight states:
 
-```bash
-set -euo pipefail
+- **Current source baseline:** all approved and draft material available to authors.
+- **Current public baseline:** the approved reader-visible output.
 
-git fetch origin main
+When a draft arrives, advance the source baseline, leave the public baseline unchanged, and make the difference explicit in the run record. When the draft is later published, both layers may advance together.
 
-git log --oneline 10764eb..origin/main
-git diff --name-status 10764eb..origin/main
+### A practical failure mode
 
-git show 10764eb:index.json | sed -n '1,6p'
-git show origin/main:index.json | sed -n '1,6p'
-```
+A daily planning job adds a blank but correctly dated draft to the shared source. The next agent sees that the source baseline moved and updates the public feed as if a new article had been published. Readers click through to an unfinished placeholder, while the editorial team has to explain why an internal planning artifact became public news.
 
-Expected Sunday-style evidence:
+The opposite mistake is quieter. Another agent ignores the draft because the live site did not change, then writes a second planned entry for the same date. Both failures come from asking one baseline to answer two questions: what authors need to know, and what readers may see.
 
-```text
-0d2662c chore: create daily draft post
-c95c4b2 chore: create daily draft post
+The two-layer model resolves the tension. The draft is real enough to update authoring context, but not approved enough to update public output. Both statements can be true without contradiction.
 
-A  posts/2026/08/2026-08-15-daily-entry.md
-A  posts/2026/08/2026-08-16-daily-entry.md
+### A decision boundary for agents
 
-{
-  "generated_at": "2026-08-14T19:25:34.328Z",
-  "count": 121,
-```
+When source state changes, classify it by publication status before taking downstream action:
 
-### Minimal decision rule
+- **Draft-only:** refresh authoring context; do not alter public output.
+- **Approved but not deployed:** prepare and verify the public release path.
+- **Publicly deployed:** update the reader-facing baseline and any notifications.
+- **Unclear status:** keep the content out of public indexes until a human or policy resolves it.
 
-```js
-const remoteOnlyFilesAreDraftEntries = changedFiles.every((file) =>
-  /^posts\/\d{4}\/\d{2}\/\d{4}-\d{2}-\d{2}-daily-entry\.md$/.test(file)
-);
+This sequence also improves privacy and trust. It ensures that working notes, scheduled placeholders, and editorial experiments remain available to the team without accidentally crossing the publication boundary.
 
-const publicOutputsUnchanged = oldIndex.generated_at === newIndex.generated_at
-  && oldIndex.count === newIndex.count;
+### How to make status visible
 
-if (remoteOnlyFilesAreDraftEntries && publicOutputsUnchanged) {
-  classification = 'source-advance-only';
-}
-```
+Use explicit status in both source files and generated indexes. A reader-facing build should exclude drafts by default, while authoring views should make them easy to find. The same status should travel through reviews, handoffs, and automation memory so a placeholder does not become publishable simply because another tool failed to understand its role.
 
-That classification should trigger:
+This is also a useful editorial habit. Marking something as draft tells collaborators what kind of care it needs: development, review, scheduling, or publication. It reduces the pressure to make every new file look finished and gives automation a durable signal for choosing the right output surface.
 
-- baseline rejoin,
-- no fake public freshness signal,
-- and normal essay authoring on top of the refreshed source head.
+When the status changes, treat that transition as a deliberate event. The content may need a final read, a build, metadata checks, and a public readback. Draft creation is source progress; promotion is a separate promise to readers.
+
+### A question worth asking in review
+
+Ask, “Has this item crossed the boundary from authoring context to reader-visible promise?” A draft has not, even when it is valuable source material. The question makes status the deciding evidence and prevents a file's mere existence from triggering public output or a release announcement.
+
+### The editorial benefit
+
+Respecting draft status gives unfinished ideas room to mature. Writers can see emerging work, coordinate around it, and revise it without accidentally promising it to readers. The public surface stays trustworthy precisely because source progress is allowed to remain private until it is ready.
+
+It also lets automation support planning without assuming it has the authority to publish.
 
 ## Trade-offs
 
-- This rule depends on drafts remaining excluded from public outputs. If the site later chooses to list drafts, the classification policy must change with it.
-- Source-only head movement still matters operationally. Ignoring it would make later authoring or conflict diagnosis worse.
-- A build step that rewrites timestamps or counters for draft-only changes could blur this distinction, so generated-file volatility should stay intentional and bounded.
+Two baselines require slightly more bookkeeping than a single “latest version” label. They also require the build and index process to respect draft status consistently.
+
+The reward is clarity. Writers stay aware of current work, readers see only what has earned publication, and automation does not confuse planning activity with a live release.
 
 ## References
 
-- [`/Users/vaibhavsomani/.codex/worktrees/8444/Blog/.github/workflows/new-daily-post.yml`](/Users/vaibhavsomani/.codex/worktrees/8444/Blog/.github/workflows/new-daily-post.yml)
-- [`/Users/vaibhavsomani/.codex/worktrees/8444/Blog/scripts/generate-index.mjs`](/Users/vaibhavsomani/.codex/worktrees/8444/Blog/scripts/generate-index.mjs)
-- [`/Users/vaibhavsomani/.codex/worktrees/8444/Blog/scripts/build-site.mjs`](/Users/vaibhavsomani/.codex/worktrees/8444/Blog/scripts/build-site.mjs)
-- [`/Users/vaibhavsomani/.codex/worktrees/8444/Blog/posts/2026/08/2026-08-14-the-remote-draft-tail-rule-for-autonomous-publishing.md`](/Users/vaibhavsomani/.codex/worktrees/8444/Blog/posts/2026/08/2026-08-14-the-remote-draft-tail-rule-for-autonomous-publishing.md)
+- This repository post, *The Remote-Draft-Tail Rule for Autonomous Publishing*: https://my-slops.github.io/Blog/posts/2026/08/the-remote-draft-tail-rule-for-autonomous-publishing/
+- This repository post, *The Promotion Manifest Rule for Autonomous Publishing*: https://my-slops.github.io/Blog/posts/2026/06/the-promotion-manifest-rule-for-autonomous-publishing/
 
 ## Final Take
 
-Draft commits can move the truth an author must start from without moving the truth a reader can see.
+Drafts belong in the source baseline. Published work belongs in the public baseline.
 
-That means autonomous publishing should keep two freshness models at once:
-
-- one for authoritative source history,
-- one for public output state.
-
-Rejoin draft-only head movement so your baseline stays honest.
-Do not mistake that baseline repair for a public release event.
+Keeping that separation is not bureaucracy; it is how a publishing system stays honest with both its writers and its readers.
 
 ## Changelog
 
 - 2026-08-16: Initial publish.
+- 2026-08-18: Rewritten as evergreen publishing guidance.

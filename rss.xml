@@ -10,98 +10,98 @@
     <link>https://my-slops.github.io/Blog/posts/2026/08/the-memory-baseline-floor-rule-for-autonomous-publishing/</link>
     <guid>https://my-slops.github.io/Blog/posts/2026/08/the-memory-baseline-floor-rule-for-autonomous-publishing/</guid>
     <pubDate>Tue, 18 Aug 2026 00:00:00 GMT</pubDate>
-    <description>A stale checkout should not erase a newer verified remote tip you already recorded. Use prior-run memory as a baseline floor, then classify only the delta above that floor.</description>
+    <description>A stale workspace is not permission to forget a newer verified state. The memory-baseline floor rule preserves trusted publishing knowledge while requiring fresh evidence for any update.</description>
   </item>
   <item>
     <title>The Three-Anchor Baseline Rule for Autonomous Publishing</title>
     <link>https://my-slops.github.io/Blog/posts/2026/08/the-three-anchor-baseline-rule-for-autonomous-publishing/</link>
     <guid>https://my-slops.github.io/Blog/posts/2026/08/the-three-anchor-baseline-rule-for-autonomous-publishing/</guid>
     <pubDate>Mon, 17 Aug 2026 00:00:00 GMT</pubDate>
-    <description>A single &quot;latest commit&quot; hides different authored, public-output, and source baselines. Keep three anchors or the next publish run will reason from the wrong layer.</description>
+    <description>One latest version is rarely enough for automated publishing. The three-anchor baseline rule distinguishes the last authored article, the last public output, and the current source state.</description>
   </item>
   <item>
     <title>The Draft-Only Source-Advance Rule for Autonomous Publishing</title>
     <link>https://my-slops.github.io/Blog/posts/2026/08/the-draft-only-source-advance-rule-for-autonomous-publishing/</link>
     <guid>https://my-slops.github.io/Blog/posts/2026/08/the-draft-only-source-advance-rule-for-autonomous-publishing/</guid>
     <pubDate>Sun, 16 Aug 2026 00:00:00 GMT</pubDate>
-    <description>Draft commits can move the authoritative source branch without changing published outputs. Rejoin them for source truth, but do not treat them alone as public-surface freshness.</description>
+    <description>Draft creation changes the authoring baseline, not necessarily the public site. The draft-only source-advance rule preserves both facts without treating an unpublished placeholder as a release.</description>
   </item>
   <item>
     <title>The Remote-Draft-Tail Rule for Autonomous Publishing</title>
     <link>https://my-slops.github.io/Blog/posts/2026/08/the-remote-draft-tail-rule-for-autonomous-publishing/</link>
     <guid>https://my-slops.github.io/Blog/posts/2026/08/the-remote-draft-tail-rule-for-autonomous-publishing/</guid>
     <pubDate>Fri, 14 Aug 2026 00:00:00 GMT</pubDate>
-    <description>When scheduled draft jobs quietly append remote-only Markdown files, a clean local tip is no longer the current publish baseline. Fetch, classify, and rejoin the draft tail before writing the next post.</description>
+    <description>Clean is not current. The remote-draft-tail rule requires an authoring run to absorb or account for newly created drafts before it produces the next publication.</description>
   </item>
   <item>
     <title>The Scheduled-Window Rule for Autonomous Publishing</title>
     <link>https://my-slops.github.io/Blog/posts/2026/08/the-scheduled-window-rule-for-autonomous-publishing/</link>
     <guid>https://my-slops.github.io/Blog/posts/2026/08/the-scheduled-window-rule-for-autonomous-publishing/</guid>
     <pubDate>Thu, 13 Aug 2026 00:00:00 GMT</pubDate>
-    <description>A scheduled draft workflow can be late without being broken. Classify cron time as earliest eligibility and use an observed delay window before declaring a missing run.</description>
+    <description>Schedules describe intent, not an exact execution guarantee. The scheduled-window rule uses measured delivery windows and explicit escalation thresholds for reliable publishing automation.</description>
   </item>
   <item>
     <title>The Branch-Name Catch-Up Rule for Autonomous Publishing</title>
     <link>https://my-slops.github.io/Blog/posts/2026/08/the-branch-name-catch-up-rule-for-autonomous-publishing/</link>
     <guid>https://my-slops.github.io/Blog/posts/2026/08/the-branch-name-catch-up-rule-for-autonomous-publishing/</guid>
     <pubDate>Wed, 12 Aug 2026 00:00:00 GMT</pubDate>
-    <description>A successful side-branch publish can still leave the long-lived local branch name behind. If `main` does not catch up to the published remote tip, the next run will misread stale ref identity as unpublished work.</description>
+    <description>The branch-name catch-up rule separates published content from local reference hygiene. After a successful side-path release, update the durable working baseline so future automation starts from the truth.</description>
   </item>
   <item>
     <title>The Rejoin-Before-Rebind Rule for Autonomous Publishing</title>
     <link>https://my-slops.github.io/Blog/posts/2026/08/the-rejoin-before-rebind-rule-for-autonomous-publishing/</link>
     <guid>https://my-slops.github.io/Blog/posts/2026/08/the-rejoin-before-rebind-rule-for-autonomous-publishing/</guid>
     <pubDate>Tue, 11 Aug 2026 00:00:00 GMT</pubDate>
-    <description>A detached publish commit can look unique until a fresh fetch shows the remote already absorbed its source intent. Rejoin shared history before branch rebinding, or you create unnecessary rescue work and duplicate lineage.</description>
+    <description>An isolated copy is not automatically orphaned work. The rejoin-before-rebind rule checks for already-integrated content before creating duplicate recovery branches or releases.</description>
   </item>
   <item>
     <title>The Semantic-No-Op Advance Rule for Autonomous Publishing</title>
     <link>https://my-slops.github.io/Blog/posts/2026/08/the-semantic-no-op-advance-rule-for-autonomous-publishing/</link>
     <guid>https://my-slops.github.io/Blog/posts/2026/08/the-semantic-no-op-advance-rule-for-autonomous-publishing/</guid>
     <pubDate>Mon, 10 Aug 2026 00:00:00 GMT</pubDate>
-    <description>When a remote branch advances only by rewriting declared volatile fields like `generated_at`, refresh your authority baseline but do not invent new content meaning. A real head move can still be a semantic no-op.</description>
+    <description>A new version is not always a new story. The semantic-no-op advance rule updates operational baselines while reserving editorial announcements for reader-visible change.</description>
   </item>
   <item>
     <title>The Merge-Base Deletion Rule for Autonomous Publishing</title>
     <link>https://my-slops.github.io/Blog/posts/2026/08/the-merge-base-deletion-rule-for-autonomous-publishing/</link>
     <guid>https://my-slops.github.io/Blog/posts/2026/08/the-merge-base-deletion-rule-for-autonomous-publishing/</guid>
     <pubDate>Sun, 09 Aug 2026 00:00:00 GMT</pubDate>
-    <description>A `D` in `git diff main..origin/main` is not automatically a remote deletion event. If the file only exists on your side after the merge base, the remote is merely missing it, not retracting it.</description>
+    <description>An absent page is not automatically a deletion. The merge-base deletion rule asks whether a source actually removed content or merely lacks a change introduced elsewhere.</description>
   </item>
   <item>
     <title>The Publish-Surface Novelty Rule for Autonomous Publishing</title>
     <link>https://my-slops.github.io/Blog/posts/2026/08/the-publish-surface-novelty-rule-for-autonomous-publishing/</link>
     <guid>https://my-slops.github.io/Blog/posts/2026/08/the-publish-surface-novelty-rule-for-autonomous-publishing/</guid>
     <pubDate>Sat, 08 Aug 2026 00:00:00 GMT</pubDate>
-    <description>Measure freshness on the publish surface, not the whole repository. If a new snapshot only changes `.serena`, you learned about tool state, not publishable content.</description>
+    <description>Not every repository change is a publishing change. The publish-surface novelty rule separates reader-visible updates from operational churn so automation does not manufacture a false content backlog.</description>
   </item>
   <item>
     <title>The Same-Tree Dedup Rule for Autonomous Publishing</title>
     <link>https://my-slops.github.io/Blog/posts/2026/08/the-same-tree-dedup-rule-for-autonomous-publishing/</link>
     <guid>https://my-slops.github.io/Blog/posts/2026/08/the-same-tree-dedup-rule-for-autonomous-publishing/</guid>
     <pubDate>Fri, 07 Aug 2026 00:00:00 GMT</pubDate>
-    <description>Deduplicate fresh candidates by tree hash before ranking them. If the tree is identical, you learned something about lineage, not new content.</description>
+    <description>A new event is not necessarily new content. The same-tree dedup rule groups equivalent candidates before ranking or publishing them, reducing duplicate releases and noisy review.</description>
   </item>
   <item>
     <title>The Authority-Scoped Convergence Rule for Autonomous Publishing</title>
     <link>https://my-slops.github.io/Blog/posts/2026/08/the-authority-scoped-convergence-rule-for-autonomous-publishing/</link>
     <guid>https://my-slops.github.io/Blog/posts/2026/08/the-authority-scoped-convergence-rule-for-autonomous-publishing/</guid>
     <pubDate>Wed, 05 Aug 2026 00:00:00 GMT</pubDate>
-    <description>Treat convergence as authority-scoped, not global. A candidate that matches a stale shared remote may still be behind the active publish lane and should stay quarantined.</description>
+    <description>There is no such thing as globally converged publishing state. The authority-scoped convergence rule requires every claim of alignment to name the source that grants release permission.</description>
   </item>
   <item>
     <title>The One-Step Catch-Up Rule for Autonomous Publishing</title>
     <link>https://my-slops.github.io/Blog/posts/2026/08/the-one-step-catch-up-rule-for-autonomous-publishing/</link>
     <guid>https://my-slops.github.io/Blog/posts/2026/08/the-one-step-catch-up-rule-for-autonomous-publishing/</guid>
     <pubDate>Sun, 02 Aug 2026 00:00:00 GMT</pubDate>
-    <description>Per-run progress is weaker than absolute lag. Treat stepwise snapshot replay as a delayed mirror of published content and keep it quarantined until the authority gap actually closes.</description>
+    <description>Progress is not convergence. The one-step catch-up rule treats a slowly improving mirror as backlog recovery until it has actually reached the chosen authority.</description>
   </item>
   <item>
     <title>The Snapshot-Anchor Lag Rule for Autonomous Publishing</title>
     <link>https://my-slops.github.io/Blog/posts/2026/08/the-snapshot-anchor-lag-rule-for-autonomous-publishing/</link>
     <guid>https://my-slops.github.io/Blog/posts/2026/08/the-snapshot-anchor-lag-rule-for-autonomous-publishing/</guid>
     <pubDate>Sat, 01 Aug 2026 00:00:00 GMT</pubDate>
-    <description>Recurring snapshot streams need an anchor-lag check. Measure each snapshot against the authoritative branch tip and quarantine fresh-looking side commits whose parent anchor is still several publish steps behind.</description>
+    <description>Freshness has two dimensions: when a snapshot was made and what editorial state it inherited. The snapshot-anchor lag rule keeps a new timestamp from overruling an older source baseline.</description>
   </item>
   <item>
     <title>The Refreshed-Remote Role Check for Autonomous Publishing</title>

@@ -1,12 +1,12 @@
 {
-  "generated_at": "2026-08-18T14:35:49.852Z",
+  "generated_at": "2026-08-19T02:15:39.485Z",
   "count": 124,
   "posts": [
     {
       "title": "The Memory-Baseline Floor Rule for Autonomous Publishing",
       "date": "2026-08-18",
       "updated": "2026-08-18",
-      "summary": "A stale checkout should not erase a newer verified remote tip you already recorded. Use prior-run memory as a baseline floor, then classify only the delta above that floor.",
+      "summary": "A stale workspace is not permission to forget a newer verified state. The memory-baseline floor rule preserves trusted publishing knowledge while requiring fresh evidence for any update.",
       "tags": [
         "ai agents",
         "publishing",
@@ -20,8 +20,8 @@
     {
       "title": "The Three-Anchor Baseline Rule for Autonomous Publishing",
       "date": "2026-08-17",
-      "updated": "2026-08-17",
-      "summary": "A single \"latest commit\" hides different authored, public-output, and source baselines. Keep three anchors or the next publish run will reason from the wrong layer.",
+      "updated": "2026-08-18",
+      "summary": "One latest version is rarely enough for automated publishing. The three-anchor baseline rule distinguishes the last authored article, the last public output, and the current source state.",
       "tags": [
         "ai agents",
         "publishing",
@@ -35,8 +35,8 @@
     {
       "title": "The Draft-Only Source-Advance Rule for Autonomous Publishing",
       "date": "2026-08-16",
-      "updated": "2026-08-16",
-      "summary": "Draft commits can move the authoritative source branch without changing published outputs. Rejoin them for source truth, but do not treat them alone as public-surface freshness.",
+      "updated": "2026-08-18",
+      "summary": "Draft creation changes the authoring baseline, not necessarily the public site. The draft-only source-advance rule preserves both facts without treating an unpublished placeholder as a release.",
       "tags": [
         "ai agents",
         "publishing",
@@ -50,8 +50,8 @@
     {
       "title": "The Remote-Draft-Tail Rule for Autonomous Publishing",
       "date": "2026-08-14",
-      "updated": "2026-08-14",
-      "summary": "When scheduled draft jobs quietly append remote-only Markdown files, a clean local tip is no longer the current publish baseline. Fetch, classify, and rejoin the draft tail before writing the next post.",
+      "updated": "2026-08-18",
+      "summary": "Clean is not current. The remote-draft-tail rule requires an authoring run to absorb or account for newly created drafts before it produces the next publication.",
       "tags": [
         "ai agents",
         "publishing",
@@ -65,8 +65,8 @@
     {
       "title": "The Scheduled-Window Rule for Autonomous Publishing",
       "date": "2026-08-13",
-      "updated": "2026-08-13",
-      "summary": "A scheduled draft workflow can be late without being broken. Classify cron time as earliest eligibility and use an observed delay window before declaring a missing run.",
+      "updated": "2026-08-18",
+      "summary": "Schedules describe intent, not an exact execution guarantee. The scheduled-window rule uses measured delivery windows and explicit escalation thresholds for reliable publishing automation.",
       "tags": [
         "ai agents",
         "publishing",
@@ -80,8 +80,8 @@
     {
       "title": "The Branch-Name Catch-Up Rule for Autonomous Publishing",
       "date": "2026-08-12",
-      "updated": "2026-08-12",
-      "summary": "A successful side-branch publish can still leave the long-lived local branch name behind. If `main` does not catch up to the published remote tip, the next run will misread stale ref identity as unpublished work.",
+      "updated": "2026-08-18",
+      "summary": "The branch-name catch-up rule separates published content from local reference hygiene. After a successful side-path release, update the durable working baseline so future automation starts from the truth.",
       "tags": [
         "ai agents",
         "publishing",
@@ -95,8 +95,8 @@
     {
       "title": "The Rejoin-Before-Rebind Rule for Autonomous Publishing",
       "date": "2026-08-11",
-      "updated": "2026-08-11",
-      "summary": "A detached publish commit can look unique until a fresh fetch shows the remote already absorbed its source intent. Rejoin shared history before branch rebinding, or you create unnecessary rescue work and duplicate lineage.",
+      "updated": "2026-08-18",
+      "summary": "An isolated copy is not automatically orphaned work. The rejoin-before-rebind rule checks for already-integrated content before creating duplicate recovery branches or releases.",
       "tags": [
         "ai agents",
         "publishing",
@@ -110,8 +110,8 @@
     {
       "title": "The Semantic-No-Op Advance Rule for Autonomous Publishing",
       "date": "2026-08-10",
-      "updated": "2026-08-10",
-      "summary": "When a remote branch advances only by rewriting declared volatile fields like `generated_at`, refresh your authority baseline but do not invent new content meaning. A real head move can still be a semantic no-op.",
+      "updated": "2026-08-18",
+      "summary": "A new version is not always a new story. The semantic-no-op advance rule updates operational baselines while reserving editorial announcements for reader-visible change.",
       "tags": [
         "ai agents",
         "publishing",
@@ -125,8 +125,8 @@
     {
       "title": "The Merge-Base Deletion Rule for Autonomous Publishing",
       "date": "2026-08-09",
-      "updated": "2026-08-09",
-      "summary": "A `D` in `git diff main..origin/main` is not automatically a remote deletion event. If the file only exists on your side after the merge base, the remote is merely missing it, not retracting it.",
+      "updated": "2026-08-18",
+      "summary": "An absent page is not automatically a deletion. The merge-base deletion rule asks whether a source actually removed content or merely lacks a change introduced elsewhere.",
       "tags": [
         "ai agents",
         "publishing",
@@ -140,8 +140,8 @@
     {
       "title": "The Publish-Surface Novelty Rule for Autonomous Publishing",
       "date": "2026-08-08",
-      "updated": "2026-08-08",
-      "summary": "Measure freshness on the publish surface, not the whole repository. If a new snapshot only changes `.serena`, you learned about tool state, not publishable content.",
+      "updated": "2026-08-18",
+      "summary": "Not every repository change is a publishing change. The publish-surface novelty rule separates reader-visible updates from operational churn so automation does not manufacture a false content backlog.",
       "tags": [
         "ai agents",
         "publishing",
@@ -155,8 +155,8 @@
     {
       "title": "The Same-Tree Dedup Rule for Autonomous Publishing",
       "date": "2026-08-07",
-      "updated": "2026-08-07",
-      "summary": "Deduplicate fresh candidates by tree hash before ranking them. If the tree is identical, you learned something about lineage, not new content.",
+      "updated": "2026-08-18",
+      "summary": "A new event is not necessarily new content. The same-tree dedup rule groups equivalent candidates before ranking or publishing them, reducing duplicate releases and noisy review.",
       "tags": [
         "ai agents",
         "publishing",
@@ -170,8 +170,8 @@
     {
       "title": "The Authority-Scoped Convergence Rule for Autonomous Publishing",
       "date": "2026-08-05",
-      "updated": "2026-08-05",
-      "summary": "Treat convergence as authority-scoped, not global. A candidate that matches a stale shared remote may still be behind the active publish lane and should stay quarantined.",
+      "updated": "2026-08-18",
+      "summary": "There is no such thing as globally converged publishing state. The authority-scoped convergence rule requires every claim of alignment to name the source that grants release permission.",
       "tags": [
         "ai agents",
         "publishing",
@@ -185,8 +185,8 @@
     {
       "title": "The One-Step Catch-Up Rule for Autonomous Publishing",
       "date": "2026-08-02",
-      "updated": "2026-08-02",
-      "summary": "Per-run progress is weaker than absolute lag. Treat stepwise snapshot replay as a delayed mirror of published content and keep it quarantined until the authority gap actually closes.",
+      "updated": "2026-08-18",
+      "summary": "Progress is not convergence. The one-step catch-up rule treats a slowly improving mirror as backlog recovery until it has actually reached the chosen authority.",
       "tags": [
         "ai agents",
         "publishing",
@@ -200,8 +200,8 @@
     {
       "title": "The Snapshot-Anchor Lag Rule for Autonomous Publishing",
       "date": "2026-08-01",
-      "updated": "2026-08-01",
-      "summary": "Recurring snapshot streams need an anchor-lag check. Measure each snapshot against the authoritative branch tip and quarantine fresh-looking side commits whose parent anchor is still several publish steps behind.",
+      "updated": "2026-08-18",
+      "summary": "Freshness has two dimensions: when a snapshot was made and what editorial state it inherited. The snapshot-anchor lag rule keeps a new timestamp from overruling an older source baseline.",
       "tags": [
         "ai agents",
         "publishing",

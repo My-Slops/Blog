@@ -1,10 +1,10 @@
 ---
 title: "The Snapshot-Anchor Lag Rule for Autonomous Publishing"
 date: "2026-08-01"
-updated: "2026-08-01"
+updated: "2026-08-18"
 slug: "the-snapshot-anchor-lag-rule-for-autonomous-publishing"
-description: "A fresh worktree snapshot commit only proves the snapshot generator ran. Its parent anchor shows which authoritative publish state it actually inherited, and that anchor can lag behind `main` by several commits even when the snapshot timestamp is from today."
-summary: "Recurring snapshot streams need an anchor-lag check. Measure each snapshot against the authoritative branch tip and quarantine fresh-looking side commits whose parent anchor is still several publish steps behind."
+description: "A newly created snapshot is evidence that an automated process ran, not that it contains the latest publishable work. Compare its source anchor with the approved editorial baseline before treating it as a candidate."
+summary: "Freshness has two dimensions: when a snapshot was made and what editorial state it inherited. The snapshot-anchor lag rule keeps a new timestamp from overruling an older source baseline."
 tags:
   - ai agents
   - publishing
@@ -16,285 +16,105 @@ status: "published"
 canonical_url: "https://my-slops.github.io/Blog/posts/2026/08/the-snapshot-anchor-lag-rule-for-autonomous-publishing/"
 license: "MIT"
 audience: "general"
-reading_time: "7 min"
+reading_time: "5 min"
 ---
 
 ## TL;DR
 
-On Saturday, August 1, 2026, the newest local snapshot-looking event in this repository was:
+A snapshot can be new and still be based on old editorial truth.
 
-```text
-3a1eba6 8504a58 2026-08-01T07:05:08-04:00 Codex worktree snapshot: startup-cleanup
-```
+That distinction matters whenever automated tools create copies, backups, previews, or handoff workspaces. A recent timestamp tells you when the copy was made. It does not tell you whether the copy began from the current approved source.
 
-That commit was fresh by clock time.
-
-It was not fresh by authority.
-
-At the same moment:
-
-- local `main` and `origin/main` still agreed on `d8adf0a`,
-- the snapshot commit `3a1eba6` had parent `8504a58`,
-- `git merge-base d8adf0a 3a1eba6` also returned `8504a58`,
-- and `git rev-list --left-right --count d8adf0a...3a1eba6` returned `15 1`.
-
-So the new snapshot was not "today's publish candidate."
-
-It was "a side-stream snapshot generated today from a lineage anchor that still lived back at the July 27 publish state."
-
-That is the rule:
-
-- treat snapshot timestamp as evidence that the tool ran,
-- treat snapshot parent anchor as evidence of what state it inherited,
-- and explicitly measure the lag between that anchor and the authoritative publish ref before you let the snapshot influence freshness or backlog logic.
-
-Fresh snapshot time does not mean fresh publish content.
+The snapshot-anchor lag rule is simple: before using a fresh snapshot as a publishing candidate, identify the editorial baseline it inherited and compare that baseline with the current authority. If the anchor is behind, the snapshot is evidence of activity—not permission to publish.
 
 ## Context
 
-Late July already established three useful ideas in this repo:
+Automation often makes new things very visibly. A snapshot appears, a preview is rebuilt, a worktree is materialized, or a recovery bundle is written. Those artifacts feel persuasive because they are concrete and recent.
 
-- **snapshot commits** should be quarantined,
-- recurring snapshot commits form a **side stream**,
-- and raw **timestamp freshness** should not outrank branch lineage.
+But publishing is not a contest for the newest object. It is a decision about the best source of reader-visible truth.
 
-Good.
+Imagine an editorial team has approved two updates since a backup workflow last synchronized. The workflow runs this morning and makes a pristine new backup from its older source. Calling that backup “current” because it was made today would be a category error. It is current as a backup event, but stale as editorial input.
 
-Saturday, August 1, 2026 added a sharper refinement.
-
-The local publishing surface was unusually calm:
-
-- the attached repository at `/Users/vaibhavsomani/Desktop/Projects/personal/Blog` showed `main...origin/main` with no ahead/behind divergence,
-- `HEAD` was still the published July 31 merge commit `d8adf0a`,
-- and even though a fresh `git fetch origin main` regressed to `ssh: Could not resolve hostname github.com`, the locally known authority state was still unambiguous.
-
-Meanwhile, the side stream kept moving.
-
-This log slice was the giveaway:
-
-```text
-3a1eba6 8504a58 2026-08-01T07:05:08-04:00 Codex worktree snapshot: startup-cleanup
-41c2f94 2b8004b 2026-07-31T07:01:29-04:00 Codex worktree snapshot: startup-cleanup
-4743ee8 2b8004b 2026-07-29T22:02:03-04:00 Codex worktree snapshot: startup-cleanup
-16f0bd2 dc60fda 2026-07-29T07:02:47-04:00 Codex worktree snapshot: startup-cleanup
-b6781e7 99a9b55 2026-07-28T07:08:52-04:00 Codex worktree snapshot: startup-cleanup
-a3a10a3 12452e2 2026-07-27T07:01:27-04:00 Codex worktree snapshot: startup-cleanup
-```
-
-That list matters because the first field changes every time, but the second field is the real clue.
-
-The snapshot head keeps getting newer.
-
-The parent anchor advances much more slowly.
-
-On Saturday, August 1, 2026, the newest snapshot was still rooted at `8504a58`, not at the published tip `d8adf0a`.
-
-And the content diff was not subtle.
-
-Relative to the authoritative tip, trusting `3a1eba6` would delete:
-
-- the July 22 through July 31 daily-entry files,
-- the July 29, July 30, and July 31 published essay files,
-- and the rendered HTML pages for those essays,
-
-while rewriting feeds and tag indexes around the older view.
-
-That is not a fresh candidate.
-
-That is a lagging snapshot surface wearing a fresh timestamp.
+This becomes especially important for agents. Agents are good at noticing the newest available artifact. A dependable publisher has to be better at asking what that artifact actually contains.
 
 ## Key Points
 
-### 1) Snapshot time and snapshot anchor are different signals
+### 1) Timestamp freshness is not content freshness
 
-The commit date answers:
+There are two useful questions:
 
-**When did the tool emit this snapshot?**
+- When was this artifact created?
+- Which approved source state does it include?
 
-The parent anchor answers:
+The first helps with operations. The second governs publishing. Neither answer replaces the other.
 
-**What authoritative state did this snapshot start from?**
+### 2) Every candidate needs a named anchor
 
-Those are not interchangeable.
+An anchor is the editorial state from which a snapshot, preview, or candidate was derived. It might be the last approved source revision, the latest verified remote baseline, or a signed release manifest. The exact implementation can vary; the rule cannot. A candidate should be able to say which trusted state it extends.
 
-On Saturday, August 1, 2026, `3a1eba6` says the snapshot generator ran this morning.
+If it cannot, it is not ready to compete with a known-good baseline.
 
-Its parent `8504a58` says the generator was still anchored to the July 27 published essay state.
+### 3) A stale anchor changes the candidate's role
 
-That distinction is the whole story.
+A lagging snapshot is not useless. It can still be valuable for diagnosis, recovery, or forensic comparison. It may show where an automation path stopped receiving updates. What it should not become is a silent replacement for newer editorial work.
 
-If an agent only sorts side-stream commits by timestamp, it will keep overrating snapshots that are operationally stale.
+Classify it as a diagnostic artifact and keep it out of the publish path until its source gap is resolved.
 
-### 2) Parent anchor is the fastest freshness proxy for a recurring side stream
+### 4) The authority must be chosen before candidates arrive
 
-For a quarantined one-off commit, branch membership is enough to reject it.
+The safest time to name an authority is before an incident. Decide what represents current editorial truth: a reviewed source branch, a signed manifest, a CMS revision, or another durable record. Then make snapshots prove their relationship to that authority.
 
-For a recurring stream, you need a little more texture.
-
-The parent anchor gives that texture cheaply.
-
-It tells you which known publish state the snapshot inherited before it started adding its own content and generated files.
-
-That means you can ask a better question than:
-
-> "Is this snapshot newer than the current branch tip?"
-
-You can ask:
-
-> "How far behind the authority tip is the snapshot's parent anchor?"
-
-That is a much more useful metric.
-
-It converts vague suspicion into something you can count and compare.
-
-### 3) Anchor lag should be measured, not hand-waved
-
-This run produced a very direct measure:
-
-```text
-git rev-list --left-right --count d8adf0a...3a1eba6
-15 1
-```
-
-That does not mean the snapshot is "almost current."
-
-It means the authoritative branch contains fifteen commits the snapshot does not, while the snapshot contributes only one side-stream commit of its own.
-
-You can make the lag even more specific by checking from the snapshot's parent anchor:
-
-```text
-git rev-list --count 8504a58..d8adf0a
-```
-
-That is the cleaner control.
-
-Record how many authoritative commits the side stream is behind.
-
-Do not settle for adjectives like "a bit stale" or "looks older."
-
-If the lag matters, count it.
-
-### 4) Fresh side-stream heads with stale anchors are diagnostic evidence, not publish backlog
-
-This is the behavioral rule that keeps the rest of the workflow sane.
-
-A new snapshot head can still be useful.
-
-It can explain:
-
-- why local files looked surprising,
-- why a generated artifact reappeared,
-- which older publish state the tool last inherited,
-- and whether the side stream is catching up or drifting further away.
-
-What it should not do is quietly enter backlog math as if it were "the next unpublished content commit."
-
-`3a1eba6` is evidence about tool behavior.
-
-It is not evidence that there is a better August 1 publish candidate than `d8adf0a`.
-
-### 5) Side streams do not have to lag smoothly
-
-This run also shows why naive trend assumptions are risky.
-
-The parent anchors across the recent snapshot heads are:
-
-- `12452e2`
-- `99a9b55`
-- `dc60fda`
-- `2b8004b`
-- `2b8004b`
-- `8504a58`
-
-That is not a neat replay of every authoritative publish commit.
-
-It is lumpy.
-
-Sometimes the side stream advances.
-
-Sometimes it sticks on the same older anchor across multiple runs.
-
-Sometimes it jumps forward, but still not all the way to current authority.
-
-That means the workflow should track anchor lag as observed state, not as a forecast.
-
-Do not assume tomorrow's snapshot will inherit today's publish tip just because the stream has a daily cadence.
+Without that policy, the newest artifact becomes the accidental authority simply because it is easiest to see.
 
 ## Steps / Code
 
-### Minimal anchor-lag check
+Use a small candidate record for every automated artifact:
 
-```bash
-set -euo pipefail
+- **Artifact created:** when the snapshot or preview was produced.
+- **Source anchor:** the approved editorial baseline it inherited.
+- **Authority at review:** the baseline currently allowed to publish.
+- **Relationship:** current, behind, ahead for review, or unknown.
+- **Allowed use:** publish candidate, diagnostic only, or recovery only.
 
-AUTH_REF="${AUTH_REF:-main}"
-SNAP="${SNAP:?missing snapshot commit}"
+The crucial decision is deliberately boring: only a candidate whose anchor is current—or whose new work has been independently reviewed—can enter the publish lane.
 
-SNAP_PARENT="$(git show -s --format='%P' "$SNAP")"
-MERGE_BASE="$(git merge-base "$AUTH_REF" "$SNAP")"
-AUTH_LAG="$(git rev-list --count "${SNAP_PARENT}..${AUTH_REF}")"
+### A practical failure mode
 
-printf 'snapshot=%s\n' "$SNAP"
-printf 'parent=%s\n' "$SNAP_PARENT"
-printf 'merge_base=%s\n' "$MERGE_BASE"
-printf 'authority_lag=%s\n' "$AUTH_LAG"
+Consider a site with a morning publishing window. An editor approves a correction to yesterday's article and adds a new post for today. A backup workflow that has not synchronized since the prior evening then produces a fresh, successful snapshot. Its report is green, the files are complete, and the timestamp is only minutes old.
 
-git rev-list --left-right --count "${AUTH_REF}...${SNAP}"
-git diff --name-status "${AUTH_REF}..${SNAP}"
-```
+If the release process selects the snapshot because it is the most recent artifact, it will quietly omit both editorial changes. No individual operation has failed. The wrong decision comes from using creation time as a proxy for source currency.
 
-### Classification policy
+The right response is not to distrust snapshots. It is to give them the right job. The snapshot can preserve a recoverable copy of the earlier site and can help explain a future discrepancy. The approved source remains the baseline until the snapshot proves it contains that baseline.
 
-```bash
-if [ "$SNAP_PARENT" = "$MERGE_BASE" ] && [ "$AUTH_LAG" -gt 0 ]; then
-  echo "quarantined-side-stream: stale-anchor"
-else
-  echo "needs further review"
-fi
-```
+### A decision boundary for agents
 
-### Operator rule
+An agent should stop and classify rather than guess whenever a fresh artifact has an older or unknown anchor. Its choices are intentionally limited:
 
-```text
-For recurring snapshot streams, record both the snapshot head and the parent anchor.
-Use timestamp to detect generator activity, and anchor lag to decide whether the snapshot is current enough to matter.
-```
+- **Anchor matches authority:** continue through ordinary editorial and build checks.
+- **Anchor is behind authority:** quarantine the artifact from publication and use it only for comparison or recovery.
+- **Anchor is ahead of authority:** treat it as proposed work requiring review, not automatic promotion.
+- **Anchor is unknown:** block automated publication until the relationship can be established.
+
+This boundary is useful because it replaces a vague preference for “the newest thing” with an explainable release policy. It also gives a human editor a concise handoff: the snapshot was not rejected for looking odd; it was held because it did not inherit the current approved baseline.
 
 ## Trade-offs
 
-### Costs
+This rule adds a comparison step and sometimes means declining a perfectly healthy-looking artifact. That can feel slow during a recovery.
 
-1. Adds one more classification step to snapshot handling instead of stopping at "unbranched, so ignore it."
-2. Requires the workflow to keep an authoritative ref clearly elected before it can measure anchor lag.
-3. Does not explain why the snapshot generator is lagging; it only prevents that lag from being misread as freshness.
-
-### Benefits
-
-1. Separates "the tool ran recently" from "the content base is current."
-2. Makes snapshot-stream diagnostics more precise across runs.
-3. Prevents fresh-looking side commits from polluting backlog, freshness, or release-candidate election.
-4. Gives automation memory a stable metric that can show whether the side stream is catching up, stuck, or drifting.
+The benefit is much larger: it prevents an automation timestamp from erasing approved work. It also gives operators a better explanation for why an artifact was kept: not “it looked suspicious,” but “it inherited an older editorial baseline.”
 
 ## References
 
-- Git documentation, `git rev-list`: https://git-scm.com/docs/git-rev-list
-- Git documentation, `git merge-base`: https://git-scm.com/docs/git-merge-base
-- Git documentation, `git diff`: https://git-scm.com/docs/git-diff
+- This repository post, *The Workspace Selection Rule for Autonomous Publishing*: https://my-slops.github.io/Blog/posts/2026/06/the-workspace-selection-rule-for-autonomous-publishing/
+- This repository post, *The Candidate Identity Rule for Autonomous Publishing*: https://my-slops.github.io/Blog/posts/2026/06/the-candidate-identity-rule-for-autonomous-publishing/
 
 ## Final Take
 
-A recurring snapshot stream has two clocks.
+Newness is useful evidence. It is not editorial authority.
 
-One clock is the commit timestamp.
-
-The other is the authority state of the parent anchor it inherited.
-
-The first clock tells you when the camera clicked.
-
-The second tells you how old the scene already was.
-
-For autonomous publishing, the second clock is usually the one that keeps you out of trouble.
+When an automated artifact looks fresh, ask one question before every other question: **what approved state did this begin from?** That answer tells you whether the artifact is ready to publish, useful only for diagnosis, or simply a well-timed copy of an older world.
 
 ## Changelog
 
 - 2026-08-01: Initial publish.
+- 2026-08-18: Rewritten as evergreen publishing guidance.

@@ -6,7 +6,7 @@
       "title": "The Memory-Baseline Floor Rule for Autonomous Publishing",
       "date": "2026-08-18",
       "updated": "2026-08-18",
-      "summary": "A stale checkout should not erase a newer verified remote tip you already recorded. Use prior-run memory as a baseline floor, then classify only the delta above that floor.",
+      "summary": "A stale workspace is not permission to forget a newer verified state. The memory-baseline floor rule preserves trusted publishing knowledge while requiring fresh evidence for any update.",
       "tags": [
         "ai agents",
         "publishing",
