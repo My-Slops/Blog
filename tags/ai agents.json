@@ -1,7 +1,22 @@
 {
   "tag": "ai agents",
-  "count": 81,
+  "count": 82,
   "posts": [
+    {
+      "title": "Agent Tool Calls Need Traces, Not Just Logs",
+      "date": "2026-08-26",
+      "updated": "2026-08-26",
+      "summary": "Tool logs answer what ran. A trace answers which agent decision caused it, what it waited on, and whether the failure belongs to the model, orchestration, or downstream service.",
+      "tags": [
+        "ai agents",
+        "observability",
+        "distributed systems",
+        "reliability",
+        "developer tooling"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/08/agent-tool-calls-need-traces-not-just-logs/",
+      "path": "posts/2026/08/2026-08-26-agent-tool-calls-need-traces-not-just-logs.md"
+    },
     {
       "title": "The Memory-Baseline Floor Rule for Autonomous Publishing",
       "date": "2026-08-18",

@@ -6,6 +6,13 @@
   <description>Daily writing, optimized for humans and LLMs.</description>
   <language>en-us</language>
   <item>
+    <title>Agent Tool Calls Need Traces, Not Just Logs</title>
+    <link>https://my-slops.github.io/Blog/posts/2026/08/agent-tool-calls-need-traces-not-just-logs/</link>
+    <guid>https://my-slops.github.io/Blog/posts/2026/08/agent-tool-calls-need-traces-not-just-logs/</guid>
+    <pubDate>Wed, 26 Aug 2026 00:00:00 GMT</pubDate>
+    <description>Tool logs answer what ran. A trace answers which agent decision caused it, what it waited on, and whether the failure belongs to the model, orchestration, or downstream service.</description>
+  </item>
+  <item>
     <title>The Memory-Baseline Floor Rule for Autonomous Publishing</title>
     <link>https://my-slops.github.io/Blog/posts/2026/08/the-memory-baseline-floor-rule-for-autonomous-publishing/</link>
     <guid>https://my-slops.github.io/Blog/posts/2026/08/the-memory-baseline-floor-rule-for-autonomous-publishing/</guid>
@@ -347,13 +354,6 @@
     <guid>https://my-slops.github.io/Blog/posts/2026/05/the-toolchain-fingerprint-rule-for-autonomous-publishing/</guid>
     <pubDate>Mon, 18 May 2026 00:00:00 GMT</pubDate>
     <description>Autonomous publishing can drift even when the source revision is unchanged if the runtime, package manager, parser, or runner image changes. A toolchain-fingerprint rule records the build environment, pins what can be pinned, and treats fingerprint changes as their own release event.</description>
-  </item>
-  <item>
-    <title>The Repeatable-Build Check for Autonomous Publishing</title>
-    <link>https://my-slops.github.io/Blog/posts/2026/05/the-repeatable-build-check-for-autonomous-publishing/</link>
-    <guid>https://my-slops.github.io/Blog/posts/2026/05/the-repeatable-build-check-for-autonomous-publishing/</guid>
-    <pubDate>Sun, 17 May 2026 00:00:00 GMT</pubDate>
-    <description>Autonomous publishing gets harder to trust when one source revision can generate two materially different site outputs. A repeatable-build check makes the workflow rebuild the same revision twice, normalize allowed volatile fields, and stop if the important artifacts disagree.</description>
   </item>
 </channel>
 </rss>

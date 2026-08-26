@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Agent Tool Calls Need Traces, Not Just Logs | Blog</title>
+    <meta name="description" content="Tool logs answer what ran. A trace answers which agent decision caused it, what it waited on, and whether the failure belongs to the model, orchestration, or downstream service." />
+    <link rel="canonical" href="https://my-slops.github.io/Blog/posts/2026/08/agent-tool-calls-need-traces-not-just-logs/" />
+    <style>
+      :root { color-scheme: light dark; }
+      body { font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; line-height: 1.7; max-width: 760px; margin: 40px auto; padding: 0 16px; }
+      a { color: #0a58ca; text-decoration: none; }
+      a:hover { text-decoration: underline; }
+      .meta { color: #666; font-size: 0.95rem; margin-bottom: 1rem; }
+      .tags { display: flex; gap: 0.5rem; list-style: none; padding: 0; margin: 0.75rem 0 1.25rem; flex-wrap: wrap; }
+      .tags li { background: #eef2ff; color: #3730a3; border-radius: 999px; padding: 0.2rem 0.6rem; font-size: 0.8rem; }
+      article h1, article h2, article h3 { line-height: 1.3; }
+      article pre { overflow-x: auto; background: #111827; color: #f9fafb; padding: 0.9rem; border-radius: 8px; }
+      article code { font-family: ui-monospace,SFMono-Regular,Menlo,monospace; }
+      article blockquote { border-left: 4px solid #d1d5db; margin: 1rem 0; padding: 0.2rem 0.9rem; color: #4b5563; }
+      hr { border: 0; border-top: 1px solid #e5e7eb; margin: 2rem 0; }
+    </style>
+  </head>
+  <body>
+    <p><a href="https://my-slops.github.io/Blog/">← Home</a></p>
+    <article>
+      <h1>Agent Tool Calls Need Traces, Not Just Logs</h1>
+      <p class="meta">Aug 26, 2026</p>
+      <ul class="tags"><li>ai agents</li><li>observability</li><li>distributed systems</li><li>reliability</li><li>developer tooling</li></ul>
+      <h2>TL;DR</h2>
+<p>An agent transcript can tell a persuasive story about a task. It is a poor debugging record.</p>
+<p>When a user request becomes a model turn, a tool call, an HTTP request, a queue job, and perhaps another model turn, logs from those pieces do not automatically explain one another. Give the whole request a distributed trace, and create spans for the model invocation, tool selection, tool execution, and important downstream calls. Then a slow or failed tool call becomes attributable to a decision and a dependency instead of a line in a noisy log stream.</p>
+<h2>Context</h2>
+<p>“The agent was slow” is usually not a diagnosis. It can mean that the model took a long time to produce a tool call, that the selected tool queued behind other work, that the tool made a slow downstream request, or that the orchestrator retried after a timeout. A chat transcript often collapses all of this into a single message such as “Searching now.” Application logs commonly replace it with a request ID that the tool service never receives.</p>
+<p>That gap matters more in agents than in ordinary request handlers. A conventional endpoint often has a fairly fixed call graph. An agent creates part of its call graph at runtime: the model chooses whether to call a tool, which tool to call, what arguments to pass, and whether to make another turn afterward. Without correlation, the investigation has to reconstruct that graph from timestamps, text, and guesswork.</p>
+<p>Logs are still useful. They preserve discrete facts, detailed errors, and audit events. But a log line saying <code>calendar.lookup completed in 2.4s</code> cannot answer the operational question that matters: <em>which user task and which agent decision were waiting for those 2.4 seconds?</em></p>
+<h2>Key Points</h2>
+<h3>1) Treat an agent turn as a trace root, not a log session</h3>
+<p>Start one trace when the system accepts a user task. The root should cover the reader-visible operation: for example, “prepare a meeting brief,” not merely “call the LLM.” Add child spans for work that has an independent failure or latency story:</p>
+<pre><code class="language-text">agent.request
+├─ model.plan
+├─ tool.calendar.lookup
+│  └─ http.calendar-api GET /events
+├─ tool.docs.search
+│  └─ vector-store.query
+└─ model.compose
+</code></pre>
+<p>This shape makes an important distinction visible. <code>model.plan</code> records the time to decide. <code>tool.calendar.lookup</code> records the orchestration boundary. <code>http.calendar-api</code> records the downstream dependency. If the request takes nine seconds, the trace can show whether that time was model inference, queueing, a remote service, or agent control flow.</p>
+<p>OpenTelemetry defines a trace as a collection of spans, with each span representing an operation. That model fits tool-using agents unusually well because the span tree documents the runtime path the agent actually took—not the path its designer expected it to take.</p>
+<h3>2) Propagate context across the boundary where ownership changes</h3>
+<p>The most valuable trace break to avoid is usually the tool boundary. An orchestrator may know it called <code>search_docs</code>; the search service may know it queried a vector database; neither knows the other’s request ID unless context crosses the network boundary.</p>
+<p>For HTTP, the W3C Trace Context standard defines the <code>traceparent</code> header. In its current <code>00</code> format, it carries a version, trace ID, parent ID, and trace flags. Instrumentation should create a new child span for outbound work while preserving the trace ID, so the receiver can join the same distributed trace.</p>
+<p>Do not hand-roll this header in application code. Use your tracing SDK or framework instrumentation. The standard exists so different services and tracing vendors can correlate work; ad hoc IDs usually recreate the problem with weaker propagation and more maintenance.</p>
+<h3>3) Capture the decision boundary, but not the whole conversation by default</h3>
+<p>Agent traces need a little more semantic context than a typical HTTP trace. Record fields that let an engineer answer why work occurred:</p>
+<ul>
+<li>the agent/workflow name and version;</li>
+<li>a stable task or conversation identifier, preferably non-sensitive;</li>
+<li>the model deployment or model alias actually selected;</li>
+<li>tool name, tool schema version, and a small argument classification such as <code>read_only</code> or <code>external_write</code>;</li>
+<li>retry count, timeout/deadline outcome, and normalized error type;</li>
+<li>token and cost metrics when the platform exposes them.</li>
+</ul>
+<p>Avoid putting raw prompts, retrieved documents, credentials, or full tool arguments into routine span attributes. Trace systems replicate and retain data in ways application teams do not always expect. If an incident genuinely needs sensitive payloads, use a separately access-controlled audit path with an explicit retention policy.</p>
+<p>This is also why trace context is not a substitute for authorization logs. The <a href="https://my-slops.github.io/Blog/posts/2026/03/2026-03-20-the-tool-scope-contract-for-llm-agents/">Tool-Scope Contract</a> asks whether a tool action was allowed. A trace answers how that allowed action moved through the system. Mature agent operations need both.</p>
+<h3>4) Make retries and fan-out visible as structure</h3>
+<p>An agent may retry one failed tool call or launch several independent reads. If those attempts overwrite one log field, an incident reviewer sees one “search failed” event and loses the shape of the failure.</p>
+<p>Create a span per attempt, with the attempt number and outcome. For concurrent calls, use sibling spans rather than pretending they were sequential. The resulting trace makes two common mistakes obvious:</p>
+<ul>
+<li>retries that continue after the user-visible deadline has effectively expired;</li>
+<li>fan-out that turns one simple request into dozens of slow downstream calls.</li>
+</ul>
+<p>The first connects directly to <a href="https://my-slops.github.io/Blog/posts/2026/03/2026-03-30-deadline-budgets-are-the-missing-guardrail-for-ai-agents/">deadline budgets</a>: no amount of observability rescues a call that should never have started because no useful time remained. The second can reveal an agent policy problem rather than an infrastructure regression.</p>
+<h2>Steps / Code</h2>
+<h3>A minimal instrumentation contract</h3>
+<p>The exact API differs by language and SDK. The structure below is illustrative pseudocode; the important part is the parent-child relationship and bounded attributes.</p>
+<pre><code class="language-ts">async function withSpan(name, attributes, operation) {
+  return tracer.startActiveSpan(name, async span =&gt; {
+    try {
+      for (const [key, value] of Object.entries(attributes)) {
+        span.setAttribute(key, value);
+      }
+      return await operation();
+    } catch (error) {
+      span.recordException(error);
+      throw error;
+    } finally {
+      span.end();
+    }
+  });
+}
+
+await withSpan(&quot;agent.request&quot;, {
+  &quot;agent.name&quot;: &quot;research-assistant&quot;,
+  &quot;agent.version&quot;: buildVersion,
+  &quot;task.kind&quot;: &quot;meeting_brief&quot;
+}, async () =&gt; {
+  const plan = await withSpan(&quot;model.plan&quot;, {}, runModel);
+
+  await Promise.all(plan.toolCalls.map(call =&gt;
+    withSpan(`tool.${call.name}`, {
+      &quot;tool.name&quot;: call.name,
+      &quot;tool.mode&quot;: call.isReadOnly ? &quot;read&quot; : &quot;write&quot;,
+      &quot;agent.turn&quot;: plan.turn
+    }, () =&gt; executeTool(call, { signal: remainingDeadline.signal }))
+  ));
+});
+</code></pre>
+<p>Keep one further discipline: instrument tool <em>selection</em> even when execution is denied or skipped. A policy denial, expired deadline, or validation failure is often the most useful outcome to investigate. It explains why a user did not get a result without inventing a downstream failure that never occurred.</p>
+<h3>What to look for in the first week</h3>
+<p>Do not begin with an enormous dashboard. Sample real traces and ask a few concrete questions:</p>
+<ol>
+<li>Which tool span dominates end-to-end latency for successful tasks?</li>
+<li>Are model turns slow before the first tool call, or are tools slow after a quick decision?</li>
+<li>Which tools generate retries, and are the retries still within the request deadline?</li>
+<li>Does one agent version produce a meaningfully wider fan-out than the previous version?</li>
+<li>Can an on-call engineer move from a user-visible error to the responsible dependency without joining logs by hand?</li>
+</ol>
+<p>If the answer to the last question is no, add correlation at the first broken boundary before collecting more attributes.</p>
+<h2>Trade-offs</h2>
+<p>Tracing costs storage, instrumentation effort, and some runtime overhead. High-cardinality attributes can make those costs much worse, and detailed payload capture can create a privacy and security problem. Sampling also means that the one failure a customer reports may not be present.</p>
+<p>For low-volume or high-value agent workflows, I prefer retaining complete traces for a short window with strict attribute controls. For high-volume traffic, start with a modest head-sampling rate, then add tail sampling or targeted retention for errors and slow traces if the tracing backend supports it. The right policy depends on volume, sensitivity, and incident needs—not on a universal percentage.</p>
+<p>Tracing also will not tell you whether the model chose the <em>right</em> tool. That is an evaluation question. It will tell you, with far less ambiguity, what the model chose, what ran afterward, and where the time or failure accumulated.</p>
+<h2>References</h2>
+<ul>
+<li>W3C, <a href="https://www.w3.org/TR/trace-context/">Trace Context</a></li>
+<li>OpenTelemetry, <a href="https://opentelemetry.io/docs/concepts/signals/traces/">Traces</a></li>
+<li>OpenTelemetry, <a href="https://opentelemetry.io/docs/concepts/context-propagation/">Context propagation</a></li>
+<li>This repository, <a href="https://my-slops.github.io/Blog/posts/2026/03/2026-03-20-the-tool-scope-contract-for-llm-agents/">The Tool-Scope Contract for LLM Agents</a></li>
+<li>This repository, <a href="https://my-slops.github.io/Blog/posts/2026/03/2026-03-30-deadline-budgets-are-the-missing-guardrail-for-ai-agents/">Deadline Budgets Are the Missing Guardrail for AI Agents</a></li>
+</ul>
+<h2>Final Take</h2>
+<p>An agent’s transcript is an explanation it generated. A trace is evidence about what the system did.</p>
+<p>Instrument the point where the model makes a tool decision, carry context through the tool boundary, and keep downstream work in the same trace. Then incidents stop being a scavenger hunt across chat history and service logs, and become an inspectable execution path.</p>
+<h2>Changelog</h2>
+<ul>
+<li>2026-08-26: Initial publish.</li>
+</ul>
+
+    </article>
+  </body>
+</html>

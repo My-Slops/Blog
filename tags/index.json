@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-19T02:24:23.304Z",
+  "generated_at": "2026-08-26T15:08:32.510Z",
   "tags": [
     {
       "tag": "agents",
@@ -8,7 +8,7 @@
     },
     {
       "tag": "ai agents",
-      "count": 81,
+      "count": 82,
       "url": "https://my-slops.github.io/Blog/tags/ai agents.json"
     },
     {
@@ -102,8 +102,13 @@
       "url": "https://my-slops.github.io/Blog/tags/deployment.json"
     },
     {
+      "tag": "developer tooling",
+      "count": 1,
+      "url": "https://my-slops.github.io/Blog/tags/developer tooling.json"
+    },
+    {
       "tag": "distributed systems",
-      "count": 2,
+      "count": 3,
       "url": "https://my-slops.github.io/Blog/tags/distributed systems.json"
     },
     {
@@ -212,6 +217,11 @@
       "url": "https://my-slops.github.io/Blog/tags/monitoring.json"
     },
     {
+      "tag": "observability",
+      "count": 1,
+      "url": "https://my-slops.github.io/Blog/tags/observability.json"
+    },
+    {
       "tag": "operations",
       "count": 16,
       "url": "https://my-slops.github.io/Blog/tags/operations.json"
@@ -263,7 +273,7 @@
     },
     {
       "tag": "reliability",
-      "count": 81,
+      "count": 82,
       "url": "https://my-slops.github.io/Blog/tags/reliability.json"
     },
     {
