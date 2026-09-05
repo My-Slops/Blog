@@ -1,7 +1,22 @@
 {
   "tag": "reliability",
-  "count": 82,
+  "count": 83,
   "posts": [
+    {
+      "title": "Prompt Caching Makes Prompt Layout a Production Interface",
+      "date": "2026-09-05",
+      "updated": "2026-09-05",
+      "summary": "A prompt cache reuses an exact rendered prefix, not an abstract idea of a similar prompt. Structure stable context deliberately, put volatile work at the tail, and measure cache changes like any other production interface change.",
+      "tags": [
+        "ai agents",
+        "prompt engineering",
+        "developer tooling",
+        "performance",
+        "reliability"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/09/prompt-caching-makes-prompt-layout-a-production-interface/",
+      "path": "posts/2026/09/2026-09-05-prompt-caching-makes-prompt-layout-a-production-interface.md"
+    },
     {
       "title": "Agent Tool Calls Need Traces, Not Just Logs",
       "date": "2026-08-26",

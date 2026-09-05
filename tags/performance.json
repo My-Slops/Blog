@@ -1,6 +1,6 @@
 {
-  "tag": "developer tooling",
-  "count": 2,
+  "tag": "performance",
+  "count": 1,
   "posts": [
     {
       "title": "Prompt Caching Makes Prompt Layout a Production Interface",
@@ -16,21 +16,6 @@
       ],
       "url": "https://my-slops.github.io/Blog/posts/2026/09/prompt-caching-makes-prompt-layout-a-production-interface/",
       "path": "posts/2026/09/2026-09-05-prompt-caching-makes-prompt-layout-a-production-interface.md"
-    },
-    {
-      "title": "Agent Tool Calls Need Traces, Not Just Logs",
-      "date": "2026-08-26",
-      "updated": "2026-08-26",
-      "summary": "Tool logs answer what ran. A trace answers which agent decision caused it, what it waited on, and whether the failure belongs to the model, orchestration, or downstream service.",
-      "tags": [
-        "ai agents",
-        "observability",
-        "distributed systems",
-        "reliability",
-        "developer tooling"
-      ],
-      "url": "https://my-slops.github.io/Blog/posts/2026/08/agent-tool-calls-need-traces-not-just-logs/",
-      "path": "posts/2026/08/2026-08-26-agent-tool-calls-need-traces-not-just-logs.md"
     }
   ]
 }

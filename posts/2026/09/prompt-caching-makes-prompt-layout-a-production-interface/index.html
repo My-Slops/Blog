@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Prompt Caching Makes Prompt Layout a Production Interface | Blog</title>
+    <meta name="description" content="A prompt cache reuses an exact rendered prefix, not an abstract idea of a similar prompt. Structure stable context deliberately, put volatile work at the tail, and measure cache changes like any other production interface change." />
+    <link rel="canonical" href="https://my-slops.github.io/Blog/posts/2026/09/prompt-caching-makes-prompt-layout-a-production-interface/" />
+    <style>
+      :root { color-scheme: light dark; }
+      body { font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; line-height: 1.7; max-width: 760px; margin: 40px auto; padding: 0 16px; }
+      a { color: #0a58ca; text-decoration: none; }
+      a:hover { text-decoration: underline; }
+      .meta { color: #666; font-size: 0.95rem; margin-bottom: 1rem; }
+      .tags { display: flex; gap: 0.5rem; list-style: none; padding: 0; margin: 0.75rem 0 1.25rem; flex-wrap: wrap; }
+      .tags li { background: #eef2ff; color: #3730a3; border-radius: 999px; padding: 0.2rem 0.6rem; font-size: 0.8rem; }
+      article h1, article h2, article h3 { line-height: 1.3; }
+      article pre { overflow-x: auto; background: #111827; color: #f9fafb; padding: 0.9rem; border-radius: 8px; }
+      article code { font-family: ui-monospace,SFMono-Regular,Menlo,monospace; }
+      article blockquote { border-left: 4px solid #d1d5db; margin: 1rem 0; padding: 0.2rem 0.9rem; color: #4b5563; }
+      hr { border: 0; border-top: 1px solid #e5e7eb; margin: 2rem 0; }
+    </style>
+  </head>
+  <body>
+    <p><a href="https://my-slops.github.io/Blog/">← Home</a></p>
+    <article>
+      <h1>Prompt Caching Makes Prompt Layout a Production Interface</h1>
+      <p class="meta">Sep 5, 2026</p>
+      <ul class="tags"><li>ai agents</li><li>prompt engineering</li><li>developer tooling</li><li>performance</li><li>reliability</li></ul>
+      <h2>TL;DR</h2>
+<p>Prompt caching is often presented as a billing feature: repeat a large prompt and pay less for the repeated input. That is true, but it hides the design consequence.</p>
+<p>Once an application depends on a prompt cache, the <em>layout</em> of its rendered context becomes a production interface. Stable developer instructions, tool definitions, and retained history belong in a deliberate prefix. The task-specific request belongs after them. A harmless-looking change near the beginning—a reordered tool list, a timestamp in a system message, a freshly serialized settings object—can turn a high-hit workload into a cold one.</p>
+<p>This is not a reason to freeze prompts forever. It is a reason to treat prompt layout as something versioned, measured, and changed on purpose.</p>
+<h2>Context</h2>
+<p>An agent request is rarely just a user message. By the time a provider receives it, it may include application instructions, tool schemas, prior turns, retrieved material, output schemas, and provider-supplied context. Engineers tend to think about those pieces in semantic terms: which instructions are important, which tools are available, what the user asked.</p>
+<p>A cache sees a different object. It sees a rendered prefix.</p>
+<p>OpenAI&#39;s current prompt-caching documentation is unusually explicit about this distinction. It says that cache reuse requires the entire rendered prefix to match, and that the rendered context includes developer instructions, tool definitions, and conversation history. The cached object is saved key-value state, not a loose comparison of two similar prompts. A request can reuse the state only while a matching entry is available.</p>
+<p>That means an agent can be semantically unchanged and operationally different. Moving a stable tool definition, regenerating JSON fields in a different order, or inserting request metadata before the durable instructions can invalidate everything that follows the change.</p>
+<p>The useful mental model is not “cache my prompt.” It is “design a stable prefix boundary.”</p>
+<h2>Key Points</h2>
+<h3>The prefix is a contract between turns</h3>
+<p>For a multi-turn assistant, a healthy request shape usually separates durable context from per-turn work:</p>
+<pre><code class="language-text">stable application instructions
+stable tool definitions and schemas
+retained conversation history
+--------------------------------
+current user input
+turn-specific retrieved material
+ephemeral request metadata
+</code></pre>
+<p>The divider is conceptual, not a special token. Its job is to make one fact easy to maintain: the rendered content above it should remain unchanged whenever the task does not require a change.</p>
+<p>Do not confuse “stable” with “global.” A tenant-specific policy or user-specific conversation may legitimately be in the prefix for that tenant or conversation. It simply should not be rebuilt from an unordered map or salted with a new timestamp on every call. The cache boundary follows the work that repeats, not the work you wish repeated.</p>
+<p>This has a second benefit even when caching is unavailable: it makes prompt changes reviewable. A reviewer can identify whether a modification changes the application envelope, accumulated state, or only the current request.</p>
+<h3>Tool availability and tool definitions are different things</h3>
+<p>Dynamic tools are a common way to accidentally destroy a stable prefix. A product may remove definitions from the request whenever it wants to disable a tool for a particular turn. That changes the context before the current user input, so a cache cannot match the previous prefix.</p>
+<p>OpenAI recommends preserving tool definitions, their ordering, and their schemas when they are needed across requests. Where its API supports it, a caller can restrict the tools that are callable for a turn without removing the underlying definitions. It also recommends adding newly discovered tools at the end of the context rather than rewriting earlier context.</p>
+<p>The broader engineering lesson is useful even outside that API: keep the registry representation stable, and express per-turn authorization separately when your platform allows it. This is not a substitute for authorization. The <a href="https://my-slops.github.io/Blog/posts/2026/03/2026-03-20-the-tool-scope-contract-for-llm-agents/">Tool-Scope Contract</a> still belongs outside the prompt in policy-enforced code. A cache key or a stable tool list must never become a permission boundary.</p>
+<h3>Put observability metadata at the tail—or out of the prompt</h3>
+<p>Request IDs, current timestamps, experiment labels, trace links, and runtime flags are valuable. They are also usually volatile. If they appear near the top of a developer message, they make every later token a different prefix.</p>
+<p>Prefer to put operational metadata in trace attributes, application logs, or request fields that the model does not need to read. When the model genuinely needs a small piece of it, put it with the current-turn suffix. That preserves the reusable context while keeping the model informed.</p>
+<p>The same rule applies to retrieval. A stable corpus description or retrieval policy can live in the application envelope. Fresh search results should normally be appended with the current task. Reordering the whole prompt just to place a new document “near the top” is an expensive trade-off: it may help answer quality, but it gives up prefix reuse. That quality-versus-performance decision should be tested, not treated as a formatting preference.</p>
+<h3>Conversation compaction is a cache decision too</h3>
+<p>Compaction often sounds unquestionably efficient: replace an old transcript with a shorter summary and lower input size. But replacement changes history, which can discard a cacheable prefix. For a frequently active thread, a large rewrite can create a temporary latency and cost spike even while it reduces the long-run context size.</p>
+<p>That does not make compaction wrong. It makes it a two-variable optimization:</p>
+<ol>
+<li>How much input will the new representation remove over future turns?</li>
+<li>How much reusable prefix will this rewrite forfeit, and for how long?</li>
+</ol>
+<p>For a short-lived task, aggressively compacting may be sensible. For a busy support thread with a stable conversation and many follow-ups, preserving history until a natural boundary can be cheaper and faster. The answer depends on turn frequency, context growth, and the provider&#39;s cache lifetime—not on an abstract preference for either full history or summaries.</p>
+<h3>A cache hit is not a correctness result</h3>
+<p>A team can improve a cache-hit rate while making answers worse: perhaps it keeps stale retrieval context too long, refuses to revise a misleading instruction, or overuses a giant tool registry because it is convenient to cache. The performance metric is evidence about repeated computation, not evidence that the agent made a good decision.</p>
+<p>Measure cache behavior alongside the outcomes that matter. For example:</p>
+<ul>
+<li>cached versus uncached input tokens and end-to-end latency;</li>
+<li>cache behavior by agent version and conversation type;</li>
+<li>evaluation quality after a prompt-layout or tool-schema change;</li>
+<li>error and timeout rates for tool-using turns.</li>
+</ul>
+<p>This is an extension of the <a href="https://my-slops.github.io/Blog/posts/2026/04/2026-04-01-eval-first-llm-workflow/">eval-first discipline</a>: prompt layout changes deserve a before-and-after comparison, not a confident guess based on one fast demo.</p>
+<h2>Steps / Code</h2>
+<h3>A deliberately shaped request</h3>
+<p>The following is pseudocode. Its point is the boundary and versioning, not a provider-specific API shape.</p>
+<pre><code class="language-ts">function buildAgentContext(turn: Turn) {
+  return [
+    developerMessage({
+      // Version this as a product interface. Keep serialization deterministic.
+      policyVersion: &quot;support-agent-v6&quot;,
+      instructions: STABLE_INSTRUCTIONS,
+    }),
+    toolDefinitions(STABLE_TOOL_REGISTRY),
+    ...turn.retainedHistory,
+
+    // Everything below this line is expected to vary per request.
+    userMessage(turn.userInput),
+    retrievedContext(turn.searchResults),
+    developerMessage({ requestMode: turn.mode }),
+  ];
+}
+
+const response = await runModel({
+  input: buildAgentContext(turn),
+  allowedTools: toolsAllowedFor(turn),
+  traceContext: trace.current(),
+});
+</code></pre>
+<p>Three details matter more than the exact function names:</p>
+<ol>
+<li>Serialize the stable portion deterministically. Do not allow an object iteration order, a random example, or a current time to leak into it.</li>
+<li>Version a meaningful envelope change. A model-instruction or tool-schema migration is a cache event as well as a behavior change.</li>
+<li>Keep <code>allowedTools</code> and tracing data outside the stable prompt prefix when the API supports that separation.</li>
+</ol>
+<h3>Review prompt changes like interface changes</h3>
+<p>Before merging a change to agent context, ask:</p>
+<pre><code class="language-text">- Which portion of the rendered context changes?
+- Is that portion intentionally stable or intentionally volatile?
+- Will a tool, schema, or instruction migration invalidate active prefixes?
+- Do we expect the cache ratio to change by conversation type?
+- What evaluation or production metric tells us whether the change was worth it?
+</code></pre>
+<p>This is small enough to add to ordinary code review. It avoids the more expensive alternative: discovering after a deployment that every request became cold because a harmless analytics field moved into the first message.</p>
+<h2>Trade-offs</h2>
+<p>Cache mechanics are provider- and model-specific. Minimum cacheable length, expiry, routing behavior, retention controls, and the ability to choose cache boundaries can all differ. Do not copy an optimization from one model family into another without checking the current documentation and measuring the result.</p>
+<p>There is also a maintainability cost. A stable envelope can become too precious if engineers resist needed policy, tool, or safety updates solely to preserve cache hits. Correctness and safety win. The practical response is to make the migration visible, deploy it deliberately, and expect a temporary performance change—not to avoid it.</p>
+<p>Finally, prompt caching does not relax normal data handling. A cached rendered context can include instructions, tool definitions, and conversation history. Continue to minimize sensitive content, follow the provider&#39;s retention and regional-processing documentation, and keep confidential diagnostic payloads out of ordinary telemetry.</p>
+<h2>References</h2>
+<ul>
+<li>OpenAI, <a href="https://developers.openai.com/api/docs/guides/prompt-caching">Prompt caching</a></li>
+<li>This repository, <a href="https://my-slops.github.io/Blog/posts/2026/03/2026-03-25-the-two-anchor-pattern-for-long-context-prompts/">The Two-Anchor Pattern for Long-Context Prompts</a></li>
+<li>This repository, <a href="https://my-slops.github.io/Blog/posts/2026/03/2026-03-20-the-tool-scope-contract-for-llm-agents/">The Tool-Scope Contract for LLM Agents</a></li>
+<li>This repository, <a href="https://my-slops.github.io/Blog/posts/2026/04/2026-04-01-eval-first-llm-workflow/">Stop Prompt-Tuning Blind: An Eval-First Workflow for Reliable LLM Apps</a></li>
+</ul>
+<h2>Final Take</h2>
+<p>Prompt caching rewards repetition, but useful agents are not identical from turn to turn. The design problem is deciding which part of the context is allowed to repeat.</p>
+<p>Make that prefix intentional: stable instructions, stable schemas, retained history, then the new work. Measure what happens when it changes. The payoff is not merely lower token cost; it is a prompt architecture that is easier to review, debug, and evolve.</p>
+<h2>Changelog</h2>
+<ul>
+<li>2026-09-05: Initial publish.</li>
+</ul>
+
+    </article>
+  </body>
+</html>

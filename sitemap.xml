@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url><loc>https://my-slops.github.io/Blog/posts/2026/09/prompt-caching-makes-prompt-layout-a-production-interface/</loc><lastmod>2026-09-05</lastmod></url>
   <url><loc>https://my-slops.github.io/Blog/posts/2026/08/agent-tool-calls-need-traces-not-just-logs/</loc><lastmod>2026-08-26</lastmod></url>
   <url><loc>https://my-slops.github.io/Blog/posts/2026/08/the-memory-baseline-floor-rule-for-autonomous-publishing/</loc><lastmod>2026-08-18</lastmod></url>
   <url><loc>https://my-slops.github.io/Blog/posts/2026/08/the-three-anchor-baseline-rule-for-autonomous-publishing/</loc><lastmod>2026-08-18</lastmod></url>
