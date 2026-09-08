@@ -1,7 +1,22 @@
 {
   "tag": "reliability",
-  "count": 83,
+  "count": 84,
   "posts": [
+    {
+      "title": "A Valid JSON Response Can Still Be a Bad Answer",
+      "date": "2026-09-08",
+      "updated": "2026-09-08",
+      "summary": "A response schema proves the shape of an answer, not whether an answer should be given. Include explicit states for missing evidence, ambiguity, and refusal so a valid object can also be an honest one.",
+      "tags": [
+        "ai agents",
+        "api design",
+        "reliability",
+        "evals",
+        "developer tooling"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/09/a-valid-json-response-can-still-be-a-bad-answer/",
+      "path": "posts/2026/09/2026-09-08-a-valid-json-response-can-still-be-a-bad-answer.md"
+    },
     {
       "title": "Prompt Caching Makes Prompt Layout a Production Interface",
       "date": "2026-09-05",

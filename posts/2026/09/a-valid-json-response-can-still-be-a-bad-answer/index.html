@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>A Valid JSON Response Can Still Be a Bad Answer | Blog</title>
+    <meta name="description" content="A response schema proves the shape of an answer, not whether an answer should be given. Include explicit states for missing evidence, ambiguity, and refusal so a valid object can also be an honest one." />
+    <link rel="canonical" href="https://my-slops.github.io/Blog/posts/2026/09/a-valid-json-response-can-still-be-a-bad-answer/" />
+    <style>
+      :root { color-scheme: light dark; }
+      body { font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; line-height: 1.7; max-width: 760px; margin: 40px auto; padding: 0 16px; }
+      a { color: #0a58ca; text-decoration: none; }
+      a:hover { text-decoration: underline; }
+      .meta { color: #666; font-size: 0.95rem; margin-bottom: 1rem; }
+      .tags { display: flex; gap: 0.5rem; list-style: none; padding: 0; margin: 0.75rem 0 1.25rem; flex-wrap: wrap; }
+      .tags li { background: #eef2ff; color: #3730a3; border-radius: 999px; padding: 0.2rem 0.6rem; font-size: 0.8rem; }
+      article h1, article h2, article h3 { line-height: 1.3; }
+      article pre { overflow-x: auto; background: #111827; color: #f9fafb; padding: 0.9rem; border-radius: 8px; }
+      article code { font-family: ui-monospace,SFMono-Regular,Menlo,monospace; }
+      article blockquote { border-left: 4px solid #d1d5db; margin: 1rem 0; padding: 0.2rem 0.9rem; color: #4b5563; }
+      hr { border: 0; border-top: 1px solid #e5e7eb; margin: 2rem 0; }
+    </style>
+  </head>
+  <body>
+    <p><a href="https://my-slops.github.io/Blog/">← Home</a></p>
+    <article>
+      <h1>A Valid JSON Response Can Still Be a Bad Answer</h1>
+      <p class="meta">Sep 8, 2026</p>
+      <ul class="tags"><li>ai agents</li><li>api design</li><li>reliability</li><li>evals</li><li>developer tooling</li></ul>
+      <h2>TL;DR</h2>
+<p>Structured output is a major improvement over asking a model to &quot;return JSON.&quot; It can guarantee that required keys exist, enums are valid, and downstream code receives the shape it expects.</p>
+<p>But a schema only constrains <em>form</em>. It cannot establish that the input contains enough evidence for the requested conclusion. If every schema-shaped response looks like success, the model is under pressure to populate fields even when the request is ambiguous, out of scope, or unsupported by the supplied material.</p>
+<p>Treat &quot;I cannot determine this from the available evidence&quot; as a first-class response state. A useful schema represents an answer <em>and</em> the legitimate reasons not to manufacture one.</p>
+<h2>Context</h2>
+<p>Consider an internal policy assistant that must return a recommendation and supporting citations:</p>
+<pre><code class="language-json">{
+  &quot;recommendation&quot;: &quot;approve | reject&quot;,
+  &quot;citations&quot;: [&quot;source-id&quot;]
+}
+</code></pre>
+<p>This is pleasant for a UI. It is also a trap. A request may concern a policy that was not retrieved, contain two contradictory documents, or ask a question the policy does not answer. Yet the only representable outcomes are <code>approve</code> and <code>reject</code>.</p>
+<p>At that point, parsing succeeds even when the application has failed. A model can emit valid JSON, use an allowed enum, and provide plausible-looking source IDs while still giving the reader a conclusion the evidence cannot carry.</p>
+<p>OpenAI&#39;s Structured Outputs documentation makes the boundary unusually clear. The feature enforces a supplied JSON Schema, but the documentation separately warns that structured responses can still contain mistakes. It specifically recommends defining how the model should handle input that cannot produce a valid response; otherwise, the model may try to satisfy the schema by hallucinating. That is not a quirk of one API. It is a design warning: a type-safe answer is not automatically an epistemically safe answer.</p>
+<h2>Key Points</h2>
+<h3>A parser cannot validate a conclusion</h3>
+<p>Schema validation can answer questions such as:</p>
+<ul>
+<li>Is <code>recommendation</code> one of the allowed values?</li>
+<li>Is every <code>citation</code> a string?</li>
+<li>Did the response include the fields a consumer requires?</li>
+</ul>
+<p>It cannot answer whether a cited document actually supports the recommendation, whether the corpus was complete, or whether the user asked an unanswerable question. Those are evidence and product questions.</p>
+<p>This distinction is easy to lose because a successful parse is such a useful operational signal. It means the renderer will not crash and the workflow can proceed. It should not mean that the business action is safe to take.</p>
+<p>The <a href="https://my-slops.github.io/Blog/posts/2026/03/2026-03-25-the-two-anchor-pattern-for-long-context-prompts/">Two-Anchor Pattern for Long-Context Prompts</a> makes a related point for grounded answers: a final claim without supporting evidence should be treated as unverified. Structured output makes that status easier to carry through software, but only if the schema gives it somewhere to go.</p>
+<h3>Model the outcome before the payload</h3>
+<p>For many applications, the root object should describe the result state before it describes the requested data. Here is illustrative TypeScript for the same policy assistant:</p>
+<pre><code class="language-ts">type PolicyResult = {
+  status: &quot;answered&quot; | &quot;insufficient_evidence&quot; | &quot;ambiguous&quot;;
+  recommendation: &quot;approve&quot; | &quot;reject&quot; | null;
+  citations: Array&lt;{ sourceId: string; excerpt: string }&gt;;
+  missingEvidence: string[];
+};
+</code></pre>
+<p>The important detail is not the exact names. It is that <code>recommendation</code> can be <code>null</code> for a valid reason, while the reason is visible to both the UI and the calling workflow.</p>
+<p>An <code>answered</code> result still needs citations. An <code>insufficient_evidence</code> result can name the missing policy, date range, or record. An <code>ambiguous</code> result can ask the user to disambiguate instead of silently choosing an interpretation. Each is a useful, schema-valid response.</p>
+<p>Do not hide these cases in a free-form <code>notes</code> field. If the application must render a follow-up prompt, avoid a write, or route a task to a human, the state belongs in a field the program can branch on.</p>
+<h3>Keep provider-level exceptions separate from task-level outcomes</h3>
+<p>There are at least two kinds of &quot;no answer,&quot; and they should not be collapsed.</p>
+<ol>
+<li>A <strong>provider or safety refusal</strong> says the model will not fulfill the request. OpenAI documents refusals as a distinct response condition that may not follow the response schema.</li>
+<li>A <strong>task-level insufficiency</strong> says the system is willing to help but lacks the information required to do so honestly. That should normally be a schema-valid application outcome.</li>
+</ol>
+<p>The consumer needs to handle both. A refusal might display a safe alternative or end the interaction. Insufficient evidence might trigger retrieval, ask for a document, or send the task to review. Treating both as <code>null</code> makes observability and recovery needlessly vague.</p>
+<p>This is also where structured output and tool policy meet. The <a href="https://my-slops.github.io/Blog/posts/2026/03/2026-03-20-the-tool-scope-contract-for-llm-agents/">Tool-Scope Contract</a> limits what an agent may do; a response schema should say what the agent may <em>claim</em> when it cannot do enough. One is a permission boundary. The other is an honest-result boundary.</p>
+<h3>Test the empty answer on purpose</h3>
+<p>Most schema tests use happy-path examples: a clear request, a complete document set, and an obvious conclusion. Those tests can demonstrate reliable parsing while completely missing the behavior users see at the edges.</p>
+<p>Add cases where an answer would be harmful or invented:</p>
+<pre><code class="language-text">- The required source is absent from retrieved context.
+- Two authoritative sources conflict.
+- The request uses an undefined term.
+- The model receives a task that belongs to another workflow.
+- The only available evidence is older than the question permits.
+</code></pre>
+<p>For each case, assert both the response shape and the application behavior after it. Does the UI explain what is missing? Does a downstream workflow stop instead of treating <code>null</code> as an approval? Is the insufficient-evidence rate observable by agent version and retrieval configuration?</p>
+<p>That last check matters. A growing rate may signal a retrieval regression or a legitimate change in user requests. A near-zero rate can also be suspicious if the application routinely handles uncertain questions. An honest-state metric needs interpretation, but it is much more informative than a parse-success rate alone.</p>
+<p>This belongs beside the <a href="https://my-slops.github.io/Blog/posts/2026/04/2026-04-01-eval-first-llm-workflow/">eval-first workflow</a>. Evaluate whether the system chooses the correct state, not merely whether it produced a well-formed object.</p>
+<h2>Steps / Code</h2>
+<h3>A response schema with an honest branch</h3>
+<p>This JSON Schema is simplified pseudocode. It illustrates a stable root object with a state field; adapt it to the subset and SDK your provider supports.</p>
+<pre><code class="language-json">{
+  &quot;type&quot;: &quot;object&quot;,
+  &quot;additionalProperties&quot;: false,
+  &quot;required&quot;: [&quot;status&quot;, &quot;recommendation&quot;, &quot;citations&quot;, &quot;missingEvidence&quot;],
+  &quot;properties&quot;: {
+    &quot;status&quot;: {
+      &quot;type&quot;: &quot;string&quot;,
+      &quot;enum&quot;: [&quot;answered&quot;, &quot;insufficient_evidence&quot;, &quot;ambiguous&quot;]
+    },
+    &quot;recommendation&quot;: {
+      &quot;type&quot;: [&quot;string&quot;, &quot;null&quot;],
+      &quot;enum&quot;: [&quot;approve&quot;, &quot;reject&quot;, null]
+    },
+    &quot;citations&quot;: {
+      &quot;type&quot;: &quot;array&quot;,
+      &quot;items&quot;: {
+        &quot;type&quot;: &quot;object&quot;,
+        &quot;additionalProperties&quot;: false,
+        &quot;required&quot;: [&quot;sourceId&quot;, &quot;excerpt&quot;],
+        &quot;properties&quot;: {
+          &quot;sourceId&quot;: { &quot;type&quot;: &quot;string&quot; },
+          &quot;excerpt&quot;: { &quot;type&quot;: &quot;string&quot; }
+        }
+      }
+    },
+    &quot;missingEvidence&quot;: {
+      &quot;type&quot;: &quot;array&quot;,
+      &quot;items&quot;: { &quot;type&quot;: &quot;string&quot; }
+    }
+  }
+}
+</code></pre>
+<p>Then put behavioral constraints in the prompt and evals, rather than assuming the schema expresses all business logic:</p>
+<pre><code class="language-text">Return status=answered only when the supplied sources support the recommendation.
+If essential evidence is absent, return status=insufficient_evidence,
+recommendation=null, and name what is missing.
+If the question has multiple reasonable meanings, return status=ambiguous
+and explain the needed clarification in missingEvidence.
+</code></pre>
+<p>The application should still validate citations against the retrieved source set when that matters. A model selecting an allowed string is not proof that the string names a real or relevant document.</p>
+<h2>Trade-offs</h2>
+<p>Adding explicit non-success states makes the consuming code and UI more complex. A team that only needs to display a draft may choose a simpler design. But that simplicity is expensive when the response drives a decision, a customer-facing assertion, or a tool action: the ambiguity moves from an explicit field into improvised downstream behavior.</p>
+<p>There is also a failure mode in the opposite direction. A model can overuse <code>insufficient_evidence</code> when instructions are too cautious or retrieval is weak. Do not treat the new state as proof of safety. Review it with representative evals and production samples, just as you would review overly confident answers.</p>
+<p>Finally, a response schema cannot replace ordinary validation. Check authorizations in code, verify references where they affect a decision, and handle incomplete responses and provider-level refusals. Structured output narrows one class of failure. It does not certify the entire workflow.</p>
+<h2>References</h2>
+<ul>
+<li>OpenAI, <a href="https://developers.openai.com/api/docs/guides/structured-outputs">Structured model outputs</a></li>
+<li>This repository, <a href="https://my-slops.github.io/Blog/posts/2026/03/2026-03-25-the-two-anchor-pattern-for-long-context-prompts/">The Two-Anchor Pattern for Long-Context Prompts</a></li>
+<li>This repository, <a href="https://my-slops.github.io/Blog/posts/2026/03/2026-03-20-the-tool-scope-contract-for-llm-agents/">The Tool-Scope Contract for LLM Agents</a></li>
+<li>This repository, <a href="https://my-slops.github.io/Blog/posts/2026/04/2026-04-01-eval-first-llm-workflow/">Stop Prompt-Tuning Blind: An Eval-First Workflow for Reliable LLM Apps</a></li>
+</ul>
+<h2>Final Take</h2>
+<p>The point of structured output is not to make every response look complete. It is to make every response legible to software.</p>
+<p>Give the system a schema-valid way to say that it lacks evidence, needs clarification, or cannot form a recommendation. Then a successful parse means something useful: the application received not just valid JSON, but a state it knows how to handle without pretending uncertainty is success.</p>
+<h2>Changelog</h2>
+<ul>
+<li>2026-09-08: Initial publish.</li>
+</ul>
+
+    </article>
+  </body>
+</html>
