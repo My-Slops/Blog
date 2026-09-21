@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>A Tool Error Is an Instruction to Your Agent | Blog</title>
+    <meta name="description" content="Tool errors are part of an agent&#39;s control loop. Return a bounded, typed recovery signal so the agent can distinguish a repairable request from a policy denial, a rate limit, and an action whose completion is unknown." />
+    <link rel="canonical" href="https://my-slops.github.io/Blog/posts/2026/09/a-tool-error-is-an-instruction-to-your-agent/" />
+    <style>
+      :root { color-scheme: light dark; }
+      body { font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; line-height: 1.7; max-width: 760px; margin: 40px auto; padding: 0 16px; }
+      a { color: #0a58ca; text-decoration: none; }
+      a:hover { text-decoration: underline; }
+      .meta { color: #666; font-size: 0.95rem; margin-bottom: 1rem; }
+      .tags { display: flex; gap: 0.5rem; list-style: none; padding: 0; margin: 0.75rem 0 1.25rem; flex-wrap: wrap; }
+      .tags li { background: #eef2ff; color: #3730a3; border-radius: 999px; padding: 0.2rem 0.6rem; font-size: 0.8rem; }
+      article h1, article h2, article h3 { line-height: 1.3; }
+      article pre { overflow-x: auto; background: #111827; color: #f9fafb; padding: 0.9rem; border-radius: 8px; }
+      article code { font-family: ui-monospace,SFMono-Regular,Menlo,monospace; }
+      article blockquote { border-left: 4px solid #d1d5db; margin: 1rem 0; padding: 0.2rem 0.9rem; color: #4b5563; }
+      hr { border: 0; border-top: 1px solid #e5e7eb; margin: 2rem 0; }
+    </style>
+  </head>
+  <body>
+    <p><a href="https://my-slops.github.io/Blog/">← Home</a></p>
+    <article>
+      <h1>A Tool Error Is an Instruction to Your Agent</h1>
+      <p class="meta">Sep 21, 2026</p>
+      <ul class="tags"><li>ai agents</li><li>api design</li><li>reliability</li><li>developer tooling</li><li>security</li></ul>
+      <h2>TL;DR</h2>
+<p>An agent does not experience a tool error as a red line in a terminal. It receives the error as context for its next decision.</p>
+<p>If a mail tool returns <code>500: failed</code>, a model has to guess: should it correct its arguments, retry, tell the user, switch tools, or assume the message might already have been sent? That guess is often more dangerous than the original failure.</p>
+<p>Design tool failures as bounded recovery instructions. An error should tell the orchestrator and, where appropriate, the model whether the request can be repaired, must wait, needs user action, is forbidden, or has an unknown side-effect outcome. Do not make the model infer operational policy from a human-oriented exception string.</p>
+<h2>Context</h2>
+<p>Consider an agent that creates a support ticket. It sends a valid-looking request and its connection closes before the response arrives. The tool wrapper returns <code>request failed</code>.</p>
+<p>There are two very different realities behind that sentence:</p>
+<ul>
+<li>The service rejected the request before creating anything. Correcting a required field and trying again may be fine.</li>
+<li>The service created ticket <code>SUP-1842</code>, then the response was lost. Retrying may create a duplicate ticket.</li>
+</ul>
+<p>The exception text does not carry enough information to decide between them. Neither does an HTTP status code by itself. A 400 might identify a repairable field; a 403 should normally end the autonomous path; a 503 might allow a delayed retry; a timeout after a write leaves completion uncertain.</p>
+<p>For conventional client software, a developer may inspect logs and add a branch later. For an agent, the next consumer is often the model inside the same execution loop. The error payload is therefore an interface: it shapes what the system does next.</p>
+<h2>Key Points</h2>
+<h3>A failure class is more useful than a stack trace</h3>
+<p>The useful question after a failed tool call is not merely “what went wrong?” It is “what response is allowed to this failure?”</p>
+<p>An agent tool can usually express that answer with a small set of categories:</p>
+<table>
+<thead>
+<tr>
+<th>Failure class</th>
+<th>Next action</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>invalid_request</code></td>
+<td>Repair only the named input, then retry if the deadline permits.</td>
+<td><code>start_date</code> is later than <code>end_date</code>.</td>
+</tr>
+<tr>
+<td><code>authorization_required</code></td>
+<td>Ask the user or obtain an approved credential; do not improvise access.</td>
+<td>Calendar connection has expired.</td>
+</tr>
+<tr>
+<td><code>policy_denied</code></td>
+<td>Stop this path and explain the boundary.</td>
+<td>The agent may not email an external address.</td>
+</tr>
+<tr>
+<td><code>rate_limited</code></td>
+<td>Wait for the supplied delay, subject to the overall deadline.</td>
+<td>Search API permits another request in 20 seconds.</td>
+</tr>
+<tr>
+<td><code>unavailable</code></td>
+<td>Retry only when the operation is safe and time remains; otherwise use a declared fallback or stop.</td>
+<td>Document index is temporarily unavailable.</td>
+</tr>
+<tr>
+<td><code>outcome_unknown</code></td>
+<td>Reconcile by idempotency key or lookup before any retry.</td>
+<td>Ticket creation timed out after the request was accepted.</td>
+</tr>
+</tbody></table>
+<p>Those are recommendations, not a universal taxonomy. A read-only search tool can reasonably label a timeout <code>unavailable</code>; a payment or message-sending tool should be much more cautious. The category has to reflect the operation&#39;s side effects, not just the transport error.</p>
+<p>The <a href="https://my-slops.github.io/Blog/posts/2026/03/2026-03-20-the-tool-scope-contract-for-llm-agents/">Tool-Scope Contract</a> describes what an agent is allowed to call. A recovery signal describes what it is allowed to do <em>after the call fails</em>. Both are policy surfaces.</p>
+<h3>Separate model-visible guidance from operator diagnostics</h3>
+<p>A raw exception is rarely safe or helpful context. It might include an upstream URL, internal query, account identifier, stack trace, or a retry hint that is valid for a human operator but wrong for an autonomous loop.</p>
+<p>Return two deliberately different artifacts:</p>
+<ol>
+<li>A <strong>bounded recovery result</strong> for the agent runtime: stable class, safe-to-display detail, retry information, and any field names it may repair.</li>
+<li>A <strong>diagnostic event</strong> for operators: trace ID, normalized cause, dependency details, and protected debugging context.</li>
+</ol>
+<p>The second belongs in logs and traces. The first belongs in the agent&#39;s control flow. This keeps the model from treating a database error as an instruction while preserving enough evidence to debug the incident. It also complements <a href="https://my-slops.github.io/Blog/posts/2026/08/agent-tool-calls-need-traces-not-just-logs/">agent traces</a>: a trace explains the failed execution path; the recovery result tells the current path what to do next.</p>
+<h3>Make the recovery decision executable before the model sees it</h3>
+<p>Do not ask a model to enforce retry policy from prose such as “try again later if appropriate.” The orchestrator already knows the action type, remaining deadline, attempt count, and whether an idempotency key exists. It should enforce the non-negotiable parts in code.</p>
+<p>For example:</p>
+<pre><code class="language-ts">type ToolFailure = {
+  kind:
+    | &quot;invalid_request&quot;
+    | &quot;authorization_required&quot;
+    | &quot;policy_denied&quot;
+    | &quot;rate_limited&quot;
+    | &quot;unavailable&quot;
+    | &quot;outcome_unknown&quot;;
+  safeDetail: string;
+  retryAfterMs?: number;
+  repairableFields?: string[];
+  reconciliation?: {
+    idempotencyKey: string;
+    lookupTool: &quot;tickets.find_by_idempotency_key&quot;;
+  };
+  traceId: string;
+};
+
+function nextStep(failure: ToolFailure, remainingMs: number) {
+  if (failure.kind === &quot;policy_denied&quot;) return &quot;stop&quot;;
+  if (failure.kind === &quot;authorization_required&quot;) return &quot;request_user_action&quot;;
+  if (failure.kind === &quot;outcome_unknown&quot;) return &quot;reconcile&quot;;
+  if (failure.kind === &quot;invalid_request&quot;) return &quot;repair_input&quot;;
+  if (
+    failure.kind === &quot;rate_limited&quot; &amp;&amp;
+    failure.retryAfterMs !== undefined &amp;&amp;
+    failure.retryAfterMs &lt; remainingMs
+  ) {
+    return &quot;retry_after_delay&quot;;
+  }
+  return &quot;stop_or_declared_fallback&quot;;
+}
+</code></pre>
+<p>This is illustrative, not a complete retry system. In particular, <code>retry_after_delay</code> still needs a maximum-attempt rule and a deadline check. The point is the division of labor: code owns safety invariants; the model may help with an allowed repair or choose between already-approved fallbacks.</p>
+<p>This matters for [<code>outcome_unknown</code>]. A timeout after an external write is not evidence that nothing happened. Use an idempotency key or a reconciliation lookup before retrying, as described in <a href="https://my-slops.github.io/Blog/posts/2026/03/2026-03-27-idempotency-keys-are-the-seatbelt-for-ai-agents/">Idempotency Keys Are the Seatbelt for AI Agents</a>. Giving a model permission to “try once more” is not an adequate substitute.</p>
+<h3>Use standards as a boundary, not as the whole design</h3>
+<p><a href="https://www.rfc-editor.org/rfc/rfc9457.html">RFC 9457</a> defines HTTP problem details for machine-readable error content. Its <code>type</code> member identifies the problem, and the format permits problem-specific extension members. That makes it a good transport-level envelope for a tool service.</p>
+<p>But the RFC does not know whether your agent can safely retry a write, ask a user for consent, or use a fallback provider. Those are application semantics. A practical service might map its HTTP problem into a tool-specific recovery result:</p>
+<pre><code class="language-json">{
+  &quot;type&quot;: &quot;https://api.example.com/problems/ticket-outcome-unknown&quot;,
+  &quot;title&quot;: &quot;Ticket outcome could not be confirmed&quot;,
+  &quot;status&quot;: 504,
+  &quot;kind&quot;: &quot;outcome_unknown&quot;,
+  &quot;safeDetail&quot;: &quot;The ticket service did not confirm whether it created the ticket.&quot;,
+  &quot;reconciliation&quot;: {
+    &quot;idempotencyKey&quot;: &quot;task_7e9f&quot;,
+    &quot;lookupTool&quot;: &quot;tickets.find_by_idempotency_key&quot;
+  }
+}
+</code></pre>
+<p>The <code>type</code> remains useful for generic clients and documented API semantics. <code>kind</code> gives the orchestration layer a compact policy vocabulary. Do not put credentials, raw request bodies, internal hostnames, or stack traces in either field. RFC 9457 explicitly warns that problem details are an HTTP-interface description, not a debugging channel.</p>
+<p>For temporary service unavailability, HTTP&#39;s <a href="https://www.rfc-editor.org/rfc/rfc9110.html#section-10.2.3"><code>Retry-After</code></a> header can communicate a delay in seconds or as a date. Honor it only inside the task&#39;s remaining budget. A downstream server&#39;s suggested wait must not silently overrule the user&#39;s deadline; <a href="https://my-slops.github.io/Blog/posts/2026/03/2026-03-30-deadline-budgets-are-the-missing-guardrail-for-ai-agents/">deadline budgets</a> still decide whether waiting is useful.</p>
+<h3>Test failures as paths through the agent, not just API responses</h3>
+<p>Tool tests often stop at “the service returned 429” or “the wrapper threw.” Add the next decision to each test case:</p>
+<pre><code class="language-text">Given: a read-only search returns rate_limited with retryAfterMs=15_000
+And: 25_000 ms remains in the task deadline
+Expect: one delayed retry is eligible
+
+Given: a ticket write times out with an idempotency key
+Expect: the runtime calls the reconciliation lookup before any retry
+
+Given: an external-email policy is denied
+Expect: no retry, no alternative send tool, and a user-visible boundary explanation
+</code></pre>
+<p>These cases make a subtle defect visible: an agent can be excellent at selecting tools and still be unsafe at responding to their failures. Track the resulting classes by tool and version, but keep their details out of high-cardinality metrics. The goal is to find a broken recovery contract, not to recreate the full request in a dashboard.</p>
+<h2>Steps / Code</h2>
+<h3>A small design checklist for every tool</h3>
+<p>Before exposing a tool to an agent, define its failure behavior alongside its argument schema:</p>
+<ol>
+<li>List the tool&#39;s read and write operations separately.</li>
+<li>For each failure, state whether the runtime may repair, wait, retry, ask, stop, or reconcile.</li>
+<li>Require an idempotency key and lookup route for writes that can become uncertain.</li>
+<li>Keep the model-visible message factual, bounded, and free of sensitive implementation detail.</li>
+<li>Enforce deadlines, retry caps, authorization, and policy denial in the orchestrator.</li>
+<li>Add one test for each allowed recovery path and one for every forbidden retry.</li>
+</ol>
+<p>The list should be short enough to review when a tool changes. If it becomes a long catalogue of English exceptions, the recovery contract is probably too vague for code to enforce.</p>
+<h2>Trade-offs</h2>
+<p>Typed recovery results add API design work, and not every internal script needs a six-way taxonomy. A single read-only tool with no retries may only need <code>invalid_request</code> and <code>unavailable</code>.</p>
+<p>There is also a real risk of overexposing operational detail. A message that helps a model correct a date field is useful; a message that names the database replica, authorization policy internals, or another customer&#39;s resource is not. Keep the structured result narrow and maintain a separate access-controlled diagnostic path.</p>
+<p>Finally, categories do not make an unreliable dependency reliable. A bad classification can be worse than an omitted one: marking an unknown payment result as retryable invites duplication. Start with conservative <code>stop</code> or <code>reconcile</code> behavior for side effects, then relax it only when the downstream contract proves the operation is safe.</p>
+<h2>References</h2>
+<ul>
+<li>IETF, <a href="https://www.rfc-editor.org/rfc/rfc9457.html">RFC 9457: Problem Details for HTTP APIs</a></li>
+<li>IETF, <a href="https://www.rfc-editor.org/rfc/rfc9110.html#section-10.2.3">RFC 9110: HTTP Semantics — Retry-After</a></li>
+<li>This repository, <a href="https://my-slops.github.io/Blog/posts/2026/03/2026-03-20-the-tool-scope-contract-for-llm-agents/">The Tool-Scope Contract for LLM Agents</a></li>
+<li>This repository, <a href="https://my-slops.github.io/Blog/posts/2026/03/2026-03-27-idempotency-keys-are-the-seatbelt-for-ai-agents/">Idempotency Keys Are the Seatbelt for AI Agents</a></li>
+<li>This repository, <a href="https://my-slops.github.io/Blog/posts/2026/03/2026-03-30-deadline-budgets-are-the-missing-guardrail-for-ai-agents/">Deadline Budgets Are the Missing Guardrail for AI Agents</a></li>
+<li>This repository, <a href="https://my-slops.github.io/Blog/posts/2026/08/agent-tool-calls-need-traces-not-just-logs/">Agent Tool Calls Need Traces, Not Just Logs</a></li>
+</ul>
+<h2>Final Take</h2>
+<p>An agent does not just need to know that a tool failed. It needs a safe next move.</p>
+<p>Make that move explicit. Return a compact recovery class, let code enforce the hard boundaries, reconcile uncertain writes before retrying, and reserve detailed diagnostics for operators. Then a failure stops being an invitation for the model to guess and becomes part of a control loop you can review.</p>
+<h2>Changelog</h2>
+<ul>
+<li>2026-09-21: Initial publish.</li>
+</ul>
+
+    </article>
+  </body>
+</html>

@@ -1,7 +1,22 @@
 {
   "tag": "security",
-  "count": 3,
+  "count": 4,
   "posts": [
+    {
+      "title": "A Tool Error Is an Instruction to Your Agent",
+      "date": "2026-09-21",
+      "updated": "2026-09-21",
+      "summary": "Tool errors are part of an agent's control loop. Return a bounded, typed recovery signal so the agent can distinguish a repairable request from a policy denial, a rate limit, and an action whose completion is unknown.",
+      "tags": [
+        "ai agents",
+        "api design",
+        "reliability",
+        "developer tooling",
+        "security"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/09/a-tool-error-is-an-instruction-to-your-agent/",
+      "path": "posts/2026/09/2026-09-21-a-tool-error-is-an-instruction-to-your-agent.md"
+    },
     {
       "title": "The Signing-Mode Gate for Autonomous Publishing",
       "date": "2026-06-23",
