@@ -1,0 +1,32 @@
+{
+  "tag": "http",
+  "count": 2,
+  "posts": [
+    {
+      "title": "The Cache Key Is a Privacy Boundary",
+      "date": "2026-08-04",
+      "updated": "2026-08-04",
+      "summary": "Treat cache-key design as authorization design: every input that changes a permitted response must be represented or the response must not be shared.",
+      "tags": [
+        "security",
+        "HTTP",
+        "caching"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/08/the-cache-key-is-a-privacy-boundary/",
+      "path": "posts/2026/08/2026-08-04-the-cache-key-is-a-privacy-boundary.md"
+    },
+    {
+      "title": "An ETag Is a Version Boundary, Not a Cache Decoration",
+      "date": "2026-06-12",
+      "updated": "2026-06-12",
+      "summary": "Use ETags with If-Match for optimistic concurrency. A version boundary turns stale writes into visible conflicts instead of quiet data loss.",
+      "tags": [
+        "HTTP",
+        "APIs",
+        "concurrency"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/06/an-etag-is-a-version-boundary-not-a-cache-decoration/",
+      "path": "posts/2026/06/2026-06-12-an-etag-is-a-version-boundary-not-a-cache-decoration.md"
+    }
+  ]
+}

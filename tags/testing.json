@@ -1,0 +1,84 @@
+{
+  "tag": "testing",
+  "count": 6,
+  "posts": [
+    {
+      "title": "Test the Invariant, Not the Happy Path",
+      "date": "2026-09-30",
+      "updated": "2026-09-30",
+      "summary": "Find the rule that must always hold, then generate or enumerate cases around it. Happy-path examples show a feature works once; invariants show it keeps working.",
+      "tags": [
+        "testing",
+        "reliability",
+        "software engineering"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/09/test-the-invariant-not-the-happy-path/",
+      "path": "posts/2026/09/2026-09-30-test-the-invariant-not-the-happy-path.md"
+    },
+    {
+      "title": "An API Deprecation Needs a Removal Test",
+      "date": "2026-09-28",
+      "updated": "2026-09-28",
+      "summary": "Deprecations finish when the old behavior can be removed safely. Add contract checks and usage evidence that exercise that future state before the deadline.",
+      "tags": [
+        "API design",
+        "testing",
+        "software maintenance"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/09/an-api-deprecation-needs-a-removal-test/",
+      "path": "posts/2026/09/2026-09-28-an-api-deprecation-needs-a-removal-test.md"
+    },
+    {
+      "title": "Test Data Is Production Configuration",
+      "date": "2026-09-24",
+      "updated": "2026-09-24",
+      "summary": "Version, review, and deliberately compose test data. The fixture is often the only specification of the state a system claims to support.",
+      "tags": [
+        "testing",
+        "software engineering",
+        "data modeling"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/09/test-data-is-production-configuration/",
+      "path": "posts/2026/09/2026-09-24-test-data-is-production-configuration.md"
+    },
+    {
+      "title": "A Test Environment That Skips Auth Is Not Staging",
+      "date": "2026-09-12",
+      "updated": "2026-09-12",
+      "summary": "Use test identities and realistic authorization paths in staging. A bypassed auth layer makes a fast demo environment, not a production rehearsal.",
+      "tags": [
+        "security",
+        "testing",
+        "operations"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/09/a-test-environment-that-skips-auth-is-not-staging/",
+      "path": "posts/2026/09/2026-09-12-a-test-environment-that-skips-auth-is-not-staging.md"
+    },
+    {
+      "title": "Schema Validation Does Not Prove a Migration Is Safe",
+      "date": "2026-09-10",
+      "updated": "2026-09-10",
+      "summary": "Schema validation catches shape errors, not semantic compatibility. Test migrations against representative old data and the decisions consumers make from it.",
+      "tags": [
+        "API design",
+        "data contracts",
+        "testing"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/09/schema-validation-does-not-prove-a-migration-is-safe/",
+      "path": "posts/2026/09/2026-09-10-schema-validation-does-not-prove-a-migration-is-safe.md"
+    },
+    {
+      "title": "A Screenshot Cannot Test the Interaction That Produced It",
+      "date": "2026-07-16",
+      "updated": "2026-07-16",
+      "summary": "Use screenshots for visual assertions and browser interaction tests for behavior. A static image cannot validate the path a user took to reach it.",
+      "tags": [
+        "testing",
+        "frontend",
+        "accessibility"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/07/a-screenshot-cannot-test-the-interaction-that-produced-it/",
+      "path": "posts/2026/07/2026-07-16-a-screenshot-cannot-test-the-interaction-that-produced-it.md"
+    }
+  ]
+}

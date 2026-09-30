@@ -1,0 +1,19 @@
+{
+  "tag": "software maintenance",
+  "count": 1,
+  "posts": [
+    {
+      "title": "An API Deprecation Needs a Removal Test",
+      "date": "2026-09-28",
+      "updated": "2026-09-28",
+      "summary": "Deprecations finish when the old behavior can be removed safely. Add contract checks and usage evidence that exercise that future state before the deadline.",
+      "tags": [
+        "API design",
+        "testing",
+        "software maintenance"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/09/an-api-deprecation-needs-a-removal-test/",
+      "path": "posts/2026/09/2026-09-28-an-api-deprecation-needs-a-removal-test.md"
+    }
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "tag": "concurrency",
+  "count": 1,
+  "posts": [
+    {
+      "title": "An ETag Is a Version Boundary, Not a Cache Decoration",
+      "date": "2026-06-12",
+      "updated": "2026-06-12",
+      "summary": "Use ETags with If-Match for optimistic concurrency. A version boundary turns stale writes into visible conflicts instead of quiet data loss.",
+      "tags": [
+        "HTTP",
+        "APIs",
+        "concurrency"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/06/an-etag-is-a-version-boundary-not-a-cache-decoration/",
+      "path": "posts/2026/06/2026-06-12-an-etag-is-a-version-boundary-not-a-cache-decoration.md"
+    }
+  ]
+}

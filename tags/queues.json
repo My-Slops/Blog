@@ -1,0 +1,19 @@
+{
+  "tag": "queues",
+  "count": 1,
+  "posts": [
+    {
+      "title": "Retry Queues Need Deadlines, Not Just Attempt Counts",
+      "date": "2026-09-14",
+      "updated": "2026-09-14",
+      "summary": "Attach an expiry to retryable work. The deadline protects systems from turning a temporary dependency failure into stale, surprising side effects.",
+      "tags": [
+        "reliability",
+        "queues",
+        "distributed systems"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/09/retry-queues-need-deadlines-not-just-attempt-counts/",
+      "path": "posts/2026/09/2026-09-14-retry-queues-need-deadlines-not-just-attempt-counts.md"
+    }
+  ]
+}

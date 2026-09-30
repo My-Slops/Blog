@@ -1,0 +1,32 @@
+{
+  "tag": "data modeling",
+  "count": 2,
+  "posts": [
+    {
+      "title": "Test Data Is Production Configuration",
+      "date": "2026-09-24",
+      "updated": "2026-09-24",
+      "summary": "Version, review, and deliberately compose test data. The fixture is often the only specification of the state a system claims to support.",
+      "tags": [
+        "testing",
+        "software engineering",
+        "data modeling"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/09/test-data-is-production-configuration/",
+      "path": "posts/2026/09/2026-09-24-test-data-is-production-configuration.md"
+    },
+    {
+      "title": "NOT NULL Cannot Tell You What a Field Means",
+      "date": "2026-06-14",
+      "updated": "2026-06-14",
+      "summary": "A non-null database value is not a semantic contract. Name units, ownership, lifecycle, and interpretation at the boundary where data acquires meaning.",
+      "tags": [
+        "databases",
+        "data modeling",
+        "API design"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/06/not-null-cannot-tell-you-what-a-field-means/",
+      "path": "posts/2026/06/2026-06-14-not-null-cannot-tell-you-what-a-field-means.md"
+    }
+  ]
+}

@@ -1,0 +1,32 @@
+{
+  "tag": "databases",
+  "count": 2,
+  "posts": [
+    {
+      "title": "The Quarantine Table Is Part of the Importer",
+      "date": "2026-06-20",
+      "updated": "2026-06-20",
+      "summary": "Preserve rejected input with its reason, source position, and batch identity. Quarantine makes partial progress auditable and repairable.",
+      "tags": [
+        "data engineering",
+        "reliability",
+        "databases"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/06/the-quarantine-table-is-part-of-the-importer/",
+      "path": "posts/2026/06/2026-06-20-the-quarantine-table-is-part-of-the-importer.md"
+    },
+    {
+      "title": "NOT NULL Cannot Tell You What a Field Means",
+      "date": "2026-06-14",
+      "updated": "2026-06-14",
+      "summary": "A non-null database value is not a semantic contract. Name units, ownership, lifecycle, and interpretation at the boundary where data acquires meaning.",
+      "tags": [
+        "databases",
+        "data modeling",
+        "API design"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/06/not-null-cannot-tell-you-what-a-field-means/",
+      "path": "posts/2026/06/2026-06-14-not-null-cannot-tell-you-what-a-field-means.md"
+    }
+  ]
+}

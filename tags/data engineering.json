@@ -1,0 +1,19 @@
+{
+  "tag": "data engineering",
+  "count": 1,
+  "posts": [
+    {
+      "title": "The Quarantine Table Is Part of the Importer",
+      "date": "2026-06-20",
+      "updated": "2026-06-20",
+      "summary": "Preserve rejected input with its reason, source position, and batch identity. Quarantine makes partial progress auditable and repairable.",
+      "tags": [
+        "data engineering",
+        "reliability",
+        "databases"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/06/the-quarantine-table-is-part-of-the-importer/",
+      "path": "posts/2026/06/2026-06-20-the-quarantine-table-is-part-of-the-importer.md"
+    }
+  ]
+}

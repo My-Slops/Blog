@@ -1,0 +1,19 @@
+{
+  "tag": "event systems",
+  "count": 1,
+  "posts": [
+    {
+      "title": "A Log Line Cannot Prove a Message Was Processed",
+      "date": "2026-09-13",
+      "updated": "2026-09-13",
+      "summary": "Define processing by its durable effect and acknowledgement boundary, not by an optimistic log line emitted at the start of a handler.",
+      "tags": [
+        "event systems",
+        "observability",
+        "reliability"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/09/a-log-line-cannot-prove-a-message-was-processed/",
+      "path": "posts/2026/09/2026-09-13-a-log-line-cannot-prove-a-message-was-processed.md"
+    }
+  ]
+}

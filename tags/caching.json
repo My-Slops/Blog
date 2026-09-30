@@ -1,0 +1,19 @@
+{
+  "tag": "caching",
+  "count": 1,
+  "posts": [
+    {
+      "title": "The Cache Key Is a Privacy Boundary",
+      "date": "2026-08-04",
+      "updated": "2026-08-04",
+      "summary": "Treat cache-key design as authorization design: every input that changes a permitted response must be represented or the response must not be shared.",
+      "tags": [
+        "security",
+        "HTTP",
+        "caching"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/08/the-cache-key-is-a-privacy-boundary/",
+      "path": "posts/2026/08/2026-08-04-the-cache-key-is-a-privacy-boundary.md"
+    }
+  ]
+}

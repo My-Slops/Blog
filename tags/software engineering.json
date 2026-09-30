@@ -1,0 +1,45 @@
+{
+  "tag": "software engineering",
+  "count": 3,
+  "posts": [
+    {
+      "title": "Test the Invariant, Not the Happy Path",
+      "date": "2026-09-30",
+      "updated": "2026-09-30",
+      "summary": "Find the rule that must always hold, then generate or enumerate cases around it. Happy-path examples show a feature works once; invariants show it keeps working.",
+      "tags": [
+        "testing",
+        "reliability",
+        "software engineering"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/09/test-the-invariant-not-the-happy-path/",
+      "path": "posts/2026/09/2026-09-30-test-the-invariant-not-the-happy-path.md"
+    },
+    {
+      "title": "Test Data Is Production Configuration",
+      "date": "2026-09-24",
+      "updated": "2026-09-24",
+      "summary": "Version, review, and deliberately compose test data. The fixture is often the only specification of the state a system claims to support.",
+      "tags": [
+        "testing",
+        "software engineering",
+        "data modeling"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/09/test-data-is-production-configuration/",
+      "path": "posts/2026/09/2026-09-24-test-data-is-production-configuration.md"
+    },
+    {
+      "title": "Repository Context Is a Dependency, Not a Prompt Attachment",
+      "date": "2026-07-18",
+      "updated": "2026-07-18",
+      "summary": "Give coding agents a deliberate repository slice: the relevant code, tests, policy files, and current Git state. More files are not automatically more context.",
+      "tags": [
+        "AI agents",
+        "developer tooling",
+        "software engineering"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/07/repository-context-is-a-dependency-not-a-prompt-attachment/",
+      "path": "posts/2026/07/2026-07-18-repository-context-is-a-dependency-not-a-prompt-attachment.md"
+    }
+  ]
+}

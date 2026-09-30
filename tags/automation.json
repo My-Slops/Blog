@@ -1,0 +1,19 @@
+{
+  "tag": "automation",
+  "count": 1,
+  "posts": [
+    {
+      "title": "Authorize the Next Action, Not the Whole Agent",
+      "date": "2026-09-29",
+      "updated": "2026-09-29",
+      "summary": "Represent authorization as a scoped, expiring capability for the concrete next action. It is easier to review, revoke, and audit than a permanent agent role.",
+      "tags": [
+        "AI agents",
+        "security",
+        "automation"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/09/authorize-the-next-action-not-the-whole-agent/",
+      "path": "posts/2026/09/2026-09-29-authorize-the-next-action-not-the-whole-agent.md"
+    }
+  ]
+}

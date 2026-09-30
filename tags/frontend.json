@@ -1,0 +1,19 @@
+{
+  "tag": "frontend",
+  "count": 1,
+  "posts": [
+    {
+      "title": "A Screenshot Cannot Test the Interaction That Produced It",
+      "date": "2026-07-16",
+      "updated": "2026-07-16",
+      "summary": "Use screenshots for visual assertions and browser interaction tests for behavior. A static image cannot validate the path a user took to reach it.",
+      "tags": [
+        "testing",
+        "frontend",
+        "accessibility"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/07/a-screenshot-cannot-test-the-interaction-that-produced-it/",
+      "path": "posts/2026/07/2026-07-16-a-screenshot-cannot-test-the-interaction-that-produced-it.md"
+    }
+  ]
+}

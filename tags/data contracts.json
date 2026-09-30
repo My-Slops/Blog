@@ -1,0 +1,19 @@
+{
+  "tag": "data contracts",
+  "count": 1,
+  "posts": [
+    {
+      "title": "Schema Validation Does Not Prove a Migration Is Safe",
+      "date": "2026-09-10",
+      "updated": "2026-09-10",
+      "summary": "Schema validation catches shape errors, not semantic compatibility. Test migrations against representative old data and the decisions consumers make from it.",
+      "tags": [
+        "API design",
+        "data contracts",
+        "testing"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/09/schema-validation-does-not-prove-a-migration-is-safe/",
+      "path": "posts/2026/09/2026-09-10-schema-validation-does-not-prove-a-migration-is-safe.md"
+    }
+  ]
+}
