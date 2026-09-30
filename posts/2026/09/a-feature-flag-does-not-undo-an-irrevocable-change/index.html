@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>A Feature Flag Does Not Undo an Irrevocable Change | Blog</title>
+    <meta name="description" content="Use flags to limit exposure, but design a compensating action for every irreversible side effect. A toggle is not a rollback plan." />
+    <link rel="canonical" href="https://my-slops.github.io/Blog/posts/2026/09/a-feature-flag-does-not-undo-an-irrevocable-change/" />
+    <style>
+      :root { color-scheme: light dark; }
+      body { font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; line-height: 1.7; max-width: 760px; margin: 40px auto; padding: 0 16px; }
+      a { color: #0a58ca; text-decoration: none; }
+      a:hover { text-decoration: underline; }
+      .meta { color: #666; font-size: 0.95rem; margin-bottom: 1rem; }
+      .tags { display: flex; gap: 0.5rem; list-style: none; padding: 0; margin: 0.75rem 0 1.25rem; flex-wrap: wrap; }
+      .tags li { background: #eef2ff; color: #3730a3; border-radius: 999px; padding: 0.2rem 0.6rem; font-size: 0.8rem; }
+      article h1, article h2, article h3 { line-height: 1.3; }
+      article pre { overflow-x: auto; background: #111827; color: #f9fafb; padding: 0.9rem; border-radius: 8px; }
+      article code { font-family: ui-monospace,SFMono-Regular,Menlo,monospace; }
+      article blockquote { border-left: 4px solid #d1d5db; margin: 1rem 0; padding: 0.2rem 0.9rem; color: #4b5563; }
+      hr { border: 0; border-top: 1px solid #e5e7eb; margin: 2rem 0; }
+    </style>
+  </head>
+  <body>
+    <p><a href="https://my-slops.github.io/Blog/">← Home</a></p>
+    <article>
+      <h1>A Feature Flag Does Not Undo an Irrevocable Change</h1>
+      <p class="meta">Sep 17, 2026</p>
+      <ul class="tags"><li>feature flags</li><li>deployment</li><li>reliability</li></ul>
+      <p>Feature flags are good at stopping new traffic from entering code. They are bad at reversing a statement that has already left your system.</p>
+<p>If a rollout sends invoices, migrates a customer&#39;s stored preference, or creates a cloud resource, disabling the flag prevents the next execution. It does not delete the invoice, restore the old preference, or reliably find every resource created while the flag was enabled.</p>
+<h2>Separate exposure from compensation</h2>
+<p>For every flagged workflow, make two decisions:</p>
+<ol>
+<li>What future behavior does the flag gate?</li>
+<li>What compensating action exists for an effect already committed?</li>
+</ol>
+<pre><code class="language-text">flag off       -&gt; stop issuing new invitations
+compensation   -&gt; revoke unaccepted invitations by campaign ID
+not possible   -&gt; disclose that accepted invitations require manual handling
+</code></pre>
+<p>The campaign ID is important. Compensation needs an identity that separates rollout effects from ordinary work. “Delete all invitations created today” is not a rollback; it is a broad new incident.</p>
+<p>Some effects are intentionally irreversible. An email may be delivered; a ledger entry may need a correcting entry rather than deletion. The right plan can be to stop, account for the affected set, and communicate. Pretending the flag returned the world to its prior state only delays that work.</p>
+<h2>References</h2>
+<ul>
+<li><a href="https://martinfowler.com/articles/feature-toggles.html">Martin Fowler: Feature Toggles</a> describes flags as a release technique with operational costs.</li>
+<li><a href="https://docs.aws.amazon.com/wellarchitected/latest/operational-excellence-pillar/ops_mit_change_management.html">AWS Well-Architected: Change management</a> discusses reversible changes and rollback planning.</li>
+</ul>
+<h2>Final take</h2>
+<p>A flag is a brake on future execution. A rollback is a separate design for the past.</p>
+<h2>Changelog</h2>
+<ul>
+<li>2026-10-03T00:08:49-04:00: Recovered the 2026-09-17 scheduled slot; no retained completed editorial decision existed.</li>
+</ul>
+
+    </article>
+  </body>
+</html>

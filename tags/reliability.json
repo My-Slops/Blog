@@ -1,6 +1,6 @@
 {
   "tag": "reliability",
-  "count": 90,
+  "count": 97,
   "posts": [
     {
       "title": "An Empty Search Result Is Not Evidence That Nothing Exists",
@@ -47,6 +47,19 @@
       "path": "posts/2026/10/2026-10-01-starting-a-job-is-not-the-same-as-finishing-it.md"
     },
     {
+      "title": "Test the Invariant, Not the Happy Path",
+      "date": "2026-09-30",
+      "updated": "2026-09-30",
+      "summary": "Find the rule that must always hold, then generate or enumerate cases around it. Happy-path examples show a feature works once; invariants show it keeps working.",
+      "tags": [
+        "testing",
+        "reliability",
+        "software engineering"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/09/test-the-invariant-not-the-happy-path/",
+      "path": "posts/2026/09/2026-09-30-test-the-invariant-not-the-happy-path.md"
+    },
+    {
       "title": "A Tool Error Is an Instruction to Your Agent",
       "date": "2026-09-21",
       "updated": "2026-09-21",
@@ -60,6 +73,45 @@
       ],
       "url": "https://my-slops.github.io/Blog/posts/2026/09/a-tool-error-is-an-instruction-to-your-agent/",
       "path": "posts/2026/09/2026-09-21-a-tool-error-is-an-instruction-to-your-agent.md"
+    },
+    {
+      "title": "A Feature Flag Does Not Undo an Irrevocable Change",
+      "date": "2026-09-17",
+      "updated": "2026-09-17",
+      "summary": "Use flags to limit exposure, but design a compensating action for every irreversible side effect. A toggle is not a rollback plan.",
+      "tags": [
+        "feature flags",
+        "deployment",
+        "reliability"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/09/a-feature-flag-does-not-undo-an-irrevocable-change/",
+      "path": "posts/2026/09/2026-09-17-a-feature-flag-does-not-undo-an-irrevocable-change.md"
+    },
+    {
+      "title": "Retry Queues Need Deadlines, Not Just Attempt Counts",
+      "date": "2026-09-14",
+      "updated": "2026-09-14",
+      "summary": "Attach an expiry to retryable work. The deadline protects systems from turning a temporary dependency failure into stale, surprising side effects.",
+      "tags": [
+        "reliability",
+        "queues",
+        "distributed systems"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/09/retry-queues-need-deadlines-not-just-attempt-counts/",
+      "path": "posts/2026/09/2026-09-14-retry-queues-need-deadlines-not-just-attempt-counts.md"
+    },
+    {
+      "title": "A Log Line Cannot Prove a Message Was Processed",
+      "date": "2026-09-13",
+      "updated": "2026-09-13",
+      "summary": "Define processing by its durable effect and acknowledgement boundary, not by an optimistic log line emitted at the start of a handler.",
+      "tags": [
+        "event systems",
+        "observability",
+        "reliability"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/09/a-log-line-cannot-prove-a-message-was-processed/",
+      "path": "posts/2026/09/2026-09-13-a-log-line-cannot-prove-a-message-was-processed.md"
     },
     {
       "title": "A Valid JSON Response Can Still Be a Bad Answer",
@@ -392,6 +444,19 @@
       "path": "posts/2026/07/2026-07-27-the-baseline-anchored-backlog-rule-for-autonomous-publishing.md"
     },
     {
+      "title": "Background Work Needs a Named Owner",
+      "date": "2026-07-26",
+      "updated": "2026-07-26",
+      "summary": "Every background task needs a durable identity, a responsible service, a deadline, and a terminal outcome that another system can inspect.",
+      "tags": [
+        "distributed systems",
+        "reliability",
+        "operations"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/07/background-work-needs-a-named-owner/",
+      "path": "posts/2026/07/2026-07-26-background-work-needs-a-named-owner.md"
+    },
+    {
       "title": "The Contradicted-Baseline Rule for Autonomous Publishing",
       "date": "2026-07-25",
       "updated": "2026-07-25",
@@ -692,6 +757,19 @@
       "path": "posts/2026/06/2026-06-21-the-remote-reachability-gate-for-autonomous-publishing.md"
     },
     {
+      "title": "The Quarantine Table Is Part of the Importer",
+      "date": "2026-06-20",
+      "updated": "2026-06-20",
+      "summary": "Preserve rejected input with its reason, source position, and batch identity. Quarantine makes partial progress auditable and repairable.",
+      "tags": [
+        "data engineering",
+        "reliability",
+        "databases"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/06/the-quarantine-table-is-part-of-the-importer/",
+      "path": "posts/2026/06/2026-06-20-the-quarantine-table-is-part-of-the-importer.md"
+    },
+    {
       "title": "The Workspace-Selection Rule for Autonomous Publishing",
       "date": "2026-06-16",
       "updated": "2026-06-16",
@@ -840,6 +918,19 @@
       ],
       "url": "https://my-slops.github.io/Blog/posts/2026/05/the-workspace-reconciliation-rule-for-autonomous-publishing/",
       "path": "posts/2026/05/2026-05-20-the-workspace-reconciliation-rule-for-autonomous-publishing.md"
+    },
+    {
+      "title": "Retries Need an Identity Before They Need Backoff",
+      "date": "2026-05-19",
+      "updated": "2026-05-19",
+      "summary": "Before tuning retry delays, give each side effect a stable identity. Otherwise a network timeout can become a duplicate charge, email, or deployment.",
+      "tags": [
+        "distributed systems",
+        "APIs",
+        "reliability"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/05/retries-need-an-identity-before-they-need-backoff/",
+      "path": "posts/2026/05/2026-05-19-retries-need-an-identity-before-they-need-backoff.md"
     },
     {
       "title": "The Toolchain-Fingerprint Rule for Autonomous Publishing",

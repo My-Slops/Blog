@@ -1,7 +1,33 @@
 {
   "tag": "operations",
-  "count": 17,
+  "count": 19,
   "posts": [
+    {
+      "title": "A Test Environment That Skips Auth Is Not Staging",
+      "date": "2026-09-12",
+      "updated": "2026-09-12",
+      "summary": "Use test identities and realistic authorization paths in staging. A bypassed auth layer makes a fast demo environment, not a production rehearsal.",
+      "tags": [
+        "security",
+        "testing",
+        "operations"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/09/a-test-environment-that-skips-auth-is-not-staging/",
+      "path": "posts/2026/09/2026-09-12-a-test-environment-that-skips-auth-is-not-staging.md"
+    },
+    {
+      "title": "Background Work Needs a Named Owner",
+      "date": "2026-07-26",
+      "updated": "2026-07-26",
+      "summary": "Every background task needs a durable identity, a responsible service, a deadline, and a terminal outcome that another system can inspect.",
+      "tags": [
+        "distributed systems",
+        "reliability",
+        "operations"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/07/background-work-needs-a-named-owner/",
+      "path": "posts/2026/07/2026-07-26-background-work-needs-a-named-owner.md"
+    },
     {
       "title": "The Unpublished Backlog Budget for Autonomous Publishing",
       "date": "2026-07-22",

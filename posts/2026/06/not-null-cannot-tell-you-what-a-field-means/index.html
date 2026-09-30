@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>NOT NULL Cannot Tell You What a Field Means | Blog</title>
+    <meta name="description" content="A non-null database value is not a semantic contract. Name units, ownership, lifecycle, and interpretation at the boundary where data acquires meaning." />
+    <link rel="canonical" href="https://my-slops.github.io/Blog/posts/2026/06/not-null-cannot-tell-you-what-a-field-means/" />
+    <style>
+      :root { color-scheme: light dark; }
+      body { font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; line-height: 1.7; max-width: 760px; margin: 40px auto; padding: 0 16px; }
+      a { color: #0a58ca; text-decoration: none; }
+      a:hover { text-decoration: underline; }
+      .meta { color: #666; font-size: 0.95rem; margin-bottom: 1rem; }
+      .tags { display: flex; gap: 0.5rem; list-style: none; padding: 0; margin: 0.75rem 0 1.25rem; flex-wrap: wrap; }
+      .tags li { background: #eef2ff; color: #3730a3; border-radius: 999px; padding: 0.2rem 0.6rem; font-size: 0.8rem; }
+      article h1, article h2, article h3 { line-height: 1.3; }
+      article pre { overflow-x: auto; background: #111827; color: #f9fafb; padding: 0.9rem; border-radius: 8px; }
+      article code { font-family: ui-monospace,SFMono-Regular,Menlo,monospace; }
+      article blockquote { border-left: 4px solid #d1d5db; margin: 1rem 0; padding: 0.2rem 0.9rem; color: #4b5563; }
+      hr { border: 0; border-top: 1px solid #e5e7eb; margin: 2rem 0; }
+    </style>
+  </head>
+  <body>
+    <p><a href="https://my-slops.github.io/Blog/">← Home</a></p>
+    <article>
+      <h1>NOT NULL Cannot Tell You What a Field Means</h1>
+      <p class="meta">Jun 14, 2026</p>
+      <ul class="tags"><li>databases</li><li>data modeling</li><li>API design</li></ul>
+      <p><code>NOT NULL</code> is one of the most valuable constraints in a database. It is also surprisingly easy to over-credit.</p>
+<p>Consider a required <code>amount</code> column. The database can guarantee that every row contains a number. It cannot tell whether the number is cents or dollars, gross or net, a quote or a settled charge, or which currency makes it meaningful. All of those rows can satisfy <code>NOT NULL</code> while disagreeing about the product.</p>
+<p>The failure usually appears later as an “integration bug”: one service emits <code>amount: 1250</code>, another assumes 1250 dollars, and an analytics job sums values from both. The schema was valid. The data model was not.</p>
+<h2>Constraints have a boundary</h2>
+<p>Use database constraints for facts the database can actually enforce: presence, range, uniqueness, referential identity, and a finite state set. Then carry semantic premises explicitly.</p>
+<pre><code class="language-sql">create table invoice_lines (
+  invoice_id uuid not null references invoices(id),
+  amount_minor bigint not null check (amount_minor &gt;= 0),
+  currency char(3) not null,
+  pricing_basis text not null check (pricing_basis in (&#39;quoted&#39;, &#39;settled&#39;))
+);
+</code></pre>
+<p><code>amount_minor</code> says more than <code>amount</code>; <code>currency</code> prevents an otherwise invisible unit mismatch; <code>pricing_basis</code> makes a lifecycle distinction queryable. None is decorative metadata. Each stops a plausible but wrong interpretation.</p>
+<p>The API boundary needs the same discipline. A JSON schema can verify that <code>currency</code> is a string of three characters. It cannot decide whether the sender is allowed to use a currency that the account has disabled, or whether the amount belongs to the account&#39;s negotiated price list. Those are business invariants, and they deserve named validation in the domain layer.</p>
+<h2>Avoid encoding “unknown” as a normal value</h2>
+<p>Teams often make a required field by substituting a sentinel: <code>0</code>, <code>&quot;N/A&quot;</code>, <code>1970-01-01</code>, or a fake foreign key. That turns absence into data and forces every reader to remember a private exception. Prefer an explicit nullable state while information is genuinely unavailable, or split the workflow so a record cannot enter a later state until required facts exist.</p>
+<p>The right constraint is often temporal: “a draft may omit a tax code; an issued invoice may not.” A single <code>NOT NULL</code> at table creation cannot express that lifecycle by itself.</p>
+<h2>References</h2>
+<ul>
+<li><a href="https://www.postgresql.org/docs/16/ddl-constraints.html">PostgreSQL documentation: Constraints</a> explains the structural guarantees available to relational schemas.</li>
+<li><a href="https://json-schema.org/draft/2020-12/json-schema-validation.html">JSON Schema 2020-12 validation</a> specifies structural JSON validation, not product semantics.</li>
+</ul>
+<h2>Final take</h2>
+<p>A required value is evidence that something was supplied, not evidence that everyone will read it the same way. Model the missing meaning before it becomes a production convention.</p>
+<h2>Changelog</h2>
+<ul>
+<li>2026-10-03T00:08:49-04:00: Recovered the 2026-06-14 scheduled slot; no retained publishable draft existed.</li>
+</ul>
+
+    </article>
+  </body>
+</html>

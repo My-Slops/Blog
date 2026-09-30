@@ -1,7 +1,20 @@
 {
   "tag": "observability",
-  "count": 1,
+  "count": 3,
   "posts": [
+    {
+      "title": "A Log Line Cannot Prove a Message Was Processed",
+      "date": "2026-09-13",
+      "updated": "2026-09-13",
+      "summary": "Define processing by its durable effect and acknowledgement boundary, not by an optimistic log line emitted at the start of a handler.",
+      "tags": [
+        "event systems",
+        "observability",
+        "reliability"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/09/a-log-line-cannot-prove-a-message-was-processed/",
+      "path": "posts/2026/09/2026-09-13-a-log-line-cannot-prove-a-message-was-processed.md"
+    },
     {
       "title": "Agent Tool Calls Need Traces, Not Just Logs",
       "date": "2026-08-26",
@@ -16,6 +29,19 @@
       ],
       "url": "https://my-slops.github.io/Blog/posts/2026/08/agent-tool-calls-need-traces-not-just-logs/",
       "path": "posts/2026/08/2026-08-26-agent-tool-calls-need-traces-not-just-logs.md"
+    },
+    {
+      "title": "An Incident Timeline Needs Two Clocks",
+      "date": "2026-07-05",
+      "updated": "2026-07-05",
+      "summary": "Record when an event occurred and when your system learned about it. Delayed delivery, clock skew, and retries make the distinction operationally necessary.",
+      "tags": [
+        "observability",
+        "distributed systems",
+        "incident response"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/07/an-incident-timeline-needs-two-clocks/",
+      "path": "posts/2026/07/2026-07-05-an-incident-timeline-needs-two-clocks.md"
     }
   ]
 }

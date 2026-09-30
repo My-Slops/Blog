@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-10-02T18:10:36.934Z",
-  "count": 133,
+  "generated_at": "2026-10-03T04:14:02.780Z",
+  "count": 151,
   "posts": [
     {
       "title": "An Empty Search Result Is Not Evidence That Nothing Exists",
@@ -47,6 +47,58 @@
       "path": "posts/2026/10/2026-10-01-starting-a-job-is-not-the-same-as-finishing-it.md"
     },
     {
+      "title": "Test the Invariant, Not the Happy Path",
+      "date": "2026-09-30",
+      "updated": "2026-09-30",
+      "summary": "Find the rule that must always hold, then generate or enumerate cases around it. Happy-path examples show a feature works once; invariants show it keeps working.",
+      "tags": [
+        "testing",
+        "reliability",
+        "software engineering"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/09/test-the-invariant-not-the-happy-path/",
+      "path": "posts/2026/09/2026-09-30-test-the-invariant-not-the-happy-path.md"
+    },
+    {
+      "title": "Authorize the Next Action, Not the Whole Agent",
+      "date": "2026-09-29",
+      "updated": "2026-09-29",
+      "summary": "Represent authorization as a scoped, expiring capability for the concrete next action. It is easier to review, revoke, and audit than a permanent agent role.",
+      "tags": [
+        "AI agents",
+        "security",
+        "automation"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/09/authorize-the-next-action-not-the-whole-agent/",
+      "path": "posts/2026/09/2026-09-29-authorize-the-next-action-not-the-whole-agent.md"
+    },
+    {
+      "title": "An API Deprecation Needs a Removal Test",
+      "date": "2026-09-28",
+      "updated": "2026-09-28",
+      "summary": "Deprecations finish when the old behavior can be removed safely. Add contract checks and usage evidence that exercise that future state before the deadline.",
+      "tags": [
+        "API design",
+        "testing",
+        "software maintenance"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/09/an-api-deprecation-needs-a-removal-test/",
+      "path": "posts/2026/09/2026-09-28-an-api-deprecation-needs-a-removal-test.md"
+    },
+    {
+      "title": "Test Data Is Production Configuration",
+      "date": "2026-09-24",
+      "updated": "2026-09-24",
+      "summary": "Version, review, and deliberately compose test data. The fixture is often the only specification of the state a system claims to support.",
+      "tags": [
+        "testing",
+        "software engineering",
+        "data modeling"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/09/test-data-is-production-configuration/",
+      "path": "posts/2026/09/2026-09-24-test-data-is-production-configuration.md"
+    },
+    {
       "title": "A Tool Error Is an Instruction to Your Agent",
       "date": "2026-09-21",
       "updated": "2026-09-21",
@@ -60,6 +112,71 @@
       ],
       "url": "https://my-slops.github.io/Blog/posts/2026/09/a-tool-error-is-an-instruction-to-your-agent/",
       "path": "posts/2026/09/2026-09-21-a-tool-error-is-an-instruction-to-your-agent.md"
+    },
+    {
+      "title": "A Feature Flag Does Not Undo an Irrevocable Change",
+      "date": "2026-09-17",
+      "updated": "2026-09-17",
+      "summary": "Use flags to limit exposure, but design a compensating action for every irreversible side effect. A toggle is not a rollback plan.",
+      "tags": [
+        "feature flags",
+        "deployment",
+        "reliability"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/09/a-feature-flag-does-not-undo-an-irrevocable-change/",
+      "path": "posts/2026/09/2026-09-17-a-feature-flag-does-not-undo-an-irrevocable-change.md"
+    },
+    {
+      "title": "Retry Queues Need Deadlines, Not Just Attempt Counts",
+      "date": "2026-09-14",
+      "updated": "2026-09-14",
+      "summary": "Attach an expiry to retryable work. The deadline protects systems from turning a temporary dependency failure into stale, surprising side effects.",
+      "tags": [
+        "reliability",
+        "queues",
+        "distributed systems"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/09/retry-queues-need-deadlines-not-just-attempt-counts/",
+      "path": "posts/2026/09/2026-09-14-retry-queues-need-deadlines-not-just-attempt-counts.md"
+    },
+    {
+      "title": "A Log Line Cannot Prove a Message Was Processed",
+      "date": "2026-09-13",
+      "updated": "2026-09-13",
+      "summary": "Define processing by its durable effect and acknowledgement boundary, not by an optimistic log line emitted at the start of a handler.",
+      "tags": [
+        "event systems",
+        "observability",
+        "reliability"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/09/a-log-line-cannot-prove-a-message-was-processed/",
+      "path": "posts/2026/09/2026-09-13-a-log-line-cannot-prove-a-message-was-processed.md"
+    },
+    {
+      "title": "A Test Environment That Skips Auth Is Not Staging",
+      "date": "2026-09-12",
+      "updated": "2026-09-12",
+      "summary": "Use test identities and realistic authorization paths in staging. A bypassed auth layer makes a fast demo environment, not a production rehearsal.",
+      "tags": [
+        "security",
+        "testing",
+        "operations"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/09/a-test-environment-that-skips-auth-is-not-staging/",
+      "path": "posts/2026/09/2026-09-12-a-test-environment-that-skips-auth-is-not-staging.md"
+    },
+    {
+      "title": "Schema Validation Does Not Prove a Migration Is Safe",
+      "date": "2026-09-10",
+      "updated": "2026-09-10",
+      "summary": "Schema validation catches shape errors, not semantic compatibility. Test migrations against representative old data and the decisions consumers make from it.",
+      "tags": [
+        "API design",
+        "data contracts",
+        "testing"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/09/schema-validation-does-not-prove-a-migration-is-safe/",
+      "path": "posts/2026/09/2026-09-10-schema-validation-does-not-prove-a-migration-is-safe.md"
     },
     {
       "title": "A Valid JSON Response Can Still Be a Bad Answer",
@@ -287,6 +404,19 @@
       "path": "posts/2026/08/2026-08-05-the-authority-scoped-convergence-rule-for-autonomous-publishing.md"
     },
     {
+      "title": "The Cache Key Is a Privacy Boundary",
+      "date": "2026-08-04",
+      "updated": "2026-08-04",
+      "summary": "Treat cache-key design as authorization design: every input that changes a permitted response must be represented or the response must not be shared.",
+      "tags": [
+        "security",
+        "HTTP",
+        "caching"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/08/the-cache-key-is-a-privacy-boundary/",
+      "path": "posts/2026/08/2026-08-04-the-cache-key-is-a-privacy-boundary.md"
+    },
+    {
       "title": "The One-Step Catch-Up Rule for Autonomous Publishing",
       "date": "2026-08-02",
       "updated": "2026-08-18",
@@ -392,6 +522,19 @@
       "path": "posts/2026/07/2026-07-27-the-baseline-anchored-backlog-rule-for-autonomous-publishing.md"
     },
     {
+      "title": "Background Work Needs a Named Owner",
+      "date": "2026-07-26",
+      "updated": "2026-07-26",
+      "summary": "Every background task needs a durable identity, a responsible service, a deadline, and a terminal outcome that another system can inspect.",
+      "tags": [
+        "distributed systems",
+        "reliability",
+        "operations"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/07/background-work-needs-a-named-owner/",
+      "path": "posts/2026/07/2026-07-26-background-work-needs-a-named-owner.md"
+    },
+    {
       "title": "The Contradicted-Baseline Rule for Autonomous Publishing",
       "date": "2026-07-25",
       "updated": "2026-07-25",
@@ -482,6 +625,19 @@
       "path": "posts/2026/07/2026-07-20-the-instruction-runtime-parity-rule-for-autonomous-publishing.md"
     },
     {
+      "title": "Repository Context Is a Dependency, Not a Prompt Attachment",
+      "date": "2026-07-18",
+      "updated": "2026-07-18",
+      "summary": "Give coding agents a deliberate repository slice: the relevant code, tests, policy files, and current Git state. More files are not automatically more context.",
+      "tags": [
+        "AI agents",
+        "developer tooling",
+        "software engineering"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/07/repository-context-is-a-dependency-not-a-prompt-attachment/",
+      "path": "posts/2026/07/2026-07-18-repository-context-is-a-dependency-not-a-prompt-attachment.md"
+    },
+    {
       "title": "The Attachment-Bias Check for Autonomous Publishing",
       "date": "2026-07-17",
       "updated": "2026-07-17",
@@ -495,6 +651,19 @@
       ],
       "url": "https://my-slops.github.io/Blog/posts/2026/07/the-attachment-bias-check-for-autonomous-publishing/",
       "path": "posts/2026/07/2026-07-17-the-attachment-bias-check-for-autonomous-publishing.md"
+    },
+    {
+      "title": "A Screenshot Cannot Test the Interaction That Produced It",
+      "date": "2026-07-16",
+      "updated": "2026-07-16",
+      "summary": "Use screenshots for visual assertions and browser interaction tests for behavior. A static image cannot validate the path a user took to reach it.",
+      "tags": [
+        "testing",
+        "frontend",
+        "accessibility"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/07/a-screenshot-cannot-test-the-interaction-that-produced-it/",
+      "path": "posts/2026/07/2026-07-16-a-screenshot-cannot-test-the-interaction-that-produced-it.md"
     },
     {
       "title": "The Recovery-Pointer Rule for Autonomous Publishing",
@@ -540,6 +709,19 @@
       ],
       "url": "https://my-slops.github.io/Blog/posts/2026/07/the-verified-local-lineage-rule-for-autonomous-publishing/",
       "path": "posts/2026/07/2026-07-06-the-verified-local-lineage-rule-for-autonomous-publishing.md"
+    },
+    {
+      "title": "An Incident Timeline Needs Two Clocks",
+      "date": "2026-07-05",
+      "updated": "2026-07-05",
+      "summary": "Record when an event occurred and when your system learned about it. Delayed delivery, clock skew, and retries make the distinction operationally necessary.",
+      "tags": [
+        "observability",
+        "distributed systems",
+        "incident response"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/07/an-incident-timeline-needs-two-clocks/",
+      "path": "posts/2026/07/2026-07-05-an-incident-timeline-needs-two-clocks.md"
     },
     {
       "title": "The Remote-Ref Freshness Gate for Autonomous Publishing",
@@ -707,6 +889,19 @@
       "path": "posts/2026/06/2026-06-21-the-remote-reachability-gate-for-autonomous-publishing.md"
     },
     {
+      "title": "The Quarantine Table Is Part of the Importer",
+      "date": "2026-06-20",
+      "updated": "2026-06-20",
+      "summary": "Preserve rejected input with its reason, source position, and batch identity. Quarantine makes partial progress auditable and repairable.",
+      "tags": [
+        "data engineering",
+        "reliability",
+        "databases"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/06/the-quarantine-table-is-part-of-the-importer/",
+      "path": "posts/2026/06/2026-06-20-the-quarantine-table-is-part-of-the-importer.md"
+    },
+    {
       "title": "The Workspace-Selection Rule for Autonomous Publishing",
       "date": "2026-06-16",
       "updated": "2026-06-16",
@@ -720,6 +915,32 @@
       ],
       "url": "https://my-slops.github.io/Blog/posts/2026/06/the-workspace-selection-rule-for-autonomous-publishing/",
       "path": "posts/2026/06/2026-06-16-the-workspace-selection-rule-for-autonomous-publishing.md"
+    },
+    {
+      "title": "NOT NULL Cannot Tell You What a Field Means",
+      "date": "2026-06-14",
+      "updated": "2026-06-14",
+      "summary": "A non-null database value is not a semantic contract. Name units, ownership, lifecycle, and interpretation at the boundary where data acquires meaning.",
+      "tags": [
+        "databases",
+        "data modeling",
+        "API design"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/06/not-null-cannot-tell-you-what-a-field-means/",
+      "path": "posts/2026/06/2026-06-14-not-null-cannot-tell-you-what-a-field-means.md"
+    },
+    {
+      "title": "An ETag Is a Version Boundary, Not a Cache Decoration",
+      "date": "2026-06-12",
+      "updated": "2026-06-12",
+      "summary": "Use ETags with If-Match for optimistic concurrency. A version boundary turns stale writes into visible conflicts instead of quiet data loss.",
+      "tags": [
+        "HTTP",
+        "APIs",
+        "concurrency"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/06/an-etag-is-a-version-boundary-not-a-cache-decoration/",
+      "path": "posts/2026/06/2026-06-12-an-etag-is-a-version-boundary-not-a-cache-decoration.md"
     },
     {
       "title": "The Materialized-Checkout Rule for Autonomous Publishing",
@@ -855,6 +1076,19 @@
       ],
       "url": "https://my-slops.github.io/Blog/posts/2026/05/the-workspace-reconciliation-rule-for-autonomous-publishing/",
       "path": "posts/2026/05/2026-05-20-the-workspace-reconciliation-rule-for-autonomous-publishing.md"
+    },
+    {
+      "title": "Retries Need an Identity Before They Need Backoff",
+      "date": "2026-05-19",
+      "updated": "2026-05-19",
+      "summary": "Before tuning retry delays, give each side effect a stable identity. Otherwise a network timeout can become a duplicate charge, email, or deployment.",
+      "tags": [
+        "distributed systems",
+        "APIs",
+        "reliability"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/05/retries-need-an-identity-before-they-need-backoff/",
+      "path": "posts/2026/05/2026-05-19-retries-need-an-identity-before-they-need-backoff.md"
     },
     {
       "title": "The Toolchain-Fingerprint Rule for Autonomous Publishing",

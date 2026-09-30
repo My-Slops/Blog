@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Test Data Is Production Configuration | Blog</title>
+    <meta name="description" content="Version, review, and deliberately compose test data. The fixture is often the only specification of the state a system claims to support." />
+    <link rel="canonical" href="https://my-slops.github.io/Blog/posts/2026/09/test-data-is-production-configuration/" />
+    <style>
+      :root { color-scheme: light dark; }
+      body { font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; line-height: 1.7; max-width: 760px; margin: 40px auto; padding: 0 16px; }
+      a { color: #0a58ca; text-decoration: none; }
+      a:hover { text-decoration: underline; }
+      .meta { color: #666; font-size: 0.95rem; margin-bottom: 1rem; }
+      .tags { display: flex; gap: 0.5rem; list-style: none; padding: 0; margin: 0.75rem 0 1.25rem; flex-wrap: wrap; }
+      .tags li { background: #eef2ff; color: #3730a3; border-radius: 999px; padding: 0.2rem 0.6rem; font-size: 0.8rem; }
+      article h1, article h2, article h3 { line-height: 1.3; }
+      article pre { overflow-x: auto; background: #111827; color: #f9fafb; padding: 0.9rem; border-radius: 8px; }
+      article code { font-family: ui-monospace,SFMono-Regular,Menlo,monospace; }
+      article blockquote { border-left: 4px solid #d1d5db; margin: 1rem 0; padding: 0.2rem 0.9rem; color: #4b5563; }
+      hr { border: 0; border-top: 1px solid #e5e7eb; margin: 2rem 0; }
+    </style>
+  </head>
+  <body>
+    <p><a href="https://my-slops.github.io/Blog/">← Home</a></p>
+    <article>
+      <h1>Test Data Is Production Configuration</h1>
+      <p class="meta">Sep 24, 2026</p>
+      <ul class="tags"><li>testing</li><li>software engineering</li><li>data modeling</li></ul>
+      <p>Many integration tests “pass” because their fixture contains an accidental superuser, an account with every feature enabled, and a timestamp far from any boundary. The test data did not merely set up a test. It chose the product configuration under which the code is allowed to work.</p>
+<p>That makes fixtures part of the system&#39;s operational specification.</p>
+<h2>Name the state the test needs</h2>
+<p>Instead of a generic <code>userFixture()</code>, prefer data that exposes the relevant premise:</p>
+<pre><code class="language-ts">const suspendedTenant = await createTenant({ status: &#39;suspended&#39; });
+const viewer = await createUser({ tenantId: suspendedTenant.id, role: &#39;viewer&#39; });
+</code></pre>
+<p>Now a failing test tells a reader which state transition or permission was expected. A blob of defaults makes the same test dependent on whatever the factory happened to choose this month.</p>
+<p>Seed data for demos and staging deserves similar discipline. If a release check assumes an account has an expired card or a pending invitation, keep that state reproducible and versioned. A hand-edited shared environment may be useful for exploration, but it is not a reliable release dependency.</p>
+<h2>Include the awkward representatives</h2>
+<p>Healthy, populated records are necessary. So are an empty account, a long-lived account with historical data, a non-default time zone, a tenant at its limit, and a user with the least privilege that should succeed. The point is not exhaustive combinatorics. It is choosing examples that exercise the product distinctions real users encounter.</p>
+<h2>References</h2>
+<ul>
+<li><a href="https://12factor.net/dev-prod-parity">12 Factor App: Dev/prod parity</a> argues for reducing environment drift; fixture drift is a closely related application-level form.</li>
+<li><a href="https://cheatsheetseries.owasp.org/cheatsheets/Authorization_Cheat_Sheet.html">OWASP Authorization Cheat Sheet</a> emphasizes testing authorization decisions across roles and resources.</li>
+</ul>
+<h2>Final take</h2>
+<p>When a test&#39;s outcome depends on state, that state is configuration. Give it a name, a lifecycle, and review equal to the code that consumes it.</p>
+<h2>Changelog</h2>
+<ul>
+<li>2026-10-03T00:08:49-04:00: Recovered the 2026-09-24 scheduled slot after reviewing prior posts for duplication.</li>
+</ul>
+
+    </article>
+  </body>
+</html>

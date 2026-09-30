@@ -1,7 +1,20 @@
 {
   "tag": "deployment",
-  "count": 8,
+  "count": 9,
   "posts": [
+    {
+      "title": "A Feature Flag Does Not Undo an Irrevocable Change",
+      "date": "2026-09-17",
+      "updated": "2026-09-17",
+      "summary": "Use flags to limit exposure, but design a compensating action for every irreversible side effect. A toggle is not a rollback plan.",
+      "tags": [
+        "feature flags",
+        "deployment",
+        "reliability"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/09/a-feature-flag-does-not-undo-an-irrevocable-change/",
+      "path": "posts/2026/09/2026-09-17-a-feature-flag-does-not-undo-an-irrevocable-change.md"
+    },
     {
       "title": "The Base-Path Parity Rule for Autonomous Publishing",
       "date": "2026-06-27",

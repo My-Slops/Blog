@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Background Work Needs a Named Owner | Blog</title>
+    <meta name="description" content="Every background task needs a durable identity, a responsible service, a deadline, and a terminal outcome that another system can inspect." />
+    <link rel="canonical" href="https://my-slops.github.io/Blog/posts/2026/07/background-work-needs-a-named-owner/" />
+    <style>
+      :root { color-scheme: light dark; }
+      body { font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; line-height: 1.7; max-width: 760px; margin: 40px auto; padding: 0 16px; }
+      a { color: #0a58ca; text-decoration: none; }
+      a:hover { text-decoration: underline; }
+      .meta { color: #666; font-size: 0.95rem; margin-bottom: 1rem; }
+      .tags { display: flex; gap: 0.5rem; list-style: none; padding: 0; margin: 0.75rem 0 1.25rem; flex-wrap: wrap; }
+      .tags li { background: #eef2ff; color: #3730a3; border-radius: 999px; padding: 0.2rem 0.6rem; font-size: 0.8rem; }
+      article h1, article h2, article h3 { line-height: 1.3; }
+      article pre { overflow-x: auto; background: #111827; color: #f9fafb; padding: 0.9rem; border-radius: 8px; }
+      article code { font-family: ui-monospace,SFMono-Regular,Menlo,monospace; }
+      article blockquote { border-left: 4px solid #d1d5db; margin: 1rem 0; padding: 0.2rem 0.9rem; color: #4b5563; }
+      hr { border: 0; border-top: 1px solid #e5e7eb; margin: 2rem 0; }
+    </style>
+  </head>
+  <body>
+    <p><a href="https://my-slops.github.io/Blog/">← Home</a></p>
+    <article>
+      <h1>Background Work Needs a Named Owner</h1>
+      <p class="meta">Jul 26, 2026</p>
+      <ul class="tags"><li>distributed systems</li><li>reliability</li><li>operations</li></ul>
+      <p>“Queued successfully” is one of the least useful success messages in software. It means a request was accepted by a buffer. It says nothing about whether a worker will claim it, whether the input is still valid when it does, or who notices when it never reaches a terminal state.</p>
+<p>Background work becomes dependable when the task has a named owner and a durable lifecycle.</p>
+<pre><code class="language-text">job id:        export-8d2…
+owner:         reporting-worker
+created_at:    10:00
+deadline_at:   10:15
+state:         running
+attempt:       2
+</code></pre>
+<p>The owner is not necessarily a person. It may be a specific consumer group, service, or scheduler. What matters is that a stalled job is attributable rather than merely absent.</p>
+<h2>A queue is not a status database</h2>
+<p>Message brokers are optimized for delivery and consumption, not for explaining a business operation to its requester. Store job state separately, transition it atomically enough for the product&#39;s guarantees, and expose a terminal result: succeeded, failed with a reason, cancelled, or expired.</p>
+<p>The deadline matters because retries otherwise turn obsolete work into surprise work. A report generated after its customer deleted the account is not a late success. It is a policy failure. Expiration gives the system a legitimate terminal path instead of retrying forever because no worker has been told that usefulness has a time limit.</p>
+<h2>Design the abandoned case</h2>
+<p>Workers die after claiming messages. Dependencies return ambiguous errors. Deploys change the code that understands a payload. For each case, decide who may reassign work, how a duplicate claim is prevented or tolerated, and what operator can inspect the history. A dead-letter queue alone is only storage; it is not ownership.</p>
+<h2>References</h2>
+<ul>
+<li><a href="https://sre.google/sre-book/addressing-cascading-failures/">Google SRE Book: Addressing Cascading Failures</a> discusses bounded retries and work that must eventually fail visibly.</li>
+<li><a href="https://docs.aws.amazon.com/wellarchitected/latest/reliability-pillar/rel_mitigate_interaction_failure.html">AWS Well-Architected: REL05-BP03</a> covers handling failed interactions, including asynchronous patterns.</li>
+</ul>
+<h2>Final take</h2>
+<p>Asynchrony changes who observes completion. It does not remove the obligation to decide who owns it.</p>
+<h2>Changelog</h2>
+<ul>
+<li>2026-10-03T00:08:49-04:00: Recovered the 2026-07-26 scheduled slot after replacing the missing interrupted draft with a distinct editorial replay.</li>
+</ul>
+
+    </article>
+  </body>
+</html>

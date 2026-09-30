@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>A Log Line Cannot Prove a Message Was Processed | Blog</title>
+    <meta name="description" content="Define processing by its durable effect and acknowledgement boundary, not by an optimistic log line emitted at the start of a handler." />
+    <link rel="canonical" href="https://my-slops.github.io/Blog/posts/2026/09/a-log-line-cannot-prove-a-message-was-processed/" />
+    <style>
+      :root { color-scheme: light dark; }
+      body { font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; line-height: 1.7; max-width: 760px; margin: 40px auto; padding: 0 16px; }
+      a { color: #0a58ca; text-decoration: none; }
+      a:hover { text-decoration: underline; }
+      .meta { color: #666; font-size: 0.95rem; margin-bottom: 1rem; }
+      .tags { display: flex; gap: 0.5rem; list-style: none; padding: 0; margin: 0.75rem 0 1.25rem; flex-wrap: wrap; }
+      .tags li { background: #eef2ff; color: #3730a3; border-radius: 999px; padding: 0.2rem 0.6rem; font-size: 0.8rem; }
+      article h1, article h2, article h3 { line-height: 1.3; }
+      article pre { overflow-x: auto; background: #111827; color: #f9fafb; padding: 0.9rem; border-radius: 8px; }
+      article code { font-family: ui-monospace,SFMono-Regular,Menlo,monospace; }
+      article blockquote { border-left: 4px solid #d1d5db; margin: 1rem 0; padding: 0.2rem 0.9rem; color: #4b5563; }
+      hr { border: 0; border-top: 1px solid #e5e7eb; margin: 2rem 0; }
+    </style>
+  </head>
+  <body>
+    <p><a href="https://my-slops.github.io/Blog/">← Home</a></p>
+    <article>
+      <h1>A Log Line Cannot Prove a Message Was Processed</h1>
+      <p class="meta">Sep 13, 2026</p>
+      <ul class="tags"><li>event systems</li><li>observability</li><li>reliability</li></ul>
+      <p><code>processed message order-184</code> is one of the easiest lies a log can tell.</p>
+<p>The handler may have emitted it before validating the payload. It may crash after writing one of two necessary records. It may commit the offset before committing the database transaction. The message was observed; it was not necessarily processed in the sense the business cares about.</p>
+<h2>Put the claim after the effect</h2>
+<p>First define the effect: “the invoice record exists and the email command is durably queued,” for example. Then make the log and metric refer to that terminal condition, with a message ID and result status.</p>
+<pre><code class="language-text">message_id=… outcome=applied invoice_id=… outbox_id=…
+</code></pre>
+<p>This does not make distributed transactions magically free. It makes the remaining gap visible. If the database effect and broker acknowledgement cannot share one transaction, use an outbox or another recovery mechanism that lets a retry determine whether the effect already exists.</p>
+<p>Consumer offsets are progress markers, not proof that downstream business state is complete. Kafka&#39;s documentation is explicit that committing an offset controls where a consumer resumes. That is useful operational state, but it should not be mistaken for an end-to-end receipt.</p>
+<h2>What to measure</h2>
+<p>Count received, rejected, applied, retried, and dead-lettered messages separately. A single “processed” counter conceals the distinction that matters during an incident: whether work is arriving, whether it is valid, and whether it changes the intended system of record.</p>
+<h2>References</h2>
+<ul>
+<li><a href="https://kafka.apache.org/documentation/#consumerconfigs_enable.auto.commit">Apache Kafka consumer documentation</a> describes offset commits and consumer progress.</li>
+<li><a href="https://microservices.io/patterns/data/transactional-outbox.html">Microservices.io: Transactional Outbox</a> explains a common way to coordinate a database effect with message publication.</li>
+</ul>
+<h2>Final take</h2>
+<p>Logs describe what code attempted. A durable effect and an acknowledgement boundary describe what the system can honestly claim.</p>
+<h2>Changelog</h2>
+<ul>
+<li>2026-10-03T00:08:49-04:00: Recovered the 2026-09-13 scheduled slot with a topic distinct from the archive’s tracing article.</li>
+</ul>
+
+    </article>
+  </body>
+</html>

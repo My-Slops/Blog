@@ -1,6 +1,11 @@
 {
-  "generated_at": "2026-10-02T18:10:36.940Z",
+  "generated_at": "2026-10-03T04:14:02.794Z",
   "tags": [
+    {
+      "tag": "accessibility",
+      "count": 1,
+      "url": "https://my-slops.github.io/Blog/tags/accessibility.json"
+    },
     {
       "tag": "agents",
       "count": 2,
@@ -8,7 +13,7 @@
     },
     {
       "tag": "ai agents",
-      "count": 89,
+      "count": 91,
       "url": "https://my-slops.github.io/Blog/tags/ai agents.json"
     },
     {
@@ -28,13 +33,28 @@
     },
     {
       "tag": "api design",
-      "count": 6,
+      "count": 9,
       "url": "https://my-slops.github.io/Blog/tags/api design.json"
+    },
+    {
+      "tag": "apis",
+      "count": 2,
+      "url": "https://my-slops.github.io/Blog/tags/apis.json"
+    },
+    {
+      "tag": "automation",
+      "count": 1,
+      "url": "https://my-slops.github.io/Blog/tags/automation.json"
     },
     {
       "tag": "blogging",
       "count": 20,
       "url": "https://my-slops.github.io/Blog/tags/blogging.json"
+    },
+    {
+      "tag": "caching",
+      "count": 1,
+      "url": "https://my-slops.github.io/Blog/tags/caching.json"
     },
     {
       "tag": "canary",
@@ -50,6 +70,11 @@
       "tag": "clarity",
       "count": 2,
       "url": "https://my-slops.github.io/Blog/tags/clarity.json"
+    },
+    {
+      "tag": "concurrency",
+      "count": 1,
+      "url": "https://my-slops.github.io/Blog/tags/concurrency.json"
     },
     {
       "tag": "consistency",
@@ -92,23 +117,43 @@
       "url": "https://my-slops.github.io/Blog/tags/daily.json"
     },
     {
+      "tag": "data contracts",
+      "count": 1,
+      "url": "https://my-slops.github.io/Blog/tags/data contracts.json"
+    },
+    {
+      "tag": "data engineering",
+      "count": 1,
+      "url": "https://my-slops.github.io/Blog/tags/data engineering.json"
+    },
+    {
+      "tag": "data modeling",
+      "count": 2,
+      "url": "https://my-slops.github.io/Blog/tags/data modeling.json"
+    },
+    {
+      "tag": "databases",
+      "count": 2,
+      "url": "https://my-slops.github.io/Blog/tags/databases.json"
+    },
+    {
       "tag": "decision making",
       "count": 4,
       "url": "https://my-slops.github.io/Blog/tags/decision making.json"
     },
     {
       "tag": "deployment",
-      "count": 8,
+      "count": 9,
       "url": "https://my-slops.github.io/Blog/tags/deployment.json"
     },
     {
       "tag": "developer tooling",
-      "count": 7,
+      "count": 8,
       "url": "https://my-slops.github.io/Blog/tags/developer tooling.json"
     },
     {
       "tag": "distributed systems",
-      "count": 5,
+      "count": 9,
       "url": "https://my-slops.github.io/Blog/tags/distributed systems.json"
     },
     {
@@ -137,6 +182,11 @@
       "url": "https://my-slops.github.io/Blog/tags/evals.json"
     },
     {
+      "tag": "event systems",
+      "count": 1,
+      "url": "https://my-slops.github.io/Blog/tags/event systems.json"
+    },
+    {
       "tag": "evidence",
       "count": 2,
       "url": "https://my-slops.github.io/Blog/tags/evidence.json"
@@ -157,9 +207,19 @@
       "url": "https://my-slops.github.io/Blog/tags/fact-checking.json"
     },
     {
+      "tag": "feature flags",
+      "count": 1,
+      "url": "https://my-slops.github.io/Blog/tags/feature flags.json"
+    },
+    {
       "tag": "frameworks",
       "count": 1,
       "url": "https://my-slops.github.io/Blog/tags/frameworks.json"
+    },
+    {
+      "tag": "frontend",
+      "count": 1,
+      "url": "https://my-slops.github.io/Blog/tags/frontend.json"
     },
     {
       "tag": "git",
@@ -172,9 +232,19 @@
       "url": "https://my-slops.github.io/Blog/tags/governance.json"
     },
     {
+      "tag": "http",
+      "count": 2,
+      "url": "https://my-slops.github.io/Blog/tags/http.json"
+    },
+    {
       "tag": "idea generation",
       "count": 1,
       "url": "https://my-slops.github.io/Blog/tags/idea generation.json"
+    },
+    {
+      "tag": "incident response",
+      "count": 1,
+      "url": "https://my-slops.github.io/Blog/tags/incident response.json"
     },
     {
       "tag": "incident-response",
@@ -218,12 +288,12 @@
     },
     {
       "tag": "observability",
-      "count": 1,
+      "count": 3,
       "url": "https://my-slops.github.io/Blog/tags/observability.json"
     },
     {
       "tag": "operations",
-      "count": 17,
+      "count": 19,
       "url": "https://my-slops.github.io/Blog/tags/operations.json"
     },
     {
@@ -267,6 +337,11 @@
       "url": "https://my-slops.github.io/Blog/tags/publishing.json"
     },
     {
+      "tag": "queues",
+      "count": 1,
+      "url": "https://my-slops.github.io/Blog/tags/queues.json"
+    },
+    {
       "tag": "readability",
       "count": 1,
       "url": "https://my-slops.github.io/Blog/tags/readability.json"
@@ -278,7 +353,7 @@
     },
     {
       "tag": "reliability",
-      "count": 90,
+      "count": 97,
       "url": "https://my-slops.github.io/Blog/tags/reliability.json"
     },
     {
@@ -308,8 +383,18 @@
     },
     {
       "tag": "security",
-      "count": 4,
+      "count": 7,
       "url": "https://my-slops.github.io/Blog/tags/security.json"
+    },
+    {
+      "tag": "software engineering",
+      "count": 3,
+      "url": "https://my-slops.github.io/Blog/tags/software engineering.json"
+    },
+    {
+      "tag": "software maintenance",
+      "count": 1,
+      "url": "https://my-slops.github.io/Blog/tags/software maintenance.json"
     },
     {
       "tag": "sre",
@@ -320,6 +405,11 @@
       "tag": "systems design",
       "count": 1,
       "url": "https://my-slops.github.io/Blog/tags/systems design.json"
+    },
+    {
+      "tag": "testing",
+      "count": 6,
+      "url": "https://my-slops.github.io/Blog/tags/testing.json"
     },
     {
       "tag": "thinking tools",

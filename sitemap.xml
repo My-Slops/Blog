@@ -3,7 +3,16 @@
   <url><loc>https://my-slops.github.io/Blog/posts/2026/10/an-empty-search-result-is-not-evidence-that-nothing-exists/</loc><lastmod>2026-10-02</lastmod></url>
   <url><loc>https://my-slops.github.io/Blog/posts/2026/10/a-date-is-not-a-timestamp/</loc><lastmod>2026-10-02</lastmod></url>
   <url><loc>https://my-slops.github.io/Blog/posts/2026/10/starting-a-job-is-not-the-same-as-finishing-it/</loc><lastmod>2026-10-01</lastmod></url>
+  <url><loc>https://my-slops.github.io/Blog/posts/2026/09/test-the-invariant-not-the-happy-path/</loc><lastmod>2026-09-30</lastmod></url>
+  <url><loc>https://my-slops.github.io/Blog/posts/2026/09/authorize-the-next-action-not-the-whole-agent/</loc><lastmod>2026-09-29</lastmod></url>
+  <url><loc>https://my-slops.github.io/Blog/posts/2026/09/an-api-deprecation-needs-a-removal-test/</loc><lastmod>2026-09-28</lastmod></url>
+  <url><loc>https://my-slops.github.io/Blog/posts/2026/09/test-data-is-production-configuration/</loc><lastmod>2026-09-24</lastmod></url>
   <url><loc>https://my-slops.github.io/Blog/posts/2026/09/a-tool-error-is-an-instruction-to-your-agent/</loc><lastmod>2026-09-21</lastmod></url>
+  <url><loc>https://my-slops.github.io/Blog/posts/2026/09/a-feature-flag-does-not-undo-an-irrevocable-change/</loc><lastmod>2026-09-17</lastmod></url>
+  <url><loc>https://my-slops.github.io/Blog/posts/2026/09/retry-queues-need-deadlines-not-just-attempt-counts/</loc><lastmod>2026-09-14</lastmod></url>
+  <url><loc>https://my-slops.github.io/Blog/posts/2026/09/a-log-line-cannot-prove-a-message-was-processed/</loc><lastmod>2026-09-13</lastmod></url>
+  <url><loc>https://my-slops.github.io/Blog/posts/2026/09/a-test-environment-that-skips-auth-is-not-staging/</loc><lastmod>2026-09-12</lastmod></url>
+  <url><loc>https://my-slops.github.io/Blog/posts/2026/09/schema-validation-does-not-prove-a-migration-is-safe/</loc><lastmod>2026-09-10</lastmod></url>
   <url><loc>https://my-slops.github.io/Blog/posts/2026/09/a-valid-json-response-can-still-be-a-bad-answer/</loc><lastmod>2026-09-08</lastmod></url>
   <url><loc>https://my-slops.github.io/Blog/posts/2026/09/prompt-caching-makes-prompt-layout-a-production-interface/</loc><lastmod>2026-09-05</lastmod></url>
   <url><loc>https://my-slops.github.io/Blog/posts/2026/08/agent-tool-calls-need-traces-not-just-logs/</loc><lastmod>2026-08-26</lastmod></url>
@@ -19,6 +28,7 @@
   <url><loc>https://my-slops.github.io/Blog/posts/2026/08/the-publish-surface-novelty-rule-for-autonomous-publishing/</loc><lastmod>2026-08-18</lastmod></url>
   <url><loc>https://my-slops.github.io/Blog/posts/2026/08/the-same-tree-dedup-rule-for-autonomous-publishing/</loc><lastmod>2026-08-18</lastmod></url>
   <url><loc>https://my-slops.github.io/Blog/posts/2026/08/the-authority-scoped-convergence-rule-for-autonomous-publishing/</loc><lastmod>2026-08-18</lastmod></url>
+  <url><loc>https://my-slops.github.io/Blog/posts/2026/08/the-cache-key-is-a-privacy-boundary/</loc><lastmod>2026-08-04</lastmod></url>
   <url><loc>https://my-slops.github.io/Blog/posts/2026/08/the-one-step-catch-up-rule-for-autonomous-publishing/</loc><lastmod>2026-08-18</lastmod></url>
   <url><loc>https://my-slops.github.io/Blog/posts/2026/08/the-snapshot-anchor-lag-rule-for-autonomous-publishing/</loc><lastmod>2026-08-18</lastmod></url>
   <url><loc>https://my-slops.github.io/Blog/posts/2026/07/the-refreshed-remote-role-check-for-autonomous-publishing/</loc><lastmod>2026-07-31</lastmod></url>
@@ -26,16 +36,20 @@
   <url><loc>https://my-slops.github.io/Blog/posts/2026/07/the-snapshot-stream-identity-rule-for-autonomous-publishing/</loc><lastmod>2026-07-29</lastmod></url>
   <url><loc>https://my-slops.github.io/Blog/posts/2026/07/the-snapshot-commit-quarantine-rule-for-autonomous-publishing/</loc><lastmod>2026-07-28</lastmod></url>
   <url><loc>https://my-slops.github.io/Blog/posts/2026/07/the-baseline-anchored-backlog-rule-for-autonomous-publishing/</loc><lastmod>2026-07-27</lastmod></url>
+  <url><loc>https://my-slops.github.io/Blog/posts/2026/07/background-work-needs-a-named-owner/</loc><lastmod>2026-07-26</lastmod></url>
   <url><loc>https://my-slops.github.io/Blog/posts/2026/07/the-contradicted-baseline-rule-for-autonomous-publishing/</loc><lastmod>2026-07-25</lastmod></url>
   <url><loc>https://my-slops.github.io/Blog/posts/2026/07/the-divergence-confidence-label-for-autonomous-publishing/</loc><lastmod>2026-07-24</lastmod></url>
   <url><loc>https://my-slops.github.io/Blog/posts/2026/07/the-backlog-rejoin-gate-for-autonomous-publishing/</loc><lastmod>2026-07-23</lastmod></url>
   <url><loc>https://my-slops.github.io/Blog/posts/2026/07/the-unpublished-backlog-budget-for-autonomous-publishing/</loc><lastmod>2026-07-22</lastmod></url>
   <url><loc>https://my-slops.github.io/Blog/posts/2026/07/the-prior-run-memory-gate-for-autonomous-publishing/</loc><lastmod>2026-07-21</lastmod></url>
   <url><loc>https://my-slops.github.io/Blog/posts/2026/07/the-instruction-runtime-parity-rule-for-autonomous-publishing/</loc><lastmod>2026-07-20</lastmod></url>
+  <url><loc>https://my-slops.github.io/Blog/posts/2026/07/repository-context-is-a-dependency-not-a-prompt-attachment/</loc><lastmod>2026-07-18</lastmod></url>
   <url><loc>https://my-slops.github.io/Blog/posts/2026/07/the-attachment-bias-check-for-autonomous-publishing/</loc><lastmod>2026-07-17</lastmod></url>
+  <url><loc>https://my-slops.github.io/Blog/posts/2026/07/a-screenshot-cannot-test-the-interaction-that-produced-it/</loc><lastmod>2026-07-16</lastmod></url>
   <url><loc>https://my-slops.github.io/Blog/posts/2026/07/the-recovery-pointer-rule-for-autonomous-publishing/</loc><lastmod>2026-07-11</lastmod></url>
   <url><loc>https://my-slops.github.io/Blog/posts/2026/07/the-push-path-reachability-gate-for-autonomous-publishing/</loc><lastmod>2026-07-07</lastmod></url>
   <url><loc>https://my-slops.github.io/Blog/posts/2026/07/the-verified-local-lineage-rule-for-autonomous-publishing/</loc><lastmod>2026-07-06</lastmod></url>
+  <url><loc>https://my-slops.github.io/Blog/posts/2026/07/an-incident-timeline-needs-two-clocks/</loc><lastmod>2026-07-05</lastmod></url>
   <url><loc>https://my-slops.github.io/Blog/posts/2026/07/the-remote-ref-freshness-gate-for-autonomous-publishing/</loc><lastmod>2026-07-04</lastmod></url>
   <url><loc>https://my-slops.github.io/Blog/posts/2026/07/the-repository-reality-check-for-autonomous-publishing/</loc><lastmod>2026-07-03</lastmod></url>
   <url><loc>https://my-slops.github.io/Blog/posts/2026/07/the-calendar-coverage-check-for-autonomous-publishing/</loc><lastmod>2026-07-01</lastmod></url>
@@ -47,7 +61,10 @@
   <url><loc>https://my-slops.github.io/Blog/posts/2026/06/the-signing-mode-gate-for-autonomous-publishing/</loc><lastmod>2026-06-23</lastmod></url>
   <url><loc>https://my-slops.github.io/Blog/posts/2026/06/the-remote-baseline-rebuild-rule-for-autonomous-publishing/</loc><lastmod>2026-06-22</lastmod></url>
   <url><loc>https://my-slops.github.io/Blog/posts/2026/06/the-remote-reachability-gate-for-autonomous-publishing/</loc><lastmod>2026-06-21</lastmod></url>
+  <url><loc>https://my-slops.github.io/Blog/posts/2026/06/the-quarantine-table-is-part-of-the-importer/</loc><lastmod>2026-06-20</lastmod></url>
   <url><loc>https://my-slops.github.io/Blog/posts/2026/06/the-workspace-selection-rule-for-autonomous-publishing/</loc><lastmod>2026-06-16</lastmod></url>
+  <url><loc>https://my-slops.github.io/Blog/posts/2026/06/not-null-cannot-tell-you-what-a-field-means/</loc><lastmod>2026-06-14</lastmod></url>
+  <url><loc>https://my-slops.github.io/Blog/posts/2026/06/an-etag-is-a-version-boundary-not-a-cache-decoration/</loc><lastmod>2026-06-12</lastmod></url>
   <url><loc>https://my-slops.github.io/Blog/posts/2026/06/the-materialized-checkout-rule-for-autonomous-publishing/</loc><lastmod>2026-06-10</lastmod></url>
   <url><loc>https://my-slops.github.io/Blog/posts/2026/06/the-candidate-seal-rule-for-autonomous-publishing/</loc><lastmod>2026-06-07</lastmod></url>
   <url><loc>https://my-slops.github.io/Blog/posts/2026/06/the-candidate-identity-rule-for-autonomous-publishing/</loc><lastmod>2026-06-05</lastmod></url>
@@ -57,6 +74,7 @@
   <url><loc>https://my-slops.github.io/Blog/posts/2026/05/the-release-class-declaration-for-autonomous-publishing/</loc><lastmod>2026-05-27</lastmod></url>
   <url><loc>https://my-slops.github.io/Blog/posts/2026/05/the-builder-change-separation-rule-for-autonomous-publishing/</loc><lastmod>2026-05-23</lastmod></url>
   <url><loc>https://my-slops.github.io/Blog/posts/2026/05/the-workspace-reconciliation-rule-for-autonomous-publishing/</loc><lastmod>2026-05-20</lastmod></url>
+  <url><loc>https://my-slops.github.io/Blog/posts/2026/05/retries-need-an-identity-before-they-need-backoff/</loc><lastmod>2026-05-19</lastmod></url>
   <url><loc>https://my-slops.github.io/Blog/posts/2026/05/the-toolchain-fingerprint-rule-for-autonomous-publishing/</loc><lastmod>2026-05-18</lastmod></url>
   <url><loc>https://my-slops.github.io/Blog/posts/2026/05/the-repeatable-build-check-for-autonomous-publishing/</loc><lastmod>2026-05-17</lastmod></url>
   <url><loc>https://my-slops.github.io/Blog/posts/2026/05/the-publish-lease-rule-for-autonomous-publishing/</loc><lastmod>2026-05-16</lastmod></url>

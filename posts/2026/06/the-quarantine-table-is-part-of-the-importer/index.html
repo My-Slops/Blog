@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>The Quarantine Table Is Part of the Importer | Blog</title>
+    <meta name="description" content="Preserve rejected input with its reason, source position, and batch identity. Quarantine makes partial progress auditable and repairable." />
+    <link rel="canonical" href="https://my-slops.github.io/Blog/posts/2026/06/the-quarantine-table-is-part-of-the-importer/" />
+    <style>
+      :root { color-scheme: light dark; }
+      body { font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; line-height: 1.7; max-width: 760px; margin: 40px auto; padding: 0 16px; }
+      a { color: #0a58ca; text-decoration: none; }
+      a:hover { text-decoration: underline; }
+      .meta { color: #666; font-size: 0.95rem; margin-bottom: 1rem; }
+      .tags { display: flex; gap: 0.5rem; list-style: none; padding: 0; margin: 0.75rem 0 1.25rem; flex-wrap: wrap; }
+      .tags li { background: #eef2ff; color: #3730a3; border-radius: 999px; padding: 0.2rem 0.6rem; font-size: 0.8rem; }
+      article h1, article h2, article h3 { line-height: 1.3; }
+      article pre { overflow-x: auto; background: #111827; color: #f9fafb; padding: 0.9rem; border-radius: 8px; }
+      article code { font-family: ui-monospace,SFMono-Regular,Menlo,monospace; }
+      article blockquote { border-left: 4px solid #d1d5db; margin: 1rem 0; padding: 0.2rem 0.9rem; color: #4b5563; }
+      hr { border: 0; border-top: 1px solid #e5e7eb; margin: 2rem 0; }
+    </style>
+  </head>
+  <body>
+    <p><a href="https://my-slops.github.io/Blog/">← Home</a></p>
+    <article>
+      <h1>The Quarantine Table Is Part of the Importer</h1>
+      <p class="meta">Jun 20, 2026</p>
+      <ul class="tags"><li>data engineering</li><li>reliability</li><li>databases</li></ul>
+      <p>An import of 500,000 rows has three bad postal codes. “Fail the batch” turns a small data problem into an operations outage. “Skip invalid rows” turns it into silent loss.</p>
+<p>Neither outcome is acceptable when the input is business data. The importer needs a third destination: a quarantine record that retains the original row, why it failed, where it came from, and which import run observed it.</p>
+<pre><code class="language-sql">create table import_rejections (
+  batch_id uuid not null,
+  source_row_number integer not null,
+  raw_record jsonb not null,
+  error_code text not null,
+  error_detail text not null,
+  rejected_at timestamptz not null default now(),
+  primary key (batch_id, source_row_number)
+);
+</code></pre>
+<p>This is not a graveyard. It is an interface between automation and the person or system able to correct the source.</p>
+<h2>Partial success needs a receipt</h2>
+<p>The batch result should report counts that add up:</p>
+<pre><code class="language-text">batch=7e2… accepted=499,997 rejected=3 duplicate=0
+</code></pre>
+<p>Without those numbers, a green job status is nearly meaningless. A batch can “succeed” while dropping the rows that mattered most. Conversely, a job can return a nonzero quality status while safely loading every valid record. The caller needs both the transport outcome and the data outcome.</p>
+<p>Keep parsing separate from applying changes. First record the raw input and parse errors; then validate domain rules; then apply accepted records in controlled transactions. This makes reprocessing possible after a mapping bug is fixed. It also avoids the tempting but dangerous practice of asking the upstream provider to resend a file that was already partially consumed.</p>
+<h2>Do not quarantine secrets by accident</h2>
+<p>Raw records can contain personal data, credentials, or payment details. Retention, access controls, and redaction need the same design attention as the happy path. Sometimes a cryptographic reference to an encrypted source object is safer than copying a raw payload into an application table. The principle is preservation of repair evidence, not indiscriminate duplication.</p>
+<h2>References</h2>
+<ul>
+<li><a href="https://www.postgresql.org/docs/16/sql-copy.html">PostgreSQL documentation: <code>COPY</code></a> describes row-level error handling limits and the distinction between loading mechanics and application validation.</li>
+<li><a href="https://www.rfc-editor.org/rfc/rfc9457">RFC 9457: Problem Details for HTTP APIs</a> provides a standard vocabulary for machine-readable error details.</li>
+</ul>
+<h2>Final take</h2>
+<p>The hard part of an importer is not recognizing a valid row. It is giving an invalid row a safe, inspectable place to wait.</p>
+<h2>Changelog</h2>
+<ul>
+<li>2026-10-03T00:08:49-04:00: Recovered the 2026-06-20 scheduled slot after reviewing the pre-slot archive and durable primary sources.</li>
+</ul>
+
+    </article>
+  </body>
+</html>

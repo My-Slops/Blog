@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Schema Validation Does Not Prove a Migration Is Safe | Blog</title>
+    <meta name="description" content="Schema validation catches shape errors, not semantic compatibility. Test migrations against representative old data and the decisions consumers make from it." />
+    <link rel="canonical" href="https://my-slops.github.io/Blog/posts/2026/09/schema-validation-does-not-prove-a-migration-is-safe/" />
+    <style>
+      :root { color-scheme: light dark; }
+      body { font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; line-height: 1.7; max-width: 760px; margin: 40px auto; padding: 0 16px; }
+      a { color: #0a58ca; text-decoration: none; }
+      a:hover { text-decoration: underline; }
+      .meta { color: #666; font-size: 0.95rem; margin-bottom: 1rem; }
+      .tags { display: flex; gap: 0.5rem; list-style: none; padding: 0; margin: 0.75rem 0 1.25rem; flex-wrap: wrap; }
+      .tags li { background: #eef2ff; color: #3730a3; border-radius: 999px; padding: 0.2rem 0.6rem; font-size: 0.8rem; }
+      article h1, article h2, article h3 { line-height: 1.3; }
+      article pre { overflow-x: auto; background: #111827; color: #f9fafb; padding: 0.9rem; border-radius: 8px; }
+      article code { font-family: ui-monospace,SFMono-Regular,Menlo,monospace; }
+      article blockquote { border-left: 4px solid #d1d5db; margin: 1rem 0; padding: 0.2rem 0.9rem; color: #4b5563; }
+      hr { border: 0; border-top: 1px solid #e5e7eb; margin: 2rem 0; }
+    </style>
+  </head>
+  <body>
+    <p><a href="https://my-slops.github.io/Blog/">← Home</a></p>
+    <article>
+      <h1>Schema Validation Does Not Prove a Migration Is Safe</h1>
+      <p class="meta">Sep 10, 2026</p>
+      <ul class="tags"><li>API design</li><li>data contracts</li><li>testing</li></ul>
+      <p>Changing <code>status: &quot;active&quot;</code> into <code>status: &quot;enabled&quot;</code> can be schema-valid on both sides of a migration. It can also quietly stop every old consumer from granting access.</p>
+<p>Schemas answer a narrow and valuable question: is this document shaped like the declared contract? They do not establish that a new field has the same business meaning, that a default preserves old behavior, or that a consumer&#39;s branch logic reaches the same outcome.</p>
+<h2>Compatibility is a behavioral claim</h2>
+<p>Suppose a producer replaces a missing boolean with an explicit default:</p>
+<pre><code class="language-json">// old record
+{ &quot;send_receipts&quot;: false }
+
+// new producer&#39;s intended default
+{ &quot;send_receipts&quot;: true }
+</code></pre>
+<p>Both records may validate. The migration is still breaking if consumers previously interpreted absence or <code>false</code> as an opt-out. The question is not “does the JSON parse?” It is “does a record produced before and after the change produce the intended decision?”</p>
+<p>Keep a fixture corpus of historic payloads, including records with omitted fields, deprecated enum values, and surprising but accepted combinations. Run the new reader against them. For a stateful migration, use a copy of the oldest supported database and execute the actual migration chain; a schema created from scratch misses ordering and backfill defects.</p>
+<h2>Make ambiguity explicit at the boundary</h2>
+<p>If a new interpretation needs a new policy, name it. Do not overload a familiar field and expect every downstream system to discover the nuance on its own. Versioning can help, but a version number is not compatibility by itself; it only makes the difference detectable.</p>
+<h2>References</h2>
+<ul>
+<li><a href="https://json-schema.org/draft/2020-12/json-schema-validation.html">JSON Schema validation specification</a> defines validation keywords and their structural scope.</li>
+<li><a href="https://www.postgresql.org/docs/16/sql-altertable.html">PostgreSQL documentation: <code>ALTER TABLE</code></a> documents schema operations; application compatibility remains an additional responsibility.</li>
+</ul>
+<h2>Final take</h2>
+<p>Passing a schema is evidence that data has a permitted shape. A safe migration needs evidence that the system still makes the right decisions from that shape.</p>
+<h2>Changelog</h2>
+<ul>
+<li>2026-10-03T00:08:49-04:00: Recovered the 2026-09-10 scheduled slot after a fresh historical editorial review.</li>
+</ul>
+
+    </article>
+  </body>
+</html>

@@ -1,6 +1,6 @@
 {
   "tag": "ai agents",
-  "count": 89,
+  "count": 91,
   "posts": [
     {
       "title": "An Empty Search Result Is Not Evidence That Nothing Exists",
@@ -31,6 +31,19 @@
       ],
       "url": "https://my-slops.github.io/Blog/posts/2026/10/starting-a-job-is-not-the-same-as-finishing-it/",
       "path": "posts/2026/10/2026-10-01-starting-a-job-is-not-the-same-as-finishing-it.md"
+    },
+    {
+      "title": "Authorize the Next Action, Not the Whole Agent",
+      "date": "2026-09-29",
+      "updated": "2026-09-29",
+      "summary": "Represent authorization as a scoped, expiring capability for the concrete next action. It is easier to review, revoke, and audit than a permanent agent role.",
+      "tags": [
+        "AI agents",
+        "security",
+        "automation"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/09/authorize-the-next-action-not-the-whole-agent/",
+      "path": "posts/2026/09/2026-09-29-authorize-the-next-action-not-the-whole-agent.md"
     },
     {
       "title": "A Tool Error Is an Instruction to Your Agent",
@@ -466,6 +479,19 @@
       ],
       "url": "https://my-slops.github.io/Blog/posts/2026/07/the-instruction-runtime-parity-rule-for-autonomous-publishing/",
       "path": "posts/2026/07/2026-07-20-the-instruction-runtime-parity-rule-for-autonomous-publishing.md"
+    },
+    {
+      "title": "Repository Context Is a Dependency, Not a Prompt Attachment",
+      "date": "2026-07-18",
+      "updated": "2026-07-18",
+      "summary": "Give coding agents a deliberate repository slice: the relevant code, tests, policy files, and current Git state. More files are not automatically more context.",
+      "tags": [
+        "AI agents",
+        "developer tooling",
+        "software engineering"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/07/repository-context-is-a-dependency-not-a-prompt-attachment/",
+      "path": "posts/2026/07/2026-07-18-repository-context-is-a-dependency-not-a-prompt-attachment.md"
     },
     {
       "title": "The Attachment-Bias Check for Autonomous Publishing",

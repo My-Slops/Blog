@@ -1,6 +1,6 @@
 {
   "tag": "api design",
-  "count": 6,
+  "count": 9,
   "posts": [
     {
       "title": "An Empty Search Result Is Not Evidence That Nothing Exists",
@@ -47,6 +47,19 @@
       "path": "posts/2026/10/2026-10-01-starting-a-job-is-not-the-same-as-finishing-it.md"
     },
     {
+      "title": "An API Deprecation Needs a Removal Test",
+      "date": "2026-09-28",
+      "updated": "2026-09-28",
+      "summary": "Deprecations finish when the old behavior can be removed safely. Add contract checks and usage evidence that exercise that future state before the deadline.",
+      "tags": [
+        "API design",
+        "testing",
+        "software maintenance"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/09/an-api-deprecation-needs-a-removal-test/",
+      "path": "posts/2026/09/2026-09-28-an-api-deprecation-needs-a-removal-test.md"
+    },
+    {
       "title": "A Tool Error Is an Instruction to Your Agent",
       "date": "2026-09-21",
       "updated": "2026-09-21",
@@ -62,6 +75,19 @@
       "path": "posts/2026/09/2026-09-21-a-tool-error-is-an-instruction-to-your-agent.md"
     },
     {
+      "title": "Schema Validation Does Not Prove a Migration Is Safe",
+      "date": "2026-09-10",
+      "updated": "2026-09-10",
+      "summary": "Schema validation catches shape errors, not semantic compatibility. Test migrations against representative old data and the decisions consumers make from it.",
+      "tags": [
+        "API design",
+        "data contracts",
+        "testing"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/09/schema-validation-does-not-prove-a-migration-is-safe/",
+      "path": "posts/2026/09/2026-09-10-schema-validation-does-not-prove-a-migration-is-safe.md"
+    },
+    {
       "title": "A Valid JSON Response Can Still Be a Bad Answer",
       "date": "2026-09-08",
       "updated": "2026-09-08",
@@ -75,6 +101,19 @@
       ],
       "url": "https://my-slops.github.io/Blog/posts/2026/09/a-valid-json-response-can-still-be-a-bad-answer/",
       "path": "posts/2026/09/2026-09-08-a-valid-json-response-can-still-be-a-bad-answer.md"
+    },
+    {
+      "title": "NOT NULL Cannot Tell You What a Field Means",
+      "date": "2026-06-14",
+      "updated": "2026-06-14",
+      "summary": "A non-null database value is not a semantic contract. Name units, ownership, lifecycle, and interpretation at the boundary where data acquires meaning.",
+      "tags": [
+        "databases",
+        "data modeling",
+        "API design"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/06/not-null-cannot-tell-you-what-a-field-means/",
+      "path": "posts/2026/06/2026-06-14-not-null-cannot-tell-you-what-a-field-means.md"
     },
     {
       "title": "Idempotency Keys Are the Seatbelt for AI Agents",

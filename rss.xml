@@ -27,11 +27,74 @@
     <description>A successful call can mean that work was accepted, not that its external effect happened. Model long-running work as an operation with a durable status and make agents distinguish started from completed.</description>
   </item>
   <item>
+    <title>Test the Invariant, Not the Happy Path</title>
+    <link>https://my-slops.github.io/Blog/posts/2026/09/test-the-invariant-not-the-happy-path/</link>
+    <guid>https://my-slops.github.io/Blog/posts/2026/09/test-the-invariant-not-the-happy-path/</guid>
+    <pubDate>Wed, 30 Sep 2026 00:00:00 GMT</pubDate>
+    <description>Find the rule that must always hold, then generate or enumerate cases around it. Happy-path examples show a feature works once; invariants show it keeps working.</description>
+  </item>
+  <item>
+    <title>Authorize the Next Action, Not the Whole Agent</title>
+    <link>https://my-slops.github.io/Blog/posts/2026/09/authorize-the-next-action-not-the-whole-agent/</link>
+    <guid>https://my-slops.github.io/Blog/posts/2026/09/authorize-the-next-action-not-the-whole-agent/</guid>
+    <pubDate>Tue, 29 Sep 2026 00:00:00 GMT</pubDate>
+    <description>Represent authorization as a scoped, expiring capability for the concrete next action. It is easier to review, revoke, and audit than a permanent agent role.</description>
+  </item>
+  <item>
+    <title>An API Deprecation Needs a Removal Test</title>
+    <link>https://my-slops.github.io/Blog/posts/2026/09/an-api-deprecation-needs-a-removal-test/</link>
+    <guid>https://my-slops.github.io/Blog/posts/2026/09/an-api-deprecation-needs-a-removal-test/</guid>
+    <pubDate>Mon, 28 Sep 2026 00:00:00 GMT</pubDate>
+    <description>Deprecations finish when the old behavior can be removed safely. Add contract checks and usage evidence that exercise that future state before the deadline.</description>
+  </item>
+  <item>
+    <title>Test Data Is Production Configuration</title>
+    <link>https://my-slops.github.io/Blog/posts/2026/09/test-data-is-production-configuration/</link>
+    <guid>https://my-slops.github.io/Blog/posts/2026/09/test-data-is-production-configuration/</guid>
+    <pubDate>Thu, 24 Sep 2026 00:00:00 GMT</pubDate>
+    <description>Version, review, and deliberately compose test data. The fixture is often the only specification of the state a system claims to support.</description>
+  </item>
+  <item>
     <title>A Tool Error Is an Instruction to Your Agent</title>
     <link>https://my-slops.github.io/Blog/posts/2026/09/a-tool-error-is-an-instruction-to-your-agent/</link>
     <guid>https://my-slops.github.io/Blog/posts/2026/09/a-tool-error-is-an-instruction-to-your-agent/</guid>
     <pubDate>Mon, 21 Sep 2026 00:00:00 GMT</pubDate>
     <description>Tool errors are part of an agent&apos;s control loop. Return a bounded, typed recovery signal so the agent can distinguish a repairable request from a policy denial, a rate limit, and an action whose completion is unknown.</description>
+  </item>
+  <item>
+    <title>A Feature Flag Does Not Undo an Irrevocable Change</title>
+    <link>https://my-slops.github.io/Blog/posts/2026/09/a-feature-flag-does-not-undo-an-irrevocable-change/</link>
+    <guid>https://my-slops.github.io/Blog/posts/2026/09/a-feature-flag-does-not-undo-an-irrevocable-change/</guid>
+    <pubDate>Thu, 17 Sep 2026 00:00:00 GMT</pubDate>
+    <description>Use flags to limit exposure, but design a compensating action for every irreversible side effect. A toggle is not a rollback plan.</description>
+  </item>
+  <item>
+    <title>Retry Queues Need Deadlines, Not Just Attempt Counts</title>
+    <link>https://my-slops.github.io/Blog/posts/2026/09/retry-queues-need-deadlines-not-just-attempt-counts/</link>
+    <guid>https://my-slops.github.io/Blog/posts/2026/09/retry-queues-need-deadlines-not-just-attempt-counts/</guid>
+    <pubDate>Mon, 14 Sep 2026 00:00:00 GMT</pubDate>
+    <description>Attach an expiry to retryable work. The deadline protects systems from turning a temporary dependency failure into stale, surprising side effects.</description>
+  </item>
+  <item>
+    <title>A Log Line Cannot Prove a Message Was Processed</title>
+    <link>https://my-slops.github.io/Blog/posts/2026/09/a-log-line-cannot-prove-a-message-was-processed/</link>
+    <guid>https://my-slops.github.io/Blog/posts/2026/09/a-log-line-cannot-prove-a-message-was-processed/</guid>
+    <pubDate>Sun, 13 Sep 2026 00:00:00 GMT</pubDate>
+    <description>Define processing by its durable effect and acknowledgement boundary, not by an optimistic log line emitted at the start of a handler.</description>
+  </item>
+  <item>
+    <title>A Test Environment That Skips Auth Is Not Staging</title>
+    <link>https://my-slops.github.io/Blog/posts/2026/09/a-test-environment-that-skips-auth-is-not-staging/</link>
+    <guid>https://my-slops.github.io/Blog/posts/2026/09/a-test-environment-that-skips-auth-is-not-staging/</guid>
+    <pubDate>Sat, 12 Sep 2026 00:00:00 GMT</pubDate>
+    <description>Use test identities and realistic authorization paths in staging. A bypassed auth layer makes a fast demo environment, not a production rehearsal.</description>
+  </item>
+  <item>
+    <title>Schema Validation Does Not Prove a Migration Is Safe</title>
+    <link>https://my-slops.github.io/Blog/posts/2026/09/schema-validation-does-not-prove-a-migration-is-safe/</link>
+    <guid>https://my-slops.github.io/Blog/posts/2026/09/schema-validation-does-not-prove-a-migration-is-safe/</guid>
+    <pubDate>Thu, 10 Sep 2026 00:00:00 GMT</pubDate>
+    <description>Schema validation catches shape errors, not semantic compatibility. Test migrations against representative old data and the decisions consumers make from it.</description>
   </item>
   <item>
     <title>A Valid JSON Response Can Still Be a Bad Answer</title>
@@ -139,6 +202,13 @@
     <description>There is no such thing as globally converged publishing state. The authority-scoped convergence rule requires every claim of alignment to name the source that grants release permission.</description>
   </item>
   <item>
+    <title>The Cache Key Is a Privacy Boundary</title>
+    <link>https://my-slops.github.io/Blog/posts/2026/08/the-cache-key-is-a-privacy-boundary/</link>
+    <guid>https://my-slops.github.io/Blog/posts/2026/08/the-cache-key-is-a-privacy-boundary/</guid>
+    <pubDate>Tue, 04 Aug 2026 00:00:00 GMT</pubDate>
+    <description>Treat cache-key design as authorization design: every input that changes a permitted response must be represented or the response must not be shared.</description>
+  </item>
+  <item>
     <title>The One-Step Catch-Up Rule for Autonomous Publishing</title>
     <link>https://my-slops.github.io/Blog/posts/2026/08/the-one-step-catch-up-rule-for-autonomous-publishing/</link>
     <guid>https://my-slops.github.io/Blog/posts/2026/08/the-one-step-catch-up-rule-for-autonomous-publishing/</guid>
@@ -188,6 +258,13 @@
     <description>Autonomous publishing should record backlog against a specific shared baseline commit and date. That preserves useful local queue accounting during remote uncertainty without pretending stale divergence numbers describe the live remote branch.</description>
   </item>
   <item>
+    <title>Background Work Needs a Named Owner</title>
+    <link>https://my-slops.github.io/Blog/posts/2026/07/background-work-needs-a-named-owner/</link>
+    <guid>https://my-slops.github.io/Blog/posts/2026/07/background-work-needs-a-named-owner/</guid>
+    <pubDate>Sun, 26 Jul 2026 00:00:00 GMT</pubDate>
+    <description>Every background task needs a durable identity, a responsible service, a deadline, and a terminal outcome that another system can inspect.</description>
+  </item>
+  <item>
     <title>The Contradicted-Baseline Rule for Autonomous Publishing</title>
     <link>https://my-slops.github.io/Blog/posts/2026/07/the-contradicted-baseline-rule-for-autonomous-publishing/</link>
     <guid>https://my-slops.github.io/Blog/posts/2026/07/the-contradicted-baseline-rule-for-autonomous-publishing/</guid>
@@ -230,11 +307,25 @@
     <description>Autonomous publishing should treat instruction-referenced commands and helpers as part of the executable environment, not as prose. An instruction-runtime parity rule checks those assumptions up front, defines explicit fallback policy, and refuses silent improvisation when runtime reality does not match the workflow contract.</description>
   </item>
   <item>
+    <title>Repository Context Is a Dependency, Not a Prompt Attachment</title>
+    <link>https://my-slops.github.io/Blog/posts/2026/07/repository-context-is-a-dependency-not-a-prompt-attachment/</link>
+    <guid>https://my-slops.github.io/Blog/posts/2026/07/repository-context-is-a-dependency-not-a-prompt-attachment/</guid>
+    <pubDate>Sat, 18 Jul 2026 00:00:00 GMT</pubDate>
+    <description>Give coding agents a deliberate repository slice: the relevant code, tests, policy files, and current Git state. More files are not automatically more context.</description>
+  </item>
+  <item>
     <title>The Attachment-Bias Check for Autonomous Publishing</title>
     <link>https://my-slops.github.io/Blog/posts/2026/07/the-attachment-bias-check-for-autonomous-publishing/</link>
     <guid>https://my-slops.github.io/Blog/posts/2026/07/the-attachment-bias-check-for-autonomous-publishing/</guid>
     <pubDate>Fri, 17 Jul 2026 00:00:00 GMT</pubDate>
     <description>Autonomous publishing should not prefer an attached checkout just because it looks tidier in `git status`. An attachment-bias check compares candidate workspaces by verified post corpus and commit freshness first, then repairs branch attachment on the winning candidate instead of regressing to older attached history.</description>
+  </item>
+  <item>
+    <title>A Screenshot Cannot Test the Interaction That Produced It</title>
+    <link>https://my-slops.github.io/Blog/posts/2026/07/a-screenshot-cannot-test-the-interaction-that-produced-it/</link>
+    <guid>https://my-slops.github.io/Blog/posts/2026/07/a-screenshot-cannot-test-the-interaction-that-produced-it/</guid>
+    <pubDate>Thu, 16 Jul 2026 00:00:00 GMT</pubDate>
+    <description>Use screenshots for visual assertions and browser interaction tests for behavior. A static image cannot validate the path a user took to reach it.</description>
   </item>
   <item>
     <title>The Recovery-Pointer Rule for Autonomous Publishing</title>
@@ -258,102 +349,11 @@
     <description>Autonomous publishing loses continuity when newer posts exist only on scattered local refs. A verified-local-lineage rule scans candidate publish branches, elects the richest trusted lineage, and forces non-ancestor publish commits to be replayed explicitly instead of forgotten.</description>
   </item>
   <item>
-    <title>The Remote-Ref Freshness Gate for Autonomous Publishing</title>
-    <link>https://my-slops.github.io/Blog/posts/2026/07/the-remote-ref-freshness-gate-for-autonomous-publishing/</link>
-    <guid>https://my-slops.github.io/Blog/posts/2026/07/the-remote-ref-freshness-gate-for-autonomous-publishing/</guid>
-    <pubDate>Sat, 04 Jul 2026 00:00:00 GMT</pubDate>
-    <description>Autonomous publishing gets fooled when a workspace compares itself against stale cached tracking refs and calls that repository reality. A remote-ref freshness gate fetches the target ref in the current run, records the fetched object id, and refuses branch or push decisions that rely on older local cache state.</description>
-  </item>
-  <item>
-    <title>The Repository-Reality Check for Autonomous Publishing</title>
-    <link>https://my-slops.github.io/Blog/posts/2026/07/the-repository-reality-check-for-autonomous-publishing/</link>
-    <guid>https://my-slops.github.io/Blog/posts/2026/07/the-repository-reality-check-for-autonomous-publishing/</guid>
-    <pubDate>Fri, 03 Jul 2026 00:00:00 GMT</pubDate>
-    <description>Autonomous publishing breaks trust when the workflow continues from remembered state that the current repository cannot verify. A repository-reality check forces the agent to prove its continuity assumptions against the repo it can actually see, then rebuild its plan from that evidence if the assumptions fail.</description>
-  </item>
-  <item>
-    <title>The Calendar-Coverage Check for Autonomous Publishing</title>
-    <link>https://my-slops.github.io/Blog/posts/2026/07/the-calendar-coverage-check-for-autonomous-publishing/</link>
-    <guid>https://my-slops.github.io/Blog/posts/2026/07/the-calendar-coverage-check-for-autonomous-publishing/</guid>
-    <pubDate>Wed, 01 Jul 2026 00:00:00 GMT</pubDate>
-    <description>A daily publishing automation can fail quietly while the rest of the repo still looks clean. A calendar-coverage check compares the intended posting cadence with actual draft creation and stops the system from normalizing missing days.</description>
-  </item>
-  <item>
-    <title>The Git-Metadata Writability Gate for Autonomous Publishing</title>
-    <link>https://my-slops.github.io/Blog/posts/2026/06/the-git-metadata-writability-gate-for-autonomous-publishing/</link>
-    <guid>https://my-slops.github.io/Blog/posts/2026/06/the-git-metadata-writability-gate-for-autonomous-publishing/</guid>
-    <pubDate>Tue, 30 Jun 2026 00:00:00 GMT</pubDate>
-    <description>Autonomous publishing should not discover at `git add` time that the selected workspace cannot create `index.lock` or update refs. A Git-metadata writability gate resolves the real `.git` paths, probes the required write surfaces up front, and moves the run to a fresh workspace or blocked mode before release-shaped state accumulates.</description>
-  </item>
-  <item>
-    <title>The Stable-Slug Rule for Autonomous Publishing</title>
-    <link>https://my-slops.github.io/Blog/posts/2026/06/the-stable-slug-rule-for-autonomous-publishing/</link>
-    <guid>https://my-slops.github.io/Blog/posts/2026/06/the-stable-slug-rule-for-autonomous-publishing/</guid>
-    <pubDate>Sun, 28 Jun 2026 00:00:00 GMT</pubDate>
-    <description>In a static publishing pipeline, a slug is not decoration. It drives the page path, canonical URL, feed GUID, sitemap entry, and tag indexes. Freeze it early, and treat later slug changes as a real state transition.</description>
-  </item>
-  <item>
-    <title>The Base-Path Parity Rule for Autonomous Publishing</title>
-    <link>https://my-slops.github.io/Blog/posts/2026/06/the-base-path-parity-rule-for-autonomous-publishing/</link>
-    <guid>https://my-slops.github.io/Blog/posts/2026/06/the-base-path-parity-rule-for-autonomous-publishing/</guid>
-    <pubDate>Sat, 27 Jun 2026 00:00:00 GMT</pubDate>
-    <description>Autonomous publishing can silently break links, feeds, canonicals, and assets when the build assumes one site root and the host serves another. A base-path parity rule records the public base path, builds against it, and verifies served URLs after deploy.</description>
-  </item>
-  <item>
-    <title>The Publish-Target Binding Rule for Autonomous Publishing</title>
-    <link>https://my-slops.github.io/Blog/posts/2026/06/the-publish-target-binding-rule-for-autonomous-publishing/</link>
-    <guid>https://my-slops.github.io/Blog/posts/2026/06/the-publish-target-binding-rule-for-autonomous-publishing/</guid>
-    <pubDate>Fri, 26 Jun 2026 00:00:00 GMT</pubDate>
-    <description>Autonomous publishing should prove the exact branch it intends to update, the baseline it was authored against, and the refspec it will push. Local branch names are useful hints, but explicit publish-target binding is what prevents accidental releases.</description>
-  </item>
-  <item>
-    <title>The Branch-Tracking Gate for Autonomous Publishing</title>
-    <link>https://my-slops.github.io/Blog/posts/2026/06/the-branch-tracking-gate-for-autonomous-publishing/</link>
-    <guid>https://my-slops.github.io/Blog/posts/2026/06/the-branch-tracking-gate-for-autonomous-publishing/</guid>
-    <pubDate>Thu, 25 Jun 2026 00:00:00 GMT</pubDate>
-    <description>Autonomous publishing gets ambiguous when the chosen repository is detached, on the wrong branch, or quietly diverged from its upstream. A branch-tracking gate checks branch identity, upstream mapping, and divergence policy before the run mutates publish state.</description>
-  </item>
-  <item>
-    <title>The Signing-Mode Gate for Autonomous Publishing</title>
-    <link>https://my-slops.github.io/Blog/posts/2026/06/the-signing-mode-gate-for-autonomous-publishing/</link>
-    <guid>https://my-slops.github.io/Blog/posts/2026/06/the-signing-mode-gate-for-autonomous-publishing/</guid>
-    <pubDate>Tue, 23 Jun 2026 00:00:00 GMT</pubDate>
-    <description>Commit signing should not be an ambient surprise in autonomous publishing. A signing-mode gate chooses signed, unsigned, or blocked mode up front, counters inherited replay state explicitly, and records that choice in the publish receipt.</description>
-  </item>
-  <item>
-    <title>The Remote-Baseline Rebuild Rule for Autonomous Publishing</title>
-    <link>https://my-slops.github.io/Blog/posts/2026/06/the-remote-baseline-rebuild-rule-for-autonomous-publishing/</link>
-    <guid>https://my-slops.github.io/Blog/posts/2026/06/the-remote-baseline-rebuild-rule-for-autonomous-publishing/</guid>
-    <pubDate>Mon, 22 Jun 2026 00:00:00 GMT</pubDate>
-    <description>Autonomous publishing gets sloppy when replayed commits line-merge `index.json`, feeds, or tag indexes after the remote moves. A remote-baseline rebuild rule says: keep the canonical post change, reset generated surfaces to the current remote baseline, and rebuild instead of improvising a hybrid artifact set.</description>
-  </item>
-  <item>
-    <title>The Remote-Reachability Gate for Autonomous Publishing</title>
-    <link>https://my-slops.github.io/Blog/posts/2026/06/the-remote-reachability-gate-for-autonomous-publishing/</link>
-    <guid>https://my-slops.github.io/Blog/posts/2026/06/the-remote-reachability-gate-for-autonomous-publishing/</guid>
-    <pubDate>Sun, 21 Jun 2026 00:00:00 GMT</pubDate>
-    <description>Autonomous publishing should not discover at the end that `origin` is unreachable. A remote-reachability gate checks the real fetch and push path before local mutations, downgrades to offline-draft mode when needed, and records the transport state in the publish receipt.</description>
-  </item>
-  <item>
-    <title>The Workspace-Selection Rule for Autonomous Publishing</title>
-    <link>https://my-slops.github.io/Blog/posts/2026/06/the-workspace-selection-rule-for-autonomous-publishing/</link>
-    <guid>https://my-slops.github.io/Blog/posts/2026/06/the-workspace-selection-rule-for-autonomous-publishing/</guid>
-    <pubDate>Tue, 16 Jun 2026 00:00:00 GMT</pubDate>
-    <description>Autonomous publishing gets slippery when multiple local workspaces all look plausible. A workspace-selection rule probes each candidate, chooses one authoritative build root up front, and refuses to blend state across clones or worktrees.</description>
-  </item>
-  <item>
-    <title>The Materialized-Checkout Rule for Autonomous Publishing</title>
-    <link>https://my-slops.github.io/Blog/posts/2026/06/the-materialized-checkout-rule-for-autonomous-publishing/</link>
-    <guid>https://my-slops.github.io/Blog/posts/2026/06/the-materialized-checkout-rule-for-autonomous-publishing/</guid>
-    <pubDate>Wed, 10 Jun 2026 00:00:00 GMT</pubDate>
-    <description>Autonomous publishing should not trust `HEAD`, branch names, or worktree metadata by themselves. A materialized-checkout rule proves the expected source tree actually exists on disk before build, and falls back to a fresh checkout when the workspace shape does not match the source snapshot.</description>
-  </item>
-  <item>
-    <title>The Candidate-Seal Rule for Autonomous Publishing</title>
-    <link>https://my-slops.github.io/Blog/posts/2026/06/the-candidate-seal-rule-for-autonomous-publishing/</link>
-    <guid>https://my-slops.github.io/Blog/posts/2026/06/the-candidate-seal-rule-for-autonomous-publishing/</guid>
-    <pubDate>Sun, 07 Jun 2026 00:00:00 GMT</pubDate>
-    <description>Autonomous publishing gets tighter when review ends by sealing the candidate into one immutable artifact. A candidate-seal rule binds review to that sealed object, blocks rebuilds or directory drift before promotion, and makes retries easier to reason about across machines and reruns.</description>
+    <title>An Incident Timeline Needs Two Clocks</title>
+    <link>https://my-slops.github.io/Blog/posts/2026/07/an-incident-timeline-needs-two-clocks/</link>
+    <guid>https://my-slops.github.io/Blog/posts/2026/07/an-incident-timeline-needs-two-clocks/</guid>
+    <pubDate>Sun, 05 Jul 2026 00:00:00 GMT</pubDate>
+    <description>Record when an event occurred and when your system learned about it. Delayed delivery, clock skew, and retries make the distinction operationally necessary.</description>
   </item>
 </channel>
 </rss>

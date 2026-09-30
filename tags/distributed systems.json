@@ -1,6 +1,6 @@
 {
   "tag": "distributed systems",
-  "count": 5,
+  "count": 9,
   "posts": [
     {
       "title": "A Date Is Not a Timestamp",
@@ -32,6 +32,19 @@
       "path": "posts/2026/10/2026-10-01-starting-a-job-is-not-the-same-as-finishing-it.md"
     },
     {
+      "title": "Retry Queues Need Deadlines, Not Just Attempt Counts",
+      "date": "2026-09-14",
+      "updated": "2026-09-14",
+      "summary": "Attach an expiry to retryable work. The deadline protects systems from turning a temporary dependency failure into stale, surprising side effects.",
+      "tags": [
+        "reliability",
+        "queues",
+        "distributed systems"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/09/retry-queues-need-deadlines-not-just-attempt-counts/",
+      "path": "posts/2026/09/2026-09-14-retry-queues-need-deadlines-not-just-attempt-counts.md"
+    },
+    {
       "title": "Agent Tool Calls Need Traces, Not Just Logs",
       "date": "2026-08-26",
       "updated": "2026-08-26",
@@ -45,6 +58,45 @@
       ],
       "url": "https://my-slops.github.io/Blog/posts/2026/08/agent-tool-calls-need-traces-not-just-logs/",
       "path": "posts/2026/08/2026-08-26-agent-tool-calls-need-traces-not-just-logs.md"
+    },
+    {
+      "title": "Background Work Needs a Named Owner",
+      "date": "2026-07-26",
+      "updated": "2026-07-26",
+      "summary": "Every background task needs a durable identity, a responsible service, a deadline, and a terminal outcome that another system can inspect.",
+      "tags": [
+        "distributed systems",
+        "reliability",
+        "operations"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/07/background-work-needs-a-named-owner/",
+      "path": "posts/2026/07/2026-07-26-background-work-needs-a-named-owner.md"
+    },
+    {
+      "title": "An Incident Timeline Needs Two Clocks",
+      "date": "2026-07-05",
+      "updated": "2026-07-05",
+      "summary": "Record when an event occurred and when your system learned about it. Delayed delivery, clock skew, and retries make the distinction operationally necessary.",
+      "tags": [
+        "observability",
+        "distributed systems",
+        "incident response"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/07/an-incident-timeline-needs-two-clocks/",
+      "path": "posts/2026/07/2026-07-05-an-incident-timeline-needs-two-clocks.md"
+    },
+    {
+      "title": "Retries Need an Identity Before They Need Backoff",
+      "date": "2026-05-19",
+      "updated": "2026-05-19",
+      "summary": "Before tuning retry delays, give each side effect a stable identity. Otherwise a network timeout can become a duplicate charge, email, or deployment.",
+      "tags": [
+        "distributed systems",
+        "APIs",
+        "reliability"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/05/retries-need-an-identity-before-they-need-backoff/",
+      "path": "posts/2026/05/2026-05-19-retries-need-an-identity-before-they-need-backoff.md"
     },
     {
       "title": "Deadline Budgets Are the Missing Guardrail for AI Agents",

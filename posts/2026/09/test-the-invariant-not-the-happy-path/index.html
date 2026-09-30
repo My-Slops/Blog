@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Test the Invariant, Not the Happy Path | Blog</title>
+    <meta name="description" content="Find the rule that must always hold, then generate or enumerate cases around it. Happy-path examples show a feature works once; invariants show it keeps working." />
+    <link rel="canonical" href="https://my-slops.github.io/Blog/posts/2026/09/test-the-invariant-not-the-happy-path/" />
+    <style>
+      :root { color-scheme: light dark; }
+      body { font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; line-height: 1.7; max-width: 760px; margin: 40px auto; padding: 0 16px; }
+      a { color: #0a58ca; text-decoration: none; }
+      a:hover { text-decoration: underline; }
+      .meta { color: #666; font-size: 0.95rem; margin-bottom: 1rem; }
+      .tags { display: flex; gap: 0.5rem; list-style: none; padding: 0; margin: 0.75rem 0 1.25rem; flex-wrap: wrap; }
+      .tags li { background: #eef2ff; color: #3730a3; border-radius: 999px; padding: 0.2rem 0.6rem; font-size: 0.8rem; }
+      article h1, article h2, article h3 { line-height: 1.3; }
+      article pre { overflow-x: auto; background: #111827; color: #f9fafb; padding: 0.9rem; border-radius: 8px; }
+      article code { font-family: ui-monospace,SFMono-Regular,Menlo,monospace; }
+      article blockquote { border-left: 4px solid #d1d5db; margin: 1rem 0; padding: 0.2rem 0.9rem; color: #4b5563; }
+      hr { border: 0; border-top: 1px solid #e5e7eb; margin: 2rem 0; }
+    </style>
+  </head>
+  <body>
+    <p><a href="https://my-slops.github.io/Blog/">← Home</a></p>
+    <article>
+      <h1>Test the Invariant, Not the Happy Path</h1>
+      <p class="meta">Sep 30, 2026</p>
+      <ul class="tags"><li>testing</li><li>reliability</li><li>software engineering</li></ul>
+      <p>“A customer can place an order” is a useful test. It is not the rule that keeps a payment system correct.</p>
+<p>The stronger rule might be: no captured payment is associated with more than one order, and every accepted order has exactly one durable payment state. That invariant remains meaningful when a request is retried, a worker crashes, or input arrives in an unexpected order.</p>
+<h2>Let the rule choose the cases</h2>
+<p>Once an invariant is written, the cases become less arbitrary:</p>
+<pre><code class="language-text">given one payment intent
+when two identical checkout requests race
+then at most one order is created
+and both callers learn the same terminal result
+</code></pre>
+<p>The test is no longer attached to an implementation detail such as “click this button.” It is checking a property that must survive alternate paths. Property-based testing can generate inputs for suitable domains; targeted concurrency and failure-injection tests do the same work where random data is not enough.</p>
+<p>Avoid vague invariants such as “the system remains consistent.” Name observable facts: balances never become negative; a document revision only increases; an unauthorized user never receives a tenant-scoped response; a retry cannot create a second effect.</p>
+<h2>Examples still matter</h2>
+<p>An invariant will not tell you whether a checkout label is comprehensible or a tax calculation matches a jurisdiction&#39;s published formula. Keep concrete examples for product behavior. Use invariants where the risk is a relationship across many executions rather than one expected output.</p>
+<h2>References</h2>
+<ul>
+<li><a href="https://www.cs.tufts.edu/~nr/cs257/archive/john-hughes/quick.pdf">QuickCheck: A Lightweight Tool for Random Testing of Haskell Programs</a> introduced property-based testing as checking general properties over generated cases.</li>
+<li><a href="https://jepsen.io/analyses">Jepsen analyses</a> illustrate how explicit consistency properties reveal distributed-systems failures that happy paths miss.</li>
+</ul>
+<h2>Final take</h2>
+<p>Happy paths demonstrate a feature. Invariants state what failures, retries, and creativity are not allowed to break.</p>
+<h2>Changelog</h2>
+<ul>
+<li>2026-10-03T00:08:49-04:00: Recovered the 2026-09-30 scheduled slot after a research and archive-duplication pass.</li>
+</ul>
+
+    </article>
+  </body>
+</html>

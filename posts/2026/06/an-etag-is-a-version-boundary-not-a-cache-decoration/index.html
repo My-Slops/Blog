@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>An ETag Is a Version Boundary, Not a Cache Decoration | Blog</title>
+    <meta name="description" content="Use ETags with If-Match for optimistic concurrency. A version boundary turns stale writes into visible conflicts instead of quiet data loss." />
+    <link rel="canonical" href="https://my-slops.github.io/Blog/posts/2026/06/an-etag-is-a-version-boundary-not-a-cache-decoration/" />
+    <style>
+      :root { color-scheme: light dark; }
+      body { font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; line-height: 1.7; max-width: 760px; margin: 40px auto; padding: 0 16px; }
+      a { color: #0a58ca; text-decoration: none; }
+      a:hover { text-decoration: underline; }
+      .meta { color: #666; font-size: 0.95rem; margin-bottom: 1rem; }
+      .tags { display: flex; gap: 0.5rem; list-style: none; padding: 0; margin: 0.75rem 0 1.25rem; flex-wrap: wrap; }
+      .tags li { background: #eef2ff; color: #3730a3; border-radius: 999px; padding: 0.2rem 0.6rem; font-size: 0.8rem; }
+      article h1, article h2, article h3 { line-height: 1.3; }
+      article pre { overflow-x: auto; background: #111827; color: #f9fafb; padding: 0.9rem; border-radius: 8px; }
+      article code { font-family: ui-monospace,SFMono-Regular,Menlo,monospace; }
+      article blockquote { border-left: 4px solid #d1d5db; margin: 1rem 0; padding: 0.2rem 0.9rem; color: #4b5563; }
+      hr { border: 0; border-top: 1px solid #e5e7eb; margin: 2rem 0; }
+    </style>
+  </head>
+  <body>
+    <p><a href="https://my-slops.github.io/Blog/">← Home</a></p>
+    <article>
+      <h1>An ETag Is a Version Boundary, Not a Cache Decoration</h1>
+      <p class="meta">Jun 12, 2026</p>
+      <ul class="tags"><li>HTTP</li><li>APIs</li><li>concurrency</li></ul>
+      <p>Two browser tabs load the same profile. One changes the display name; the other changes a notification preference and sends the whole document back. If the server accepts both <code>PUT</code>s unconditionally, the second tab can erase the first tab&#39;s edit without either user noticing.</p>
+<p>That is not a caching problem. It is a missing version boundary.</p>
+<p>An HTTP <code>ETag</code> identifies a representation version. <code>If-None-Match</code> is the familiar cache use, but <code>If-Match</code> carries the more consequential contract: perform this mutation only if the representation is still the version I read.</p>
+<pre><code class="language-http">GET /profiles/42
+ETag: &quot;profile-42-v17&quot;
+
+PUT /profiles/42
+If-Match: &quot;profile-42-v17&quot;
+Content-Type: application/json
+</code></pre>
+<p>If another update has made the current tag <code>v18</code>, the server returns <code>412 Precondition Failed</code>. That is a good failure. It tells the product to merge, refresh, or ask the user rather than pretending that an overwrite was a normal save.</p>
+<h2>The tag must follow representation semantics</h2>
+<p>Do not calculate a tag from whatever database timestamp happens to be convenient if that timestamp does not change for every visible change. Do not reuse a tag across representations that differ by locale, permissions, or fields. A strong ETag promises byte-level representation identity; a weak ETag (<code>W/</code>) is only suitable where semantic equivalence is enough.</p>
+<p>For write protection, keep the contract simple: issue a version token with the editable representation, require it for replacement, and advance it in the same transaction as the update. The token can be a sequence number, UUID, or carefully scoped hash. It does not need to be clever.</p>
+<pre><code class="language-sql">update profiles
+set preferences = $new_preferences,
+    version = version + 1
+where id = $id and version = $expected_version;
+</code></pre>
+<p>Zero affected rows is not merely a database detail. It is the stale-write result that the HTTP layer should preserve.</p>
+<h2>Where this does not fit</h2>
+<p>Partial commands such as “add one item to this cart” often need a command-specific idempotency key, not replacement-style versioning. High-conflict collaborative editors need a merge model rather than making every conflict a dead end. Still, neither exception justifies silent last-writer-wins for an ordinary settings form.</p>
+<h2>References</h2>
+<ul>
+<li><a href="https://www.rfc-editor.org/rfc/rfc9110#section-8.8.3">RFC 9110, section 8.8.3</a> defines entity tags.</li>
+<li><a href="https://www.rfc-editor.org/rfc/rfc9110#section-13.1.1">RFC 9110, section 13.1.1</a> defines <code>If-Match</code> as a precondition for preventing lost updates.</li>
+</ul>
+<h2>Final take</h2>
+<p>Cache validation saves bytes. Version validation saves intent. Use the same HTTP primitive for both, but do not mistake the smaller benefit for the important one.</p>
+<h2>Changelog</h2>
+<ul>
+<li>2026-10-03T00:08:49-04:00: Recovered the 2026-06-12 scheduled slot after a date-bounded archive and source review.</li>
+</ul>
+
+    </article>
+  </body>
+</html>

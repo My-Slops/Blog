@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Retry Queues Need Deadlines, Not Just Attempt Counts | Blog</title>
+    <meta name="description" content="Attach an expiry to retryable work. The deadline protects systems from turning a temporary dependency failure into stale, surprising side effects." />
+    <link rel="canonical" href="https://my-slops.github.io/Blog/posts/2026/09/retry-queues-need-deadlines-not-just-attempt-counts/" />
+    <style>
+      :root { color-scheme: light dark; }
+      body { font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; line-height: 1.7; max-width: 760px; margin: 40px auto; padding: 0 16px; }
+      a { color: #0a58ca; text-decoration: none; }
+      a:hover { text-decoration: underline; }
+      .meta { color: #666; font-size: 0.95rem; margin-bottom: 1rem; }
+      .tags { display: flex; gap: 0.5rem; list-style: none; padding: 0; margin: 0.75rem 0 1.25rem; flex-wrap: wrap; }
+      .tags li { background: #eef2ff; color: #3730a3; border-radius: 999px; padding: 0.2rem 0.6rem; font-size: 0.8rem; }
+      article h1, article h2, article h3 { line-height: 1.3; }
+      article pre { overflow-x: auto; background: #111827; color: #f9fafb; padding: 0.9rem; border-radius: 8px; }
+      article code { font-family: ui-monospace,SFMono-Regular,Menlo,monospace; }
+      article blockquote { border-left: 4px solid #d1d5db; margin: 1rem 0; padding: 0.2rem 0.9rem; color: #4b5563; }
+      hr { border: 0; border-top: 1px solid #e5e7eb; margin: 2rem 0; }
+    </style>
+  </head>
+  <body>
+    <p><a href="https://my-slops.github.io/Blog/">← Home</a></p>
+    <article>
+      <h1>Retry Queues Need Deadlines, Not Just Attempt Counts</h1>
+      <p class="meta">Sep 14, 2026</p>
+      <ul class="tags"><li>reliability</li><li>queues</li><li>distributed systems</li></ul>
+      <p>“Retry five times” is a policy without a clock. Five fast failures might finish in seconds; five exponential retries might run tomorrow, after the user has cancelled the order or the deploy has been superseded.</p>
+<p>An attempt count controls how much pressure a job can create. A deadline controls whether the job is still worth doing.</p>
+<pre><code class="language-json">{
+  &quot;job_id&quot;: &quot;email-…&quot;,
+  &quot;created_at&quot;: &quot;2026-09-14T10:00:00Z&quot;,
+  &quot;expires_at&quot;: &quot;2026-09-14T10:30:00Z&quot;,
+  &quot;attempt&quot;: 3
+}
+</code></pre>
+<p>Before each retry, compare the next eligible time with <code>expires_at</code>. If it has passed, record an explicit expired outcome and notify the appropriate owner. Do not quietly discard it, and do not keep retrying merely because the counter has room left.</p>
+<h2>Freshness is part of correctness</h2>
+<p>Some jobs can run late safely: a nonurgent search-index update may be catch-up work. Others cannot: a one-time login link, inventory reservation, or fraud decision has a clear usefulness window. Treat that difference as a product policy supplied at enqueue time, not a scheduler default guessed by the queue.</p>
+<p>Deadlines also make incidents calmer. During an outage, operators can identify which backlog is still actionable and which should be expired or recomputed. Without that distinction, recovery often replays days of side effects in the original order and calls it reliability.</p>
+<h2>References</h2>
+<ul>
+<li><a href="https://sre.google/sre-book/addressing-cascading-failures/">Google SRE Book: Addressing Cascading Failures</a> explains bounded retries and the harm from uncontrolled retry behavior.</li>
+<li><a href="https://www.rfc-editor.org/rfc/rfc9110#section-10.2.3">RFC 9110, section 10.2.3</a> defines <code>Retry-After</code>, an example of time-aware retry guidance.</li>
+</ul>
+<h2>Final take</h2>
+<p>An operation that is no longer useful should not become more likely merely because it has been failing for longer.</p>
+<h2>Changelog</h2>
+<ul>
+<li>2026-10-03T00:08:49-04:00: Recovered the 2026-09-14 scheduled slot following archive and source review.</li>
+</ul>
+
+    </article>
+  </body>
+</html>
