@@ -2,6 +2,8 @@
 title: "Starting a Job Is Not the Same as Finishing It"
 date: "2026-10-01"
 updated: "2026-10-01"
+created_at: "2026-10-01T10:00:00-04:00"
+published_at: "2026-10-01T10:00:00-04:00"
 scheduled_at: "2026-10-01T10:00:00-04:00"
 slug: "starting-a-job-is-not-the-same-as-finishing-it"
 description: "An API that accepts or enqueues work has not necessarily completed it. Return a durable operation identity and explicit terminal outcome before an agent reports success."
