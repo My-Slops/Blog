@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Starting a Job Is Not the Same as Finishing It | Blog</title>
+    <meta name="description" content="A successful call can mean that work was accepted, not that its external effect happened. Model long-running work as an operation with a durable status and make agents distinguish started from completed." />
+    <link rel="canonical" href="https://my-slops.github.io/Blog/posts/2026/10/starting-a-job-is-not-the-same-as-finishing-it/" />
+    <style>
+      :root { color-scheme: light dark; }
+      body { font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; line-height: 1.7; max-width: 760px; margin: 40px auto; padding: 0 16px; }
+      a { color: #0a58ca; text-decoration: none; }
+      a:hover { text-decoration: underline; }
+      .meta { color: #666; font-size: 0.95rem; margin-bottom: 1rem; }
+      .tags { display: flex; gap: 0.5rem; list-style: none; padding: 0; margin: 0.75rem 0 1.25rem; flex-wrap: wrap; }
+      .tags li { background: #eef2ff; color: #3730a3; border-radius: 999px; padding: 0.2rem 0.6rem; font-size: 0.8rem; }
+      article h1, article h2, article h3 { line-height: 1.3; }
+      article pre { overflow-x: auto; background: #111827; color: #f9fafb; padding: 0.9rem; border-radius: 8px; }
+      article code { font-family: ui-monospace,SFMono-Regular,Menlo,monospace; }
+      article blockquote { border-left: 4px solid #d1d5db; margin: 1rem 0; padding: 0.2rem 0.9rem; color: #4b5563; }
+      hr { border: 0; border-top: 1px solid #e5e7eb; margin: 2rem 0; }
+    </style>
+  </head>
+  <body>
+    <p><a href="https://my-slops.github.io/Blog/">← Home</a></p>
+    <article>
+      <h1>Starting a Job Is Not the Same as Finishing It</h1>
+      <p class="meta">Oct 1, 2026</p>
+      <ul class="tags"><li>ai agents</li><li>api design</li><li>reliability</li><li>distributed systems</li><li>developer tooling</li></ul>
+      <h2>TL;DR</h2>
+<p>“Import started” and “import completed” are different facts. Treating them as one success state makes an agent sound finished while a queue may still reject, retry, or fail the work later.</p>
+<p>When an API accepts work that continues elsewhere, return a durable operation identity and an explicit outcome state. An agent may report that work was accepted; it should report completion only after it observes a terminal result or receives a trustworthy completion event.</p>
+<h2>Context</h2>
+<p>An agent uploads a CSV and calls <code>imports.create</code>. The tool returns quickly:</p>
+<pre><code class="language-json">{
+  &quot;ok&quot;: true,
+  &quot;message&quot;: &quot;Import started&quot;
+}
+</code></pre>
+<p>The agent tells the user, “Your customers have been imported.” Twenty minutes later, the worker discovers an invalid header after processing only the first chunk. The user has already started using an incomplete list.</p>
+<p>Nothing in this scenario requires an unreliable model. The agent was given a success-shaped response that collapsed two separate events:</p>
+<ol>
+<li>the service accepted a request to do work; and</li>
+<li>the requested work reached a useful terminal outcome.</li>
+</ol>
+<p>HTTP makes the distinction explicit. <a href="https://www.rfc-editor.org/rfc/rfc9110.html#section-15.3.3">RFC 9110</a> defines <code>202 Accepted</code> as a request accepted for processing that has not yet been completed, and notes that the response ought to point to a status monitor. But the same mistake appears behind <code>200 OK</code>, queue acknowledgements, workflow SDKs, and “started” fields. The status code is only part of the contract. The important question is what the caller is permitted to conclude.</p>
+<h2>Key Points</h2>
+<h3>Acceptance is a useful result, not a completed result</h3>
+<p>An accepted request can be valuable. It may mean an export has a place in the queue, a deployment controller has recorded the desired version, or a background worker owns a document-processing job. The caller can use that fact to avoid submitting the same intent again.</p>
+<p>It does not establish that the business effect exists. Between acceptance and completion, a job can be delayed, superseded, rejected by a downstream dependency, partially applied, cancelled, or retried. A webhook can be lost. A worker can finish after the caller&#39;s deadline. A child task can succeed while the aggregate task fails its policy check.</p>
+<p>Those are not reasons to make every API synchronous. They are reasons to name the intermediate state honestly. “Accepted,” “queued,” and “running” should be first-class states rather than vague variations of success.</p>
+<h3>Return an operation, not just a reassuring message</h3>
+<p>For work that outlives the request, the response should create or identify an operation that can be inspected later. Its API need not expose internal queue topology, but it should provide enough stable information for a caller to tell what happened.</p>
+<pre><code class="language-ts">type Operation = {
+  id: string;
+  kind: &quot;customer_import&quot; | &quot;report_export&quot;;
+  state: &quot;accepted&quot; | &quot;running&quot; | &quot;succeeded&quot; | &quot;failed&quot; | &quot;cancelled&quot;;
+  acceptedAt: string;
+  completedAt?: string;
+  result?: {
+    importedCount?: number;
+    downloadUrl?: string;
+  };
+  failure?: {
+    code: &quot;invalid_file&quot; | &quot;dependency_unavailable&quot; | &quot;policy_rejected&quot;;
+    safeDetail: string;
+  };
+};
+
+// `202 Accepted`
+{
+  &quot;operation&quot;: {
+    &quot;id&quot;: &quot;imp_7d3b&quot;,
+    &quot;kind&quot;: &quot;customer_import&quot;,
+    &quot;state&quot;: &quot;accepted&quot;,
+    &quot;acceptedAt&quot;: &quot;2026-10-01T14:00:00Z&quot;
+  },
+  &quot;statusUrl&quot;: &quot;/operations/imp_7d3b&quot;
+}
+</code></pre>
+<p>The TypeScript and JSON are illustrative, not a universal schema. The important property is durable identity. A human, an agent, a webhook receiver, and an operator dashboard can all refer to the same operation instead of trying to infer completion from a log line or a task transcript.</p>
+<p>Terminal states should be boring and unambiguous. <code>succeeded</code> means the declared outcome occurred. <code>failed</code> means it did not, with a safe reason. <code>cancelled</code> means the system stopped it according to a documented policy. Do not overload <code>done</code> to mean “the HTTP request ended,” “the worker stopped,” or “a downstream service acknowledged receipt.”</p>
+<h3>An agent needs two different user-facing verbs</h3>
+<p>The wording an agent uses should follow the operation state:</p>
+<table>
+<thead>
+<tr>
+<th>Operation state</th>
+<th>What the agent may say</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>accepted</code></td>
+<td>“I started the import. I’ll confirm when it finishes.”</td>
+</tr>
+<tr>
+<td><code>running</code></td>
+<td>“The import is still processing; 3 of 12 files have completed.”</td>
+</tr>
+<tr>
+<td><code>succeeded</code></td>
+<td>“The import completed: 842 customers were added.”</td>
+</tr>
+<tr>
+<td><code>failed</code></td>
+<td>“The import did not complete because the <code>email_address</code> column is missing.”</td>
+</tr>
+<tr>
+<td><code>cancelled</code></td>
+<td>“The import was cancelled before completion; no final import result is available.”</td>
+</tr>
+</tbody></table>
+<p>This is more than careful copy. It changes what a user is entitled to rely on. “Started” tells them an operation exists. “Completed” tells them an outcome was observed. If a product cannot observe completion, it should say so instead of making the agent invent certainty.</p>
+<p>The same discipline complements <a href="https://my-slops.github.io/Blog/posts/2026/09/2026-09-21-a-tool-error-is-an-instruction-to-your-agent/">A Tool Error Is an Instruction to Your Agent</a>. That article concerns a tool call whose result is a failure path. Long-running work has another boundary: a successful start whose final outcome is still unknown.</p>
+<h3>Keep the operation tied to the original intent</h3>
+<p>An operation ID is also the anchor for retry and reconciliation. If a client times out after sending a request, it needs to know whether to find the existing operation, retry the intent, or ask the user. Creating a fresh job on every retry can duplicate exports, messages, charges, and imports.</p>
+<p>Use an idempotency key or another stable intent identifier at creation time, then make the operation discoverable by that identity. The client can safely ask, “What happened to the import I requested?” before it asks again. This is the success-path companion to <a href="https://my-slops.github.io/Blog/posts/2026/03/2026-03-27-idempotency-keys-are-the-seatbelt-for-ai-agents/">Idempotency Keys Are the Seatbelt for AI Agents</a>.</p>
+<p>Do not mistake the operation record for an audit log. It is the current, caller-relevant state of one intent. A separate trace can show each queue attempt, downstream call, and retry without forcing the agent to reason from raw diagnostic events. <a href="https://my-slops.github.io/Blog/posts/2026/08/agent-tool-calls-need-traces-not-just-logs/">Agent Tool Calls Need Traces, Not Just Logs</a> explains why that distinction matters during investigation.</p>
+<h3>Completion needs an observation policy</h3>
+<p>There are several valid ways for a caller to learn that work completed:</p>
+<ul>
+<li>poll the operation resource until it reaches a terminal state;</li>
+<li>receive a signed, deduplicated webhook that names the operation ID and terminal state;</li>
+<li>wait synchronously only up to a declared deadline, then return the operation for later follow-up; or</li>
+<li>have a trusted workflow engine resume a durable task from the operation event.</li>
+</ul>
+<p>The right choice depends on latency, volume, and interaction style. A five-second image resize may reasonably wait. A multi-hour data export should not keep an HTTP request open merely so the response can say “complete.”</p>
+<p>Whichever mechanism you choose, define the observation boundary. A worker writing <code>completed</code> to its own process log is not enough if the public result has not been persisted. A webhook delivery attempt is not enough if the receiver has not acknowledged it. A final status must refer to the outcome your user actually cares about.</p>
+<h3>Test the gap between accepted and complete</h3>
+<p>Tests that assert only that an API returns <code>202</code> are testing admission, not the operation lifecycle. Exercise the states an agent can misreport:</p>
+<pre><code class="language-text">Given: an import request is accepted
+When: the worker later rejects the third CSV file
+Then: operation.state becomes failed
+And: the agent must not report a completed import
+
+Given: a client retries after losing the create response
+When: it uses the original idempotency key
+Then: it receives the original operation ID, not a second import
+
+Given: an operation succeeds after the interactive deadline
+When: the user returns later
+Then: the operation resource reports the final imported count
+</code></pre>
+<p>Add a test for the unhappy middle: an operation that is accepted but remains running beyond the user-visible deadline. That state should produce an honest progress or follow-up answer, not a timeout message that claims the work failed and not a success message that claims it finished.</p>
+<h2>Steps / Code</h2>
+<p>Before exposing a tool that starts asynchronous work, answer these questions in its contract:</p>
+<ol>
+<li>What exact event makes a request accepted?</li>
+<li>What durable identifier names this logical intent?</li>
+<li>Which states are non-terminal, and which outcome makes each terminal state true?</li>
+<li>Where can a caller obtain the current state without parsing logs?</li>
+<li>How are retries mapped back to the original operation?</li>
+<li>What may an agent tell a user at each state?</li>
+<li>What happens if completion occurs after the interactive session ends?</li>
+</ol>
+<p>Avoid a progress percentage unless it has a stable meaning. “80%” is worse than no percentage when retries, fan-out, or a slow final validation can make the remaining 20% take most of the job. A named state plus a meaningful count or checkpoint is usually more useful.</p>
+<h2>Trade-offs</h2>
+<p>Operation resources add storage, retention rules, state-transition code, and an authorization surface. A polling endpoint can create load; webhooks require delivery, signature, and deduplication logic. For a genuinely quick and atomic action, this machinery is unnecessary.</p>
+<p>The boundary can also be domain-specific. A payment may be “succeeded” when authorized, captured, or settled, depending on the product promise. A document import may be complete only after validation, ingestion, and search indexing—or it may expose those as separate operations. The API cannot avoid those choices; it can only hide them in an unreliable <code>ok: true</code> field.</p>
+<p>My preference is to reserve operation lifecycles for work whose result can outlive the request or whose side effects cannot be truthfully established at acceptance time. In those cases, a little statefulness is cheaper than teaching every caller to reverse-engineer whether “started” meant “done.”</p>
+<h2>References</h2>
+<ul>
+<li>IETF, <a href="https://www.rfc-editor.org/rfc/rfc9110.html#section-15.3.3">RFC 9110 §15.3.3: 202 Accepted</a></li>
+<li>This repository, <a href="https://my-slops.github.io/Blog/posts/2026/09/2026-09-21-a-tool-error-is-an-instruction-to-your-agent/">A Tool Error Is an Instruction to Your Agent</a></li>
+<li>This repository, <a href="https://my-slops.github.io/Blog/posts/2026/03/2026-03-27-idempotency-keys-are-the-seatbelt-for-ai-agents/">Idempotency Keys Are the Seatbelt for AI Agents</a></li>
+<li>This repository, <a href="https://my-slops.github.io/Blog/posts/2026/08/agent-tool-calls-need-traces-not-just-logs/">Agent Tool Calls Need Traces, Not Just Logs</a></li>
+</ul>
+<h2>Final Take</h2>
+<p>The line between acceptance and completion is where many reliable-looking agent workflows become misleading.</p>
+<p>Make the start visible. Give it an operation ID. Model its terminal outcome explicitly. Then let an agent report what it knows: work accepted, work running, or work completed. Nothing about an asynchronous system becomes less asynchronous because a tool returned quickly.</p>
+<h2>Recovery Notes</h2>
+<ul>
+<li>Scheduled slot: <code>2026-10-01T10:00:00-04:00</code> (<code>America/Montreal</code>).</li>
+<li>Actual replay time: <code>2026-10-02T03:15:26-04:00</code> (<code>America/Montreal</code>).</li>
+<li>The post date and <code>scheduled_at</code> preserve the recovered slot; the replay time is recorded separately and is not used as publication metadata.</li>
+</ul>
+<h2>Changelog</h2>
+<ul>
+<li>2026-10-01: Initial publication for recovered scheduled slot <code>2026-10-01T10:00:00-04:00</code>.</li>
+</ul>
+
+    </article>
+  </body>
+</html>

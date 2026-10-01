@@ -20,6 +20,13 @@
     <description>Keep civil dates, local date-times, and instants as different types. A bare YYYY-MM-DD should not pass through a timestamp parser merely because both happen to use ISO-looking text.</description>
   </item>
   <item>
+    <title>Starting a Job Is Not the Same as Finishing It</title>
+    <link>https://my-slops.github.io/Blog/posts/2026/10/starting-a-job-is-not-the-same-as-finishing-it/</link>
+    <guid>https://my-slops.github.io/Blog/posts/2026/10/starting-a-job-is-not-the-same-as-finishing-it/</guid>
+    <pubDate>Thu, 01 Oct 2026 00:00:00 GMT</pubDate>
+    <description>A successful call can mean that work was accepted, not that its external effect happened. Model long-running work as an operation with a durable status and make agents distinguish started from completed.</description>
+  </item>
+  <item>
     <title>A Tool Error Is an Instruction to Your Agent</title>
     <link>https://my-slops.github.io/Blog/posts/2026/09/a-tool-error-is-an-instruction-to-your-agent/</link>
     <guid>https://my-slops.github.io/Blog/posts/2026/09/a-tool-error-is-an-instruction-to-your-agent/</guid>
@@ -347,13 +354,6 @@
     <guid>https://my-slops.github.io/Blog/posts/2026/06/the-candidate-identity-rule-for-autonomous-publishing/</guid>
     <pubDate>Fri, 05 Jun 2026 00:00:00 GMT</pubDate>
     <description>Autonomous publishing gets slippery when review talks about &quot;the candidate&quot; without proving which exact artifact set that means. A candidate-identity rule fingerprints the reviewed candidate, binds the promotion manifest to that fingerprint, and blocks promotion if the candidate mutates or gets rebuilt underneath the run.</description>
-  </item>
-  <item>
-    <title>The Promotion-Manifest Rule for Autonomous Publishing</title>
-    <link>https://my-slops.github.io/Blog/posts/2026/06/the-promotion-manifest-rule-for-autonomous-publishing/</link>
-    <guid>https://my-slops.github.io/Blog/posts/2026/06/the-promotion-manifest-rule-for-autonomous-publishing/</guid>
-    <pubDate>Thu, 04 Jun 2026 00:00:00 GMT</pubDate>
-    <description>Candidate directories solve half-built output, but they do not make promotion safe by themselves. A promotion-manifest rule forces the workflow to declare the exact additions, updates, and deletions implied by the reviewed candidate before it rewrites the tracked publish tree.</description>
   </item>
 </channel>
 </rss>

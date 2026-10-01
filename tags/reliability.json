@@ -1,6 +1,6 @@
 {
   "tag": "reliability",
-  "count": 87,
+  "count": 88,
   "posts": [
     {
       "title": "An Empty Search Result Is Not Evidence That Nothing Exists",
@@ -30,6 +30,21 @@
       ],
       "url": "https://my-slops.github.io/Blog/posts/2026/10/a-date-is-not-a-timestamp/",
       "path": "posts/2026/10/2026-10-02-a-date-is-not-a-timestamp.md"
+    },
+    {
+      "title": "Starting a Job Is Not the Same as Finishing It",
+      "date": "2026-10-01",
+      "updated": "2026-10-01",
+      "summary": "A successful call can mean that work was accepted, not that its external effect happened. Model long-running work as an operation with a durable status and make agents distinguish started from completed.",
+      "tags": [
+        "ai agents",
+        "api design",
+        "reliability",
+        "distributed systems",
+        "developer tooling"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/10/starting-a-job-is-not-the-same-as-finishing-it/",
+      "path": "posts/2026/10/2026-10-01-starting-a-job-is-not-the-same-as-finishing-it.md"
     },
     {
       "title": "A Tool Error Is an Instruction to Your Agent",
