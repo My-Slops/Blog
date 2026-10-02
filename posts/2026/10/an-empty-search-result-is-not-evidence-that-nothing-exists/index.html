@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>An Empty Search Result Is Not Evidence That Nothing Exists | Blog</title>
+    <meta name="description" content="`[]` can mean no matches, an incomplete index, a permission boundary, a truncated search, or a query against yesterday&#39;s snapshot. Make a tool state which of those it means before an agent tells a user that no record exists." />
+    <link rel="canonical" href="https://my-slops.github.io/Blog/posts/2026/10/an-empty-search-result-is-not-evidence-that-nothing-exists/" />
+    <style>
+      :root { color-scheme: light dark; }
+      body { font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; line-height: 1.7; max-width: 760px; margin: 40px auto; padding: 0 16px; }
+      a { color: #0a58ca; text-decoration: none; }
+      a:hover { text-decoration: underline; }
+      .meta { color: #666; font-size: 0.95rem; margin-bottom: 1rem; }
+      .tags { display: flex; gap: 0.5rem; list-style: none; padding: 0; margin: 0.75rem 0 1.25rem; flex-wrap: wrap; }
+      .tags li { background: #eef2ff; color: #3730a3; border-radius: 999px; padding: 0.2rem 0.6rem; font-size: 0.8rem; }
+      article h1, article h2, article h3 { line-height: 1.3; }
+      article pre { overflow-x: auto; background: #111827; color: #f9fafb; padding: 0.9rem; border-radius: 8px; }
+      article code { font-family: ui-monospace,SFMono-Regular,Menlo,monospace; }
+      article blockquote { border-left: 4px solid #d1d5db; margin: 1rem 0; padding: 0.2rem 0.9rem; color: #4b5563; }
+      hr { border: 0; border-top: 1px solid #e5e7eb; margin: 2rem 0; }
+    </style>
+  </head>
+  <body>
+    <p><a href="https://my-slops.github.io/Blog/">← Home</a></p>
+    <article>
+      <h1>An Empty Search Result Is Not Evidence That Nothing Exists</h1>
+      <p class="meta">Oct 2, 2026</p>
+      <ul class="tags"><li>ai agents</li><li>api design</li><li>reliability</li><li>developer tooling</li><li>uncertainty</li></ul>
+      <h2>TL;DR</h2>
+<p>An empty search result is a fact about a query, not automatically a fact about the world. It can support a narrow statement—“this search found no matching documents in this index, with these filters, at this time”—but it rarely supports “no such document exists.”</p>
+<p>That distinction matters when an agent turns a tool result into a user-facing answer. A bare <code>[]</code> erases whether the search was exhaustive, whether the index was current, which sources were excluded, and whether the caller had permission to see them. Return that evidence with the result. Then let an agent make a negative claim only as broad as the search it actually performed.</p>
+<h2>Context</h2>
+<p>Imagine an employee asking an internal assistant, “Do we have a policy for reimbursing a home-office monitor?” The assistant searches a document index and receives:</p>
+<pre><code class="language-json">{ &quot;documents&quot;: [] }
+</code></pre>
+<p>“No policy exists” sounds decisive. It may also be wrong in several ordinary ways:</p>
+<ul>
+<li>the policy lives in a benefits collection that the tool did not search;</li>
+<li>the latest document has not been indexed yet;</li>
+<li>the search applied the caller&#39;s regional filter, while the question did not name a region;</li>
+<li>the user lacks access to the HR collection; or</li>
+<li>the query used exact keywords and missed “ergonomic equipment allowance.”</li>
+</ul>
+<p>None of these is a model hallucination. They are missing semantics in the tool result. The tool gave the model a list but not the meaning of an empty list.</p>
+<p>This is a common failure in agent systems because models are trained to complete a question. When the only structured signal is <code>[]</code>, the convenient completion is a global negative. A careful system should make the more honest interpretation easy: <em>I found no evidence in the source I was able to search; that is not the same as evidence of absence.</em></p>
+<h2>Key Points</h2>
+<h3>Empty is meaningful only with a declared scope</h3>
+<p>Every query has a scope, whether the API exposes it or not. It includes at least the collection or database searched, the filters applied, the principal whose permissions were used, the query method, and a point in time.</p>
+<p>For a relational database, even a simple <code>SELECT</code> is not a timeless observation. At PostgreSQL&#39;s default Read Committed isolation level, a <code>SELECT</code> sees data committed before that query began; a later query can see a different result. An empty result therefore means “no matching row in this query&#39;s snapshot,” not “no matching row will exist when the next request runs.”</p>
+<p>Search systems add more ways for scope to shrink. Elasticsearch documents a default <code>from</code>/<code>size</code> result-window limit and recommends a point in time when paging needs a stable index view. A tool that scans only the first page, a subset of shards, or a lagging derived index has made a useful observation, but it has not performed an exhaustive absence check.</p>
+<p>The language should match that reality:</p>
+<table>
+<thead>
+<tr>
+<th>What the system knows</th>
+<th>Wording it can support</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>A specific, exhaustive source was searched at a known revision.</td>
+<td>“No matching policy was found in the current HR handbook.”</td>
+</tr>
+<tr>
+<td>Some sources were searched, others were unavailable or excluded.</td>
+<td>“I found no matching policy in the sources I could search.”</td>
+</tr>
+<tr>
+<td>The search was broad but may be stale or incomplete.</td>
+<td>“The index returned no match; I cannot confirm that no policy exists.”</td>
+</tr>
+<tr>
+<td>The tool could not establish coverage.</td>
+<td>“I could not verify this from the available sources.”</td>
+</tr>
+</tbody></table>
+<p>The first statement is still not a proof about every document a company owns. It is useful because it names the actual authority: the current HR handbook. That is often the question the user meant anyway.</p>
+<h3>Completeness is separate from result count</h3>
+<p>APIs often describe a search response as either successful or failed. That leaves out an important middle state: successful but incomplete.</p>
+<p>A retrieval tool may return zero documents after doing any of the following:</p>
+<ul>
+<li>searching one index while a second configured source is temporarily unavailable;</li>
+<li>stopping at a latency or cost budget;</li>
+<li>applying a permission filter;</li>
+<li>querying an index that is behind the source of truth;</li>
+<li>using approximate retrieval with a relevance threshold; or</li>
+<li>receiving only the first page of a potentially larger scan.</li>
+</ul>
+<p>Those choices are sometimes exactly right. An agent should not bypass authorization because a user wants a more conclusive answer, and a production search service should not scan every historical artifact for every question. The mistake is representing the outcome as the same <code>[]</code> in every case.</p>
+<p>In particular, do not encode completeness by inferring it from a zero count. <code>documents.length === 0</code> describes the payload. It says nothing about what the service was entitled, configured, or able to inspect.</p>
+<h3>Make negative evidence a first-class tool result</h3>
+<p>The contract does not need to be elaborate. It needs to distinguish content from coverage. This TypeScript-like sketch is illustrative; its source and permission names should match the service&#39;s actual authorization model.</p>
+<pre><code class="language-ts">type SearchResult = {
+  documents: Array&lt;{
+    id: string;
+    title: string;
+    excerpt: string;
+    source: string;
+  }&gt;;
+  observation: {
+    // What was actually searched, not a vague product name.
+    searchedSources: string[];
+    excludedSources: Array&lt;{
+      source: string;
+      reason: &quot;not_authorized&quot; | &quot;unavailable&quot; | &quot;not_selected&quot;;
+    }&gt;;
+    filters: Record&lt;string, string | string[]&gt;;
+    searchedAt: string;
+    sourceVersion?: string;
+    completeness: &quot;exhaustive_in_scope&quot; | &quot;partial&quot; | &quot;best_effort&quot; | &quot;unknown&quot;;
+  };
+};
+</code></pre>
+<p><code>exhaustive_in_scope</code> is deliberately narrower than <code>exhaustive</code>. It promises that the service evaluated the declared scope, not that the scope contains every relevant fact. A human has to decide what counts as authoritative; the API can make that decision inspectable.</p>
+<p>If metadata is sensitive, do not expose raw collection names or access-control rules to the model. A bounded version is still much better than nothing:</p>
+<pre><code class="language-json">{
+  &quot;documents&quot;: [],
+  &quot;observation&quot;: {
+    &quot;searchedSources&quot;: [&quot;eligible-policy-corpus&quot;],
+    &quot;excludedSources&quot;: [{ &quot;source&quot;: &quot;restricted-corpus&quot;, &quot;reason&quot;: &quot;not_authorized&quot; }],
+    &quot;searchedAt&quot;: &quot;2026-10-02T14:05:00Z&quot;,
+    &quot;completeness&quot;: &quot;partial&quot;
+  }
+}
+</code></pre>
+<p>The agent does not need to know the restricted collection&#39;s contents. It only needs to know that the result cannot justify a universal negative. This follows the same principle as a structured error result: control information belongs in an explicit, bounded field, not in an optimistic interpretation of a human-readable string. See <a href="https://my-slops.github.io/Blog/posts/2026/09/2026-09-21-a-tool-error-is-an-instruction-to-your-agent/">A Tool Error Is an Instruction to Your Agent</a> for the failure-path version of that design.</p>
+<h3>The orchestrator should enforce the claim boundary</h3>
+<p>Do not rely on a prompt that says “be careful with empty results.” The runtime already has the structured evidence, so it can decide what answer mode is permitted before asking the model to compose prose. The simplified control flow below is pseudocode:</p>
+<pre><code class="language-ts">function permittedConclusion(result: SearchResult) {
+  if (result.documents.length &gt; 0) return &quot;cite_matches&quot;;
+
+  switch (result.observation.completeness) {
+    case &quot;exhaustive_in_scope&quot;:
+      return &quot;scoped_negative&quot;;
+    case &quot;partial&quot;:
+    case &quot;best_effort&quot;:
+      return &quot;qualified_negative&quot;;
+    default:
+      return &quot;cannot_verify&quot;;
+  }
+}
+</code></pre>
+<p>The model can still help with a useful next step: rephrase the query, ask which policy regime applies, or tell the user where to check. It should not silently promote a <code>qualified_negative</code> into “there is no policy.” This division of labor is worth preserving even with a strong model because it converts a judgment the runtime can make deterministically into a policy instead of a hope.</p>
+<h3>Test absence claims with deliberately missing coverage</h3>
+<p>Teams often test retrieval by seeding a known document and asserting that the agent finds it. Add tests for the more dangerous path: the tool returns no document for reasons that are not true absence.</p>
+<pre><code class="language-text">Given: the reimbursement policy exists only in a source the caller cannot access
+When: the agent searches for monitor reimbursement
+Then: the answer says it could not verify the policy, not that none exists
+
+Given: the canonical handbook was updated after the search index&#39;s sourceVersion
+When: a query returns no matching document
+Then: the answer names the index as stale or asks to retry after refresh
+
+Given: all authoritative policy sources are searched at a known revision
+And: no match is returned
+Then: the answer may state a scoped negative and cite that source
+</code></pre>
+<p>These tests are especially valuable for agents because an empty answer looks plausible in a demo. A success metric that checks only fluent prose will miss the difference between an accurate scoped conclusion and a confident claim about data the system never searched. A parseable response is not enough; the application must also know whether it has evidence for the answer it plans to show, as discussed in <a href="https://my-slops.github.io/Blog/posts/2026/09/2026-09-08-a-valid-json-response-can-still-be-a-bad-answer/">A Valid JSON Response Can Still Be a Bad Answer</a>.</p>
+<h2>Steps / Code</h2>
+<p>For every tool whose empty result can influence a decision, review these questions:</p>
+<ol>
+<li>What source or snapshot did this query actually observe?</li>
+<li>Which filters, tenant boundaries, permissions, and pagination limits affected it?</li>
+<li>Is the source authoritative for the question, and how fresh is it?</li>
+<li>Can the tool say whether it completed its declared search scope?</li>
+<li>Which negative sentence is the agent allowed to make for each completeness state?</li>
+<li>When coverage is partial, can the agent offer an approved follow-up rather than inventing certainty?</li>
+</ol>
+<p>Start with tools used for compliance, security, support, financial, or operational questions. Those are the places where “we have no record of that” may trigger a real action. A search interface does not need to make every query exhaustive; it needs to stop hiding the difference between <em>not found here</em> and <em>does not exist</em>.</p>
+<h2>Trade-offs</h2>
+<p>Coverage metadata makes a tool interface more complex, and some systems genuinely cannot calculate an exact completeness claim. Vector retrieval may be approximate by design; federated search may have variable source availability; permissions can make an answer intentionally incomplete. In those systems, <code>best_effort</code> or <code>unknown</code> is not a failure of engineering. It is an honest description of the service.</p>
+<p>There is also a user-experience cost. “I could not verify that” is less satisfying than a crisp answer. But false certainty is not a better experience when it causes a user to abandon a valid expense, close an incident, or send a duplicate request. Use a scoped negative when the evidence supports one. Ask a short follow-up or route to the authoritative owner when it does not.</p>
+<p>Finally, a completeness field is not an authorization escape hatch. The agent should never reveal which restricted records exist merely because it knows a search was incomplete. Separate the model-visible coverage summary from protected diagnostics, and keep access enforcement outside the model context.</p>
+<h2>References</h2>
+<ul>
+<li>PostgreSQL Global Development Group, <a href="https://www.postgresql.org/docs/current/transaction-iso.html">Transaction Isolation</a></li>
+<li>Elastic, <a href="https://www.elastic.co/docs/reference/elasticsearch/rest-apis/paginate-search-results">Paginate search results</a></li>
+<li>This repository, <a href="https://my-slops.github.io/Blog/posts/2026/09/2026-09-21-a-tool-error-is-an-instruction-to-your-agent/">A Tool Error Is an Instruction to Your Agent</a></li>
+<li>This repository, <a href="https://my-slops.github.io/Blog/posts/2026/09/2026-09-08-a-valid-json-response-can-still-be-a-bad-answer/">A Valid JSON Response Can Still Be a Bad Answer</a></li>
+</ul>
+<h2>Final Take</h2>
+<p><code>[]</code> is not a negative fact. It is a result shape.</p>
+<p>Make a tool say what it searched, what it could not search, how fresh the observation was, and whether it completed the scope it claims to cover. Then an agent can be precise when precision is justified—and candid when it is not. That is a much more useful contract than teaching the model to sound less certain after the fact.</p>
+<h2>Changelog</h2>
+<ul>
+<li>2026-10-02: Initial publish.</li>
+</ul>
+
+    </article>
+  </body>
+</html>

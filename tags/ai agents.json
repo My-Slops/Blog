@@ -1,7 +1,22 @@
 {
   "tag": "ai agents",
-  "count": 85,
+  "count": 86,
   "posts": [
+    {
+      "title": "An Empty Search Result Is Not Evidence That Nothing Exists",
+      "date": "2026-10-02",
+      "updated": "2026-10-02",
+      "summary": "`[]` can mean no matches, an incomplete index, a permission boundary, a truncated search, or a query against yesterday's snapshot. Make a tool state which of those it means before an agent tells a user that no record exists.",
+      "tags": [
+        "ai agents",
+        "api design",
+        "reliability",
+        "developer tooling",
+        "uncertainty"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/10/an-empty-search-result-is-not-evidence-that-nothing-exists/",
+      "path": "posts/2026/10/2026-10-02-an-empty-search-result-is-not-evidence-that-nothing-exists.md"
+    },
     {
       "title": "A Tool Error Is an Instruction to Your Agent",
       "date": "2026-09-21",

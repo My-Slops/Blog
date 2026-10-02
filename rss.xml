@@ -6,6 +6,13 @@
   <description>Daily writing, optimized for humans and LLMs.</description>
   <language>en-us</language>
   <item>
+    <title>An Empty Search Result Is Not Evidence That Nothing Exists</title>
+    <link>https://my-slops.github.io/Blog/posts/2026/10/an-empty-search-result-is-not-evidence-that-nothing-exists/</link>
+    <guid>https://my-slops.github.io/Blog/posts/2026/10/an-empty-search-result-is-not-evidence-that-nothing-exists/</guid>
+    <pubDate>Fri, 02 Oct 2026 00:00:00 GMT</pubDate>
+    <description>`[]` can mean no matches, an incomplete index, a permission boundary, a truncated search, or a query against yesterday&apos;s snapshot. Make a tool state which of those it means before an agent tells a user that no record exists.</description>
+  </item>
+  <item>
     <title>A Date Is Not a Timestamp</title>
     <link>https://my-slops.github.io/Blog/posts/2026/10/a-date-is-not-a-timestamp/</link>
     <guid>https://my-slops.github.io/Blog/posts/2026/10/a-date-is-not-a-timestamp/</guid>
@@ -347,13 +354,6 @@
     <guid>https://my-slops.github.io/Blog/posts/2026/06/the-promotion-manifest-rule-for-autonomous-publishing/</guid>
     <pubDate>Thu, 04 Jun 2026 00:00:00 GMT</pubDate>
     <description>Candidate directories solve half-built output, but they do not make promotion safe by themselves. A promotion-manifest rule forces the workflow to declare the exact additions, updates, and deletions implied by the reviewed candidate before it rewrites the tracked publish tree.</description>
-  </item>
-  <item>
-    <title>The Candidate-Directory Rule for Autonomous Publishing</title>
-    <link>https://my-slops.github.io/Blog/posts/2026/06/the-candidate-directory-rule-for-autonomous-publishing/</link>
-    <guid>https://my-slops.github.io/Blog/posts/2026/06/the-candidate-directory-rule-for-autonomous-publishing/</guid>
-    <pubDate>Wed, 03 Jun 2026 00:00:00 GMT</pubDate>
-    <description>Autonomous publishing stays cleaner when generators build into an isolated candidate directory instead of mutating tracked publish paths during the run. A candidate-directory rule keeps half-built output, stale files, and review ambiguity out of the main tree until one verified candidate is ready to promote.</description>
   </item>
 </channel>
 </rss>
