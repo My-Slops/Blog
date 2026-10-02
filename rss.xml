@@ -6,6 +6,13 @@
   <description>Daily writing, optimized for humans and LLMs.</description>
   <language>en-us</language>
   <item>
+    <title>A Date Is Not a Timestamp</title>
+    <link>https://my-slops.github.io/Blog/posts/2026/10/a-date-is-not-a-timestamp/</link>
+    <guid>https://my-slops.github.io/Blog/posts/2026/10/a-date-is-not-a-timestamp/</guid>
+    <pubDate>Fri, 02 Oct 2026 00:00:00 GMT</pubDate>
+    <description>Keep civil dates, local date-times, and instants as different types. A bare YYYY-MM-DD should not pass through a timestamp parser merely because both happen to use ISO-looking text.</description>
+  </item>
+  <item>
     <title>A Tool Error Is an Instruction to Your Agent</title>
     <link>https://my-slops.github.io/Blog/posts/2026/09/a-tool-error-is-an-instruction-to-your-agent/</link>
     <guid>https://my-slops.github.io/Blog/posts/2026/09/a-tool-error-is-an-instruction-to-your-agent/</guid>
@@ -347,13 +354,6 @@
     <guid>https://my-slops.github.io/Blog/posts/2026/06/the-candidate-directory-rule-for-autonomous-publishing/</guid>
     <pubDate>Wed, 03 Jun 2026 00:00:00 GMT</pubDate>
     <description>Autonomous publishing stays cleaner when generators build into an isolated candidate directory instead of mutating tracked publish paths during the run. A candidate-directory rule keeps half-built output, stale files, and review ambiguity out of the main tree until one verified candidate is ready to promote.</description>
-  </item>
-  <item>
-    <title>The Background-Queue Drain Rule for Autonomous Publishing</title>
-    <link>https://my-slops.github.io/Blog/posts/2026/06/the-background-queue-drain-rule-for-autonomous-publishing/</link>
-    <guid>https://my-slops.github.io/Blog/posts/2026/06/the-background-queue-drain-rule-for-autonomous-publishing/</guid>
-    <pubDate>Mon, 01 Jun 2026 00:00:00 GMT</pubDate>
-    <description>Autonomous publishing gets noisy when scheduled draft jobs keep moving the branch during a legitimate content release. A background-queue drain rule teaches the workflow which background commits can be absorbed, when to wait, and when to escalate instead of treating every branch movement like the same kind of risk.</description>
   </item>
 </channel>
 </rss>

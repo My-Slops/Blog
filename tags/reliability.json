@@ -1,7 +1,21 @@
 {
   "tag": "reliability",
-  "count": 85,
+  "count": 86,
   "posts": [
+    {
+      "title": "A Date Is Not a Timestamp",
+      "date": "2026-10-02",
+      "updated": "2026-10-02",
+      "summary": "Keep civil dates, local date-times, and instants as different types. A bare YYYY-MM-DD should not pass through a timestamp parser merely because both happen to use ISO-looking text.",
+      "tags": [
+        "api design",
+        "developer tooling",
+        "distributed systems",
+        "reliability"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/10/a-date-is-not-a-timestamp/",
+      "path": "posts/2026/10/2026-10-02-a-date-is-not-a-timestamp.md"
+    },
     {
       "title": "A Tool Error Is an Instruction to Your Agent",
       "date": "2026-09-21",

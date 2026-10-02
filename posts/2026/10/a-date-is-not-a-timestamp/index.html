@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>A Date Is Not a Timestamp | Blog</title>
+    <meta name="description" content="Keep civil dates, local date-times, and instants as different types. A bare YYYY-MM-DD should not pass through a timestamp parser merely because both happen to use ISO-looking text." />
+    <link rel="canonical" href="https://my-slops.github.io/Blog/posts/2026/10/a-date-is-not-a-timestamp/" />
+    <style>
+      :root { color-scheme: light dark; }
+      body { font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; line-height: 1.7; max-width: 760px; margin: 40px auto; padding: 0 16px; }
+      a { color: #0a58ca; text-decoration: none; }
+      a:hover { text-decoration: underline; }
+      .meta { color: #666; font-size: 0.95rem; margin-bottom: 1rem; }
+      .tags { display: flex; gap: 0.5rem; list-style: none; padding: 0; margin: 0.75rem 0 1.25rem; flex-wrap: wrap; }
+      .tags li { background: #eef2ff; color: #3730a3; border-radius: 999px; padding: 0.2rem 0.6rem; font-size: 0.8rem; }
+      article h1, article h2, article h3 { line-height: 1.3; }
+      article pre { overflow-x: auto; background: #111827; color: #f9fafb; padding: 0.9rem; border-radius: 8px; }
+      article code { font-family: ui-monospace,SFMono-Regular,Menlo,monospace; }
+      article blockquote { border-left: 4px solid #d1d5db; margin: 1rem 0; padding: 0.2rem 0.9rem; color: #4b5563; }
+      hr { border: 0; border-top: 1px solid #e5e7eb; margin: 2rem 0; }
+    </style>
+  </head>
+  <body>
+    <p><a href="https://my-slops.github.io/Blog/">← Home</a></p>
+    <article>
+      <h1>A Date Is Not a Timestamp</h1>
+      <p class="meta">Oct 2, 2026</p>
+      <ul class="tags"><li>api design</li><li>developer tooling</li><li>distributed systems</li><li>reliability</li></ul>
+      <h2>TL;DR</h2>
+<p><code>2026-10-02</code> is usually a calendar date: a birthday, billing period, publication day, or the day a hotel booking begins. It is not shorthand for one moment shared by every reader.</p>
+<p>Yet applications routinely pass that string through timestamp APIs. The result is a quiet category error. In JavaScript, a date-only ISO string is interpreted as midnight UTC; an ISO date-time without an offset is interpreted as local time. The two strings look like minor variations, but they produce different instants. In a negative UTC offset, the first can display as the previous calendar day.</p>
+<p>Use a date type for dates, an explicitly zoned local date-time for scheduled wall-clock events, and an instant for things that happened at a particular moment. Serialization syntax does not erase the semantic difference.</p>
+<h2>Context</h2>
+<p>The bug often arrives in a harmless-looking form field:</p>
+<pre><code class="language-json">{ &quot;publishDate&quot;: &quot;2026-10-02&quot; }
+</code></pre>
+<p>Someone writes <code>new Date(publishDate)</code> to validate it, store it, or calculate a reminder. Later, a user in Montréal opens the page and sees October 1. A query that was meant to mean “all records on October 2” becomes a timestamp range chosen by whichever server happened to parse the value.</p>
+<p>Nothing necessarily crashed. The string was valid. The timestamp was internally consistent. The application simply answered a different question from the one the business data asked.</p>
+<p>The <a href="https://tc39.es/ecma262/#sec-date-time-string-format">ECMAScript date-time string format</a> makes this especially easy to miss. With no UTC offset, a date-only form is interpreted as UTC, while a date-time form is interpreted as local time. Therefore these are not interchangeable inputs:</p>
+<pre><code class="language-ts">new Date(&quot;2026-10-02&quot;).toISOString();
+// &quot;2026-10-02T00:00:00.000Z&quot;
+
+new Date(&quot;2026-10-02T00:00:00&quot;).toISOString();
+// Depends on the host time zone.
+// In America/Toronto in October: &quot;2026-10-02T04:00:00.000Z&quot;
+</code></pre>
+<p>The first expression has assigned an instant at UTC midnight. The second has assigned a local wall-clock time and then converted it to an instant. Neither is automatically the correct representation of “October 2.”</p>
+<h2>Key Points</h2>
+<h3>A calendar date has no time zone to convert</h3>
+<p>A civil date answers a calendar question: which numbered day? It is appropriate for a birthday, an invoice due date, a daily report label, a statutory holiday, or the date attached to this article.</p>
+<p>It does not identify a point on the global timeline. Adding <code>T00:00:00Z</code> changes its meaning: it selects the instant when October 2 begins in UTC. That may be useful for an event that truly happens then, but it is not a neutral storage trick for an all-day fact.</p>
+<p>The Temporal proposal describes <code>Temporal.PlainDate</code> as a calendar date independent of time zone. That is the useful model even in languages or runtimes that do not provide that exact API: preserve a date as a date until a requirement genuinely needs a clock and a zone.</p>
+<p>This distinction is not pedantry. If a user says their birthday is <code>1994-07-12</code>, there is no correct UTC conversion to perform. If an application creates one anyway, it has invented information.</p>
+<h3>Three questions require three representations</h3>
+<p>Most date/time confusion becomes easier once an API asks which of these it is carrying:</p>
+<table>
+<thead>
+<tr>
+<th>Domain question</th>
+<th>Example</th>
+<th>Appropriate representation</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Which calendar day?</td>
+<td>Invoice due on October 2</td>
+<td><code>date</code> / <code>PlainDate</code> / validated <code>YYYY-MM-DD</code></td>
+</tr>
+<tr>
+<td>What does the wall clock say in a place?</td>
+<td>Store opens at 09:00 in Toronto on October 2</td>
+<td>local date-time <strong>plus</strong> IANA time-zone identifier</td>
+</tr>
+<tr>
+<td>When did something happen?</td>
+<td>Payment authorized at one precise moment</td>
+<td>offset-bearing timestamp or UTC instant</td>
+</tr>
+</tbody></table>
+<p>The middle row is the one systems frequently flatten. <code>2026-10-02T09:00:00</code> says what a clock displayed, but not where. It is incomplete if the application must send a reminder, coordinate workers, or survive a daylight-saving transition. <code>2026-10-02T13:00:00Z</code> is a complete instant, but it has already made the zone decision.</p>
+<p>The <a href="https://www.rfc-editor.org/rfc/rfc3339.html">RFC 3339</a> grammar makes a useful syntactic distinction: it defines <code>full-date</code> separately from <code>date-time</code>, and a <code>date-time</code> includes a time offset. Use that distinction in the application contract instead of treating every ISO-shaped string as a timestamp.</p>
+<h3>Database types should preserve the question, too</h3>
+<p>PostgreSQL provides a <code>date</code> type as well as <code>timestamp with time zone</code> and <code>timestamp without time zone</code>. That is an invitation to model the domain, not a license to pick one timestamp type everywhere.</p>
+<p>For example:</p>
+<pre><code class="language-sql">create table subscriptions (
+  id uuid primary key,
+  renewal_date date not null,
+  next_charge_at timestamptz not null,
+  billing_timezone text not null
+);
+</code></pre>
+<p><code>renewal_date</code> can retain the customer-facing calendar commitment. <code>next_charge_at</code> can record the particular instant a charge is intended to run. <code>billing_timezone</code> explains how a future local schedule should be resolved. Replacing all three with a midnight timestamp makes later corrections harder, especially when a customer changes their preferred zone or a schedule crosses daylight saving time.</p>
+<p>Be careful with <code>timestamp without time zone</code>: it is suitable only when the lack of a zone is intentional and another invariant supplies the missing context. A local appointment can be stored that way if the related location or time zone is mandatory and unambiguous. A distributed event log generally cannot.</p>
+<h3>Make parsing a boundary, not a convenience call</h3>
+<p>The durable fix is not “remember the weird <code>Date</code> rule.” It is to prevent a bare date from silently reaching an instant constructor.</p>
+<p>At an HTTP or queue boundary, validate the shape and name the field by its semantic type:</p>
+<pre><code class="language-ts">type CalendarDate = string &amp; { readonly __kind: &quot;CalendarDate&quot; };
+
+function parseCalendarDate(input: string): CalendarDate {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(input)) {
+    throw new Error(&quot;Expected calendar date in YYYY-MM-DD form&quot;);
+  }
+
+  // Use a calendar-aware library or Temporal.PlainDate.from here to
+  // reject impossible dates such as 2026-02-30.
+  return input as CalendarDate;
+}
+
+type ScheduledLocalTime = {
+  localDateTime: string; // e.g. 2026-10-02T09:00:00
+  timeZone: string;      // e.g. America/Toronto
+};
+
+type Instant = string; // Require an offset, e.g. 2026-10-02T13:00:00Z
+</code></pre>
+<p>The branded type is illustrative, not runtime validation. Its value is that <code>CalendarDate</code> cannot be passed to an API expecting <code>Instant</code> without an explicit conversion at the call site. In a language with richer temporal types, use them. In JavaScript, <code>Temporal.PlainDate.from(input)</code> is the better validation operation where Temporal is available; otherwise a date library or a small, tested calendar validator is preferable to <code>new Date(input)</code>.</p>
+<p>At the conversion point, force the code to state its policy:</p>
+<pre><code class="language-ts">// The product has decided that this all-day event begins in Toronto.
+const scheduled: ScheduledLocalTime = {
+  localDateTime: &quot;2026-10-02T00:00:00&quot;,
+  timeZone: &quot;America/Toronto&quot;,
+};
+</code></pre>
+<p>That extra field is not bureaucracy. It is the missing premise that makes a calendar date convertible to an instant.</p>
+<h3>Test calendar boundaries in a second zone</h3>
+<p>Tests that run only in UTC conceal this defect. Add cases in at least one positive and one negative offset, then test the business assertion rather than only the serialized instant:</p>
+<pre><code class="language-text">Given a publish date of 2026-10-02
+When a reader in America/Los_Angeles loads the article
+Then the displayed calendar date is October 2
+
+Given a local appointment at 09:00 in America/Toronto
+When the service schedules a notification
+Then the chosen instant reflects Toronto&#39;s offset on that date
+</code></pre>
+<p>Include a daylight-saving boundary for local schedules. A date-only value should survive unchanged; a local clock time may be ambiguous or nonexistent. Those are different policies, and conflating the types postpones the decision until production.</p>
+<h2>Steps / Code</h2>
+<p>Before adding a date-like field, answer these questions in the schema or API review:</p>
+<ol>
+<li>Is this a calendar day, a local wall-clock value, or an instant?</li>
+<li>If it is local, where is the time-zone identifier stored and who owns it?</li>
+<li>If it is an instant, does every serialized value include an offset?</li>
+<li>Which conversions are allowed, and what product policy supplies any missing zone?</li>
+<li>Do tests run around the relevant daylight-saving transition and in a non-UTC environment?</li>
+</ol>
+<p>For existing systems, start at the edges: form inputs, JSON contracts, import jobs, and presentation code. Find calls such as <code>new Date(dateOnlyString)</code>, timestamp columns named <code>*_date</code>, and values that gain or lose a <code>Z</code> during serialization. Do not migrate a column merely because its type looks inelegant; first identify whether the stored values were intended as days, local times, or instants. A mechanically converted historical date can preserve a bad assumption forever.</p>
+<h2>Trade-offs</h2>
+<p>Separate types impose a little more ceremony. A calendar date cannot be sorted with an instant without a policy, and a local appointment must carry a zone before it can become a notification time. That is not accidental complexity: those decisions were always present in the product, only previously hidden in a parser or server setting.</p>
+<p>There are also domains where UTC midnight is exactly right. A batch window may intentionally start at <code>00:00:00Z</code>; an immutable event audit needs an instant; a global leaderboard may define its day in UTC. Model those as instants and document the choice. The recommendation is not to avoid timestamps. It is to avoid using one to impersonate a date.</p>
+<p>Finally, be precise about user interfaces. A value can be stored correctly as a date and still be rendered incorrectly if a frontend turns it into a <code>Date</code> object before formatting. Keep all-day values on the calendar-date path from API through display.</p>
+<h2>References</h2>
+<ul>
+<li>ECMA International, <a href="https://tc39.es/ecma262/#sec-date-time-string-format">ECMAScript Date Time String Format</a></li>
+<li>TC39, <a href="https://tc39.es/proposal-temporal/docs/plaindate.html">Temporal.PlainDate</a></li>
+<li>IETF, <a href="https://www.rfc-editor.org/rfc/rfc3339.html#section-5.6">RFC 3339: Internet Date/Time Format</a></li>
+<li>PostgreSQL Global Development Group, <a href="https://www.postgresql.org/docs/current/datatype-datetime.html">Date/Time Types</a></li>
+</ul>
+<h2>Final Take</h2>
+<p><code>YYYY-MM-DD</code> is not an incomplete timestamp waiting for a <code>Z</code>. It is often a complete answer to a different question.</p>
+<p>Keep dates as dates. Require a place before turning a local clock into an instant. Require an offset when an API means an instant. The code gains a few explicit types; the product stops letting the deployment region decide what day a user meant.</p>
+<h2>Changelog</h2>
+<ul>
+<li>2026-10-02: Initial publish.</li>
+</ul>
+
+    </article>
+  </body>
+</html>
