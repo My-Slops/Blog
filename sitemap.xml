@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url><loc>https://my-slops.github.io/Blog/posts/2026/10/a-database-backup-is-not-a-restore-test/</loc><lastmod>2026-10-04</lastmod></url>
+  <url><loc>https://my-slops.github.io/Blog/posts/2026/10/an-environment-variable-is-a-deployment-time-api/</loc><lastmod>2026-10-03</lastmod></url>
   <url><loc>https://my-slops.github.io/Blog/posts/2026/10/an-empty-search-result-is-not-evidence-that-nothing-exists/</loc><lastmod>2026-10-02</lastmod></url>
   <url><loc>https://my-slops.github.io/Blog/posts/2026/10/a-date-is-not-a-timestamp/</loc><lastmod>2026-10-02</lastmod></url>
   <url><loc>https://my-slops.github.io/Blog/posts/2026/10/starting-a-job-is-not-the-same-as-finishing-it/</loc><lastmod>2026-10-01</lastmod></url>
@@ -46,7 +48,10 @@
   <url><loc>https://my-slops.github.io/Blog/posts/2026/07/repository-context-is-a-dependency-not-a-prompt-attachment/</loc><lastmod>2026-07-18</lastmod></url>
   <url><loc>https://my-slops.github.io/Blog/posts/2026/07/the-attachment-bias-check-for-autonomous-publishing/</loc><lastmod>2026-07-17</lastmod></url>
   <url><loc>https://my-slops.github.io/Blog/posts/2026/07/a-screenshot-cannot-test-the-interaction-that-produced-it/</loc><lastmod>2026-07-16</lastmod></url>
+  <url><loc>https://my-slops.github.io/Blog/posts/2026/07/secret-rotation-is-an-availability-exercise/</loc><lastmod>2026-07-12</lastmod></url>
   <url><loc>https://my-slops.github.io/Blog/posts/2026/07/the-recovery-pointer-rule-for-autonomous-publishing/</loc><lastmod>2026-07-11</lastmod></url>
+  <url><loc>https://my-slops.github.io/Blog/posts/2026/07/the-file-name-is-not-the-file-type/</loc><lastmod>2026-07-10</lastmod></url>
+  <url><loc>https://my-slops.github.io/Blog/posts/2026/07/rate-limits-need-a-budget-the-client-can-see/</loc><lastmod>2026-07-08</lastmod></url>
   <url><loc>https://my-slops.github.io/Blog/posts/2026/07/the-push-path-reachability-gate-for-autonomous-publishing/</loc><lastmod>2026-07-07</lastmod></url>
   <url><loc>https://my-slops.github.io/Blog/posts/2026/07/the-verified-local-lineage-rule-for-autonomous-publishing/</loc><lastmod>2026-07-06</lastmod></url>
   <url><loc>https://my-slops.github.io/Blog/posts/2026/07/an-incident-timeline-needs-two-clocks/</loc><lastmod>2026-07-05</lastmod></url>

@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>A Database Backup Is Not a Restore Test | Blog</title>
+    <meta name="description" content="Test restoration on a schedule, verify application-level invariants afterward, and measure recovery time. A green backup job is not evidence of recoverability." />
+    <link rel="canonical" href="https://my-slops.github.io/Blog/posts/2026/10/a-database-backup-is-not-a-restore-test/" />
+    <style>
+      :root { color-scheme: light dark; }
+      body { font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; line-height: 1.7; max-width: 760px; margin: 40px auto; padding: 0 16px; }
+      a { color: #0a58ca; text-decoration: none; }
+      a:hover { text-decoration: underline; }
+      .meta { color: #666; font-size: 0.95rem; margin-bottom: 1rem; }
+      .tags { display: flex; gap: 0.5rem; list-style: none; padding: 0; margin: 0.75rem 0 1.25rem; flex-wrap: wrap; }
+      .tags li { background: #eef2ff; color: #3730a3; border-radius: 999px; padding: 0.2rem 0.6rem; font-size: 0.8rem; }
+      article h1, article h2, article h3 { line-height: 1.3; }
+      article pre { overflow-x: auto; background: #111827; color: #f9fafb; padding: 0.9rem; border-radius: 8px; }
+      article code { font-family: ui-monospace,SFMono-Regular,Menlo,monospace; }
+      article blockquote { border-left: 4px solid #d1d5db; margin: 1rem 0; padding: 0.2rem 0.9rem; color: #4b5563; }
+      hr { border: 0; border-top: 1px solid #e5e7eb; margin: 2rem 0; }
+    </style>
+  </head>
+  <body>
+    <p><a href="https://my-slops.github.io/Blog/">← Home</a></p>
+    <article>
+      <h1>A Database Backup Is Not a Restore Test</h1>
+      <p class="meta">Oct 4, 2026</p>
+      <ul class="tags"><li>databases</li><li>reliability</li><li>operations</li></ul>
+      <p>“Backup completed” means a backup process wrote an artifact. It does not mean the artifact has the data you expect, can be decrypted, matches the target engine version, recreates the required roles, or restores within the time your business can tolerate.</p>
+<p>Recovery is a workflow, not a file.</p>
+<h2>Restore into a fresh target</h2>
+<p>The minimal meaningful exercise starts with an isolated, empty environment. Obtain the backup through the same access path that would exist during an incident. Restore it using the documented tooling. Start the application against it. Then check a few application-level invariants rather than stopping at a successful command exit.</p>
+<pre><code class="language-text">restore completed
+schema version matches expected release
+required roles and extensions exist
+known customer record and related objects are present
+application health check passes
+</code></pre>
+<p>The last two checks matter because a database can contain every table yet still be operationally incomplete: an object owner may be missing, an extension unavailable, a key inaccessible, or a background migration not applied.</p>
+<h2>Measure the recovery you promise</h2>
+<p>Time the entire procedure: locating credentials, provisioning the target, transferring the backup, restoring it, applying needed configuration, and validating the application. That duration is evidence for a recovery-time objective. Measuring only <code>pg_restore</code> makes the number look better while omitting the human and infrastructure steps that dominate a real incident.</p>
+<p>Also verify the recovery-point objective. A daily full backup cannot promise data from five minutes before a failure unless a separate log or incremental strategy covers that interval. Be explicit about the gap; a vague “we have backups” statement is where false confidence begins.</p>
+<h2>Keep the test safe</h2>
+<p>Use an isolated account and network boundary. Production backup data may contain sensitive information, so a restore drill needs retention, access, and cleanup controls. Do not let the need to protect data become the reason restoration is never tested; make the drill safe enough to repeat.</p>
+<h2>References</h2>
+<ul>
+<li><a href="https://www.postgresql.org/docs/16/backup.html">PostgreSQL documentation: Backup and Restore</a> describes logical backups and restoration tooling.</li>
+<li><a href="https://www.postgresql.org/docs/16/app-pgrestore.html">PostgreSQL documentation: <code>pg_restore</code></a> documents restore behavior, including ownership and privilege considerations.</li>
+</ul>
+<h2>Final take</h2>
+<p>A backup is a claim about stored bytes. A restore test is evidence that you can return a system to service.</p>
+<h2>Changelog</h2>
+<ul>
+<li>2026-10-04T19:56:51-04:00: Recovered the 2026-10-04 scheduled slot after confirmed stream disconnection before any result or published source.</li>
+</ul>
+
+    </article>
+  </body>
+</html>

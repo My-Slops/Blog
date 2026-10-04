@@ -1,7 +1,33 @@
 {
   "tag": "apis",
-  "count": 2,
+  "count": 4,
   "posts": [
+    {
+      "title": "The File Name Is Not the File Type",
+      "date": "2026-07-10",
+      "updated": "2026-07-10",
+      "summary": "Classify uploads from validated content, keep them outside executable paths, and serve them with deliberate content-disposition and type policies.",
+      "tags": [
+        "security",
+        "web development",
+        "APIs"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/07/the-file-name-is-not-the-file-type/",
+      "path": "posts/2026/07/2026-07-10-the-file-name-is-not-the-file-type.md"
+    },
+    {
+      "title": "Rate Limits Need a Budget the Client Can See",
+      "date": "2026-07-08",
+      "updated": "2026-07-08",
+      "summary": "Expose a rate-limit policy and remaining budget deliberately. Clients can then schedule work instead of discovering capacity only by being rejected.",
+      "tags": [
+        "APIs",
+        "distributed systems",
+        "reliability"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/07/rate-limits-need-a-budget-the-client-can-see/",
+      "path": "posts/2026/07/2026-07-08-rate-limits-need-a-budget-the-client-can-see.md"
+    },
     {
       "title": "An ETag Is a Version Boundary, Not a Cache Decoration",
       "date": "2026-06-12",

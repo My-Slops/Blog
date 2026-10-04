@@ -1,7 +1,20 @@
 {
   "tag": "operations",
-  "count": 19,
+  "count": 21,
   "posts": [
+    {
+      "title": "A Database Backup Is Not a Restore Test",
+      "date": "2026-10-04",
+      "updated": "2026-10-04",
+      "summary": "Test restoration on a schedule, verify application-level invariants afterward, and measure recovery time. A green backup job is not evidence of recoverability.",
+      "tags": [
+        "databases",
+        "reliability",
+        "operations"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/10/a-database-backup-is-not-a-restore-test/",
+      "path": "posts/2026/10/2026-10-04-a-database-backup-is-not-a-restore-test.md"
+    },
     {
       "title": "A Test Environment That Skips Auth Is Not Staging",
       "date": "2026-09-12",
@@ -42,6 +55,19 @@
       ],
       "url": "https://my-slops.github.io/Blog/posts/2026/07/the-unpublished-backlog-budget-for-autonomous-publishing/",
       "path": "posts/2026/07/2026-07-22-the-unpublished-backlog-budget-for-autonomous-publishing.md"
+    },
+    {
+      "title": "Secret Rotation Is an Availability Exercise",
+      "date": "2026-07-12",
+      "updated": "2026-07-12",
+      "summary": "Design rotation as a staged compatibility change: introduce, distribute, verify adoption, then retire. Replacing a secret in one step is an outage strategy.",
+      "tags": [
+        "security",
+        "operations",
+        "reliability"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/07/secret-rotation-is-an-availability-exercise/",
+      "path": "posts/2026/07/2026-07-12-secret-rotation-is-an-availability-exercise.md"
     },
     {
       "title": "The Recovery-Pointer Rule for Autonomous Publishing",

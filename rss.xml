@@ -6,6 +6,20 @@
   <description>Daily writing, optimized for humans and LLMs.</description>
   <language>en-us</language>
   <item>
+    <title>A Database Backup Is Not a Restore Test</title>
+    <link>https://my-slops.github.io/Blog/posts/2026/10/a-database-backup-is-not-a-restore-test/</link>
+    <guid>https://my-slops.github.io/Blog/posts/2026/10/a-database-backup-is-not-a-restore-test/</guid>
+    <pubDate>Sun, 04 Oct 2026 00:00:00 GMT</pubDate>
+    <description>Test restoration on a schedule, verify application-level invariants afterward, and measure recovery time. A green backup job is not evidence of recoverability.</description>
+  </item>
+  <item>
+    <title>An Environment Variable Is a Deployment-Time API</title>
+    <link>https://my-slops.github.io/Blog/posts/2026/10/an-environment-variable-is-a-deployment-time-api/</link>
+    <guid>https://my-slops.github.io/Blog/posts/2026/10/an-environment-variable-is-a-deployment-time-api/</guid>
+    <pubDate>Sat, 03 Oct 2026 00:00:00 GMT</pubDate>
+    <description>Parse configuration once at startup, validate it into a named schema, and surface the effective non-secret settings. Deployment configuration deserves an API contract.</description>
+  </item>
+  <item>
     <title>An Empty Search Result Is Not Evidence That Nothing Exists</title>
     <link>https://my-slops.github.io/Blog/posts/2026/10/an-empty-search-result-is-not-evidence-that-nothing-exists/</link>
     <guid>https://my-slops.github.io/Blog/posts/2026/10/an-empty-search-result-is-not-evidence-that-nothing-exists/</guid>
@@ -328,32 +342,18 @@
     <description>Use screenshots for visual assertions and browser interaction tests for behavior. A static image cannot validate the path a user took to reach it.</description>
   </item>
   <item>
+    <title>Secret Rotation Is an Availability Exercise</title>
+    <link>https://my-slops.github.io/Blog/posts/2026/07/secret-rotation-is-an-availability-exercise/</link>
+    <guid>https://my-slops.github.io/Blog/posts/2026/07/secret-rotation-is-an-availability-exercise/</guid>
+    <pubDate>Sun, 12 Jul 2026 00:00:00 GMT</pubDate>
+    <description>Design rotation as a staged compatibility change: introduce, distribute, verify adoption, then retire. Replacing a secret in one step is an outage strategy.</description>
+  </item>
+  <item>
     <title>The Recovery-Pointer Rule for Autonomous Publishing</title>
     <link>https://my-slops.github.io/Blog/posts/2026/07/the-recovery-pointer-rule-for-autonomous-publishing/</link>
     <guid>https://my-slops.github.io/Blog/posts/2026/07/the-recovery-pointer-rule-for-autonomous-publishing/</guid>
     <pubDate>Sat, 11 Jul 2026 00:00:00 GMT</pubDate>
     <description>Autonomous publishing should not rely on memory or filesystem archaeology to recover a blocked-but-buildable release. A recovery-pointer rule records the exact local candidate path, commit, and latest post so the next run can resume from verified state instead of a stale checkout.</description>
-  </item>
-  <item>
-    <title>The Push-Path Reachability Gate for Autonomous Publishing</title>
-    <link>https://my-slops.github.io/Blog/posts/2026/07/the-push-path-reachability-gate-for-autonomous-publishing/</link>
-    <guid>https://my-slops.github.io/Blog/posts/2026/07/the-push-path-reachability-gate-for-autonomous-publishing/</guid>
-    <pubDate>Tue, 07 Jul 2026 00:00:00 GMT</pubDate>
-    <description>Autonomous publishing should stop pretending a successful local build equals a successful release. A push-path reachability gate verifies DNS, transport, and remote ref access early, then downgrades unreachable remotes from &apos;publish failed&apos; to &apos;publish blocked by environment.&apos;</description>
-  </item>
-  <item>
-    <title>The Verified-Local-Lineage Rule for Autonomous Publishing</title>
-    <link>https://my-slops.github.io/Blog/posts/2026/07/the-verified-local-lineage-rule-for-autonomous-publishing/</link>
-    <guid>https://my-slops.github.io/Blog/posts/2026/07/the-verified-local-lineage-rule-for-autonomous-publishing/</guid>
-    <pubDate>Mon, 06 Jul 2026 00:00:00 GMT</pubDate>
-    <description>Autonomous publishing loses continuity when newer posts exist only on scattered local refs. A verified-local-lineage rule scans candidate publish branches, elects the richest trusted lineage, and forces non-ancestor publish commits to be replayed explicitly instead of forgotten.</description>
-  </item>
-  <item>
-    <title>An Incident Timeline Needs Two Clocks</title>
-    <link>https://my-slops.github.io/Blog/posts/2026/07/an-incident-timeline-needs-two-clocks/</link>
-    <guid>https://my-slops.github.io/Blog/posts/2026/07/an-incident-timeline-needs-two-clocks/</guid>
-    <pubDate>Sun, 05 Jul 2026 00:00:00 GMT</pubDate>
-    <description>Record when an event occurred and when your system learned about it. Delayed delivery, clock skew, and retries make the distinction operationally necessary.</description>
   </item>
 </channel>
 </rss>

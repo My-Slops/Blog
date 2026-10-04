@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Rate Limits Need a Budget the Client Can See | Blog</title>
+    <meta name="description" content="Expose a rate-limit policy and remaining budget deliberately. Clients can then schedule work instead of discovering capacity only by being rejected." />
+    <link rel="canonical" href="https://my-slops.github.io/Blog/posts/2026/07/rate-limits-need-a-budget-the-client-can-see/" />
+    <style>
+      :root { color-scheme: light dark; }
+      body { font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; line-height: 1.7; max-width: 760px; margin: 40px auto; padding: 0 16px; }
+      a { color: #0a58ca; text-decoration: none; }
+      a:hover { text-decoration: underline; }
+      .meta { color: #666; font-size: 0.95rem; margin-bottom: 1rem; }
+      .tags { display: flex; gap: 0.5rem; list-style: none; padding: 0; margin: 0.75rem 0 1.25rem; flex-wrap: wrap; }
+      .tags li { background: #eef2ff; color: #3730a3; border-radius: 999px; padding: 0.2rem 0.6rem; font-size: 0.8rem; }
+      article h1, article h2, article h3 { line-height: 1.3; }
+      article pre { overflow-x: auto; background: #111827; color: #f9fafb; padding: 0.9rem; border-radius: 8px; }
+      article code { font-family: ui-monospace,SFMono-Regular,Menlo,monospace; }
+      article blockquote { border-left: 4px solid #d1d5db; margin: 1rem 0; padding: 0.2rem 0.9rem; color: #4b5563; }
+      hr { border: 0; border-top: 1px solid #e5e7eb; margin: 2rem 0; }
+    </style>
+  </head>
+  <body>
+    <p><a href="https://my-slops.github.io/Blog/">← Home</a></p>
+    <article>
+      <h1>Rate Limits Need a Budget the Client Can See</h1>
+      <p class="meta">Jul 8, 2026</p>
+      <ul class="tags"><li>APIs</li><li>distributed systems</li><li>reliability</li></ul>
+      <p>Many APIs teach clients about a rate limit only at the moment the client has crossed it:</p>
+<pre><code class="language-http">HTTP/1.1 429 Too Many Requests
+Retry-After: 60
+</code></pre>
+<p>That is a useful stop signal, but it is a poor scheduling interface. The caller has already spent work, may have a queue full of similar requests, and now has to guess whether all of them should wait, fail, or retry together.</p>
+<p>The better contract gives a client a visible budget while it can still make a choice. RFC 9331 standardizes <code>RateLimit-Limit</code>, <code>RateLimit-Remaining</code>, and <code>RateLimit-Reset</code> fields for this purpose. A client can defer nonurgent work, meter a batch, or reserve capacity for an interactive request before it receives a 429.</p>
+<pre><code class="language-http">RateLimit-Limit: 1000;w=3600
+RateLimit-Remaining: 47
+RateLimit-Reset: 180
+</code></pre>
+<h2>A number is not a policy unless it is scoped</h2>
+<p>“47 requests remain” is ambiguous without the identity and resource it applies to. Is that a per-user, per-token, per-tenant, per-route, or global budget? Does a request cost one unit or vary by operation? Does an unsuccessful request consume capacity? A useful API documents those dimensions and makes the response headers agree with the enforcement path.</p>
+<p>The same endpoint can have several budgets. An image-generation call might use a general request budget plus a more restrictive expensive-operation budget. In that case, expose the constraint that will block the next request; do not publish a comforting global number while a narrower policy is already exhausted.</p>
+<h2>Do not turn hints into permission</h2>
+<p>Limit fields are observations, not a reservation. Another worker using the same credential can consume the remaining capacity before the next request arrives. Clients should still handle 429 and <code>Retry-After</code>, and servers should still enforce the limit atomically enough for the promised behavior.</p>
+<p>This is where many client libraries become noisy. They treat every 429 as an invitation for every waiting task to retry at the same second. Add jitter, bound the queue, and prefer a local scheduler that sees the shared budget. A response header cannot rescue an unbounded producer.</p>
+<h2>References</h2>
+<ul>
+<li><a href="https://www.rfc-editor.org/rfc/rfc9331">RFC 9331: The RateLimit Fields for HTTP</a> standardizes limit, remaining, and reset fields (January 2023).</li>
+<li><a href="https://www.rfc-editor.org/rfc/rfc6585#section-4">RFC 6585, section 4</a> defines <code>429 Too Many Requests</code>.</li>
+</ul>
+<h2>Final take</h2>
+<p>Rejection tells a client where the cliff is. A budget lets it choose a path that does not run over it.</p>
+<h2>Changelog</h2>
+<ul>
+<li>2026-10-04T19:56:51-04:00: Recovered the 2026-07-08 scheduled slot. The retained run had started but produced no result, tools, or published source.</li>
+</ul>
+
+    </article>
+  </body>
+</html>

@@ -1,7 +1,20 @@
 {
   "tag": "databases",
-  "count": 2,
+  "count": 3,
   "posts": [
+    {
+      "title": "A Database Backup Is Not a Restore Test",
+      "date": "2026-10-04",
+      "updated": "2026-10-04",
+      "summary": "Test restoration on a schedule, verify application-level invariants afterward, and measure recovery time. A green backup job is not evidence of recoverability.",
+      "tags": [
+        "databases",
+        "reliability",
+        "operations"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/10/a-database-backup-is-not-a-restore-test/",
+      "path": "posts/2026/10/2026-10-04-a-database-backup-is-not-a-restore-test.md"
+    },
     {
       "title": "The Quarantine Table Is Part of the Importer",
       "date": "2026-06-20",

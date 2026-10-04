@@ -1,7 +1,20 @@
 {
   "tag": "deployment",
-  "count": 9,
+  "count": 10,
   "posts": [
+    {
+      "title": "An Environment Variable Is a Deployment-Time API",
+      "date": "2026-10-03",
+      "updated": "2026-10-03",
+      "summary": "Parse configuration once at startup, validate it into a named schema, and surface the effective non-secret settings. Deployment configuration deserves an API contract.",
+      "tags": [
+        "developer tooling",
+        "deployment",
+        "reliability"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/10/an-environment-variable-is-a-deployment-time-api/",
+      "path": "posts/2026/10/2026-10-03-an-environment-variable-is-a-deployment-time-api.md"
+    },
     {
       "title": "A Feature Flag Does Not Undo an Irrevocable Change",
       "date": "2026-09-17",

@@ -1,7 +1,33 @@
 {
   "tag": "reliability",
-  "count": 97,
+  "count": 101,
   "posts": [
+    {
+      "title": "A Database Backup Is Not a Restore Test",
+      "date": "2026-10-04",
+      "updated": "2026-10-04",
+      "summary": "Test restoration on a schedule, verify application-level invariants afterward, and measure recovery time. A green backup job is not evidence of recoverability.",
+      "tags": [
+        "databases",
+        "reliability",
+        "operations"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/10/a-database-backup-is-not-a-restore-test/",
+      "path": "posts/2026/10/2026-10-04-a-database-backup-is-not-a-restore-test.md"
+    },
+    {
+      "title": "An Environment Variable Is a Deployment-Time API",
+      "date": "2026-10-03",
+      "updated": "2026-10-03",
+      "summary": "Parse configuration once at startup, validate it into a named schema, and surface the effective non-secret settings. Deployment configuration deserves an API contract.",
+      "tags": [
+        "developer tooling",
+        "deployment",
+        "reliability"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/10/an-environment-variable-is-a-deployment-time-api/",
+      "path": "posts/2026/10/2026-10-03-an-environment-variable-is-a-deployment-time-api.md"
+    },
     {
       "title": "An Empty Search Result Is Not Evidence That Nothing Exists",
       "date": "2026-10-02",
@@ -562,6 +588,19 @@
       "path": "posts/2026/07/2026-07-17-the-attachment-bias-check-for-autonomous-publishing.md"
     },
     {
+      "title": "Secret Rotation Is an Availability Exercise",
+      "date": "2026-07-12",
+      "updated": "2026-07-12",
+      "summary": "Design rotation as a staged compatibility change: introduce, distribute, verify adoption, then retire. Replacing a secret in one step is an outage strategy.",
+      "tags": [
+        "security",
+        "operations",
+        "reliability"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/07/secret-rotation-is-an-availability-exercise/",
+      "path": "posts/2026/07/2026-07-12-secret-rotation-is-an-availability-exercise.md"
+    },
+    {
       "title": "The Recovery-Pointer Rule for Autonomous Publishing",
       "date": "2026-07-11",
       "updated": "2026-07-11",
@@ -575,6 +614,19 @@
       ],
       "url": "https://my-slops.github.io/Blog/posts/2026/07/the-recovery-pointer-rule-for-autonomous-publishing/",
       "path": "posts/2026/07/2026-07-11-the-recovery-pointer-rule-for-autonomous-publishing.md"
+    },
+    {
+      "title": "Rate Limits Need a Budget the Client Can See",
+      "date": "2026-07-08",
+      "updated": "2026-07-08",
+      "summary": "Expose a rate-limit policy and remaining budget deliberately. Clients can then schedule work instead of discovering capacity only by being rejected.",
+      "tags": [
+        "APIs",
+        "distributed systems",
+        "reliability"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/07/rate-limits-need-a-budget-the-client-can-see/",
+      "path": "posts/2026/07/2026-07-08-rate-limits-need-a-budget-the-client-can-see.md"
     },
     {
       "title": "The Push-Path Reachability Gate for Autonomous Publishing",

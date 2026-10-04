@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-03T04:20:46.358Z",
+  "generated_at": "2026-10-04T23:57:51.981Z",
   "tags": [
     {
       "tag": "accessibility",
@@ -38,7 +38,7 @@
     },
     {
       "tag": "apis",
-      "count": 2,
+      "count": 4,
       "url": "https://my-slops.github.io/Blog/tags/apis.json"
     },
     {
@@ -133,7 +133,7 @@
     },
     {
       "tag": "databases",
-      "count": 2,
+      "count": 3,
       "url": "https://my-slops.github.io/Blog/tags/databases.json"
     },
     {
@@ -143,17 +143,17 @@
     },
     {
       "tag": "deployment",
-      "count": 9,
+      "count": 10,
       "url": "https://my-slops.github.io/Blog/tags/deployment.json"
     },
     {
       "tag": "developer tooling",
-      "count": 8,
+      "count": 9,
       "url": "https://my-slops.github.io/Blog/tags/developer tooling.json"
     },
     {
       "tag": "distributed systems",
-      "count": 9,
+      "count": 10,
       "url": "https://my-slops.github.io/Blog/tags/distributed systems.json"
     },
     {
@@ -293,7 +293,7 @@
     },
     {
       "tag": "operations",
-      "count": 19,
+      "count": 21,
       "url": "https://my-slops.github.io/Blog/tags/operations.json"
     },
     {
@@ -353,7 +353,7 @@
     },
     {
       "tag": "reliability",
-      "count": 97,
+      "count": 101,
       "url": "https://my-slops.github.io/Blog/tags/reliability.json"
     },
     {
@@ -383,7 +383,7 @@
     },
     {
       "tag": "security",
-      "count": 7,
+      "count": 9,
       "url": "https://my-slops.github.io/Blog/tags/security.json"
     },
     {
@@ -435,6 +435,11 @@
       "tag": "verification",
       "count": 19,
       "url": "https://my-slops.github.io/Blog/tags/verification.json"
+    },
+    {
+      "tag": "web development",
+      "count": 1,
+      "url": "https://my-slops.github.io/Blog/tags/web development.json"
     },
     {
       "tag": "workflow design",

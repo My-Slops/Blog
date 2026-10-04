@@ -1,6 +1,6 @@
 {
   "tag": "distributed systems",
-  "count": 9,
+  "count": 10,
   "posts": [
     {
       "title": "A Date Is Not a Timestamp",
@@ -71,6 +71,19 @@
       ],
       "url": "https://my-slops.github.io/Blog/posts/2026/07/background-work-needs-a-named-owner/",
       "path": "posts/2026/07/2026-07-26-background-work-needs-a-named-owner.md"
+    },
+    {
+      "title": "Rate Limits Need a Budget the Client Can See",
+      "date": "2026-07-08",
+      "updated": "2026-07-08",
+      "summary": "Expose a rate-limit policy and remaining budget deliberately. Clients can then schedule work instead of discovering capacity only by being rejected.",
+      "tags": [
+        "APIs",
+        "distributed systems",
+        "reliability"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/07/rate-limits-need-a-budget-the-client-can-see/",
+      "path": "posts/2026/07/2026-07-08-rate-limits-need-a-budget-the-client-can-see.md"
     },
     {
       "title": "An Incident Timeline Needs Two Clocks",

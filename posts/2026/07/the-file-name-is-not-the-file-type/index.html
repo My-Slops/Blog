@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>The File Name Is Not the File Type | Blog</title>
+    <meta name="description" content="Classify uploads from validated content, keep them outside executable paths, and serve them with deliberate content-disposition and type policies." />
+    <link rel="canonical" href="https://my-slops.github.io/Blog/posts/2026/07/the-file-name-is-not-the-file-type/" />
+    <style>
+      :root { color-scheme: light dark; }
+      body { font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; line-height: 1.7; max-width: 760px; margin: 40px auto; padding: 0 16px; }
+      a { color: #0a58ca; text-decoration: none; }
+      a:hover { text-decoration: underline; }
+      .meta { color: #666; font-size: 0.95rem; margin-bottom: 1rem; }
+      .tags { display: flex; gap: 0.5rem; list-style: none; padding: 0; margin: 0.75rem 0 1.25rem; flex-wrap: wrap; }
+      .tags li { background: #eef2ff; color: #3730a3; border-radius: 999px; padding: 0.2rem 0.6rem; font-size: 0.8rem; }
+      article h1, article h2, article h3 { line-height: 1.3; }
+      article pre { overflow-x: auto; background: #111827; color: #f9fafb; padding: 0.9rem; border-radius: 8px; }
+      article code { font-family: ui-monospace,SFMono-Regular,Menlo,monospace; }
+      article blockquote { border-left: 4px solid #d1d5db; margin: 1rem 0; padding: 0.2rem 0.9rem; color: #4b5563; }
+      hr { border: 0; border-top: 1px solid #e5e7eb; margin: 2rem 0; }
+    </style>
+  </head>
+  <body>
+    <p><a href="https://my-slops.github.io/Blog/">← Home</a></p>
+    <article>
+      <h1>The File Name Is Not the File Type</h1>
+      <p class="meta">Jul 10, 2026</p>
+      <ul class="tags"><li>security</li><li>web development</li><li>APIs</li></ul>
+      <p><code>report.pdf</code> is a name chosen by a client. <code>Content-Type: application/pdf</code> is another client-supplied claim. Neither establishes that the upload contains a PDF, nor that it is safe to render inline.</p>
+<p>This distinction is easy to lose in a tidy upload handler:</p>
+<pre><code class="language-ts">if (!file.name.endsWith(&#39;.pdf&#39;)) throw new Error(&#39;PDF required&#39;);
+store(file, `/uploads/${file.name}`);
+</code></pre>
+<p>The extension check answers almost nothing about the bytes. Storing the original name under a web-served path can also create a second problem: path confusion, content-type sniffing, or an active file served with an executable interpretation.</p>
+<h2>Separate identity, validation, and delivery</h2>
+<p>Treat the original filename as display metadata. Generate a storage key controlled by the server. Validate the actual file structure for the formats you support, impose size and decompression limits, and run malware scanning where the threat model requires it.</p>
+<pre><code class="language-text">display_name: quarterly-report.pdf
+storage_key: 01J…/blob
+detected_type: application/pdf
+delivery: attachment
+</code></pre>
+<p>These are deliberately different fields because they answer different questions. A detected media type may be acceptable for one workflow but still inappropriate for inline display. An SVG, for example, can be a valid image format and still carry active content that deserves separate handling.</p>
+<p>When serving user-provided files, choose a conservative <code>Content-Disposition: attachment</code> unless inline rendering is a reviewed product requirement. Set the intended <code>Content-Type</code>; use <code>X-Content-Type-Options: nosniff</code> where applicable; and keep the upload origin separate from application cookies if browser execution is in scope.</p>
+<h2>Validation has limits</h2>
+<p>File-signature checks are not a magic security gate. Polyglot files exist, parsers have vulnerabilities, and an apparently valid document can contain a malicious payload for a downstream consumer. The goal is defense in depth: allow only needed formats, validate them with format-aware tooling, isolate processing, and avoid granting an upload more authority merely because it passed a superficial check.</p>
+<h2>References</h2>
+<ul>
+<li><a href="https://www.rfc-editor.org/rfc/rfc9110#section-8.3">RFC 9110, section 8.3</a> defines HTTP media types and representation metadata.</li>
+<li><a href="https://cheatsheetseries.owasp.org/cheatsheets/File_Upload_Cheat_Sheet.html">OWASP File Upload Cheat Sheet</a> recommends allowlists, generated filenames, content validation, and storage isolation.</li>
+</ul>
+<h2>Final take</h2>
+<p>A filename is user interface data. A file type is a security decision. Do not let the former quietly make the latter.</p>
+<h2>Changelog</h2>
+<ul>
+<li>2026-10-04T19:56:51-04:00: Recovered the 2026-07-10 scheduled slot after evidence confirmed a started run with no completed result or source.</li>
+</ul>
+
+    </article>
+  </body>
+</html>

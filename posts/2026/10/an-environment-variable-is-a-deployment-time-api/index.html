@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>An Environment Variable Is a Deployment-Time API | Blog</title>
+    <meta name="description" content="Parse configuration once at startup, validate it into a named schema, and surface the effective non-secret settings. Deployment configuration deserves an API contract." />
+    <link rel="canonical" href="https://my-slops.github.io/Blog/posts/2026/10/an-environment-variable-is-a-deployment-time-api/" />
+    <style>
+      :root { color-scheme: light dark; }
+      body { font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; line-height: 1.7; max-width: 760px; margin: 40px auto; padding: 0 16px; }
+      a { color: #0a58ca; text-decoration: none; }
+      a:hover { text-decoration: underline; }
+      .meta { color: #666; font-size: 0.95rem; margin-bottom: 1rem; }
+      .tags { display: flex; gap: 0.5rem; list-style: none; padding: 0; margin: 0.75rem 0 1.25rem; flex-wrap: wrap; }
+      .tags li { background: #eef2ff; color: #3730a3; border-radius: 999px; padding: 0.2rem 0.6rem; font-size: 0.8rem; }
+      article h1, article h2, article h3 { line-height: 1.3; }
+      article pre { overflow-x: auto; background: #111827; color: #f9fafb; padding: 0.9rem; border-radius: 8px; }
+      article code { font-family: ui-monospace,SFMono-Regular,Menlo,monospace; }
+      article blockquote { border-left: 4px solid #d1d5db; margin: 1rem 0; padding: 0.2rem 0.9rem; color: #4b5563; }
+      hr { border: 0; border-top: 1px solid #e5e7eb; margin: 2rem 0; }
+    </style>
+  </head>
+  <body>
+    <p><a href="https://my-slops.github.io/Blog/">← Home</a></p>
+    <article>
+      <h1>An Environment Variable Is a Deployment-Time API</h1>
+      <p class="meta">Oct 3, 2026</p>
+      <ul class="tags"><li>developer tooling</li><li>deployment</li><li>reliability</li></ul>
+      <p>An environment variable looks local:</p>
+<pre><code class="language-ts">const timeout = Number(process.env.REQUEST_TIMEOUT_MS || 5000);
+</code></pre>
+<p>But its caller lives outside the program: a deployment manifest, CI job, shell script, container platform, or another team’s runbook. That makes <code>REQUEST_TIMEOUT_MS</code> a deployment-time API. It has a name, a type, a default, valid ranges, backward-compatibility expectations, and consumers that can break when any of those change.</p>
+<p>The one-line pattern hides several bugs. <code>Number(&quot;fast&quot;)</code> becomes <code>NaN</code>; an empty string silently selects the default; a value in seconds is accepted where milliseconds were expected; and a typo in the environment produces a system that starts successfully with unintended behavior.</p>
+<h2>Parse at the boundary</h2>
+<p>Read raw environment strings once during startup and turn them into an application configuration object. Reject invalid values before the service begins serving traffic.</p>
+<pre><code class="language-ts">function positiveInteger(name: string, raw: string | undefined, fallback: number) {
+  const value = raw === undefined ? fallback : Number(raw);
+  if (!Number.isInteger(value) || value &lt;= 0) {
+    throw new Error(`${name} must be a positive integer`);
+  }
+  return value;
+}
+
+const config = {
+  requestTimeoutMs: positiveInteger(&#39;REQUEST_TIMEOUT_MS&#39;, process.env.REQUEST_TIMEOUT_MS, 5000),
+};
+</code></pre>
+<p>The code is intentionally boring. Its value is that the rest of the application no longer has to wonder whether configuration is absent, malformed, or expressed in the wrong unit.</p>
+<h2>Defaults are behavior</h2>
+<p>A default is not merely a convenience for local development. It becomes the behavior of every deployment that has not set the variable. Document it, test it, and treat a default change like an API change. If a configuration field is required for safe production operation, do not add a default just to make startup feel forgiving.</p>
+<p>At startup, log or expose the effective configuration that is safe to reveal: selected region, feature mode, timeout, build revision. Do not log secrets. Operators need evidence of what the program actually interpreted, not only what a manifest intended to provide.</p>
+<h2>References</h2>
+<ul>
+<li><a href="https://12factor.net/config">The Twelve-Factor App: Config</a> describes separating deploy-specific configuration from code.</li>
+<li><a href="https://kubernetes.io/docs/concepts/configuration/configmap/">Kubernetes documentation: ConfigMaps</a> distinguishes application configuration from container images and notes that ConfigMaps are not secret storage.</li>
+</ul>
+<h2>Final take</h2>
+<p>Environment variables are not a bag of optional strings. They are an API your deployment system calls at every startup. Give them the contract that implies.</p>
+<h2>Changelog</h2>
+<ul>
+<li>2026-10-04T19:56:51-04:00: Recovered the 2026-10-03 scheduled slot after confirmed stream disconnection before any result or publication.</li>
+</ul>
+
+    </article>
+  </body>
+</html>

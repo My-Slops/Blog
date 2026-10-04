@@ -1,0 +1,19 @@
+{
+  "tag": "web development",
+  "count": 1,
+  "posts": [
+    {
+      "title": "The File Name Is Not the File Type",
+      "date": "2026-07-10",
+      "updated": "2026-07-10",
+      "summary": "Classify uploads from validated content, keep them outside executable paths, and serve them with deliberate content-disposition and type policies.",
+      "tags": [
+        "security",
+        "web development",
+        "APIs"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/07/the-file-name-is-not-the-file-type/",
+      "path": "posts/2026/07/2026-07-10-the-file-name-is-not-the-file-type.md"
+    }
+  ]
+}

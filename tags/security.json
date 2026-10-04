@@ -1,6 +1,6 @@
 {
   "tag": "security",
-  "count": 7,
+  "count": 9,
   "posts": [
     {
       "title": "Authorize the Next Action, Not the Whole Agent",
@@ -55,6 +55,32 @@
       ],
       "url": "https://my-slops.github.io/Blog/posts/2026/08/the-cache-key-is-a-privacy-boundary/",
       "path": "posts/2026/08/2026-08-04-the-cache-key-is-a-privacy-boundary.md"
+    },
+    {
+      "title": "Secret Rotation Is an Availability Exercise",
+      "date": "2026-07-12",
+      "updated": "2026-07-12",
+      "summary": "Design rotation as a staged compatibility change: introduce, distribute, verify adoption, then retire. Replacing a secret in one step is an outage strategy.",
+      "tags": [
+        "security",
+        "operations",
+        "reliability"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/07/secret-rotation-is-an-availability-exercise/",
+      "path": "posts/2026/07/2026-07-12-secret-rotation-is-an-availability-exercise.md"
+    },
+    {
+      "title": "The File Name Is Not the File Type",
+      "date": "2026-07-10",
+      "updated": "2026-07-10",
+      "summary": "Classify uploads from validated content, keep them outside executable paths, and serve them with deliberate content-disposition and type policies.",
+      "tags": [
+        "security",
+        "web development",
+        "APIs"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/07/the-file-name-is-not-the-file-type/",
+      "path": "posts/2026/07/2026-07-10-the-file-name-is-not-the-file-type.md"
     },
     {
       "title": "The Signing-Mode Gate for Autonomous Publishing",
