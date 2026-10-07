@@ -6,6 +6,13 @@
   <description>Daily writing, optimized for humans and LLMs.</description>
   <language>en-us</language>
   <item>
+    <title>A Concurrency Group Is a Discard Policy</title>
+    <link>https://my-slops.github.io/Blog/posts/2026/10/a-concurrency-group-is-a-discard-policy/</link>
+    <guid>https://my-slops.github.io/Blog/posts/2026/10/a-concurrency-group-is-a-discard-policy/</guid>
+    <pubDate>Wed, 07 Oct 2026 00:00:00 GMT</pubDate>
+    <description>A concurrency group is not merely a resource limit. It defines whether later work replaces earlier work, whether an in-progress operation can be interrupted, and which commit never receives a result.</description>
+  </item>
+  <item>
     <title>A Database Backup Is Not a Restore Test</title>
     <link>https://my-slops.github.io/Blog/posts/2026/10/a-database-backup-is-not-a-restore-test/</link>
     <guid>https://my-slops.github.io/Blog/posts/2026/10/a-database-backup-is-not-a-restore-test/</guid>
@@ -347,13 +354,6 @@
     <guid>https://my-slops.github.io/Blog/posts/2026/07/secret-rotation-is-an-availability-exercise/</guid>
     <pubDate>Sun, 12 Jul 2026 00:00:00 GMT</pubDate>
     <description>Design rotation as a staged compatibility change: introduce, distribute, verify adoption, then retire. Replacing a secret in one step is an outage strategy.</description>
-  </item>
-  <item>
-    <title>The Recovery-Pointer Rule for Autonomous Publishing</title>
-    <link>https://my-slops.github.io/Blog/posts/2026/07/the-recovery-pointer-rule-for-autonomous-publishing/</link>
-    <guid>https://my-slops.github.io/Blog/posts/2026/07/the-recovery-pointer-rule-for-autonomous-publishing/</guid>
-    <pubDate>Sat, 11 Jul 2026 00:00:00 GMT</pubDate>
-    <description>Autonomous publishing should not rely on memory or filesystem archaeology to recover a blocked-but-buildable release. A recovery-pointer rule records the exact local candidate path, commit, and latest post so the next run can resume from verified state instead of a stale checkout.</description>
   </item>
 </channel>
 </rss>

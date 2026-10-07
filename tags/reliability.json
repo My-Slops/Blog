@@ -1,7 +1,21 @@
 {
   "tag": "reliability",
-  "count": 101,
+  "count": 102,
   "posts": [
+    {
+      "title": "A Concurrency Group Is a Discard Policy",
+      "date": "2026-10-07",
+      "updated": "2026-10-07",
+      "summary": "A concurrency group is not merely a resource limit. It defines whether later work replaces earlier work, whether an in-progress operation can be interrupted, and which commit never receives a result.",
+      "tags": [
+        "developer tooling",
+        "reliability",
+        "deployment",
+        "automation"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/10/a-concurrency-group-is-a-discard-policy/",
+      "path": "posts/2026/10/2026-10-07-a-concurrency-group-is-a-discard-policy.md"
+    },
     {
       "title": "A Database Backup Is Not a Restore Test",
       "date": "2026-10-04",

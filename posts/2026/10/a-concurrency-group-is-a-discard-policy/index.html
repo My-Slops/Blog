@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>A Concurrency Group Is a Discard Policy | Blog</title>
+    <meta name="description" content="A concurrency group is not merely a resource limit. It defines whether later work replaces earlier work, whether an in-progress operation can be interrupted, and which commit never receives a result." />
+    <link rel="canonical" href="https://my-slops.github.io/Blog/posts/2026/10/a-concurrency-group-is-a-discard-policy/" />
+    <style>
+      :root { color-scheme: light dark; }
+      body { font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; line-height: 1.7; max-width: 760px; margin: 40px auto; padding: 0 16px; }
+      a { color: #0a58ca; text-decoration: none; }
+      a:hover { text-decoration: underline; }
+      .meta { color: #666; font-size: 0.95rem; margin-bottom: 1rem; }
+      .tags { display: flex; gap: 0.5rem; list-style: none; padding: 0; margin: 0.75rem 0 1.25rem; flex-wrap: wrap; }
+      .tags li { background: #eef2ff; color: #3730a3; border-radius: 999px; padding: 0.2rem 0.6rem; font-size: 0.8rem; }
+      article h1, article h2, article h3 { line-height: 1.3; }
+      article pre { overflow-x: auto; background: #111827; color: #f9fafb; padding: 0.9rem; border-radius: 8px; }
+      article code { font-family: ui-monospace,SFMono-Regular,Menlo,monospace; }
+      article blockquote { border-left: 4px solid #d1d5db; margin: 1rem 0; padding: 0.2rem 0.9rem; color: #4b5563; }
+      hr { border: 0; border-top: 1px solid #e5e7eb; margin: 2rem 0; }
+    </style>
+  </head>
+  <body>
+    <p><a href="https://my-slops.github.io/Blog/">← Home</a></p>
+    <article>
+      <h1>A Concurrency Group Is a Discard Policy</h1>
+      <p class="meta">Oct 7, 2026</p>
+      <ul class="tags"><li>developer tooling</li><li>reliability</li><li>deployment</li><li>automation</li></ul>
+      <p>Two pushes arrive while a staging deployment is still running.</p>
+<p>The first deploys commit <code>a1</code>. The second queues <code>b2</code>. The third queues <code>c3</code>. An engineer sees a concurrency setting and assumes it means: “only one deployment happens at a time.” That is only half of the policy. The other half is: “which request is allowed to disappear?”</p>
+<p>In GitHub Actions, a concurrency group permits one running job or workflow and, by default, one pending one. When another run enters the same group, the existing pending run is cancelled and replaced. With <code>cancel-in-progress: true</code>, a new run can cancel the one already running as well. <a href="https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-syntax#concurrency">GitHub’s workflow syntax reference</a> documents both behaviors.</p>
+<p>For a preview build, replacing <code>b2</code> with <code>c3</code> is usually exactly right. For a migration, a release artifact, or a job that notifies an external customer, silently deciding that <code>b2</code> never needs an outcome can be a production bug.</p>
+<h2>The useful question is not “should this run concurrently?”</h2>
+<p>Ask whether a newer request supersedes an older one.</p>
+<p>Those are different questions. A staging environment may accept only one deployment at a time because two simultaneous writes would conflict. That establishes a mutual-exclusion requirement. It does not yet establish whether a newer deployment should replace a queued one, wait behind it, or be rejected.</p>
+<table>
+<thead>
+<tr>
+<th>Kind of work</th>
+<th>Sensible policy</th>
+<th>Why</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Rebuild a pull-request preview</td>
+<td>Latest request wins</td>
+<td>The newest commit is the only preview anyone needs.</td>
+</tr>
+<tr>
+<td>Publish a static site from <code>main</code></td>
+<td>Often latest request wins</td>
+<td>An intermediate site revision has little value if a newer commit supersedes it.</td>
+</tr>
+<tr>
+<td>Produce a versioned release artifact</td>
+<td>Preserve every accepted request</td>
+<td>Each version may be an input to a later release, audit, or customer download.</td>
+</tr>
+<tr>
+<td>Apply a customer-requested data change</td>
+<td>Preserve or explicitly reject</td>
+<td>A later request does not necessarily make the earlier business action obsolete.</td>
+</tr>
+<tr>
+<td>Run an expensive report refresh</td>
+<td>Domain-specific</td>
+<td>A refresh may be replaceable; a report promised to a user may not be.</td>
+</tr>
+</tbody></table>
+<p>“Latest wins” is not a generic reliability improvement. It is a claim about intent. Make it only when the new request really makes the old request unnecessary.</p>
+<h2>A cancellation is an outcome, not an implementation detail</h2>
+<p>The dangerous case is not the obvious one where a queued run is replaced. It is an interrupted run that already changed something.</p>
+<p>Consider this workflow shape:</p>
+<pre><code class="language-yaml">concurrency:
+  group: staging-deploy
+  cancel-in-progress: true
+</code></pre>
+<p>This may be a good choice for a long-running test suite, where a new commit makes the old test result uninteresting. It is much less comfortable for a deployment that has already uploaded assets, changed traffic, or started a migration. Cancelling the workflow does not roll back an external side effect. It only stops the workflow according to the runner’s cancellation behavior.</p>
+<p>Treat <code>cancelled</code> as a first-class terminal state in the release record. An operator should be able to answer all three of these questions without reading raw runner logs:</p>
+<ol>
+<li>Which commit was being deployed?</li>
+<li>What externally visible steps had completed before cancellation?</li>
+<li>What reconciles the target before the next run begins?</li>
+</ol>
+<p>If the answer to the third question is “the next run probably overwrites it,” the concurrency group is covering an incomplete deployment protocol. That can be acceptable for an idempotent static upload. It is not a sound default for operations that cannot safely be replayed.</p>
+<p>This is the same boundary behind <a href="https://my-slops.github.io/Blog/posts/2026/09/a-feature-flag-does-not-undo-an-irrevocable-change/">A Feature Flag Does Not Undo an Irrevocable Change</a>: stopping future code paths is different from reversing an effect already produced by a previous one.</p>
+<h2>Scope groups to the resource, not to a vague activity</h2>
+<p><code>deploy</code> is usually too broad. It can serialize unrelated services and hide the fact that their target resources do not conflict. <code>main</code> is often too narrow in the other direction: it may allow two workflows to act on the same environment because their group names differ.</p>
+<p>A useful group name identifies the resource that requires coordination:</p>
+<pre><code class="language-yaml">concurrency:
+  group: deploy-${{ inputs.service }}-${{ inputs.environment }}
+  cancel-in-progress: false
+</code></pre>
+<p>That configuration says the exclusion boundary is one service in one environment. It does <strong>not</strong> say that deployments should be discarded; <code>cancel-in-progress: false</code> avoids interrupting the run that currently owns the target. The remaining queue policy still needs to match the domain. If every accepted deployment must run, use a queueing mechanism that preserves them rather than assuming a concurrency key does.</p>
+<p>Do not reuse a group across unrelated workflows merely because their names look similar. GitHub notes that concurrency group names must be unique across workflows when runs should not cancel each other. A shared <code>production</code> group can be intentional coordination; a shared <code>deploy</code> group for unrelated repositories or services is accidental coupling with cancellation attached.</p>
+<h2>Test the policy with three commits, not one green run</h2>
+<p>Concurrency configuration is hard to review from YAML alone because the important behavior appears only under overlap. Exercise it deliberately:</p>
+<pre><code class="language-text">Given: commit A is running in the deployment group
+When: commits B and C enter that group before A finishes
+Then: record whether B was cancelled, queued, or executed
+And: verify the final target is the expected revision
+And: verify every cancelled run leaves an inspectable outcome
+
+Given: A has completed its first external side effect
+When: it is cancelled by a newer run
+Then: the next run reconciles that effect before continuing
+</code></pre>
+<p>The first test checks scheduling. The second checks whether scheduling has been mistaken for recovery. Both matter. A system can consistently choose the newest run and still leave the environment halfway through the older one.</p>
+<p>For agent-operated workflows, expose this distinction in tool output too. “Deployment cancelled because a newer revision superseded it” is a useful result. “Deployment failed” is misleading, and “deployment complete” is worse if only the newer run eventually succeeded. <a href="https://my-slops.github.io/Blog/posts/2026/10/starting-a-job-is-not-the-same-as-finishing-it/">Starting a Job Is Not the Same as Finishing It</a> covers why an agent needs that honest lifecycle boundary.</p>
+<h2>Keep the cheap optimization where it belongs</h2>
+<p>Discarding obsolete work saves runner time and shortens feedback loops. It is a particularly good fit for lint, preview builds, generated documentation, and other calculations whose only useful answer is the one for the newest source tree. Running every intermediate commit there is often wasteful theater.</p>
+<p>But “newest source wins” is not the same as “newest side effect wins.” If work creates a versioned artifact, sends a promise to someone outside the system, advances a state machine, or must be accounted for individually, use an explicit queue or a domain-level deduplication rule instead. Its lifecycle needs an identity and a visible decision about why it ran, waited, was rejected, or was superseded.</p>
+<h2>References</h2>
+<ul>
+<li>GitHub Docs, <a href="https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-syntax#concurrency">Workflow syntax for GitHub Actions: <code>concurrency</code></a></li>
+<li>This blog, <a href="https://my-slops.github.io/Blog/posts/2026/09/a-feature-flag-does-not-undo-an-irrevocable-change/">A Feature Flag Does Not Undo an Irrevocable Change</a></li>
+<li>This blog, <a href="https://my-slops.github.io/Blog/posts/2026/10/starting-a-job-is-not-the-same-as-finishing-it/">Starting a Job Is Not the Same as Finishing It</a></li>
+</ul>
+<h2>Final Take</h2>
+<p>Concurrency is a scheduling policy plus a replacement policy. Before adding a group, state what makes a request obsolete, what cancellation leaves behind, and where a discarded request is recorded. If those answers are unclear, the work is not ready to be silently replaced.</p>
+<h2>Changelog</h2>
+<ul>
+<li>2026-10-07: Initial publication.</li>
+</ul>
+
+    </article>
+  </body>
+</html>
