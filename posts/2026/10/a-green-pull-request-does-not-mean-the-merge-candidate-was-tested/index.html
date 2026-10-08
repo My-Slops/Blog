@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>A Green Pull Request Does Not Mean the Merge Candidate Was Tested | Blog</title>
+    <meta name="description" content="Treat pull-request CI and merge-queue CI as different evidence. The first checks a proposed change; the second checks the integration GitHub is actually about to land." />
+    <link rel="canonical" href="https://my-slops.github.io/Blog/posts/2026/10/a-green-pull-request-does-not-mean-the-merge-candidate-was-tested/" />
+    <style>
+      :root { color-scheme: light dark; }
+      body { font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; line-height: 1.7; max-width: 760px; margin: 40px auto; padding: 0 16px; }
+      a { color: #0a58ca; text-decoration: none; }
+      a:hover { text-decoration: underline; }
+      .meta { color: #666; font-size: 0.95rem; margin-bottom: 1rem; }
+      .tags { display: flex; gap: 0.5rem; list-style: none; padding: 0; margin: 0.75rem 0 1.25rem; flex-wrap: wrap; }
+      .tags li { background: #eef2ff; color: #3730a3; border-radius: 999px; padding: 0.2rem 0.6rem; font-size: 0.8rem; }
+      article h1, article h2, article h3 { line-height: 1.3; }
+      article pre { overflow-x: auto; background: #111827; color: #f9fafb; padding: 0.9rem; border-radius: 8px; }
+      article code { font-family: ui-monospace,SFMono-Regular,Menlo,monospace; }
+      article blockquote { border-left: 4px solid #d1d5db; margin: 1rem 0; padding: 0.2rem 0.9rem; color: #4b5563; }
+      hr { border: 0; border-top: 1px solid #e5e7eb; margin: 2rem 0; }
+    </style>
+  </head>
+  <body>
+    <p><a href="https://my-slops.github.io/Blog/">← Home</a></p>
+    <article>
+      <h1>A Green Pull Request Does Not Mean the Merge Candidate Was Tested</h1>
+      <p class="meta">Oct 8, 2026</p>
+      <ul class="tags"><li>developer tooling</li><li>testing</li><li>reliability</li><li>automation</li></ul>
+      <h2>TL;DR</h2>
+<p>Pull-request CI answers whether one proposed change passed against the base it was tested with. A merge queue makes a different object: a temporary integration of that pull request, the latest base branch, and sometimes other queued pull requests.</p>
+<p>That object needs its own CI result. In GitHub Actions, a workflow that supplies a required check for a merge queue must listen to <code>merge_group</code>; a <code>pull_request</code> trigger alone does not run for the queued merge candidate. Otherwise, a required check can be absent exactly when GitHub needs it to decide whether to merge.</p>
+<h2>Context</h2>
+<p>Imagine two pull requests that both pass independently.</p>
+<p>The first adds a database column and changes an endpoint to write it. The second adds a validation rule that makes the new column required. Each branch was tested against yesterday&#39;s <code>main</code>, where the other change did not exist. The merge queue combines them with today&#39;s <code>main</code> and asks CI to test the resulting revision.</p>
+<p>That is not redundant work. It is the first test of the revision that could actually land.</p>
+<p>GitHub describes a merge queue as creating a temporary merge group from the current base branch and queued pull requests ahead of an entry. The group is merged only after the base branch&#39;s required checks pass. <a href="https://docs.github.com/en/pull-requests/how-tos/merge-and-close-pull-requests/merging-a-pull-request-with-a-merge-queue">Its merge-queue documentation</a> is explicit that a queue may remove a pull request when configured CI reports a failure for that merge group.</p>
+<p>The useful distinction is between two pieces of evidence:</p>
+<table>
+<thead>
+<tr>
+<th>Evidence</th>
+<th>What it establishes</th>
+<th>What it does not establish</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>A green pull request</td>
+<td>This change passed in the proposed branch context.</td>
+<td>The current integration candidate passes.</td>
+</tr>
+<tr>
+<td>A green merge group</td>
+<td>The concrete revision the queue assembled passed its required checks.</td>
+<td>Every possible future combination will pass.</td>
+</tr>
+</tbody></table>
+<p>Calling both results “CI passed” makes a real difference disappear. The subject of the test changed.</p>
+<h2>Key Points</h2>
+<h3>A merge queue changes what CI is validating</h3>
+<p>Without a queue, teams often reason from a simple relationship:</p>
+<pre><code class="language-text">feature branch + base branch observed during review -&gt; green checks -&gt; merge
+</code></pre>
+<p>On a busy branch, the base may move while a pull request is waiting for review, approval, or its turn to merge. A queue replaces that assumption with a candidate that is closer to the eventual production commit:</p>
+<pre><code class="language-text">latest base + queued changes ahead + this pull request -&gt; merge-group checks -&gt; merge
+</code></pre>
+<p>The first check remains valuable. It makes feedback fast and local to the author. The second protects the shared branch from interactions that did not exist when the pull request&#39;s original checks ran: generated-code conflicts, a changed dependency lockfile, incompatible migrations, fixture assumptions, or simply a test that depends on ordering.</p>
+<p>This does not mean a merge group predicts every production problem. It is still bounded by the checks, environments, and data it exercises. It does mean the system has tested the actual integration proposal rather than inferring its safety from a different commit.</p>
+<h3><code>pull_request</code> is not an alias for <code>merge_group</code></h3>
+<p>This is where GitHub Actions configurations often become subtly incomplete. GitHub documents <code>merge_group</code> as a separate event. Its event reference says the event exposes the merge group&#39;s SHA and ref, and recommends adding it alongside <code>pull_request</code> for required checks used by a merge queue.</p>
+<p>For a workflow whose <code>test</code> job is required in both places, the basic shape is:</p>
+<pre><code class="language-yaml">name: CI
+
+on:
+  pull_request:
+    branches: [main]
+  merge_group:
+    types: [checks_requested]
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - run: npm ci
+      - run: npm test
+</code></pre>
+<p>The important part is not the exact job name. It is that the required workflow runs against both subjects. GitHub&#39;s <a href="https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows#merge_group">workflow-events reference</a> says that a merge-group run receives the merge group&#39;s SHA and ref. Let <code>actions/checkout</code> use that default context unless there is a deliberate reason to override it; checking out a pull request head in a merge-group run would test the wrong revision again.</p>
+<p>GitHub&#39;s <a href="https://docs.github.com/en/pull-requests/how-tos/merge-and-close-pull-requests/troubleshooting-required-status-checks#status-checks-with-github-actions-and-a-merge-queue">required-check troubleshooting guide</a> makes the failure mode concrete: if a merge queue requires an Actions check, the workflow must include <code>merge_group</code>, or the required status check is not reported and the merge fails.</p>
+<h3>Audit the assumptions hidden in the workflow</h3>
+<p>Adding the trigger is necessary, but it is not always sufficient. A workflow written only for pull requests may read fields that do not exist for a merge group, such as <code>github.event.pull_request.number</code>, or decide which tests to run from a pull-request diff. Those choices need an explicit merge-group equivalent.</p>
+<p>Review these areas before making a check required for the queue:</p>
+<ol>
+<li><strong>Checkout target.</strong> Does the test use <code>github.sha</code> from the event, rather than forcing a pull-request head SHA?</li>
+<li><strong>Event-specific conditionals.</strong> Are jobs that require pull-request metadata limited to <code>github.event_name == &#39;pull_request&#39;</code>? Does the required integration job run for both events?</li>
+<li><strong>Changed-file logic.</strong> If expensive checks are selected from a pull-request diff, what is the conservative selection rule for a combined candidate?</li>
+<li><strong>Artifacts and reports.</strong> Can upload names, report comments, and deployment previews tolerate a merge-group ref without pretending it is a durable branch?</li>
+<li><strong>Required-check identity.</strong> Does the required job keep a stable name and report from the expected integration?</li>
+</ol>
+<p>The third question matters more than it appears. A path filter that sensibly skips a documentation-only pull request can be unsafe for a merge group if another queued change alters generated output or a shared build step. GitHub notes that skipped required workflows can leave a check pending; missing checks are a configuration signal, not evidence that no testing was needed.</p>
+<h3>Test the queue as a separate delivery path</h3>
+<p>Do not stop at one green pull request after enabling the setting. Put a harmless change through the queue and inspect the resulting run:</p>
+<pre><code class="language-text">Given: a required CI workflow has both pull_request and merge_group triggers
+When: an approved pull request enters the merge queue
+Then: a new CI run starts for the merge-group SHA
+And: its required job reports with the expected name
+And: the queue advances only after that job succeeds
+
+Given: a merge-group-only failure
+When: the job fails for the queued candidate
+Then: the pull request is removed or held according to queue policy
+And: the failure is discoverable without treating the earlier PR check as contradictory
+</code></pre>
+<p>The second case is the point of the exercise. A merge-group failure does not prove the pull-request run was wrong; it proves the two runs tested different revisions.</p>
+<p>There is a scheduling concern here as well. Testing merge candidates costs more CI and can delay the queue when a group fails. That is a throughput trade-off, not a reason to let a green branch result stand in for integration evidence. As <a href="https://my-slops.github.io/Blog/posts/2026/10/a-concurrency-group-is-a-discard-policy/">A Concurrency Group Is a Discard Policy</a> argues, workflow scheduling always includes an outcome policy. A merge queue should be equally explicit about what it tests before it decides a change may land.</p>
+<h2>Steps / Code</h2>
+<p>Before enabling or changing a merge queue, answer these operational questions:</p>
+<ol>
+<li>Which checks are advisory on a pull request, and which are required on the merge candidate?</li>
+<li>Does every required Actions workflow subscribe to <code>merge_group</code>?</li>
+<li>Which jobs depend on pull-request-only metadata, and what should they do for a merge group?</li>
+<li>Can the longest required check complete inside the queue&#39;s timeout and capacity settings?</li>
+<li>When a merge-group check fails, can an engineer see the candidate SHA, included pull requests, and failing output?</li>
+</ol>
+<p>For a small repository with a quiet base branch, direct merges after up-to-date pull-request checks may be enough. A merge queue earns its cost when integration races are common enough that serializing and testing the candidate saves more human coordination than it consumes in CI time.</p>
+<h2>Trade-offs</h2>
+<p>Merge-group CI is additional work, and the candidate is ephemeral. Avoid publishing it as if it were a reviewable feature branch or attaching durable external state to it without a cleanup policy. Tests that require secrets, protected environments, or third-party callbacks also need a careful threat model; adding a trigger should not broaden what untrusted pull-request code can access.</p>
+<p>Queues can also make failures feel less intuitive. A contributor may see a green pull-request check and a red queue result minutes later. The remedy is not to collapse the statuses. Show the candidate SHA and event type, explain that the base or queue composition changed, and make reruns target the same integration context when practical.</p>
+<p>My preference is to keep fast pull-request feedback and reserve the full integration suite for the merge candidate when its cost is material. If the suite is cheap, running it in both places buys simpler reasoning. In either case, required checks should be named for the commit they actually tested.</p>
+<h2>References</h2>
+<ul>
+<li>GitHub Docs, <a href="https://docs.github.com/en/pull-requests/how-tos/merge-and-close-pull-requests/merging-a-pull-request-with-a-merge-queue">Merging a pull request with a merge queue</a></li>
+<li>GitHub Docs, <a href="https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows#merge_group">Events that trigger workflows: <code>merge_group</code></a></li>
+<li>GitHub Docs, <a href="https://docs.github.com/en/pull-requests/how-tos/merge-and-close-pull-requests/troubleshooting-required-status-checks#status-checks-with-github-actions-and-a-merge-queue">Troubleshooting required status checks: merge queues</a></li>
+<li>This repository, <a href="https://my-slops.github.io/Blog/posts/2026/10/a-concurrency-group-is-a-discard-policy/">A Concurrency Group Is a Discard Policy</a></li>
+</ul>
+<h2>Final Take</h2>
+<p>A pull request&#39;s green check is evidence about a proposed change. A merge queue&#39;s green check is evidence about the integration revision it is about to land.</p>
+<p>Keep both. Configure each intentionally. Never let the first masquerade as the second.</p>
+<h2>Changelog</h2>
+<ul>
+<li>2026-10-08: Initial publish.</li>
+</ul>
+
+    </article>
+  </body>
+</html>

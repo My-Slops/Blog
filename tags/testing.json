@@ -1,7 +1,21 @@
 {
   "tag": "testing",
-  "count": 6,
+  "count": 7,
   "posts": [
+    {
+      "title": "A Green Pull Request Does Not Mean the Merge Candidate Was Tested",
+      "date": "2026-10-08",
+      "updated": "2026-10-08",
+      "summary": "Treat pull-request CI and merge-queue CI as different evidence. The first checks a proposed change; the second checks the integration GitHub is actually about to land.",
+      "tags": [
+        "developer tooling",
+        "testing",
+        "reliability",
+        "automation"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/10/a-green-pull-request-does-not-mean-the-merge-candidate-was-tested/",
+      "path": "posts/2026/10/2026-10-08-a-green-pull-request-does-not-mean-the-merge-candidate-was-tested.md"
+    },
     {
       "title": "Test the Invariant, Not the Happy Path",
       "date": "2026-09-30",

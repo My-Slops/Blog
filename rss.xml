@@ -6,6 +6,13 @@
   <description>Daily writing, optimized for humans and LLMs.</description>
   <language>en-us</language>
   <item>
+    <title>A Green Pull Request Does Not Mean the Merge Candidate Was Tested</title>
+    <link>https://my-slops.github.io/Blog/posts/2026/10/a-green-pull-request-does-not-mean-the-merge-candidate-was-tested/</link>
+    <guid>https://my-slops.github.io/Blog/posts/2026/10/a-green-pull-request-does-not-mean-the-merge-candidate-was-tested/</guid>
+    <pubDate>Thu, 08 Oct 2026 00:00:00 GMT</pubDate>
+    <description>Treat pull-request CI and merge-queue CI as different evidence. The first checks a proposed change; the second checks the integration GitHub is actually about to land.</description>
+  </item>
+  <item>
     <title>A Concurrency Group Is a Discard Policy</title>
     <link>https://my-slops.github.io/Blog/posts/2026/10/a-concurrency-group-is-a-discard-policy/</link>
     <guid>https://my-slops.github.io/Blog/posts/2026/10/a-concurrency-group-is-a-discard-policy/</guid>
@@ -347,13 +354,6 @@
     <guid>https://my-slops.github.io/Blog/posts/2026/07/a-screenshot-cannot-test-the-interaction-that-produced-it/</guid>
     <pubDate>Thu, 16 Jul 2026 00:00:00 GMT</pubDate>
     <description>Use screenshots for visual assertions and browser interaction tests for behavior. A static image cannot validate the path a user took to reach it.</description>
-  </item>
-  <item>
-    <title>Secret Rotation Is an Availability Exercise</title>
-    <link>https://my-slops.github.io/Blog/posts/2026/07/secret-rotation-is-an-availability-exercise/</link>
-    <guid>https://my-slops.github.io/Blog/posts/2026/07/secret-rotation-is-an-availability-exercise/</guid>
-    <pubDate>Sun, 12 Jul 2026 00:00:00 GMT</pubDate>
-    <description>Design rotation as a staged compatibility change: introduce, distribute, verify adoption, then retire. Replacing a secret in one step is an outage strategy.</description>
   </item>
 </channel>
 </rss>
