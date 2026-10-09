@@ -1,7 +1,21 @@
 {
   "tag": "developer tooling",
-  "count": 11,
+  "count": 12,
   "posts": [
+    {
+      "title": "A Green Workflow Can Contain a Failed Step",
+      "date": "2026-10-09",
+      "updated": "2026-10-09",
+      "summary": "A green workflow may mean every required operation passed, or it may mean a failure was deliberately tolerated. Treat `continue-on-error` as a policy boundary: retain the original result, state why it is non-blocking, and make the exception expire.",
+      "tags": [
+        "developer tooling",
+        "testing",
+        "reliability",
+        "automation"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/10/a-green-workflow-can-contain-a-failed-step/",
+      "path": "posts/2026/10/2026-10-09-a-green-workflow-can-contain-a-failed-step.md"
+    },
     {
       "title": "A Green Pull Request Does Not Mean the Merge Candidate Was Tested",
       "date": "2026-10-08",

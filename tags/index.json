@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-08T14:02:10.032Z",
+  "generated_at": "2026-10-09T14:00:55.783Z",
   "tags": [
     {
       "tag": "accessibility",
@@ -43,7 +43,7 @@
     },
     {
       "tag": "automation",
-      "count": 3,
+      "count": 4,
       "url": "https://my-slops.github.io/Blog/tags/automation.json"
     },
     {
@@ -148,7 +148,7 @@
     },
     {
       "tag": "developer tooling",
-      "count": 11,
+      "count": 12,
       "url": "https://my-slops.github.io/Blog/tags/developer tooling.json"
     },
     {
@@ -353,7 +353,7 @@
     },
     {
       "tag": "reliability",
-      "count": 103,
+      "count": 104,
       "url": "https://my-slops.github.io/Blog/tags/reliability.json"
     },
     {
@@ -408,7 +408,7 @@
     },
     {
       "tag": "testing",
-      "count": 7,
+      "count": 8,
       "url": "https://my-slops.github.io/Blog/tags/testing.json"
     },
     {

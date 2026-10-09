@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>A Green Workflow Can Contain a Failed Step | Blog</title>
+    <meta name="description" content="A green workflow may mean every required operation passed, or it may mean a failure was deliberately tolerated. Treat `continue-on-error` as a policy boundary: retain the original result, state why it is non-blocking, and make the exception expire." />
+    <link rel="canonical" href="https://my-slops.github.io/Blog/posts/2026/10/a-green-workflow-can-contain-a-failed-step/" />
+    <style>
+      :root { color-scheme: light dark; }
+      body { font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; line-height: 1.7; max-width: 760px; margin: 40px auto; padding: 0 16px; }
+      a { color: #0a58ca; text-decoration: none; }
+      a:hover { text-decoration: underline; }
+      .meta { color: #666; font-size: 0.95rem; margin-bottom: 1rem; }
+      .tags { display: flex; gap: 0.5rem; list-style: none; padding: 0; margin: 0.75rem 0 1.25rem; flex-wrap: wrap; }
+      .tags li { background: #eef2ff; color: #3730a3; border-radius: 999px; padding: 0.2rem 0.6rem; font-size: 0.8rem; }
+      article h1, article h2, article h3 { line-height: 1.3; }
+      article pre { overflow-x: auto; background: #111827; color: #f9fafb; padding: 0.9rem; border-radius: 8px; }
+      article code { font-family: ui-monospace,SFMono-Regular,Menlo,monospace; }
+      article blockquote { border-left: 4px solid #d1d5db; margin: 1rem 0; padding: 0.2rem 0.9rem; color: #4b5563; }
+      hr { border: 0; border-top: 1px solid #e5e7eb; margin: 2rem 0; }
+    </style>
+  </head>
+  <body>
+    <p><a href="https://my-slops.github.io/Blog/">← Home</a></p>
+    <article>
+      <h1>A Green Workflow Can Contain a Failed Step</h1>
+      <p class="meta">Oct 9, 2026</p>
+      <ul class="tags"><li>developer tooling</li><li>testing</li><li>reliability</li><li>automation</li></ul>
+      <h2>TL;DR</h2>
+<p><code>continue-on-error</code> does not make a command pass. It changes how GitHub Actions treats a command that failed. For a failed step, GitHub records <code>outcome: failure</code> but applies a final <code>conclusion: success</code> when <code>continue-on-error</code> is enabled.</p>
+<p>That is a useful mechanism for an explicitly advisory signal, such as a test against an experimental runtime. It is a dangerous default for a check that protects a release. A green workflow with an allowed failure should say what failed, why it did not block, who owns the exception, and when the policy will be reconsidered.</p>
+<h2>Context</h2>
+<p>A team adds a preview Node version to its test matrix. The current product supports the stable versions, but it wants early warning when the next runtime changes behavior. The preview job is allowed to fail:</p>
+<pre><code class="language-yaml">jobs:
+  test:
+    runs-on: ubuntu-latest
+    continue-on-error: ${{ matrix.experimental }}
+    strategy:
+      fail-fast: true
+      matrix:
+        node: [22, 24]
+        experimental: [false]
+        include:
+          - node: 25
+            experimental: true
+</code></pre>
+<p>That can be a sensible choice. A failure on Node 25 should not stop a release that promises support for 22 and 24. But it should not disappear into a reassuring green badge either. The test produced evidence: the project does not currently work on the runtime it is watching.</p>
+<p>GitHub Actions makes this distinction concrete. Its <code>steps</code> context has both an <code>outcome</code>, the result before <code>continue-on-error</code>, and a <code>conclusion</code>, the result after that policy is applied. A continued failed step therefore has <code>outcome: failure</code> and <code>conclusion: success</code>. <a href="https://docs.github.com/en/actions/reference/workflows-and-actions/contexts#steps-context">GitHub documents both values explicitly</a>.</p>
+<p>The important distinction is not a GitHub quirk. It is the difference between an operation result and the policy that decides whether that result blocks delivery.</p>
+<h2>Key Points</h2>
+<h3>Green is a decision, not a transcript</h3>
+<p>The badge on a workflow answers a question like: “did this workflow satisfy its configured blocking policy?” It does not necessarily answer: “did every command succeed?”</p>
+<p>Those can be the same answer, and for a release gate they often should be. But treating them as always identical makes it easy to mistake a tolerated failure for positive evidence.</p>
+<table>
+<thead>
+<tr>
+<th>Signal</th>
+<th>What it means</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Step outcome is <code>success</code></td>
+<td>The command completed successfully.</td>
+</tr>
+<tr>
+<td>Step outcome is <code>failure</code>, conclusion is <code>success</code></td>
+<td>The command failed; the workflow policy allowed it.</td>
+</tr>
+<tr>
+<td>Required job is green</td>
+<td>The branch rule&#39;s required policy was satisfied.</td>
+</tr>
+</tbody></table>
+<p>GitHub&#39;s branch-protection guidance reinforces the gap: <code>success</code>, <code>skipped</code>, and <code>neutral</code> are all successful statuses for a required check. A skipped job also reports success and does not prevent a pull request from merging, even when that job is required. <a href="https://docs.github.com/en/pull-requests/how-tos/merge-and-close-pull-requests/troubleshooting-required-status-checks#required-check-needs-to-succeed-against-the-latest-commit-sha">Those are documented semantics</a>, not evidence that the underlying work ran.</p>
+<p>This is why “the build is green” is an incomplete incident note. A better statement is: “the required stable tests passed; the experimental runtime test failed and was intentionally non-blocking.” The extra clause is where the useful information lives.</p>
+<h3>Preserve the failure where humans can see it</h3>
+<p>If a failure is allowed, expose the pre-policy result in the job summary, a check annotation, an issue, or a durable metric. Do not rely on someone expanding logs days later.</p>
+<p>For a step-level exception, assign an <code>id</code> and report <code>outcome</code>, not <code>conclusion</code>:</p>
+<pre><code class="language-yaml">- name: Test the next runtime
+  id: next_runtime
+  continue-on-error: true
+  run: npm run test:next
+
+- name: Summarize compatibility result
+  if: ${{ always() }}
+  run: |
+    {
+      echo &quot;## Next-runtime compatibility&quot;
+      echo &quot;Raw outcome: \`${{ steps.next_runtime.outcome }}\`&quot;
+      echo &quot;Policy conclusion: \`${{ steps.next_runtime.conclusion }}\`&quot;
+    } &gt;&gt; &quot;$GITHUB_STEP_SUMMARY&quot;
+</code></pre>
+<p>The step can still be non-blocking, but the summary makes the distinction inspectable. A reporter can also open or update a tracked issue when <code>outcome == &#39;failure&#39;</code>; whether that is appropriate depends on how noisy the preview signal is.</p>
+<p>Do not use <code>continue-on-error</code> merely to keep a later cleanup or reporting step running. GitHub&#39;s own status-check troubleshooting guide recommends <code>always()</code> with <code>needs</code> when a required dependent job must run after another job fails. That preserves the failure while allowing the evidence-collection path to execute. <a href="https://docs.github.com/en/pull-requests/how-tos/merge-and-close-pull-requests/troubleshooting-required-status-checks#handling-skipped-but-required-checks">It is a different design from declaring the original check non-blocking</a>.</p>
+<h3>An allowed failure needs a contract</h3>
+<p>Every non-blocking check should have a small, written answer to four questions:</p>
+<ol>
+<li><strong>What signal is it collecting?</strong> For example, compatibility with an unreleased SDK or a flaky third-party integration.</li>
+<li><strong>Why is it safe not to block?</strong> The supported release surface must be covered by a separate required check.</li>
+<li><strong>Where does a failure go?</strong> A job summary alone may be enough for a short experiment; a persistent failure needs an owner and a tracked follow-up.</li>
+<li><strong>When does the exception end?</strong> A preview version becomes supported, a flaky dependency is removed, or a deadline forces a decision.</li>
+</ol>
+<p>Without the fourth answer, <code>continue-on-error</code> often becomes a permanent greenwash switch. The job still consumes CI time and creates logs, but nobody has an incentive to resolve what it reports.</p>
+<p>This is especially important in a matrix. GitHub supports job-level <code>continue-on-error</code> for experimental matrix entries, and its documentation notes that a failed job marked that way does not cancel the other matrix jobs when <code>fail-fast</code> is enabled. <a href="https://docs.github.com/en/actions/how-tos/write-workflows/choose-what-workflows-do/run-job-variations#handling-failures">That is a good fit for an explicitly experimental cell</a>. It is not a reason to put a supported platform and a preview platform behind one indistinguishable green result.</p>
+<h3>Keep blocking evidence separate from observability</h3>
+<p>My preference is to model these as two different products of CI:</p>
+<pre><code class="language-text">required test suite     -&gt; merge decision
+experimental test suite -&gt; early-warning signal
+</code></pre>
+<p>The first must make an unambiguous promise about supported behavior. The second is valuable precisely because it can fail without blocking routine work. Combining them is tempting because one workflow file looks tidy; separating their names, summaries, and ownership makes the delivery policy legible.</p>
+<p>The same principle applies to vulnerability scans, deployment smoke tests, and cleanup. A scan may begin as advisory while teams learn its false-positive rate. Make that temporary status visible. A deployment smoke test is usually too close to the promised outcome to be advisory; if it fails, succeeding the release anyway should be an explicit release decision, not YAML&#39;s default behavior.</p>
+<p>This also complements <a href="https://my-slops.github.io/Blog/posts/2026/10/a-green-pull-request-does-not-mean-the-merge-candidate-was-tested/">A Green Pull Request Does Not Mean the Merge Candidate Was Tested</a>. There, the concern is that a green check may describe the wrong commit. Here, it may describe a policy that accepted a failed operation. In both cases, the check is only trustworthy when its subject and meaning are clear.</p>
+<h2>Steps / Code</h2>
+<p>Review every <code>continue-on-error</code> setting with this checklist:</p>
+<ol>
+<li>Locate the matching required check that still protects the supported release surface.</li>
+<li>Give the allowed-failure step or job a name that says what is experimental or advisory.</li>
+<li>Preserve and surface the raw <code>outcome</code>, not only the final conclusion.</li>
+<li>Route persistent failures to a named owner or work item.</li>
+<li>Add a review date, support milestone, or removal condition.</li>
+<li>Test the failing case deliberately: confirm the workflow stays green only where intended and that the failure is still visible.</li>
+</ol>
+<p>Avoid applying the setting to artifact publication, database migration, security enforcement, or a production verification merely because those steps are intermittently inconvenient. A flaky gate needs diagnosis, isolation, or an explicit human override path. Calling it non-blocking changes the release promise; it does not repair the flakiness.</p>
+<h2>Trade-offs</h2>
+<p>Making advisory failures visible creates more triage work and may make dashboards look less clean. That is the cost of retaining information the workflow otherwise discards. For genuinely short-lived experiments, a detailed issue workflow can be overkill; a clear job summary and dated TODO may be sufficient.</p>
+<p>Conversely, not every nonzero exit code deserves a page. Some probes intentionally use a failed command as control flow. The boundary is whether the command is meant to provide evidence about a property anyone cares about. If it is, record the result separately from the decision to continue.</p>
+<p>The right policy can also change. A runtime check that is advisory today should become blocking when the runtime enters your support policy. A formerly blocking integration can become advisory during a contained outage only if someone accepts the resulting risk. The YAML should make those decisions easy to audit rather than silently embedding them.</p>
+<h2>References</h2>
+<ul>
+<li>GitHub Docs, <a href="https://docs.github.com/en/actions/reference/workflows-and-actions/contexts#steps-context">Contexts: <code>steps.&lt;step_id&gt;.outcome</code> and <code>conclusion</code></a></li>
+<li>GitHub Docs, <a href="https://docs.github.com/en/actions/how-tos/write-workflows/choose-what-workflows-do/run-job-variations#handling-failures">Running variations of jobs: handling failures</a></li>
+<li>GitHub Docs, <a href="https://docs.github.com/en/pull-requests/how-tos/merge-and-close-pull-requests/troubleshooting-required-status-checks">Troubleshooting required status checks</a></li>
+<li>GitHub Docs, <a href="https://docs.github.com/en/actions/how-tos/write-workflows/choose-when-workflows-run/control-jobs-with-conditions">Using conditions to control job execution</a></li>
+<li>This repository, <a href="https://my-slops.github.io/Blog/posts/2026/10/a-green-pull-request-does-not-mean-the-merge-candidate-was-tested/">A Green Pull Request Does Not Mean the Merge Candidate Was Tested</a></li>
+</ul>
+<h2>Final Take</h2>
+<p>An allowed failure is not a passing test. It is a policy decision to proceed despite a failing test.</p>
+<p>That can be exactly the right decision. But a green workflow earns trust only when it leaves the failed evidence visible and makes the exception&#39;s scope, owner, and end date clear.</p>
+<h2>Changelog</h2>
+<ul>
+<li>2026-10-09: Initial publish.</li>
+</ul>
+
+    </article>
+  </body>
+</html>
