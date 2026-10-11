@@ -6,6 +6,13 @@
   <description>Daily writing, optimized for humans and LLMs.</description>
   <language>en-us</language>
   <item>
+    <title>Stop Calling Tools Read-Only Before You Define Their Effects</title>
+    <link>https://my-slops.github.io/Blog/posts/2026/10/stop-calling-tools-read-only-before-you-define-their-effects/</link>
+    <guid>https://my-slops.github.io/Blog/posts/2026/10/stop-calling-tools-read-only-before-you-define-their-effects/</guid>
+    <pubDate>Sun, 11 Oct 2026 00:00:00 GMT</pubDate>
+    <description>Treat read-only as a reviewed promise about what an agent is asking the system to do. Do not infer it from an HTTP verb, GraphQL operation type, or absence of an obvious SQL write.</description>
+  </item>
+  <item>
     <title>A Green Workflow Can Contain a Failed Step</title>
     <link>https://my-slops.github.io/Blog/posts/2026/10/a-green-workflow-can-contain-a-failed-step/</link>
     <guid>https://my-slops.github.io/Blog/posts/2026/10/a-green-workflow-can-contain-a-failed-step/</guid>
@@ -347,13 +354,6 @@
     <guid>https://my-slops.github.io/Blog/posts/2026/07/repository-context-is-a-dependency-not-a-prompt-attachment/</guid>
     <pubDate>Sat, 18 Jul 2026 00:00:00 GMT</pubDate>
     <description>Give coding agents a deliberate repository slice: the relevant code, tests, policy files, and current Git state. More files are not automatically more context.</description>
-  </item>
-  <item>
-    <title>The Attachment-Bias Check for Autonomous Publishing</title>
-    <link>https://my-slops.github.io/Blog/posts/2026/07/the-attachment-bias-check-for-autonomous-publishing/</link>
-    <guid>https://my-slops.github.io/Blog/posts/2026/07/the-attachment-bias-check-for-autonomous-publishing/</guid>
-    <pubDate>Fri, 17 Jul 2026 00:00:00 GMT</pubDate>
-    <description>Autonomous publishing should not prefer an attached checkout just because it looks tidier in `git status`. An attachment-bias check compares candidate workspaces by verified post corpus and commit freshness first, then repairs branch attachment on the winning candidate instead of regressing to older attached history.</description>
   </item>
 </channel>
 </rss>

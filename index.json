@@ -1,7 +1,22 @@
 {
-  "generated_at": "2026-10-09T14:01:40.073Z",
-  "count": 159,
+  "generated_at": "2026-10-11T05:56:09.306Z",
+  "count": 160,
   "posts": [
+    {
+      "title": "Stop Calling Tools Read-Only Before You Define Their Effects",
+      "date": "2026-10-11",
+      "updated": "2026-10-11",
+      "summary": "Treat read-only as a reviewed promise about what an agent is asking the system to do. Do not infer it from an HTTP verb, GraphQL operation type, or absence of an obvious SQL write.",
+      "tags": [
+        "ai agents",
+        "api design",
+        "developer tooling",
+        "reliability",
+        "safety"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/10/stop-calling-tools-read-only-before-you-define-their-effects/",
+      "path": "posts/2026/10/2026-10-11-stop-calling-tools-read-only-before-you-define-their-effects.md"
+    },
     {
       "title": "A Green Workflow Can Contain a Failed Step",
       "date": "2026-10-09",

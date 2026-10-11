@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Stop Calling Tools Read-Only Before You Define Their Effects | Blog</title>
+    <meta name="description" content="Treat read-only as a reviewed promise about what an agent is asking the system to do. Do not infer it from an HTTP verb, GraphQL operation type, or absence of an obvious SQL write." />
+    <link rel="canonical" href="https://my-slops.github.io/Blog/posts/2026/10/stop-calling-tools-read-only-before-you-define-their-effects/" />
+    <style>
+      :root { color-scheme: light dark; }
+      body { font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; line-height: 1.7; max-width: 760px; margin: 40px auto; padding: 0 16px; }
+      a { color: #0a58ca; text-decoration: none; }
+      a:hover { text-decoration: underline; }
+      .meta { color: #666; font-size: 0.95rem; margin-bottom: 1rem; }
+      .tags { display: flex; gap: 0.5rem; list-style: none; padding: 0; margin: 0.75rem 0 1.25rem; flex-wrap: wrap; }
+      .tags li { background: #eef2ff; color: #3730a3; border-radius: 999px; padding: 0.2rem 0.6rem; font-size: 0.8rem; }
+      article h1, article h2, article h3 { line-height: 1.3; }
+      article pre { overflow-x: auto; background: #111827; color: #f9fafb; padding: 0.9rem; border-radius: 8px; }
+      article code { font-family: ui-monospace,SFMono-Regular,Menlo,monospace; }
+      article blockquote { border-left: 4px solid #d1d5db; margin: 1rem 0; padding: 0.2rem 0.9rem; color: #4b5563; }
+      hr { border: 0; border-top: 1px solid #e5e7eb; margin: 2rem 0; }
+    </style>
+  </head>
+  <body>
+    <p><a href="https://my-slops.github.io/Blog/">← Home</a></p>
+    <article>
+      <h1>Stop Calling Tools Read-Only Before You Define Their Effects</h1>
+      <p class="meta">Oct 11, 2026</p>
+      <ul class="tags"><li>ai agents</li><li>api design</li><li>developer tooling</li><li>reliability</li><li>safety</li></ul>
+      <h2>TL;DR</h2>
+<p>“Read-only” is often used as a shortcut for “safe to call without asking.” That shortcut is only trustworthy when it describes a reviewed contract—not when it was inferred from a tool name, an HTTP <code>GET</code>, a GraphQL <code>query</code>, or a SQL statement that happens to begin with <code>SELECT</code>.</p>
+<p>For an agent, classify each tool by the effect the caller is asking it to produce, the operational effects it may trigger, and the data it can expose. A search that only reads a customer index can be broadly automatable. A search that starts a paid export, warms a third-party service, records a user-visible subscription, or returns secrets is a different kind of capability even if its endpoint is called <code>GET /search</code>.</p>
+<h2>Context</h2>
+<p>An agent is allowed to use a supposedly read-only tool to find a document. The tool is called <code>search_documents</code>, so the runtime gives it a generous call budget and skips approval.</p>
+<p>The implementation does more than retrieve documents. On a cache miss, it asks a paid external service to refresh an index. When the query contains <code>include=full_export</code>, it creates a downloadable archive. The archive URL is visible to anyone who sees the tool transcript.</p>
+<p>None of those details are implied by the word <em>search</em>. The name describes an answer-shaped result, not the effect contract. Yet names, route verbs, and implementation guesses are routinely used as authorization labels for agent tools.</p>
+<p>HTTP makes an important distinction here. A safe method is one where the client does not request or expect a state change. That does <strong>not</strong> mean its implementation causes no writes at all: access logs and advertising charges are ordinary examples in <a href="https://www.rfc-editor.org/rfc/rfc9110.html#section-9.2.1">RFC 9110</a>. The distinction is useful, but it is not an authorization model. An agent runtime needs to know what it is permitted to ask for, what it might consume or trigger, and what it could reveal after the answer arrives.</p>
+<h2>Key Points</h2>
+<h3>“No intended domain write” is one property</h3>
+<p>The first question is the one people usually mean by read-only:</p>
+<blockquote>
+<p>Does this invocation ask the product to change a customer-facing or business-relevant state?</p>
+</blockquote>
+<p><code>find_invoice</code>, <code>get_deployment_status</code>, and <code>list_open_incidents</code> can usually answer “no.” <code>send_invoice</code>, <code>restart_deployment</code>, and <code>acknowledge_incident</code> cannot.</p>
+<p>This is the property that should control whether a model may autonomously perform the <em>requested action</em>. It is also the sense used by HTTP safe methods. RFC 9110 explicitly says that a resource owner must not hide an unsafe action behind a safe method such as a <code>GET</code>; automated fetchers and link checkers are allowed to follow safe links without discovering a deletion side effect.</p>
+<p>That makes a label like <code>read_only</code> a product promise. It should mean that all supported arguments preserve the no-domain-write invariant. A tool is not read-only if one obscure filter, flag, or URL parameter turns the same call into an enrollment, export, notification, or write.</p>
+<h3>Operational effects still deserve a budget</h3>
+<p>No requested domain write does not mean no cost. Safe HTTP requests may be logged, metered, or cause cache activity without violating HTTP semantics. Those effects are normally reasonable because the caller did not ask for them and cannot be held accountable for them.</p>
+<p>But an agent runtime still has to account for them. A search endpoint that creates an expensive warehouse query, fans out to five vendors, or causes a cache refresh is not equivalent to an in-memory lookup. The right response is usually not to reclassify every cache fill as a write. It is to give the tool a bounded operational contract:</p>
+<ul>
+<li>a maximum result size and page count;</li>
+<li>a request, cost, or time budget;</li>
+<li>declared external dependencies where that affects reliability or data handling; and</li>
+<li>a clear statement that repeated calls may be rate-limited or billed.</li>
+</ul>
+<p>This lets the runtime permit ordinary investigation while preventing an agent from turning “find the latest invoice” into a runaway sequence of broad searches. <a href="https://my-slops.github.io/Blog/posts/2026/07/rate-limits-need-a-budget-the-client-can-see/">Rate Limits Need a Budget the Client Can See</a> makes the complementary point: a failure response is too late to be the only scheduling interface.</p>
+<h3>A read can still be a sensitive capability</h3>
+<p>The other missing dimension is disclosure. <code>get_customer_record</code> may not mutate anything, but it may return a home address, a support transcript, or a credential reset link. A model given indiscriminate read access can leak information in a final answer, copy it to a second tool, or use it to infer something a user was not authorized to know.</p>
+<p>So “read-only” should never be read as “low privilege.” Read access needs its own resource scope, tenant boundary, field filtering, and result-handling policy. The cache-key problem has the same shape: a response is safe to reuse only when the next requester is entitled to the same representation. <a href="https://my-slops.github.io/Blog/posts/2026/08/the-cache-key-is-a-privacy-boundary/">The Cache Key Is a Privacy Boundary</a> explains why treating data retrieval as harmless after authorization is a costly mistake.</p>
+<p>For an agent tool, name what may be returned and what must not leave the tool result. If a tool can retrieve a secret, a signed URL, or content from another tenant, give it a more specific capability label than <code>read_only</code> and keep the output out of conversational context unless that exposure is actually required.</p>
+<h3>Transport syntax cannot prove the contract</h3>
+<p>An HTTP <code>GET</code> is a useful signal, not proof that a tool is suitable for automatic use. The specification calls <code>GET</code>, <code>HEAD</code>, <code>OPTIONS</code>, and <code>TRACE</code> safe because of their <em>defined request semantics</em>; it also says that applications must disallow an unsafe action reached through a safe method. A <code>GET /reports?create=true</code> is therefore a service bug, not a clever exception.</p>
+<p>The same caution applies below and above HTTP:</p>
+<ul>
+<li>A GraphQL mutation conventionally represents top-level side effects and is executed serially, but a schema name does not substitute for reviewing resolver behavior.</li>
+<li>A SQL <code>SELECT</code> is not automatically side-effect-free when it invokes a function. PostgreSQL documents that <code>nextval</code> advances a sequence even when it appears in a <code>SELECT</code>, and its volatility rules allow functions that modify database state.</li>
+<li>A <code>POST</code> is not necessarily high-risk. A well-designed calculation or search endpoint may need a request body for a large query while still making no domain change.</li>
+</ul>
+<p>Do not build an agent policy that says <code>GET = safe</code>, <code>query = safe</code>, or <code>SELECT = safe</code>. Use those as testable implementation constraints after the tool&#39;s semantic contract is already defined.</p>
+<h3>Put the contract next to the tool declaration</h3>
+<p>The runtime should have a compact, reviewable record for each callable operation. This is illustrative TypeScript, not a universal schema:</p>
+<pre><code class="language-ts">type ToolEffects = {
+  // What the caller is asking the product to do.
+  requestedEffect: &quot;none&quot; | &quot;domain_write&quot; | &quot;external_write&quot;;
+
+  // Effects that can happen while serving an otherwise read-only request.
+  operationalEffects: Array&lt;
+    &quot;audit_log&quot; | &quot;cache_fill&quot; | &quot;metered_query&quot; | &quot;external_lookup&quot;
+  &gt;;
+
+  // Controls that apply even when requestedEffect is &quot;none&quot;.
+  dataClass: &quot;public&quot; | &quot;workspace&quot; | &quot;sensitive&quot; | &quot;secret&quot;;
+  automaticUse: &quot;allowed&quot; | &quot;bounded&quot; | &quot;approval_required&quot;;
+  maxCallsPerTask?: number;
+};
+
+const searchDocuments: ToolEffects = {
+  requestedEffect: &quot;none&quot;,
+  operationalEffects: [&quot;audit_log&quot;, &quot;metered_query&quot;],
+  dataClass: &quot;workspace&quot;,
+  automaticUse: &quot;bounded&quot;,
+  maxCallsPerTask: 8,
+};
+</code></pre>
+<p>The exact fields matter less than the separation. <code>requestedEffect</code> decides whether an action is a mutation. <code>operationalEffects</code> informs budgets, retries, and observability. <code>dataClass</code> decides which credentials, transcript paths, and downstream tools are appropriate. <code>automaticUse</code> is a policy decision, not a label inferred by the model.</p>
+<p>This also makes reviews sharper. When a maintainer adds <code>includeHistory</code> to a search tool, the question is not merely whether the parameter validates. It is whether it changes returned data classification, cost, or the no-domain-write promise. If it does, update the declaration and the runtime policy in the same change.</p>
+<h2>Steps / Code</h2>
+<p>Before marking a tool broadly callable, test its contract from the caller&#39;s perspective:</p>
+<ol>
+<li>Can any supported input create, enroll, send, delete, reserve, or start work that persists after the response?</li>
+<li>What costs, rate limits, cache refreshes, or external requests can the call trigger?</li>
+<li>Which resources and fields can appear in its output, including pagination, debug modes, and signed links?</li>
+<li>Can the runtime enforce a call count, deadline, result-size limit, and tenant scope without asking the model to remember them?</li>
+<li>Does a timeout leave a domain outcome unknown, or was the action definitely a retrieval failure?</li>
+<li>Are the HTTP, GraphQL, or database conventions covered by a contract test rather than trusted by name?</li>
+</ol>
+<p>For the last item, include a negative test. If an endpoint is declared read-only, assert that a representative invocation does not create a domain record, enqueue work, send a notification, or alter a user-visible subscription. Separately test its maximum query and result bounds. Testing only that it returns 200 proves neither property.</p>
+<h2>Trade-offs</h2>
+<p>This approach adds metadata and forces teams to discuss details that a thin wrapper would hide. Some internal tools genuinely are simple enough that <code>requestedEffect: &quot;none&quot;</code> plus a small result cap is all they need.</p>
+<p>There is also a risk of treating any infrastructure write as a reason to require approval. That would make normal reading unusable: logging, cache population, and metrics are legitimate implementation details. The useful boundary is whether the caller asked for a meaningful domain or external effect, then whether the incidental operational effects stay inside declared limits.</p>
+<p>The conservative edge case is a tool whose behavior changes with arguments, feature flags, or caller identity. Do not grant the broadest label to its friendly path. Split it into separate operations or give the entire surface the stricter policy until the invariants are enforceable.</p>
+<h2>References</h2>
+<ul>
+<li>IETF, <a href="https://www.rfc-editor.org/rfc/rfc9110.html#section-9.2.1">RFC 9110 §9.2.1: Safe Methods</a></li>
+<li>PostgreSQL, <a href="https://www.postgresql.org/docs/current/xfunc-volatility.html">Function Volatility Categories</a></li>
+<li>PostgreSQL, <a href="https://www.postgresql.org/docs/current/functions-sequence.html"><code>nextval</code> sequence semantics</a></li>
+<li>GraphQL Foundation, <a href="https://spec.graphql.org/October2021/#sec-Execution">GraphQL specification §6.2: query and mutation execution</a></li>
+<li>This repository, <a href="https://my-slops.github.io/Blog/posts/2026/03/2026-03-20-the-tool-scope-contract-for-llm-agents/">The Tool-Scope Contract for LLM Agents</a></li>
+<li>This repository, <a href="https://my-slops.github.io/Blog/posts/2026/09/2026-09-21-a-tool-error-is-an-instruction-to-your-agent/">A Tool Error Is an Instruction to Your Agent</a></li>
+</ul>
+<h2>Final Take</h2>
+<p>“Read-only” is not a permission level, a protocol verb, or an implementation accident. It is a promise about the action the caller is allowed to request.</p>
+<p>Make that promise explicit. Then separately disclose the tool&#39;s operational budget and data-access surface. An agent can safely automate investigation only when those three facts stay legible—and true—across every argument and implementation path.</p>
+<h2>Changelog</h2>
+<ul>
+<li>2026-10-11: Initial publication.</li>
+</ul>
+
+    </article>
+  </body>
+</html>
