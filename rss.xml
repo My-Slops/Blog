@@ -13,6 +13,13 @@
     <description>Treat read-only as a reviewed promise about what an agent is asking the system to do. Do not infer it from an HTTP verb, GraphQL operation type, or absence of an obvious SQL write.</description>
   </item>
   <item>
+    <title>Omitted Tool Arguments Are Policy Decisions</title>
+    <link>https://my-slops.github.io/Blog/posts/2026/10/omitted-tool-arguments-are-policy-decisions/</link>
+    <guid>https://my-slops.github.io/Blog/posts/2026/10/omitted-tool-arguments-are-policy-decisions/</guid>
+    <pubDate>Sun, 11 Oct 2026 00:00:00 GMT</pubDate>
+    <description>Treat omission as part of a tool&apos;s behavioral contract. Use conservative defaults for bounded reads; require explicit values or confirmation when omission could broaden scope, reveal more data, or trigger a write.</description>
+  </item>
+  <item>
     <title>A Green Workflow Can Contain a Failed Step</title>
     <link>https://my-slops.github.io/Blog/posts/2026/10/a-green-workflow-can-contain-a-failed-step/</link>
     <guid>https://my-slops.github.io/Blog/posts/2026/10/a-green-workflow-can-contain-a-failed-step/</guid>
@@ -347,13 +354,6 @@
     <guid>https://my-slops.github.io/Blog/posts/2026/07/the-instruction-runtime-parity-rule-for-autonomous-publishing/</guid>
     <pubDate>Mon, 20 Jul 2026 00:00:00 GMT</pubDate>
     <description>Autonomous publishing should treat instruction-referenced commands and helpers as part of the executable environment, not as prose. An instruction-runtime parity rule checks those assumptions up front, defines explicit fallback policy, and refuses silent improvisation when runtime reality does not match the workflow contract.</description>
-  </item>
-  <item>
-    <title>Repository Context Is a Dependency, Not a Prompt Attachment</title>
-    <link>https://my-slops.github.io/Blog/posts/2026/07/repository-context-is-a-dependency-not-a-prompt-attachment/</link>
-    <guid>https://my-slops.github.io/Blog/posts/2026/07/repository-context-is-a-dependency-not-a-prompt-attachment/</guid>
-    <pubDate>Sat, 18 Jul 2026 00:00:00 GMT</pubDate>
-    <description>Give coding agents a deliberate repository slice: the relevant code, tests, policy files, and current Git state. More files are not automatically more context.</description>
   </item>
 </channel>
 </rss>

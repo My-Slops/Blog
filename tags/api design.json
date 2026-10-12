@@ -1,6 +1,6 @@
 {
   "tag": "api design",
-  "count": 10,
+  "count": 11,
   "posts": [
     {
       "title": "Stop Calling Tools Read-Only Before You Define Their Effects",
@@ -16,6 +16,21 @@
       ],
       "url": "https://my-slops.github.io/Blog/posts/2026/10/stop-calling-tools-read-only-before-you-define-their-effects/",
       "path": "posts/2026/10/2026-10-11-stop-calling-tools-read-only-before-you-define-their-effects.md"
+    },
+    {
+      "title": "Omitted Tool Arguments Are Policy Decisions",
+      "date": "2026-10-11",
+      "updated": "2026-10-11",
+      "summary": "Treat omission as part of a tool's behavioral contract. Use conservative defaults for bounded reads; require explicit values or confirmation when omission could broaden scope, reveal more data, or trigger a write.",
+      "tags": [
+        "ai agents",
+        "api design",
+        "developer tooling",
+        "reliability",
+        "safety"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/10/omitted-tool-arguments-are-policy-decisions/",
+      "path": "posts/2026/10/2026-10-11-omitted-tool-arguments-are-policy-decisions.md"
     },
     {
       "title": "An Empty Search Result Is Not Evidence That Nothing Exists",

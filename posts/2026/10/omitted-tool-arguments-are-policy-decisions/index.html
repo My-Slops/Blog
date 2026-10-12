@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Omitted Tool Arguments Are Policy Decisions | Blog</title>
+    <meta name="description" content="Treat omission as part of a tool&#39;s behavioral contract. Use conservative defaults for bounded reads; require explicit values or confirmation when omission could broaden scope, reveal more data, or trigger a write." />
+    <link rel="canonical" href="https://my-slops.github.io/Blog/posts/2026/10/omitted-tool-arguments-are-policy-decisions/" />
+    <style>
+      :root { color-scheme: light dark; }
+      body { font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; line-height: 1.7; max-width: 760px; margin: 40px auto; padding: 0 16px; }
+      a { color: #0a58ca; text-decoration: none; }
+      a:hover { text-decoration: underline; }
+      .meta { color: #666; font-size: 0.95rem; margin-bottom: 1rem; }
+      .tags { display: flex; gap: 0.5rem; list-style: none; padding: 0; margin: 0.75rem 0 1.25rem; flex-wrap: wrap; }
+      .tags li { background: #eef2ff; color: #3730a3; border-radius: 999px; padding: 0.2rem 0.6rem; font-size: 0.8rem; }
+      article h1, article h2, article h3 { line-height: 1.3; }
+      article pre { overflow-x: auto; background: #111827; color: #f9fafb; padding: 0.9rem; border-radius: 8px; }
+      article code { font-family: ui-monospace,SFMono-Regular,Menlo,monospace; }
+      article blockquote { border-left: 4px solid #d1d5db; margin: 1rem 0; padding: 0.2rem 0.9rem; color: #4b5563; }
+      hr { border: 0; border-top: 1px solid #e5e7eb; margin: 2rem 0; }
+    </style>
+  </head>
+  <body>
+    <p><a href="https://my-slops.github.io/Blog/">← Home</a></p>
+    <article>
+      <h1>Omitted Tool Arguments Are Policy Decisions</h1>
+      <p class="meta">Oct 11, 2026</p>
+      <ul class="tags"><li>ai agents</li><li>api design</li><li>developer tooling</li><li>reliability</li><li>safety</li></ul>
+      <h2>TL;DR</h2>
+<p>Making a tool argument optional does not make the decision disappear. It gives the server, SDK, wrapper, or agent runtime permission to make that decision when the caller says nothing.</p>
+<p>That can be entirely reasonable for a bounded read: an omitted <code>limit</code> can mean 25 results and an omitted <code>includeArchived</code> can mean <code>false</code>. It is much harder to justify for an argument that controls target scope, disclosure, or side effects. An omitted recipient list must not become “everyone,” an omitted workspace must not become “all workspaces,” and an omitted mode must not quietly turn a preview into an execution.</p>
+<p>For agent tools, absence deserves the same design review as a supplied value. It is behavior, not missing syntax.</p>
+<h2>Context</h2>
+<p>An agent receives: “Archive the duplicate invoices from last quarter.” It calls a tool with only the search query:</p>
+<pre><code class="language-json">{
+  &quot;query&quot;: &quot;duplicate invoices from last quarter&quot;
+}
+</code></pre>
+<p>The schema says <code>workspaceId</code>, <code>selection</code>, and <code>dryRun</code> are optional. The service fills them in:</p>
+<ul>
+<li><code>workspaceId</code> becomes the organization-wide workspace;</li>
+<li><code>selection</code> becomes every match; and</li>
+<li><code>dryRun</code> becomes <code>false</code>.</li>
+</ul>
+<p>The request is perfectly valid. That is the problem.</p>
+<p>The model did not explicitly choose a broad target or an irreversible operation, but the system still did. The choices merely moved into defaults that are easy to miss in a schema, an SDK, and a handler each owned by different people.</p>
+<p>JSON Schema makes this distinction particularly clear. Its <code>default</code> keyword is an annotation: the specification says applications decide how to use annotations and implementations are not expected to apply them for the application. A schema can communicate a suggested default, but it cannot prove that every caller, generated client, and server resolves omission the same way. <a href="https://json-schema.org/draft/2020-12/draft-bhutton-json-schema-01">JSON Schema Draft 2020-12</a> is explicit about that boundary.</p>
+<p>So a tool contract needs a semantic answer, not merely an optional-property marker: <em>what exactly happens when this argument is absent?</em></p>
+<h2>Key Points</h2>
+<h3>Optional is a syntax property; safe is a behavioral property</h3>
+<p>An optional field means that a request without the field can pass validation. It does not say whether the resulting operation is narrow, private, cheap, reversible, or even unsurprising.</p>
+<p>Consider these otherwise ordinary defaults:</p>
+<table>
+<thead>
+<tr>
+<th>Omitted argument</th>
+<th>Plausible default</th>
+<th>Effect of the default</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>limit</code> on a search</td>
+<td><code>25</code></td>
+<td>Bounds cost and disclosure.</td>
+</tr>
+<tr>
+<td><code>includeArchived</code></td>
+<td><code>false</code></td>
+<td>Avoids broadening the result set.</td>
+</tr>
+<tr>
+<td><code>workspaceId</code></td>
+<td>caller&#39;s current workspace</td>
+<td>Preserves a local authorization context.</td>
+</tr>
+<tr>
+<td><code>recipientIds</code> on a send</td>
+<td>all matching users</td>
+<td>Broadens a side effect.</td>
+</tr>
+<tr>
+<td><code>dryRun</code> on a destructive operation</td>
+<td><code>false</code></td>
+<td>Turns an incomplete request into an execution.</td>
+</tr>
+<tr>
+<td><code>fields</code> on a customer lookup</td>
+<td>all fields</td>
+<td>May disclose more data than the caller needs.</td>
+</tr>
+</tbody></table>
+<p>The first three are often good defaults because they reduce scope. The latter three are policy decisions that deserve either an explicit value or a confirmation mechanism.</p>
+<p>This is why “the parameter was optional” is not a satisfying incident explanation. It only describes why the request was accepted. It does not justify the action that acceptance caused.</p>
+<h3>Make scope and effect impossible to omit when they matter</h3>
+<p>For actions with material impact, prefer a request shape that forces the caller to state the choice. Do not overload an absent <code>ids</code> array to mean “use the query,” then allow that query to operate on an unbounded universe.</p>
+<p>Here is illustrative TypeScript for an archive operation:</p>
+<pre><code class="language-ts">type ArchiveRequest =
+  | {
+      selection: { kind: &quot;ids&quot;; ids: readonly [string, ...string[]] };
+      mode: &quot;execute&quot;;
+    }
+  | {
+      selection: { kind: &quot;query&quot;; query: string; workspaceId: string };
+      mode: &quot;preview&quot;;
+    }
+  | {
+      selection: { kind: &quot;query&quot;; query: string; workspaceId: string };
+      mode: &quot;execute&quot;;
+      confirmationToken: string;
+    };
+</code></pre>
+<p>The type is not a security control by itself. The server must still authenticate the caller, check the workspace, and verify that a confirmation token describes the same resolved selection it is about to archive. But the shape makes a crucial difference: a query-based execution cannot happen because the model omitted an argument. It needs an explicit execution mode and a token tied to what the preview found.</p>
+<p>For a read, a conservative server-side resolver is usually enough:</p>
+<pre><code class="language-ts">function resolveListOptions(input: {
+  limit?: number;
+  includeArchived?: boolean;
+  workspaceId?: string;
+}, caller: { workspaceId: string }) {
+  return {
+    limit: Math.min(input.limit ?? 25, 100),
+    includeArchived: input.includeArchived ?? false,
+    workspaceId: input.workspaceId ?? caller.workspaceId,
+  };
+}
+</code></pre>
+<p>The important feature is not the exact number 25. It is that absence narrows the request, and that the resolved values are visible to authorization and logging code rather than hidden inside a database query.</p>
+<h3>Keep schema hints and runtime behavior in one contract</h3>
+<p><code>default: false</code> in a schema, <code>arg.flag || true</code> in a JavaScript handler, and an SDK that serializes <code>undefined</code> differently from <code>null</code> are three different policies. A generated tool description can say one thing while production does another.</p>
+<p>JSON Schema deliberately leaves application of annotation data to applications. That is a useful separation of concerns, but it means teams must supply the missing contract themselves. Do not assume a validator inserts defaults, that a model will copy them into a call, or that a client will preserve the difference between absent, <code>null</code>, <code>false</code>, and an empty list.</p>
+<p>Put the rule where it can be tested:</p>
+<ul>
+<li>document the omitted-value behavior in the tool description;</li>
+<li>resolve defaults once at the server boundary;</li>
+<li>return the effective scope or preview count when it helps the caller assess impact; and</li>
+<li>log the resolved arguments with sensitive values redacted.</li>
+</ul>
+<p>This complements <a href="https://my-slops.github.io/Blog/posts/2026/10/stop-calling-tools-read-only-before-you-define-their-effects/">Stop Calling Tools Read-Only Before You Define Their Effects</a>. A declared read-only operation can still expose too much if an omitted field selector means “return every field,” and a declared write can become broader than intended if an omitted target means “all matching records.”</p>
+<h3>Test absence as a first-class input</h3>
+<p>Most request tests cover values the happy path supplies. The more revealing cases are the ones a tool caller may omit, hallucinate, or serialize oddly:</p>
+<pre><code class="language-text">Given: a caller authorized for workspace A
+When: list_documents is called with no workspaceId
+Then: the effective workspace is A, never every workspace
+
+Given: a destructive query action without confirmationToken
+When: mode is &quot;execute&quot;
+Then: the request is rejected before any records are selected or changed
+
+Given: includeArchived is omitted, false, and true
+When: each request is resolved
+Then: the effective values are false, false, and true
+
+Given: includeArchived is null
+When: the request is resolved
+Then: it is rejected unless null has an explicitly documented meaning
+
+Given: the API schema says default false for dryRun
+When: the runtime receives no dryRun property
+Then: the server&#39;s effective mode is asserted in an integration test
+</code></pre>
+<p>The third case is intentionally uncomfortable. <code>null</code>, omission, <code>false</code>, and <code>[]</code> should not be collapsed accidentally by a truthiness check. If the API intends them to mean the same thing, make that equivalence explicit and test it. If they mean different things, reject the ambiguous ones rather than relying on a language&#39;s coercion rules.</p>
+<h2>Steps / Code</h2>
+<p>Review every optional tool argument with four questions:</p>
+<ol>
+<li>What is the effective value when the argument is absent, <code>null</code>, empty, or malformed?</li>
+<li>Does that value narrow scope, cost, disclosure, and authority—or broaden any of them?</li>
+<li>Can an agent discover the effective value before it causes a material side effect?</li>
+<li>Is the same behavior implemented by the schema, generated client, server, and audit record?</li>
+</ol>
+<p>The answer need not always be “require it.” Requiring a <code>limit</code> on every search creates ceremony without much protection. Requiring an explicit <code>workspaceId</code> can also be redundant when the authenticated session has exactly one workspace.</p>
+<p>But the fallback must be defensible. “The handler needed a value” is not a policy. “It resolves to the caller&#39;s current workspace and at most 25 non-archived records” is one.</p>
+<h2>Trade-offs</h2>
+<p>Explicit inputs make a tool harder for both humans and models to call. A model may need a preview turn before it can obtain a confirmation token; a CLI user may need to type a workspace ID that the session already implies. For low-impact, bounded reads, that friction is not worth it.</p>
+<p>There is also no universal conservative default. In an operations console, omitting a date range might reasonably mean the current incident window, not an arbitrary seven days. In a compliance export, it may be safer to reject a missing range entirely. The contract should reflect the product&#39;s real authorization and data model rather than a cargo-cult rule that every omitted field becomes <code>false</code>.</p>
+<p>My preference is simple: default only where the default is less capable than a likely explicit alternative. Once omission can widen a target, reveal a richer representation, incur unusual cost, or cause an external change, make the decision visible.</p>
+<h2>References</h2>
+<ul>
+<li>JSON Schema, <a href="https://json-schema.org/draft/2020-12/draft-bhutton-json-schema-01">Draft 2020-12 Core: annotations and application behavior</a></li>
+<li>JSON Schema, <a href="https://json-schema.org/draft/2020-12/json-schema-validation#section-9.2">Draft 2020-12 Validation: <code>default</code></a></li>
+<li>This repository, <a href="https://my-slops.github.io/Blog/posts/2026/10/stop-calling-tools-read-only-before-you-define-their-effects/">Stop Calling Tools Read-Only Before You Define Their Effects</a></li>
+<li>This repository, <a href="https://my-slops.github.io/Blog/posts/2026/09/authorize-the-next-action-not-the-whole-agent/">Authorize the Next Action, Not the Whole Agent</a></li>
+</ul>
+<h2>Final Take</h2>
+<p>An absent argument is not an absence of policy. It is a decision delegated to code.</p>
+<p>Make that delegation explicit, test it across real request boundaries, and keep its default narrower than the action an agent might otherwise choose. The safest tool calls are not the ones with the fewest fields. They are the ones whose omissions cannot quietly make an important decision on the caller&#39;s behalf.</p>
+<h2>Changelog</h2>
+<ul>
+<li>2026-10-11: Initial publication.</li>
+</ul>
+
+    </article>
+  </body>
+</html>
