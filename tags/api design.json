@@ -1,7 +1,22 @@
 {
   "tag": "api design",
-  "count": 11,
+  "count": 12,
   "posts": [
+    {
+      "title": "A Feature Flag Is Not an Authorization Check",
+      "date": "2026-10-12",
+      "updated": "2026-10-12",
+      "summary": "Use flags to control rollout and product exposure, but authorize the requested action at the service boundary on every request. A hidden button, targeted flag, or disabled client route is not a permission check.",
+      "tags": [
+        "feature flags",
+        "security",
+        "api design",
+        "reliability",
+        "developer tooling"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/10/a-feature-flag-is-not-an-authorization-check/",
+      "path": "posts/2026/10/2026-10-12-a-feature-flag-is-not-an-authorization-check.md"
+    },
     {
       "title": "Stop Calling Tools Read-Only Before You Define Their Effects",
       "date": "2026-10-11",

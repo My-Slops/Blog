@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>A Feature Flag Is Not an Authorization Check | Blog</title>
+    <meta name="description" content="Use flags to control rollout and product exposure, but authorize the requested action at the service boundary on every request. A hidden button, targeted flag, or disabled client route is not a permission check." />
+    <link rel="canonical" href="https://my-slops.github.io/Blog/posts/2026/10/a-feature-flag-is-not-an-authorization-check/" />
+    <style>
+      :root { color-scheme: light dark; }
+      body { font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; line-height: 1.7; max-width: 760px; margin: 40px auto; padding: 0 16px; }
+      a { color: #0a58ca; text-decoration: none; }
+      a:hover { text-decoration: underline; }
+      .meta { color: #666; font-size: 0.95rem; margin-bottom: 1rem; }
+      .tags { display: flex; gap: 0.5rem; list-style: none; padding: 0; margin: 0.75rem 0 1.25rem; flex-wrap: wrap; }
+      .tags li { background: #eef2ff; color: #3730a3; border-radius: 999px; padding: 0.2rem 0.6rem; font-size: 0.8rem; }
+      article h1, article h2, article h3 { line-height: 1.3; }
+      article pre { overflow-x: auto; background: #111827; color: #f9fafb; padding: 0.9rem; border-radius: 8px; }
+      article code { font-family: ui-monospace,SFMono-Regular,Menlo,monospace; }
+      article blockquote { border-left: 4px solid #d1d5db; margin: 1rem 0; padding: 0.2rem 0.9rem; color: #4b5563; }
+      hr { border: 0; border-top: 1px solid #e5e7eb; margin: 2rem 0; }
+    </style>
+  </head>
+  <body>
+    <p><a href="https://my-slops.github.io/Blog/">← Home</a></p>
+    <article>
+      <h1>A Feature Flag Is Not an Authorization Check</h1>
+      <p class="meta">Oct 12, 2026</p>
+      <ul class="tags"><li>feature flags</li><li>security</li><li>api design</li><li>reliability</li><li>developer tooling</li></ul>
+      <h2>TL;DR</h2>
+<p>A feature flag answers a rollout question: should this code path be exposed for this evaluation context? Authorization answers a different question: may this authenticated subject perform this action on this resource now?</p>
+<p>Those answers can both depend on a user, a tenant, and a plan. That superficial similarity is why teams sometimes let a flag stand in for a permission check. Then an operator disables a button, a client sends the request directly, and the server performs an operation it was supposed to protect.</p>
+<p>Use a flag to decide whether to offer or progressively release a capability. Enforce authorization at the protected operation, for every entry point, regardless of the flag value.</p>
+<h2>Context</h2>
+<p>Suppose an application is rolling out bulk export to a few organizations. The frontend evaluates <code>bulk-export</code> and hides the action unless the flag is on. The service also evaluates the flag before starting an export:</p>
+<pre><code class="language-ts">if (!flags.booleanValue(&quot;bulk-export&quot;, false, { tenantId })) {
+  return response.status(404).end();
+}
+
+return startExport(request.body);
+</code></pre>
+<p>That is an exposure control. It can be useful: the team can turn a new path on for two tenants, observe load, and turn it off quickly. But it says nothing about whether the current user can export this particular dataset.</p>
+<p>An employee may call the endpoint directly. A background worker may bypass the browser entirely. A stale mobile client may still have the old route. A flag provider may return its supplied default while unavailable. None of those facts should turn <code>startExport</code> into a permission decision.</p>
+<p>OpenFeature describes flag evaluation as resolving a typed value from a flag key, a supplied default, and optional evaluation context. That context can drive targeting, overrides, and fractional rollout; it is not an authorization verdict. <a href="https://openfeature.dev/specification/sections/providers/">OpenFeature&#39;s provider specification</a> makes this API boundary explicit. OWASP&#39;s authorization guidance makes the complementary point: permission checks belong on the server-side operation and must not rely on client-side controls. <a href="https://cheatsheetseries.owasp.org/cheatsheets/Authorization_Cheat_Sheet.html">Authorization Cheat Sheet</a></p>
+<h2>Key Points</h2>
+<h3>A shared input does not make two controls interchangeable</h3>
+<p>Both systems may inspect <code>tenantId</code>, subscription plan, region, or user role. They still make different decisions.</p>
+<table>
+<thead>
+<tr>
+<th>Control</th>
+<th>Question</th>
+<th>Typical outcome when it says no</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Feature flag</td>
+<td>Should this capability be exposed or rolled out here?</td>
+<td>Hide the UI, avoid a new code path, or use an older product behavior.</td>
+</tr>
+<tr>
+<td>Authorization</td>
+<td>May this principal do this action to this resource?</td>
+<td>Deny the request before reading protected data or causing an effect.</td>
+</tr>
+</tbody></table>
+<p>Consider a paid-reporting flag targeted to <code>tenantId</code>. It can decide whether the product is ready to expose reporting to that tenant. It cannot tell whether the current employee is an administrator, whether the requested report belongs to the tenant, or whether an export is allowed under a legal hold.</p>
+<p>Conversely, a valid permission does not require a flag to be enabled. An administrator might be allowed to export records as an established product capability even while a redesigned export workflow is in a limited rollout. Mixing those decisions tends to create brittle rules such as “flag on implies permission,” which fail as soon as either product eligibility or access policy changes independently.</p>
+<h3>Put the flag outside the permission boundary</h3>
+<p>The service can use a flag to select an implementation or decide whether to advertise a capability. The handler that performs the protected operation should still verify the authenticated subject, requested action, resource, tenant, and relevant business constraints.</p>
+<pre><code class="language-ts">async function createExport(request: Request, response: Response) {
+  const subject = requireAuthenticatedSubject(request);
+  const report = await reports.find(request.body.reportId);
+
+  if (report.tenantId !== subject.tenantId) {
+    return response.status(404).end();
+  }
+
+  const permitted = await policy.allows({
+    subject,
+    action: &quot;report.export&quot;,
+    resource: report,
+  });
+
+  if (!permitted) {
+    return response.status(403).end();
+  }
+
+  const useNewDelivery = flags.booleanValue(
+    &quot;new-export-delivery&quot;,
+    false,
+    { tenantId: subject.tenantId },
+  );
+
+  return response.status(202).json(
+    await exports.start({ report, requestedBy: subject.id, useNewDelivery }),
+  );
+}
+</code></pre>
+<p>The order is intentional. The policy check protects the operation. The flag only chooses between authorized behaviors. In a real system, the lookup itself may need to be authorization-scoped so that an identifier does not reveal whether another tenant has a report. The example is illustrative, not a universal response-code recipe.</p>
+<p>Centralizing the authorization decision also protects alternate paths: a scheduled job, an API client, a legacy screen, or a new route added later. OWASP recommends validating permissions on every request and treating UI checks only as a usability improvement, not as the decisive control. <a href="https://cheatsheetseries.owasp.org/cheatsheets/Authorization_Decisions_And_Output_Handling_Cheat_Sheet.html">Authorization Decisions and Output Handling</a></p>
+<h3>Defaults reveal the risk of mixing the systems</h3>
+<p>Feature flags commonly have a fallback value. OpenFeature specifies that a flag evaluation receives a default value, and its no-op provider returns that supplied default. That is a sensible availability feature for rollout behavior: a team can choose whether an unavailable flag service should preserve an old path or suppress a new one. <a href="https://openfeature.dev/specification/sections/flag-evaluation/">Flag Evaluation API</a></p>
+<p>It is not a safe way to decide access. A fallback of <code>true</code> can grant a path because the control plane is unavailable. A fallback of <code>false</code> can lock out legitimate users during a provider outage. Neither is an authorization policy; both are an accidental dependency between access and a deployment service.</p>
+<p>If a policy decision service is remote, treat its timeout and staleness rules as authorization design. Decide whether a cached decision is fresh enough, make the failure mode explicit, and deny protected operations when there is no valid decision. OWASP&#39;s authorization patterns guidance calls out stale policy data and recommends denying protected operations when a valid decision is unavailable. <a href="https://cheatsheetseries.owasp.org/cheatsheets/Authorization_Patterns_Cheat_Sheet.html">Authorization Patterns</a></p>
+<h3>Test the bypass, not just the button</h3>
+<p>The revealing test is not “does the button disappear when the flag is off?” It is “can a caller still invoke the protected endpoint, and does the service apply the same policy?”</p>
+<pre><code class="language-ts">it(&quot;denies an export when a caller bypasses a visible flagged route&quot;, async () =&gt; {
+  flags.booleanValue.mockReturnValue(true);
+  policy.allows.mockResolvedValue(false);
+
+  const response = await request(app)
+    .post(&quot;/exports&quot;)
+    .set(&quot;Authorization&quot;, tokenFor({ tenantId: &quot;acme&quot;, role: &quot;viewer&quot; }))
+    .send({ reportId: &quot;report-42&quot; });
+
+  expect(response.status).toBe(403);
+  expect(exports.start).not.toHaveBeenCalled();
+});
+</code></pre>
+<p>Add the inverse test too: an authorized caller should retain access through the stable supported path even if an unrelated new-experience flag is off. That catches a common regression where a rollout condition quietly becomes part of the access rule.</p>
+<h2>Steps / Code</h2>
+<p>Review each flagged capability at two boundaries:</p>
+<ol>
+<li>State what the flag controls: UI exposure, traffic percentage, implementation selection, experiment cohort, or cost containment.</li>
+<li>State the protected action and resource separately.</li>
+<li>Locate the server-side enforcement point for that action, including background and API paths.</li>
+<li>Test a direct request from an authenticated but unauthorized principal with both flag values.</li>
+<li>Decide how flag-provider outages affect rollout behavior without changing the authorization decision.</li>
+<li>Log the authorization decision and the evaluated flag separately. A denied operation and a disabled rollout are different operational facts.</li>
+</ol>
+<p>This is particularly important for agent tools. A flag can enable a new tool or choose a safer implementation, but it must not grant the model authority to execute the tool against a resource it is otherwise forbidden to touch. <a href="https://my-slops.github.io/Blog/posts/2026/09/authorize-the-next-action-not-the-whole-agent/">Authorize the Next Action, Not the Whole Agent</a> argues for keeping that authority attached to a concrete action and resource.</p>
+<h2>Trade-offs</h2>
+<p>Separate checks create some duplication. The product may need a flag rule and an authorization rule that both mention a tenant or role, and their different owners need a clear contract. That is not needless ceremony: rollout eligibility and access rights really are different sources of truth.</p>
+<p>For harmless presentation details, such as a new color treatment, a server-side authorization check adds nothing. For a capability that reads protected data, creates a resource, triggers a paid operation, or changes a durable setting, it is mandatory. The useful question is not whether a feature is behind a flag. It is whether bypassing the flag would expose an operation that needs protection.</p>
+<p>Feature flags also remain valuable after this separation. They reduce blast radius, enable experiments, and can stop <em>future</em> traffic from using a problematic path. They just cannot compensate for a missing permission check or reverse an effect that already happened. <a href="https://my-slops.github.io/Blog/posts/2026/09/a-feature-flag-does-not-undo-an-irrevocable-change/">A Feature Flag Does Not Undo an Irrevocable Change</a> covers that second limitation.</p>
+<h2>References</h2>
+<ul>
+<li>OWASP Cheat Sheet Series, <a href="https://cheatsheetseries.owasp.org/cheatsheets/Authorization_Cheat_Sheet.html">Authorization Cheat Sheet</a></li>
+<li>OWASP Cheat Sheet Series, <a href="https://cheatsheetseries.owasp.org/cheatsheets/Authorization_Decisions_And_Output_Handling_Cheat_Sheet.html">Authorization Decisions and Output Handling</a></li>
+<li>OWASP Cheat Sheet Series, <a href="https://cheatsheetseries.owasp.org/cheatsheets/Authorization_Patterns_Cheat_Sheet.html">Authorization Patterns</a></li>
+<li>OpenFeature, <a href="https://openfeature.dev/specification/sections/providers/">Provider and flag-value resolution specification</a></li>
+<li>OpenFeature, <a href="https://openfeature.dev/specification/sections/evaluation-context/">Evaluation Context specification</a></li>
+<li>This repository, <a href="https://my-slops.github.io/Blog/posts/2026/09/a-feature-flag-does-not-undo-an-irrevocable-change/">A Feature Flag Does Not Undo an Irrevocable Change</a></li>
+</ul>
+<h2>Final Take</h2>
+<p>A feature flag can say “not yet,” “only for this cohort,” or “use the old implementation.” It cannot say “this caller is allowed.”</p>
+<p>Keep rollout controls and permission enforcement separate. Then an old client, a direct API request, a provider outage, or a new integration path cannot turn a product toggle into an authorization bypass.</p>
+<h2>Changelog</h2>
+<ul>
+<li>2026-10-12: Initial publication.</li>
+</ul>
+
+    </article>
+  </body>
+</html>

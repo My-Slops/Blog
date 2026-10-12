@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url><loc>https://my-slops.github.io/Blog/posts/2026/10/a-feature-flag-is-not-an-authorization-check/</loc><lastmod>2026-10-12</lastmod></url>
   <url><loc>https://my-slops.github.io/Blog/posts/2026/10/stop-calling-tools-read-only-before-you-define-their-effects/</loc><lastmod>2026-10-11</lastmod></url>
   <url><loc>https://my-slops.github.io/Blog/posts/2026/10/omitted-tool-arguments-are-policy-decisions/</loc><lastmod>2026-10-11</lastmod></url>
   <url><loc>https://my-slops.github.io/Blog/posts/2026/10/a-green-workflow-can-contain-a-failed-step/</loc><lastmod>2026-10-09</lastmod></url>
