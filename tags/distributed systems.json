@@ -1,7 +1,22 @@
 {
   "tag": "distributed systems",
-  "count": 10,
+  "count": 11,
   "posts": [
+    {
+      "title": "A Page Cursor Is Not Permission to Keep Reading",
+      "date": "2026-10-13",
+      "updated": "2026-10-13",
+      "summary": "Treat a page cursor as continuation state, not an access grant. Bind it to the query shape, reject incompatible reuse, and apply fresh authorization before every page.",
+      "tags": [
+        "api design",
+        "security",
+        "authorization",
+        "distributed systems",
+        "developer tooling"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/10/a-page-cursor-is-not-permission-to-keep-reading/",
+      "path": "posts/2026/10/2026-10-13-a-page-cursor-is-not-permission-to-keep-reading.md"
+    },
     {
       "title": "A Date Is Not a Timestamp",
       "date": "2026-10-02",

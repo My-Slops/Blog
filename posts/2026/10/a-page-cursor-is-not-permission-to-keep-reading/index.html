@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>A Page Cursor Is Not Permission to Keep Reading | Blog</title>
+    <meta name="description" content="Treat a page cursor as continuation state, not an access grant. Bind it to the query shape, reject incompatible reuse, and apply fresh authorization before every page." />
+    <link rel="canonical" href="https://my-slops.github.io/Blog/posts/2026/10/a-page-cursor-is-not-permission-to-keep-reading/" />
+    <style>
+      :root { color-scheme: light dark; }
+      body { font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; line-height: 1.7; max-width: 760px; margin: 40px auto; padding: 0 16px; }
+      a { color: #0a58ca; text-decoration: none; }
+      a:hover { text-decoration: underline; }
+      .meta { color: #666; font-size: 0.95rem; margin-bottom: 1rem; }
+      .tags { display: flex; gap: 0.5rem; list-style: none; padding: 0; margin: 0.75rem 0 1.25rem; flex-wrap: wrap; }
+      .tags li { background: #eef2ff; color: #3730a3; border-radius: 999px; padding: 0.2rem 0.6rem; font-size: 0.8rem; }
+      article h1, article h2, article h3 { line-height: 1.3; }
+      article pre { overflow-x: auto; background: #111827; color: #f9fafb; padding: 0.9rem; border-radius: 8px; }
+      article code { font-family: ui-monospace,SFMono-Regular,Menlo,monospace; }
+      article blockquote { border-left: 4px solid #d1d5db; margin: 1rem 0; padding: 0.2rem 0.9rem; color: #4b5563; }
+      hr { border: 0; border-top: 1px solid #e5e7eb; margin: 2rem 0; }
+    </style>
+  </head>
+  <body>
+    <p><a href="https://my-slops.github.io/Blog/">← Home</a></p>
+    <article>
+      <h1>A Page Cursor Is Not Permission to Keep Reading</h1>
+      <p class="meta">Oct 13, 2026</p>
+      <ul class="tags"><li>api design</li><li>security</li><li>authorization</li><li>distributed systems</li><li>developer tooling</li></ul>
+      <h2>TL;DR</h2>
+<p>A cursor says where a page ends in one ordered result set. It does not say that whoever presents it may see the next page, that the original filters still apply, or that a permission granted a minute ago remains valid.</p>
+<p>Treat pagination as a continuation protocol. Bind the cursor to the query shape that created it, cap or ignore client attempts to widen that shape, and run authorization again when the next request arrives. A cursor may carry position and snapshot state; it should never quietly become an access grant.</p>
+<h2>Context</h2>
+<p>An administrator opens a customer list for the <code>acme</code> tenant:</p>
+<pre><code class="language-http">GET /customers?tenant=acme&amp;status=active&amp;limit=50
+</code></pre>
+<p>The server returns 50 records and a <code>nextCursor</code>. A few seconds later, the same browser uses that cursor with a different filter:</p>
+<pre><code class="language-http">GET /customers?tenant=globex&amp;status=active&amp;cursor=eyJsYXN0SWQiOiI1MCJ9
+</code></pre>
+<p>If the server treats the cursor as only <code>lastId = 50</code>, it has lost the meaning of the request that produced it. It may now continue through another tenant&#39;s customer list. The same mistake can appear without an attacker: an agent changes a search filter between calls but reuses the old cursor; a user loses a role halfway through a long export; or an endpoint accepts an old cursor after the sort semantics changed in a deployment.</p>
+<p>Cursor pagination is often introduced as a database-performance improvement. It is also a contract about <em>which list</em> is being continued. The JSON:API cursor-pagination profile makes that explicit: pagination applies to an ordered result list, and a partially ordered client sort needs a stable, unique tie-breaker before it can be paginated reliably. The GraphQL Cursor Connections specification likewise defines a cursor as an opaque value passed back to continue after an edge. Neither property gives a cursor permission to read a resource. <a href="https://jsonapi.org/profiles/ethanresnick/cursor-pagination/">JSON:API Cursor Pagination</a> <a href="https://relay.dev/graphql/connections.htm">GraphQL Cursor Connections Specification</a></p>
+<h2>Key Points</h2>
+<h3>Position is only one part of the continuation</h3>
+<p><code>after=customer-50</code> is enough information only if every other part of the result set is fixed elsewhere. In a real API, a page is usually defined by more than its last record:</p>
+<table>
+<thead>
+<tr>
+<th>Continuation input</th>
+<th>Why it belongs to the same query contract</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Endpoint and resource type</td>
+<td><code>customers</code> and <code>invoices</code> cannot share a position.</td>
+</tr>
+<tr>
+<td>Filters and search terms</td>
+<td><code>status=active</code> is a different list from <code>status=archived</code>.</td>
+</tr>
+<tr>
+<td>Tenant or workspace</td>
+<td>This is a disclosure boundary, not a convenience filter.</td>
+</tr>
+<tr>
+<td>Sort and tie-breaker</td>
+<td>A cursor position is meaningless if the relative order can change arbitrarily.</td>
+</tr>
+<tr>
+<td>Field projection or include mode</td>
+<td>A page that adds sensitive history may have a different authorization and cost surface.</td>
+</tr>
+<tr>
+<td>Snapshot/version, when promised</td>
+<td>This determines whether the caller is continuing a live list or a consistent view.</td>
+</tr>
+</tbody></table>
+<p>There are two workable designs. The server can store this state under a random cursor ID, or it can put a compact, integrity-protected representation of the state in an opaque token. In either case, the server—not a client-decoded JSON object—must decide what state is authoritative.</p>
+<p>Opaque does not mean encrypted, secret, or authorized. Base64 is merely an encoding. A signed token can prevent tampering with its contents, but it cannot make a caller eligible for data they cannot currently read. Conversely, a server-side token avoids exposing internal fields but still needs authorization checks when it is redeemed.</p>
+<h3>The next request needs a fresh access decision</h3>
+<p>The correct question on page two is not “was this cursor issued to someone who had access?” It is “may this requester retrieve these records under the current policy?”</p>
+<p>That distinction matters whenever permissions change, a session is reused, or a cursor is copied to another client. OWASP recommends validating permissions on every request, rather than trusting that an earlier route or UI action already did so. A paginated endpoint is not an exception merely because it looks like a continuation of the previous request. <a href="https://cheatsheetseries.owasp.org/cheatsheets/Authorization_Cheat_Sheet.html">OWASP Authorization Cheat Sheet</a></p>
+<p>The handler should derive the caller&#39;s allowed scope first, then apply the cursor&#39;s position inside that scope:</p>
+<pre><code class="language-ts">type CursorState = {
+  endpoint: &quot;customers.list&quot;;
+  queryHash: string;
+  order: [&quot;created_at&quot;, &quot;id&quot;];
+  after: { createdAt: string; id: string };
+  snapshotId?: string;
+  expiresAt: string;
+};
+
+async function listCustomers(request: Request) {
+  const subject = await requireSubject(request);
+  const allowedTenants = await policy.allowedTenants(subject, &quot;customer.read&quot;);
+  const requestedQuery = normalizeCustomerQuery(request.url);
+
+  const cursor = request.url.searchParams.get(&quot;cursor&quot;);
+  const state = cursor ? await cursors.verify&lt;CursorState&gt;(cursor) : undefined;
+
+  if (state &amp;&amp; state.queryHash !== hash(requestedQuery.withoutCursor())) {
+    throw badRequest(&quot;cursor does not match this query&quot;);
+  }
+
+  const page = await customers.query({
+    ...requestedQuery,
+    tenantIds: intersect(requestedQuery.tenantIds, allowedTenants),
+    after: state?.after,
+    snapshotId: state?.snapshotId,
+    order: [&quot;created_at&quot;, &quot;id&quot;],
+  });
+
+  return page;
+}
+</code></pre>
+<p>The details are illustrative. In many APIs, accepting an arbitrary <code>tenant</code> parameter and intersecting it with allowed tenants is less clear than rejecting a requested tenant the caller cannot access. Some APIs put a single authorized workspace in the route and do not accept a tenant filter at all. The important ordering is not negotiable: authorize the current caller, validate the continuation against the request, and only then use the cursor position.</p>
+<p>This is the pagination counterpart to <a href="https://my-slops.github.io/Blog/posts/2026/10/a-feature-flag-is-not-an-authorization-check/">A Feature Flag Is Not an Authorization Check</a>. A token produced by a legitimate earlier flow is still not a permission decision for the present request.</p>
+<h3>Do not let a cursor silently change the query</h3>
+<p>There are two defensible API shapes. Pick one and make it explicit.</p>
+<p><strong>Server-owned continuation.</strong> The first response returns a <code>next</code> link or cursor whose stored state includes all filters, sort, and page-size policy. The follow-up request supplies only that continuation. This is straightforward for exports and internal tools because clients cannot accidentally pair an old cursor with new filters.</p>
+<p><strong>Client-repeated query.</strong> The client repeats its filters and sort, and the server checks that their normalized form matches the cursor&#39;s bound query identity. This can make links easier to inspect and supports deliberate pagination controls, but it needs canonicalization. <code>status=active&amp;tag=a&amp;tag=b</code> and the same tags in the reverse order should either normalize identically or be rejected predictably.</p>
+<p>Do not take a third path by accepting both a cursor and arbitrary new filters, then choosing whichever source is convenient. That produces hard-to-debug omissions even when it does not disclose data. An agent that follows a <code>nextCursor</code> after revising “open incidents” to “all incidents” may truthfully receive a page, but it has no clear reason to believe that page is the next page of either query.</p>
+<p>This matters for negative conclusions too. <a href="https://my-slops.github.io/Blog/posts/2026/10/an-empty-search-result-is-not-evidence-that-nothing-exists/">An Empty Search Result Is Not Evidence That Nothing Exists</a> argues that filters, permissions, and pagination bounds are part of what an empty result means. A mismatched cursor hides the same qualifiers behind an apparently ordinary page request.</p>
+<h3>Snapshots solve consistency, not authorization</h3>
+<p>Some endpoints promise that every page belongs to one point-in-time view. That can be important for a report, billing export, or reconciliation process. The JSON:API profile permits a server to encode a client or session identifier in a cursor when it needs to return a consistent snapshot across requests.</p>
+<p>That is useful, but a snapshot is still not a durable right to its contents. If a user loses access to a workspace between pages, the server has a policy choice:</p>
+<ul>
+<li>deny the next page entirely;</li>
+<li>return only the subset still authorized, with explicit semantics for gaps; or</li>
+<li>allow a short, documented export lease that was authorized up front and is revocable by design.</li>
+</ul>
+<p>The first option is often safest for interactive browsing. The third can be reasonable for a regulated export workflow, but it is a deliberate authorization product feature, not an incidental effect of cursor expiration. If the product needs that behavior, name the export operation, its owner, scope, retention, cancellation rule, and audit record. Do not smuggle it into a URL parameter.</p>
+<p>Likewise, cursor expiry should describe a technical boundary, not disguise a policy decision. An expired cursor might mean that its snapshot was released, its signing key rotated, its ordering changed, or the server has intentionally bounded retained state. Return an actionable error such as “restart this list from the first page” rather than quietly switching to a new live query at the old position.</p>
+<h2>Steps / Code</h2>
+<p>Review a cursor endpoint with these tests:</p>
+<ol>
+<li>Request page one as a user allowed to read workspace A, then attempt page two with the same cursor as a user allowed only to workspace B. It must not reveal A&#39;s records.</li>
+<li>Reuse a cursor with one altered filter, sort, include mode, or page size. Verify the API either rejects it or applies the documented server-owned continuation unchanged.</li>
+<li>Revoke the original caller&#39;s access between pages. Confirm the next request follows the chosen current-authorization policy.</li>
+<li>Insert rows with equal sort values between requests. Verify the unique tie-breaker prevents arbitrary reordering or duplication caused by an incomplete sort.</li>
+<li>Redeem an expired or malformed cursor. Verify the response does not fall back to an unbounded first page or leak cursor internals.</li>
+<li>Run the same cases through every entry point: browser, SDK, agent tool, export worker, and copied <code>next</code> link.</li>
+</ol>
+<p>For agent tools, consider returning a server-created <code>nextPage</code> handle rather than asking the model to recreate filters while carrying an old cursor in prose. The tool runtime should preserve the originating task&#39;s workspace and result limits, then stop when a page changes the user&#39;s requested scope. That reduces accidental query drift; it does not remove the server&#39;s obligation to authorize each call.</p>
+<h2>Trade-offs</h2>
+<p>Binding cursors more tightly makes them less portable. A support engineer may not be able to paste one customer&#39;s cursor into another environment to reproduce a bug, and a changed filter may require restarting a list. Those are usually good failures: the API is refusing to pretend that two result sets are interchangeable.</p>
+<p>Fresh authorization also makes long scans less tidy. A revoked permission can cause an export to fail on page 400, and dynamic row-level policy can produce fewer results than an earlier count suggested. If completion of a fixed report is a product requirement, use an explicit report or export operation with a stated authorization lease and audit trail. Do not make an opaque continuation token accidentally carry that responsibility.</p>
+<p>Not every cursor needs a durable snapshot. For a live activity feed, allowing new events to appear while a user pages may be exactly right. The requirement is to specify the behavior and maintain a deterministic order, not to promise impossible immutability. The JSON:API profile itself notes that result lists may change between requests; snapshotting is a special choice for the cases that need it.</p>
+<h2>References</h2>
+<ul>
+<li>JSON:API, <a href="https://jsonapi.org/profiles/ethanresnick/cursor-pagination/">Cursor Pagination profile</a></li>
+<li>GraphQL Cursor Connections Specification, <a href="https://relay.dev/graphql/connections.htm">Cursors and connection pagination</a></li>
+<li>OWASP Cheat Sheet Series, <a href="https://cheatsheetseries.owasp.org/cheatsheets/Authorization_Cheat_Sheet.html">Authorization Cheat Sheet</a></li>
+<li>This repository, <a href="https://my-slops.github.io/Blog/posts/2026/10/a-feature-flag-is-not-an-authorization-check/">A Feature Flag Is Not an Authorization Check</a></li>
+<li>This repository, <a href="https://my-slops.github.io/Blog/posts/2026/10/an-empty-search-result-is-not-evidence-that-nothing-exists/">An Empty Search Result Is Not Evidence That Nothing Exists</a></li>
+</ul>
+<h2>Final Take</h2>
+<p>A cursor should continue a list, not inherit the authority that first exposed the list.</p>
+<p>Bind it to the endpoint, query, order, and any promised snapshot. On every page, make a new authorization decision for the caller in front of you. That keeps pagination from turning a small performance feature into an undocumented access-control mechanism.</p>
+<h2>Changelog</h2>
+<ul>
+<li>2026-10-13: Initial publication.</li>
+</ul>
+
+    </article>
+  </body>
+</html>
