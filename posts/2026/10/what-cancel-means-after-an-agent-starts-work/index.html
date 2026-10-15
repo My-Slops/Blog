@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>What &quot;Cancel&quot; Means After an Agent Starts Work | Blog</title>
+    <meta name="description" content="Model cancellation as a state transition with a final outcome. Stop queued work, propagate cancellation where possible, and reconcile effects already handed to another system." />
+    <link rel="canonical" href="https://my-slops.github.io/Blog/posts/2026/10/what-cancel-means-after-an-agent-starts-work/" />
+    <style>
+      :root { color-scheme: light dark; }
+      body { font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; line-height: 1.7; max-width: 760px; margin: 40px auto; padding: 0 16px; }
+      a { color: #0a58ca; text-decoration: none; }
+      a:hover { text-decoration: underline; }
+      .meta { color: #666; font-size: 0.95rem; margin-bottom: 1rem; }
+      .tags { display: flex; gap: 0.5rem; list-style: none; padding: 0; margin: 0.75rem 0 1.25rem; flex-wrap: wrap; }
+      .tags li { background: #eef2ff; color: #3730a3; border-radius: 999px; padding: 0.2rem 0.6rem; font-size: 0.8rem; }
+      article h1, article h2, article h3 { line-height: 1.3; }
+      article pre { overflow-x: auto; background: #111827; color: #f9fafb; padding: 0.9rem; border-radius: 8px; }
+      article code { font-family: ui-monospace,SFMono-Regular,Menlo,monospace; }
+      article blockquote { border-left: 4px solid #d1d5db; margin: 1rem 0; padding: 0.2rem 0.9rem; color: #4b5563; }
+      hr { border: 0; border-top: 1px solid #e5e7eb; margin: 2rem 0; }
+    </style>
+  </head>
+  <body>
+    <p><a href="https://my-slops.github.io/Blog/">← Home</a></p>
+    <article>
+      <h1>What &quot;Cancel&quot; Means After an Agent Starts Work</h1>
+      <p class="meta">Oct 15, 2026</p>
+      <ul class="tags"><li>ai agents</li><li>distributed systems</li><li>reliability</li><li>api design</li><li>developer tooling</li></ul>
+      <h2>TL;DR</h2>
+<p>When a user presses <strong>Cancel</strong> on an agent run, they are expressing a preference about future work. They are not receiving proof that a command already sent to a deployment API, payment provider, email service, or job queue has not taken effect.</p>
+<p>Treat cancellation as a stateful operation. It should prevent work that has not started, signal work that can still cooperate, and leave a durable record of work whose outcome must be reconciled. A run is not safely terminal just because its UI says <code>cancel requested</code>.</p>
+<h2>Context</h2>
+<p>An agent is asked to roll back a service. It has already submitted this command to a deployment system:</p>
+<pre><code class="language-text">deployments.create_rollback({ service: &quot;checkout&quot;, version: &quot;2026.10.15.3&quot; })
+</code></pre>
+<p>The user immediately notices the version was wrong and cancels the agent run. The orchestrator marks the run <code>cancelled</code>, stops its next tool call, and closes the conversation.</p>
+<p>That may be correct for the <em>agent loop</em>. It says almost nothing about the deployment. The remote API may have rejected the command, accepted it but not started it, started a rollout, or completed it just before the cancellation reached the orchestrator. Treating all four outcomes as “cancelled” converts an actionable operational question into a misleading terminal label.</p>
+<p>This is not an obscure agent problem. gRPC describes cancellation as the client no longer being interested in an RPC result and says that server handlers must coordinate to stop their own processing. Its core documentation also warns that changes made before cancellation are not rolled back. <a href="https://grpc.io/docs/guides/cancellation/">gRPC cancellation guide</a> <a href="https://grpc.io/docs/what-is-grpc/core-concepts/">gRPC core concepts</a></p>
+<p>For an agent that can cause external effects, cancellation needs a result contract as carefully designed as execution.</p>
+<h2>Key Points</h2>
+<h3>“Stop waiting” and “stop work” are different requests</h3>
+<p>A client can stop awaiting a response while the server continues. A server can receive a cancellation signal while a downstream provider has already accepted a request. A worker can notice a cancellation token after it has written an irreversible record.</p>
+<p>The practical distinction is where the work sits when cancellation arrives:</p>
+<table>
+<thead>
+<tr>
+<th>Stage</th>
+<th>Useful cancellation behavior</th>
+<th>What still needs to be known</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Not yet dispatched</td>
+<td>Remove or mark the task ineligible before a worker claims it.</td>
+<td>Did a worker race and claim it first?</td>
+</tr>
+<tr>
+<td>Running locally</td>
+<td>Signal cooperative cancellation and wait for the handler to acknowledge it.</td>
+<td>Which steps completed before the check?</td>
+</tr>
+<tr>
+<td>Submitted to another service</td>
+<td>Call that service&#39;s cancellation API if it has one.</td>
+<td>Did it accept cancellation, and what had already happened?</td>
+</tr>
+<tr>
+<td>Completed or unknown</td>
+<td>Do not pretend cancellation reversed it.</td>
+<td>What final state exists, and is compensation appropriate?</td>
+</tr>
+</tbody></table>
+<p>The boundary between these states is not cosmetic. It determines whether the system can safely schedule another action, tell a user nothing happened, or must begin incident handling.</p>
+<h3>Give the operation an identity before trying to cancel it</h3>
+<p>An agent should not try to cancel a remote effect using only a local run ID. The service that received the work needs an operation identifier it can report on later.</p>
+<pre><code class="language-ts">type RollbackOperation = {
+  id: string;
+  idempotencyKey: string;
+  status:
+    | &quot;queued&quot;
+    | &quot;running&quot;
+    | &quot;cancel_requested&quot;
+    | &quot;cancelled_before_start&quot;
+    | &quot;succeeded&quot;
+    | &quot;failed&quot;
+    | &quot;outcome_unknown&quot;;
+  startedAt?: string;
+  finishedAt?: string;
+  cancellationReason?: &quot;user_request&quot; | &quot;deadline&quot; | &quot;policy_change&quot;;
+};
+
+async function cancelRollback(operationId: string) {
+  const operation = await rollbacks.requestCancellation(operationId);
+
+  if (operation.status === &quot;cancelled_before_start&quot;) {
+    return { state: &quot;stopped&quot;, operation };
+  }
+
+  return {
+    state: &quot;reconcile&quot;,
+    operation,
+    message: &quot;Cancellation was requested; inspect the final operation state.&quot;,
+  };
+}
+</code></pre>
+<p>The names are illustrative. The important part is that <code>cancel_requested</code> is not collapsed into <code>cancelled</code>, and that a caller can retrieve the operation&#39;s final state with the same identity. This is the same reason an uncertain write needs an idempotency key and a reconciliation path: a disconnected caller cannot infer the remote outcome from its own timeout or cancellation event. <a href="https://my-slops.github.io/Blog/posts/2026/09/a-tool-error-is-an-instruction-to-your-agent/">A Tool Error Is an Instruction to Your Agent</a></p>
+<p>Do not use a status lookup as an excuse to make cancellation synchronous forever. A cancellation endpoint may return quickly with <code>cancel_requested</code>; the agent runtime can then stop invoking new tools while a durable worker reaches a terminal state. The user needs a truthful distinction between “we stopped before dispatch” and “we asked the system to stop and are verifying the result.”</p>
+<h3>Cancellation has to cross ownership boundaries deliberately</h3>
+<p>Local cancellation primitives are useful, but they do not automatically cross every queue, process, or vendor API in a workflow.</p>
+<p>For a long-running handler, propagate the signal into each operation that can honor it, and check it at safe boundaries:</p>
+<pre><code class="language-ts">async function runImport(job: ImportJob, signal: AbortSignal) {
+  for await (const page of source.pages({ signal })) {
+    signal.throwIfAborted();
+
+    const batch = normalize(page);
+    await destination.upsert(batch, {
+      idempotencyKey: `${job.id}:${page.cursor}`,
+      signal,
+    });
+  }
+}
+</code></pre>
+<p>This code is intentionally not a claim that an <code>AbortSignal</code> undoes <code>upsert</code>. It merely gives work that has not begun—or a dependency that supports cancellation—a chance to stop. If the destination has already committed a batch, the operation record must say so. If the business requirement is to remove that batch, that is a separate compensating action with its own authorization, scope, and failure modes.</p>
+<p>The same distinction exists in RPC systems. gRPC recommends that a server propagate cancellation to work it initiated, but its library cannot generally interrupt application handlers for the developer. The handler has to cooperate. <a href="https://grpc.io/docs/guides/cancellation/">gRPC cancellation guide</a></p>
+<h3>Never make compensation an accidental side effect of cancel</h3>
+<p>“Undo it” can be more dangerous than “stop.” A rollback request may have changed traffic, an email may have been delivered, and an external payment may already be captured. Automatically submitting a compensating action can create a second incident if the original action turns out not to have completed.</p>
+<p>Keep three decisions separate:</p>
+<ol>
+<li><strong>Cancellation:</strong> prevent work that has not yet happened.</li>
+<li><strong>Reconciliation:</strong> establish what did happen using the operation identity, provider status, and durable local records.</li>
+<li><strong>Compensation:</strong> perform a new, explicitly authorized action if the established result calls for it.</li>
+</ol>
+<p>This sequencing is deliberately slower than a single “cancel and reverse” button. It is also more honest about distributed effects. For low-impact, fully local work, the three steps may finish in milliseconds and appear as one action. For deployments, account changes, and third-party writes, exposing the distinction prevents the system from inventing a success story it cannot prove.</p>
+<h2>Steps / Code</h2>
+<p>Review a cancellable agent operation with these cases:</p>
+<ol>
+<li>Cancel before dispatch, while a worker is racing to claim the job. Verify at most one actor can transition it into active work.</li>
+<li>Cancel during a local loop. Verify the loop stops at documented boundaries and records which batch was last committed.</li>
+<li>Cancel after the remote service accepts the request but before the agent receives its response. Verify the next step is an operation lookup, not a retry or an unsupported claim that nothing happened.</li>
+<li>Cancel a request that the provider cannot interrupt. Verify the UI and tool result say that cancellation only stops further orchestration.</li>
+<li>Cancel an operation that completed just before the request. Verify the terminal record remains <code>succeeded</code>, with the cancellation attempt preserved as an audit event.</li>
+<li>Require compensation after reconciliation. Verify it is a separately authorized operation—not a hidden behavior of the cancellation endpoint.</li>
+</ol>
+<p>For agent runtimes, the minimum useful user-facing states are usually:</p>
+<pre><code class="language-text">cancelled_before_start
+cancel_requested
+completed_before_cancel
+outcome_unknown_needs_reconciliation
+</code></pre>
+<p>There is no universal vocabulary, but each state should lead to a specific next action. A vague red “Cancelled” badge is not a protocol.</p>
+<h2>Trade-offs</h2>
+<p>Durable operation records, cancellation propagation, and reconciliation endpoints add work. For a local calculation that owns no shared state, an <code>AbortSignal</code> and a single cancelled status may be enough.</p>
+<p>The investment is justified as soon as an agent crosses a process boundary or triggers an externally visible effect. The uncomfortable cases are exactly the ones where a simple cancellation story is least trustworthy: a queue race, a lost response, a provider without a cancel API, or a write that cannot be rolled back.</p>
+<p>Cancellation also needs retention and access rules. An operation lookup can disclose that a sensitive action was attempted, so it must be scoped to the correct tenant and principal. The status record is not merely debug data; it is part of the authorization surface.</p>
+<h2>References</h2>
+<ul>
+<li>gRPC, <a href="https://grpc.io/docs/guides/cancellation/">Cancellation</a></li>
+<li>gRPC, <a href="https://grpc.io/docs/what-is-grpc/core-concepts/">Core concepts: RPC termination and cancellation</a></li>
+<li>This repository, <a href="https://my-slops.github.io/Blog/posts/2026/09/a-tool-error-is-an-instruction-to-your-agent/">A Tool Error Is an Instruction to Your Agent</a></li>
+<li>This repository, <a href="https://my-slops.github.io/Blog/posts/2026/05/retries-need-an-identity-before-they-need-backoff/">Retries Need an Identity Before They Need Backoff</a></li>
+</ul>
+<h2>Final Take</h2>
+<p>Cancellation is a request to stop the future, not evidence that the past has been undone.</p>
+<p>Make the request durable, stop work at every boundary that can cooperate, and preserve a final operation record for the effects that outrun the request. That turns an agent&#39;s Cancel button from a comforting fiction into a reliable control.</p>
+<h2>Changelog</h2>
+<ul>
+<li>2026-10-15: Initial publication.</li>
+</ul>
+
+    </article>
+  </body>
+</html>

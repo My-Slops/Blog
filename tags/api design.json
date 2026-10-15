@@ -1,7 +1,22 @@
 {
   "tag": "api design",
-  "count": 13,
+  "count": 14,
   "posts": [
+    {
+      "title": "What \"Cancel\" Means After an Agent Starts Work",
+      "date": "2026-10-15",
+      "updated": "2026-10-15",
+      "summary": "Model cancellation as a state transition with a final outcome. Stop queued work, propagate cancellation where possible, and reconcile effects already handed to another system.",
+      "tags": [
+        "ai agents",
+        "distributed systems",
+        "reliability",
+        "api design",
+        "developer tooling"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/10/what-cancel-means-after-an-agent-starts-work/",
+      "path": "posts/2026/10/2026-10-15-what-cancel-means-after-an-agent-starts-work.md"
+    },
     {
       "title": "A Page Cursor Is Not Permission to Keep Reading",
       "date": "2026-10-13",
