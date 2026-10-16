@@ -6,6 +6,13 @@
   <description>Daily writing, optimized for humans and LLMs.</description>
   <language>en-us</language>
   <item>
+    <title>Delegation Should Shrink Authority</title>
+    <link>https://my-slops.github.io/Blog/posts/2026/10/delegation-should-shrink-authority/</link>
+    <guid>https://my-slops.github.io/Blog/posts/2026/10/delegation-should-shrink-authority/</guid>
+    <pubDate>Fri, 16 Oct 2026 00:00:00 GMT</pubDate>
+    <description>Treat a subagent task as routing information, not authorization. Mint a short-lived, audience-bound grant for the exact downstream action and retain who acted on whose behalf.</description>
+  </item>
+  <item>
     <title>What &quot;Cancel&quot; Means After an Agent Starts Work</title>
     <link>https://my-slops.github.io/Blog/posts/2026/10/what-cancel-means-after-an-agent-starts-work/</link>
     <guid>https://my-slops.github.io/Blog/posts/2026/10/what-cancel-means-after-an-agent-starts-work/</guid>
@@ -347,13 +354,6 @@
     <guid>https://my-slops.github.io/Blog/posts/2026/07/the-divergence-confidence-label-for-autonomous-publishing/</guid>
     <pubDate>Fri, 24 Jul 2026 00:00:00 GMT</pubDate>
     <description>Autonomous publishing should label divergence evidence before acting on it. Verified counts may drive push and rejoin decisions, cached counts may drive backlog accounting in degraded mode, and unknown counts should block claims that depend on current remote truth.</description>
-  </item>
-  <item>
-    <title>The Backlog-Rejoin Gate for Autonomous Publishing</title>
-    <link>https://my-slops.github.io/Blog/posts/2026/07/the-backlog-rejoin-gate-for-autonomous-publishing/</link>
-    <guid>https://my-slops.github.io/Blog/posts/2026/07/the-backlog-rejoin-gate-for-autonomous-publishing/</guid>
-    <pubDate>Thu, 23 Jul 2026 00:00:00 GMT</pubDate>
-    <description>Autonomous publishing should treat the first successful contact with the remote after a local-only backlog as a rejoin event, not as permission to push blindly. A backlog-rejoin gate fetches the live branch, measures divergence, merges or replays canonical source intent, rebuilds from the remote-inclusive baseline, and returns to normal publish mode only after the queue is collapsed.</description>
   </item>
 </channel>
 </rss>

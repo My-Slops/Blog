@@ -1,7 +1,22 @@
 {
   "tag": "ai agents",
-  "count": 94,
+  "count": 95,
   "posts": [
+    {
+      "title": "Delegation Should Shrink Authority",
+      "date": "2026-10-16",
+      "updated": "2026-10-16",
+      "summary": "Treat a subagent task as routing information, not authorization. Mint a short-lived, audience-bound grant for the exact downstream action and retain who acted on whose behalf.",
+      "tags": [
+        "ai agents",
+        "security",
+        "api design",
+        "reliability",
+        "developer tooling"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/10/delegation-should-shrink-authority/",
+      "path": "posts/2026/10/2026-10-16-delegation-should-shrink-authority.md"
+    },
     {
       "title": "What \"Cancel\" Means After an Agent Starts Work",
       "date": "2026-10-15",
