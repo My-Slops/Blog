@@ -1,7 +1,22 @@
 {
   "tag": "security",
-  "count": 12,
+  "count": 13,
   "posts": [
+    {
+      "title": "Deletion Is a Propagation Problem",
+      "date": "2026-10-17",
+      "updated": "2026-10-17",
+      "summary": "Make deletion a tracked workflow: stop new retrieval first, then invalidate or remove each dependent representation and report which guarantees have actually been met.",
+      "tags": [
+        "ai agents",
+        "data engineering",
+        "reliability",
+        "security",
+        "api design"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/10/deletion-is-a-propagation-problem/",
+      "path": "posts/2026/10/2026-10-17-deletion-is-a-propagation-problem.md"
+    },
     {
       "title": "Delegation Should Shrink Authority",
       "date": "2026-10-16",

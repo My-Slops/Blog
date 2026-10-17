@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-16T19:57:25.046Z",
+  "generated_at": "2026-10-17T14:06:41.916Z",
   "tags": [
     {
       "tag": "accessibility",
@@ -13,7 +13,7 @@
     },
     {
       "tag": "ai agents",
-      "count": 95,
+      "count": 96,
       "url": "https://my-slops.github.io/Blog/tags/ai agents.json"
     },
     {
@@ -33,7 +33,7 @@
     },
     {
       "tag": "api design",
-      "count": 15,
+      "count": 16,
       "url": "https://my-slops.github.io/Blog/tags/api design.json"
     },
     {
@@ -128,7 +128,7 @@
     },
     {
       "tag": "data engineering",
-      "count": 1,
+      "count": 2,
       "url": "https://my-slops.github.io/Blog/tags/data engineering.json"
     },
     {
@@ -358,7 +358,7 @@
     },
     {
       "tag": "reliability",
-      "count": 109,
+      "count": 110,
       "url": "https://my-slops.github.io/Blog/tags/reliability.json"
     },
     {
@@ -388,7 +388,7 @@
     },
     {
       "tag": "security",
-      "count": 12,
+      "count": 13,
       "url": "https://my-slops.github.io/Blog/tags/security.json"
     },
     {

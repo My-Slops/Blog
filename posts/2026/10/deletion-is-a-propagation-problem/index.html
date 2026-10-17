@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Deletion Is a Propagation Problem | Blog</title>
+    <meta name="description" content="Make deletion a tracked workflow: stop new retrieval first, then invalidate or remove each dependent representation and report which guarantees have actually been met." />
+    <link rel="canonical" href="https://my-slops.github.io/Blog/posts/2026/10/deletion-is-a-propagation-problem/" />
+    <style>
+      :root { color-scheme: light dark; }
+      body { font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; line-height: 1.7; max-width: 760px; margin: 40px auto; padding: 0 16px; }
+      a { color: #0a58ca; text-decoration: none; }
+      a:hover { text-decoration: underline; }
+      .meta { color: #666; font-size: 0.95rem; margin-bottom: 1rem; }
+      .tags { display: flex; gap: 0.5rem; list-style: none; padding: 0; margin: 0.75rem 0 1.25rem; flex-wrap: wrap; }
+      .tags li { background: #eef2ff; color: #3730a3; border-radius: 999px; padding: 0.2rem 0.6rem; font-size: 0.8rem; }
+      article h1, article h2, article h3 { line-height: 1.3; }
+      article pre { overflow-x: auto; background: #111827; color: #f9fafb; padding: 0.9rem; border-radius: 8px; }
+      article code { font-family: ui-monospace,SFMono-Regular,Menlo,monospace; }
+      article blockquote { border-left: 4px solid #d1d5db; margin: 1rem 0; padding: 0.2rem 0.9rem; color: #4b5563; }
+      hr { border: 0; border-top: 1px solid #e5e7eb; margin: 2rem 0; }
+    </style>
+  </head>
+  <body>
+    <p><a href="https://my-slops.github.io/Blog/">← Home</a></p>
+    <article>
+      <h1>Deletion Is a Propagation Problem</h1>
+      <p class="meta">Oct 17, 2026</p>
+      <ul class="tags"><li>ai agents</li><li>data engineering</li><li>reliability</li><li>security</li><li>api design</li></ul>
+      <h2>TL;DR</h2>
+<p>Deleting a customer document from the database is not the same thing as making it unavailable to an agent. The document may already have chunks in a retrieval index, a response in a cache, an export in object storage, and text in an active run&#39;s context.</p>
+<p>Treat deletion as a propagation workflow with a durable identity. First prevent new retrieval. Then remove or invalidate each representation that is in scope. Finally, report the result as evidence—not as a cheerful boolean returned by the source database.</p>
+<h2>Context</h2>
+<p>An employee asks an internal assistant, “Summarize the pricing exception in the Acme renewal.” The assistant retrieves a CRM note, sends excerpts to a model, and returns an answer.</p>
+<p>Ten minutes later, the note is deleted. The source query now returns <code>404</code>. The team declares the problem solved.</p>
+<p>Maybe it is. But a second agent may still retrieve an old chunk from a vector index. A cached search result may still point to the note. A batch re-indexer might reintroduce it from an export. The first agent&#39;s already-running task may still have the text in memory.</p>
+<p>None of these possibilities means that deletion is futile. They mean that a source-row deletion is one state transition in a larger system. Calling it a complete erasure guarantee before the dependent systems have converged is an API lie.</p>
+<p>HTTP makes a useful, deliberately limited version of this distinction. <code>DELETE</code> requests removal of a resource&#39;s association at the origin; it does not promise that every representation has been destroyed or that storage has been reclaimed. And even cache invalidation only affects the caches a state-changing request travels through—not every cache globally. <a href="https://www.rfc-editor.org/rfc/rfc9110.html#section-9.3.5">RFC 9110</a> <a href="https://www.rfc-editor.org/rfc/rfc9111.html#section-4.4">RFC 9111</a></p>
+<p>An agent architecture adds more representations, so it needs a more explicit deletion contract.</p>
+<h2>Key Points</h2>
+<h3>Start with access, not physical erasure</h3>
+<p>The first useful promise is often: “no new agent run may retrieve this item.” That is an access decision, and it should not wait for every asynchronous cleanup job.</p>
+<p>Put a tombstone or lifecycle state at the retrieval boundary, keyed by a stable content identity. Every retrieval path—direct record lookup, keyword search, vector search, cached answer lookup, and batch export—must check it before returning content.</p>
+<pre><code class="language-text">content id: doc_482
+
+source record        -&gt; deleted
+retrieval policy     -&gt; deny doc_482 immediately
+vector chunks        -&gt; cleanup pending
+edge cache           -&gt; invalidation requested
+offline export       -&gt; scheduled for expiry
+active run           -&gt; cannot be retroactively un-read
+</code></pre>
+<p>This is more reliable than assuming that every representation can be removed synchronously. It also expresses the property a user usually needs first: the item does not continue to enter new model contexts.</p>
+<p>The distinction matters for authorization. A deleted source record is not a sufficient guard if a retrieval service can answer from an index without consulting the source. Give the retrieval service a current eligibility check or an index-side tombstone; do not let “fast path” mean “bypass the deletion policy.”</p>
+<h3>Inventory representations before you promise a deletion SLA</h3>
+<p>“We delete data after 30 days” is not a technical commitment until the team can name <em>where</em> the data can reside and which deadline applies to each place.</p>
+<p>For an agent system, the inventory commonly includes:</p>
+<ul>
+<li>canonical records and attachments;</li>
+<li>derived chunks, embeddings, and search metadata;</li>
+<li>caches, rendered previews, and generated summaries;</li>
+<li>queues, retry payloads, and dead-letter storage;</li>
+<li>analytics, support exports, and backups; and</li>
+<li>active requests and provider-side retention governed by that provider&#39;s contract.</li>
+</ul>
+<p>These are not all equivalent. Removing an embedding may require deleting all chunks derived from a source version. A backup may be intentionally immutable until expiry. A model request that has already crossed a provider boundary may be governed by a different retention and deletion interface. Treat those distinctions as product constraints, not awkward details to hide behind one <code>deleted_at</code> field.</p>
+<p>This is an architectural inventory, not a claim that every system needs instantaneous, global sanitization. The appropriate goal depends on data sensitivity, contractual commitments, legal requirements, and how much control you have over each store.</p>
+<h3>A deletion request needs a result model</h3>
+<p>Avoid an endpoint that returns <code>204 No Content</code> and leaves callers to infer whether the record disappeared everywhere. Return an operation identity when cleanup can be asynchronous, just as you would for an import or deployment.</p>
+<pre><code class="language-ts">type DeletionOperation = {
+  id: string;
+  contentId: string;
+  retrievalBlockedAt: string;
+  representations: Array&lt;{
+    kind: &quot;source&quot; | &quot;vector_index&quot; | &quot;cache&quot; | &quot;queue&quot; | &quot;export&quot; | &quot;backup&quot;;
+    state: &quot;removed&quot; | &quot;invalidated&quot; | &quot;pending&quot; | &quot;expires_on&quot; | &quot;out_of_scope&quot; | &quot;failed&quot;;
+    detail?: string;
+  }&gt;;
+  completedAt?: string;
+};
+
+async function requestDeletion(contentId: string) {
+  await retrievalPolicy.block(contentId); // must happen before async fan-out
+
+  return deletionOperations.create({
+    contentId,
+    work: [&quot;remove-source&quot;, &quot;remove-chunks&quot;, &quot;invalidate-caches&quot;, &quot;expire-exports&quot;]
+  });
+}
+</code></pre>
+<p>The names are illustrative. The ordering is the point: block future access before cleanup begins, and retain enough per-representation status to make the final statement honest.</p>
+<p>There is a valuable difference between <code>invalidated</code>, <code>removed</code>, and <code>expires_on</code>. Invalidated means a system must re-check before serving. Removed means the specified representation no longer exists in that store. <code>expires_on</code> means it is intentionally retained until a declared lifecycle boundary. Collapsing these into <code>deleted: true</code> is convenient for dashboards and useless in an incident.</p>
+<h3>Verify the claim you plan to make</h3>
+<p>A cleanup job that reported success is evidence of an attempt, not necessarily evidence that every target was covered. Verification should match the promise.</p>
+<p>For example:</p>
+<ol>
+<li>Attempt retrieval by source ID, keyword, and vector query; none should return the blocked content after the access barrier is active.</li>
+<li>Inspect the deletion operation for every representation that is in its stated scope.</li>
+<li>Test re-indexing from the authoritative source and confirm it does not recreate blocked chunks.</li>
+<li>Exercise a retry after a worker crash; it must converge on the same deletion operation rather than creating an ambiguous second cleanup.</li>
+<li>Report residual lifecycle states—such as immutable backup expiry—rather than quietly calling them complete.</li>
+</ol>
+<p>The broader discipline has an established analogue in media sanitization: NIST distinguishes verifying that a sanitization technique completed from validating that its outcome is adequate. The mechanism is very different for a distributed application, but the standard&#39;s underlying lesson transfers: an action record is not the same thing as assurance that the target was handled. <a href="https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-88r2.pdf">NIST SP 800-88 Rev. 2</a></p>
+<h3>Do not over-promise about in-flight work</h3>
+<p>Some copies cannot be recalled. If a user message containing a document was already sent to a model, deleting the source record cannot make that earlier request un-happen. If an analyst already exported data under an authorized process, a source delete does not erase their local copy.</p>
+<p>That is not an argument to abandon deletion. It is an argument to state the boundary precisely: block future retrieval immediately; cancel queued work where supported; record active work that may have received the material; and follow the retention contract of each external processor.</p>
+<p>The same honesty appears in <a href="https://my-slops.github.io/Blog/posts/2026/10/what-cancel-means-after-an-agent-starts-work/">What &quot;Cancel&quot; Means After an Agent Starts Work</a>. Stopping future orchestration and undoing a completed external effect are separate operations. Deletion has the same shape.</p>
+<h2>Steps / Code</h2>
+<p>Review an agent system&#39;s deletion path with this checklist:</p>
+<ol>
+<li>Assign every ingestible document a stable source ID and version; carry both into chunks, embeddings, caches, and jobs.</li>
+<li>Identify every read path that can return the content without reading the canonical source.</li>
+<li>Make each read path check an authoritative eligibility policy or a promptly replicated tombstone.</li>
+<li>Fan out cleanup using one idempotent deletion operation, not a collection of unrelated best-effort tasks.</li>
+<li>Give each representation a declared state and deadline.</li>
+<li>Test a re-index, retry, restore, and cache hit after deletion—not only the source database query.</li>
+<li>Make the user-facing result say which guarantee is complete and which lifecycle work remains.</li>
+</ol>
+<h2>Trade-offs</h2>
+<p>An eligibility check adds latency and operational coupling to retrieval. A replicated tombstone reduces that coupling but introduces propagation lag and another store to operate. Synchronous cleanup gives a simpler-looking response but can turn a routine delete into a slow, fragile distributed transaction.</p>
+<p>For low-sensitivity internal content, a source delete plus ordinary cache expiry may be an acceptable contract. For sensitive or regulated data, that is usually too vague: the system needs a stricter inventory, faster access blocking, evidence of cleanup, and explicit limits around backups and third-party processors.</p>
+<p>Do not use this model to promise impossible erasure. Use it to prevent the more common failure: a system promises completion when it has only changed the first database row.</p>
+<h2>References</h2>
+<ul>
+<li>IETF, <a href="https://www.rfc-editor.org/rfc/rfc9110.html#section-9.3.5">RFC 9110: HTTP Semantics, <code>DELETE</code></a></li>
+<li>IETF, <a href="https://www.rfc-editor.org/rfc/rfc9111.html#section-4.4">RFC 9111: HTTP Caching, invalidation</a></li>
+<li>NIST, <a href="https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-88r2.pdf">SP 800-88 Rev. 2: Guidelines for Media Sanitization</a></li>
+<li>This repository, <a href="https://my-slops.github.io/Blog/posts/2026/08/the-cache-key-is-a-privacy-boundary/">The Cache Key Is a Privacy Boundary</a></li>
+<li>This repository, <a href="https://my-slops.github.io/Blog/posts/2026/10/what-cancel-means-after-an-agent-starts-work/">What &quot;Cancel&quot; Means After an Agent Starts Work</a></li>
+</ul>
+<h2>Final Take</h2>
+<p>Deletion is not a database verb with a comforting response code. It is a promise about what the system will no longer serve, where residual copies may still exist, and how it will prove progress.</p>
+<p>Make that promise representation by representation. Your agents will be safer because they cannot keep retrieving content whose source merely <em>looks</em> deleted, and your users will receive a claim the system can actually support.</p>
+<h2>Changelog</h2>
+<ul>
+<li>2026-10-17: Initial publication on deletion propagation in agent retrieval systems.</li>
+</ul>
+
+    </article>
+  </body>
+</html>
