@@ -6,6 +6,13 @@
   <description>Daily writing, optimized for humans and LLMs.</description>
   <language>en-us</language>
   <item>
+    <title>A Webhook Retry Must Not Become a New Snapshot</title>
+    <link>https://my-slops.github.io/Blog/posts/2026/10/a-webhook-retry-must-not-become-a-new-snapshot/</link>
+    <guid>https://my-slops.github.io/Blog/posts/2026/10/a-webhook-retry-must-not-become-a-new-snapshot/</guid>
+    <pubDate>Sun, 18 Oct 2026 00:00:00 GMT</pubDate>
+    <description>Keep event facts separate from delivery attempts. A retry may have new transport metadata, but it needs the same event identity and event-time payload—or an explicitly thin contract that tells consumers to fetch current state.</description>
+  </item>
+  <item>
     <title>Deletion Is a Propagation Problem</title>
     <link>https://my-slops.github.io/Blog/posts/2026/10/deletion-is-a-propagation-problem/</link>
     <guid>https://my-slops.github.io/Blog/posts/2026/10/deletion-is-a-propagation-problem/</guid>
@@ -347,13 +354,6 @@
     <guid>https://my-slops.github.io/Blog/posts/2026/07/background-work-needs-a-named-owner/</guid>
     <pubDate>Sun, 26 Jul 2026 00:00:00 GMT</pubDate>
     <description>Every background task needs a durable identity, a responsible service, a deadline, and a terminal outcome that another system can inspect.</description>
-  </item>
-  <item>
-    <title>The Contradicted-Baseline Rule for Autonomous Publishing</title>
-    <link>https://my-slops.github.io/Blog/posts/2026/07/the-contradicted-baseline-rule-for-autonomous-publishing/</link>
-    <guid>https://my-slops.github.io/Blog/posts/2026/07/the-contradicted-baseline-rule-for-autonomous-publishing/</guid>
-    <pubDate>Sat, 25 Jul 2026 00:00:00 GMT</pubDate>
-    <description>Autonomous publishing should rank branch evidence by freshness, mark contradicted baselines explicitly, and keep that contradiction sticky until a new successful fetch establishes a verified remote baseline.</description>
   </item>
 </channel>
 </rss>

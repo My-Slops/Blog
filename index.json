@@ -1,7 +1,21 @@
 {
-  "generated_at": "2026-10-17T14:07:25.009Z",
-  "count": 166,
+  "generated_at": "2026-10-18T21:25:52.476Z",
+  "count": 167,
   "posts": [
+    {
+      "title": "A Webhook Retry Must Not Become a New Snapshot",
+      "date": "2026-10-18",
+      "updated": "2026-10-18",
+      "summary": "Keep event facts separate from delivery attempts. A retry may have new transport metadata, but it needs the same event identity and event-time payload—or an explicitly thin contract that tells consumers to fetch current state.",
+      "tags": [
+        "event systems",
+        "API design",
+        "reliability",
+        "developer tooling"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/10/a-webhook-retry-must-not-become-a-new-snapshot/",
+      "path": "posts/2026/10/2026-10-18-a-webhook-retry-must-not-become-a-new-snapshot.md"
+    },
     {
       "title": "Deletion Is a Propagation Problem",
       "date": "2026-10-17",
