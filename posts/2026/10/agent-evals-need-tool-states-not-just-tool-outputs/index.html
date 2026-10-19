@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Agent Evals Need Tool States, Not Just Tool Outputs | Blog</title>
+    <meta name="description" content="A tool result is more than data. It carries evidence about coverage, authority, and whether an external effect happened. Build agent eval cases around those states, then grade both the next action and the claim the agent makes to the user." />
+    <link rel="canonical" href="https://my-slops.github.io/Blog/posts/2026/10/agent-evals-need-tool-states-not-just-tool-outputs/" />
+    <style>
+      :root { color-scheme: light dark; }
+      body { font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; line-height: 1.7; max-width: 760px; margin: 40px auto; padding: 0 16px; }
+      a { color: #0a58ca; text-decoration: none; }
+      a:hover { text-decoration: underline; }
+      .meta { color: #666; font-size: 0.95rem; margin-bottom: 1rem; }
+      .tags { display: flex; gap: 0.5rem; list-style: none; padding: 0; margin: 0.75rem 0 1.25rem; flex-wrap: wrap; }
+      .tags li { background: #eef2ff; color: #3730a3; border-radius: 999px; padding: 0.2rem 0.6rem; font-size: 0.8rem; }
+      article h1, article h2, article h3 { line-height: 1.3; }
+      article pre { overflow-x: auto; background: #111827; color: #f9fafb; padding: 0.9rem; border-radius: 8px; }
+      article code { font-family: ui-monospace,SFMono-Regular,Menlo,monospace; }
+      article blockquote { border-left: 4px solid #d1d5db; margin: 1rem 0; padding: 0.2rem 0.9rem; color: #4b5563; }
+      hr { border: 0; border-top: 1px solid #e5e7eb; margin: 2rem 0; }
+    </style>
+  </head>
+  <body>
+    <p><a href="https://my-slops.github.io/Blog/">← Home</a></p>
+    <article>
+      <h1>Agent Evals Need Tool States, Not Just Tool Outputs</h1>
+      <p class="meta">Oct 19, 2026</p>
+      <ul class="tags"><li>ai agents</li><li>evals</li><li>reliability</li><li>developer tooling</li><li>testing</li></ul>
+      <h2>TL;DR</h2>
+<p>Most agent evals make tools unrealistically helpful. Search returns complete results. A write either succeeds or throws before doing anything. Authorization is stable. Network failures are ordinary errors with no ambiguity behind them.</p>
+<p>That tests whether a model can follow the happy path. It does not test the decisions that make an agent safe: whether it distinguishes no matches from incomplete coverage, stops after a policy denial, reconciles a timed-out write, or asks before widening its scope.</p>
+<p>Treat a tool&#39;s operational state as part of the eval input. Then grade two things: the next action the agent chooses and the claim it makes about the result. A fluent answer after incomplete evidence is a failure even if its JSON is valid and its tool call looked reasonable.</p>
+<h2>Context</h2>
+<p>Consider an agent asked to close every expired trial account in a workspace. A tidy eval fixture makes the job look simple:</p>
+<pre><code class="language-json">{
+  &quot;tool&quot;: &quot;accounts.search&quot;,
+  &quot;result&quot;: {
+    &quot;accounts&quot;: [&quot;acct_12&quot;, &quot;acct_17&quot;],
+    &quot;complete&quot;: true
+  }
+}
+</code></pre>
+<p>The agent identifies two accounts, asks for approval, calls <code>accounts.close</code>, and reports success. That is worth testing, but it is the least interesting version of the workflow.</p>
+<p>The production cases that expose its contract look different:</p>
+<table>
+<thead>
+<tr>
+<th>Tool state</th>
+<th>What the agent must decide</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Search returns an empty page from an index lagging by an hour</td>
+<td>Can it say there are no expired accounts?</td>
+</tr>
+<tr>
+<td>Search returns a cursor and a hard page limit</td>
+<td>Should it keep reading, narrow the request, or explain the coverage boundary?</td>
+</tr>
+<tr>
+<td>A close call is denied because its approval expired</td>
+<td>Must it stop rather than retry with a changed target?</td>
+</tr>
+<tr>
+<td>The remote service accepts a close call but the response times out</td>
+<td>Can it safely retry, or must it look up the operation first?</td>
+</tr>
+<tr>
+<td>One account closes and the next call is rate-limited</td>
+<td>What state should it preserve before the run stops?</td>
+</tr>
+</tbody></table>
+<p>The prompt can be identical in all five cases. The correct behavior is not.</p>
+<p>OpenAI&#39;s current guidance frames agent evaluation around end-to-end traces, including model calls, tool calls, guardrails, and handoffs—not merely the final text. <a href="https://developers.openai.com/api/docs/guides/agent-evals/">Evaluate agent workflows</a> and <a href="https://developers.openai.com/api/docs/guides/trace-grading/">trace grading</a> make that distinction explicit. The consequence for test design is practical: tool outcomes need enough structure for an eval to exercise a real workflow branch.</p>
+<h2>Key Points</h2>
+<h3>A tool result has an evidence state, not only a payload</h3>
+<p>An array, a JSON object, or an HTTP status code is not a complete description of what an agent learned. A useful tool contract also reports the conditions under which its data or effect can be trusted.</p>
+<p>For reads, those conditions often include coverage, freshness, scope, pagination, and authorization. For writes, they include whether the request was rejected before dispatch, accepted by the remote system, completed, or left in an unknown state after a lost response.</p>
+<p>That is why the following two results cannot be graded the same way:</p>
+<pre><code class="language-json">{ &quot;matches&quot;: [], &quot;coverage&quot;: &quot;complete&quot;, &quot;asOf&quot;: &quot;2026-10-19T14:00:00Z&quot; }
+</code></pre>
+<pre><code class="language-json">{ &quot;matches&quot;: [], &quot;coverage&quot;: &quot;partial&quot;, &quot;reason&quot;: &quot;index_lag&quot;, &quot;asOf&quot;: &quot;2026-10-19T13:00:00Z&quot; }
+</code></pre>
+<p>The first may support a bounded negative answer. The second supports a much narrower statement: this query found nothing in a known-incomplete view. <a href="https://my-slops.github.io/Blog/posts/2026/10/an-empty-search-result-is-not-evidence-that-nothing-exists/">An Empty Search Result Is Not Evidence That Nothing Exists</a> explores that read-side distinction in detail.</p>
+<p>The same separation matters for writes. A client-side timeout says the client did not receive a result. It does not establish that the server did not receive the request. Treating that state as a generic retry fixture teaches an agent to duplicate effects exactly when it should reconcile first. <a href="https://my-slops.github.io/Blog/posts/2026/09/a-tool-error-is-an-instruction-to-your-agent/">A Tool Error Is an Instruction to Your Agent</a> and <a href="https://my-slops.github.io/Blog/posts/2026/10/what-cancel-means-after-an-agent-starts-work/">What &quot;Cancel&quot; Means After an Agent Starts Work</a> cover the operational boundary; the eval should make the boundary observable.</p>
+<h3>Model the state the runtime can actually expose</h3>
+<p>Do not create a fake universe where every failure is a string called <code>error</code>. The test double does not need to reproduce an entire vendor API, but it should preserve the decisions that matter to the agent.</p>
+<pre><code class="language-ts">type CloseAccountResult =
+  | { state: &quot;completed&quot;; operationId: string; accountId: string }
+  | { state: &quot;denied&quot;; code: &quot;approval_expired&quot; | &quot;not_authorized&quot; }
+  | { state: &quot;not_started&quot;; code: &quot;rate_limited&quot;; retryAfterSeconds: number }
+  | { state: &quot;outcome_unknown&quot;; operationId: string; reason: &quot;response_timeout&quot; };
+
+type SearchAccountsResult = {
+  state: &quot;complete&quot; | &quot;partial&quot; | &quot;forbidden&quot;;
+  accounts?: Array&lt;{ id: string; expiresAt: string }&gt;;
+  nextPage?: string;
+  asOf?: string;
+  reason?: &quot;index_lag&quot; | &quot;page_limit&quot; | &quot;policy_denied&quot;;
+};
+</code></pre>
+<p>These names are illustrative. The important design choice is that a missing result, a denied request, and an uncertain external effect cannot collapse into one branch of a fixture. If the production tool cannot expose this information, that is a tool-contract problem before it is an eval problem.</p>
+<p>For high-impact actions, OWASP recommends binding approval to the exact action and checking it at execution, as well as retaining observed approval, denial, timeout, and circuit-breaker behavior as validation evidence. <a href="https://cheatsheetseries.owasp.org/cheatsheets/AI_Agent_Security_Cheat_Sheet.html">OWASP&#39;s AI Agent Security Cheat Sheet</a> is useful here because it treats those outcomes as control behavior, not decorative telemetry.</p>
+<h3>Grade the recovery decision and the final claim separately</h3>
+<p>An agent can choose a sensible next tool call and still tell the user something false. It can also phrase a careful caveat while silently retrying a write that might already have succeeded. One final-answer score is too coarse for both errors.</p>
+<p>For every non-happy-path case, define two expected assertions:</p>
+<ol>
+<li><strong>Execution assertion:</strong> Which actions are allowed, required, or forbidden next?</li>
+<li><strong>Communication assertion:</strong> What may the agent claim, and what uncertainty must it preserve?</li>
+</ol>
+<p>For example, after <code>outcome_unknown</code>, a good execution assertion may require <code>operations.get(operationId)</code> and forbid another <code>accounts.close</code> call with a new idempotency key. The communication assertion may require: “The close request may have been accepted; I am checking its final status.” It must reject: “The account is still open” or “I closed the account” before evidence exists.</p>
+<p>This is where trace-level grading earns its cost. A grader can inspect the tool sequence and the final user-visible response instead of rewarding an answer that merely contains the word “uncertain.” It also makes a regression diagnosable: did the planner choose a bad retry, did middleware hide a denial, or did the composer overstate a partial search?</p>
+<h3>Use state transitions, not a collection of isolated error snapshots</h3>
+<p>The most valuable cases usually have a before and after. A static <code>429</code> fixture tests whether the agent recognizes rate limiting. A sequence tests whether it loses work:</p>
+<pre><code class="language-text">1. search returns five eligible accounts, complete as of 14:00
+2. close acct_12 completes
+3. close acct_17 returns rate_limited with retryAfterSeconds: 60
+4. the run deadline has 20 seconds remaining
+</code></pre>
+<p>The correct result is not “retry later” in the abstract. It is to record that <code>acct_12</code> completed, refrain from starting work that cannot fit the deadline, and return a resumable outcome for <code>acct_17</code>. An eval that supplies only step 3 cannot tell whether the agent will falsely report the whole batch as failed or forget the completed effect.</p>
+<p>Similarly, test a permission change between steps, not only a permission denial at the first call. A delegated grant may be valid while an agent plans a change and expire before it executes. A useful agent asks for a fresh decision; it does not reuse an old approval, broaden a target, or treat its earlier plan as durable authority. This is the evaluation version of <a href="https://my-slops.github.io/Blog/posts/2026/10/delegation-should-shrink-authority/">Delegation Should Shrink Authority</a>.</p>
+<h3>Start with a small fault matrix tied to real risk</h3>
+<p>You do not need every HTTP code or provider quirk in a model-eval dataset. Begin with the state transitions that would cause the largest wrong effect or the most misleading user claim.</p>
+<table>
+<thead>
+<tr>
+<th>Workflow boundary</th>
+<th>First case to add</th>
+<th>What success means</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Search or retrieval</td>
+<td>empty result with partial coverage</td>
+<td>Agent qualifies the answer or gathers more evidence.</td>
+</tr>
+<tr>
+<td>Pagination or batching</td>
+<td>scope changes before page two</td>
+<td>Agent does not reuse continuation state as permission.</td>
+</tr>
+<tr>
+<td>Approval</td>
+<td>grant expires after preview</td>
+<td>Agent asks for a fresh, parameter-bound decision.</td>
+</tr>
+<tr>
+<td>External write</td>
+<td>response lost after remote acceptance</td>
+<td>Agent reconciles by operation identity before retrying.</td>
+</tr>
+<tr>
+<td>Queue or rate limit</td>
+<td>delay exceeds the task deadline</td>
+<td>Agent stops, records progress, and returns a resumable state.</td>
+</tr>
+<tr>
+<td>Cancellation</td>
+<td>cancellation arrives after dispatch</td>
+<td>Agent distinguishes stopping orchestration from reversing the effect.</td>
+</tr>
+</tbody></table>
+<p>Each case should be reproducible. Version the tool policy, fixture state, model configuration, and expected assertions with the eval. When an incident uncovers a new state transition, add it before changing the prompt. OWASP similarly recommends regression cases for observed tool-abuse and approval failures, rather than treating a one-off fix as proof of safety. <a href="https://cheatsheetseries.owasp.org/cheatsheets/AI_Agent_Security_Cheat_Sheet.html#9-secure-agent-testing--adversarial-validation">OWASP&#39;s testing guidance</a></p>
+<h2>Steps / Code</h2>
+<p>Add the following review to an existing agent eval suite:</p>
+<ol>
+<li>List every tool that can change scope, disclose data, enqueue work, or cause an external effect.</li>
+<li>For each one, write its meaningful terminal and ambiguous states—not just its ideal response body.</li>
+<li>Choose one transition that changes the correct next action: expired approval, partial index, rate limit, cursor mismatch, accepted-but-unconfirmed write, or cancellation after dispatch.</li>
+<li>Encode the tool sequence in the fixture and assert the permitted and forbidden follow-up calls.</li>
+<li>Grade the final response for both truthfulness and actionable next steps.</li>
+<li>Preserve the trace when a case fails, so the team can see whether the fault was in model reasoning, orchestration, policy enforcement, or the tool contract.</li>
+<li>Add production incidents as new state-transition cases, with sanitized fixtures and a clear expected result.</li>
+</ol>
+<p>Avoid grading on one exact chain-of-thought-like transcript. An agent may reach a safe result through different valid read calls or wording. Grade the invariants instead: no unauthorized write, no duplicate uncertain write, no unqualified negative claim after incomplete search, and no success report without a durable result.</p>
+<h2>Trade-offs</h2>
+<p>Stateful fixtures take more work than a static prompt-and-answer dataset. They need a small simulator or deterministic tool double, and over-specifying every intermediate call can make the suite brittle across harmless planner changes.</p>
+<p>That is a reason to keep the matrix focused, not a reason to return to happy-path-only tests. Start where the system crosses an authority boundary, an external write boundary, or an evidence boundary. There, the agent&#39;s ability to recover honestly matters more than whether it chose the shortest path through a clean fixture.</p>
+<p>There is also a boundary to preserve: an eval harness should not become the authorization system. Production middleware must still reject an expired approval or unsafe tool call. The eval&#39;s job is to prove that the agent reacts correctly when that enforcement does its job, and that its user-facing explanation matches the evidence it actually has.</p>
+<h2>References</h2>
+<ul>
+<li>OpenAI, <a href="https://developers.openai.com/api/docs/guides/agent-evals/">Evaluate agent workflows</a></li>
+<li>OpenAI, <a href="https://developers.openai.com/api/docs/guides/trace-grading/">Trace grading</a></li>
+<li>OWASP, <a href="https://cheatsheetseries.owasp.org/cheatsheets/AI_Agent_Security_Cheat_Sheet.html">AI Agent Security Cheat Sheet</a></li>
+<li>This repository, <a href="https://my-slops.github.io/Blog/posts/2026/10/an-empty-search-result-is-not-evidence-that-nothing-exists/">An Empty Search Result Is Not Evidence That Nothing Exists</a></li>
+<li>This repository, <a href="https://my-slops.github.io/Blog/posts/2026/10/what-cancel-means-after-an-agent-starts-work/">What &quot;Cancel&quot; Means After an Agent Starts Work</a></li>
+<li>This repository, <a href="https://my-slops.github.io/Blog/posts/2026/10/a-webhook-retry-must-not-become-a-new-snapshot/">A Webhook Retry Must Not Become a New Snapshot</a></li>
+</ul>
+<h2>Final Take</h2>
+<p>An agent that performs well only when every dependency returns a clean answer is not ready for the environment that gives it authority.</p>
+<p>Put the awkward tool states in the eval: partial evidence, revoked permission, a response that disappeared after dispatch, a deadline that makes the next retry pointless. Then test whether the agent preserves the boundary between what it knows, what it may do next, and what it can honestly tell the user.</p>
+<h2>Changelog</h2>
+<ul>
+<li>2026-10-19: Initial publication on stateful tool outcomes in agent evaluations.</li>
+</ul>
+
+    </article>
+  </body>
+</html>

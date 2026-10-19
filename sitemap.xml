@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url><loc>https://my-slops.github.io/Blog/posts/2026/10/agent-evals-need-tool-states-not-just-tool-outputs/</loc><lastmod>2026-10-19</lastmod></url>
   <url><loc>https://my-slops.github.io/Blog/posts/2026/10/a-webhook-retry-must-not-become-a-new-snapshot/</loc><lastmod>2026-10-18</lastmod></url>
   <url><loc>https://my-slops.github.io/Blog/posts/2026/10/deletion-is-a-propagation-problem/</loc><lastmod>2026-10-17</lastmod></url>
   <url><loc>https://my-slops.github.io/Blog/posts/2026/10/delegation-should-shrink-authority/</loc><lastmod>2026-10-16</lastmod></url>

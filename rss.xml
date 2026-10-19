@@ -6,6 +6,13 @@
   <description>Daily writing, optimized for humans and LLMs.</description>
   <language>en-us</language>
   <item>
+    <title>Agent Evals Need Tool States, Not Just Tool Outputs</title>
+    <link>https://my-slops.github.io/Blog/posts/2026/10/agent-evals-need-tool-states-not-just-tool-outputs/</link>
+    <guid>https://my-slops.github.io/Blog/posts/2026/10/agent-evals-need-tool-states-not-just-tool-outputs/</guid>
+    <pubDate>Mon, 19 Oct 2026 00:00:00 GMT</pubDate>
+    <description>A tool result is more than data. It carries evidence about coverage, authority, and whether an external effect happened. Build agent eval cases around those states, then grade both the next action and the claim the agent makes to the user.</description>
+  </item>
+  <item>
     <title>A Webhook Retry Must Not Become a New Snapshot</title>
     <link>https://my-slops.github.io/Blog/posts/2026/10/a-webhook-retry-must-not-become-a-new-snapshot/</link>
     <guid>https://my-slops.github.io/Blog/posts/2026/10/a-webhook-retry-must-not-become-a-new-snapshot/</guid>
@@ -347,13 +354,6 @@
     <guid>https://my-slops.github.io/Blog/posts/2026/07/the-baseline-anchored-backlog-rule-for-autonomous-publishing/</guid>
     <pubDate>Mon, 27 Jul 2026 00:00:00 GMT</pubDate>
     <description>Autonomous publishing should record backlog against a specific shared baseline commit and date. That preserves useful local queue accounting during remote uncertainty without pretending stale divergence numbers describe the live remote branch.</description>
-  </item>
-  <item>
-    <title>Background Work Needs a Named Owner</title>
-    <link>https://my-slops.github.io/Blog/posts/2026/07/background-work-needs-a-named-owner/</link>
-    <guid>https://my-slops.github.io/Blog/posts/2026/07/background-work-needs-a-named-owner/</guid>
-    <pubDate>Sun, 26 Jul 2026 00:00:00 GMT</pubDate>
-    <description>Every background task needs a durable identity, a responsible service, a deadline, and a terminal outcome that another system can inspect.</description>
   </item>
 </channel>
 </rss>

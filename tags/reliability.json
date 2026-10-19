@@ -1,7 +1,22 @@
 {
   "tag": "reliability",
-  "count": 111,
+  "count": 112,
   "posts": [
+    {
+      "title": "Agent Evals Need Tool States, Not Just Tool Outputs",
+      "date": "2026-10-19",
+      "updated": "2026-10-19",
+      "summary": "A tool result is more than data. It carries evidence about coverage, authority, and whether an external effect happened. Build agent eval cases around those states, then grade both the next action and the claim the agent makes to the user.",
+      "tags": [
+        "ai agents",
+        "evals",
+        "reliability",
+        "developer tooling",
+        "testing"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/10/agent-evals-need-tool-states-not-just-tool-outputs/",
+      "path": "posts/2026/10/2026-10-19-agent-evals-need-tool-states-not-just-tool-outputs.md"
+    },
     {
       "title": "A Webhook Retry Must Not Become a New Snapshot",
       "date": "2026-10-18",
