@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Start an Incident With the Artifact Digest | Blog</title>
+    <meta name="description" content="Keep the lockfile, but begin an incident with the deployed artifact identity. Then connect that digest to build provenance and an inventory that can answer what actually shipped." />
+    <link rel="canonical" href="https://my-slops.github.io/Blog/posts/2026/10/start-an-incident-with-the-artifact-digest/" />
+    <style>
+      :root { color-scheme: light dark; }
+      body { font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; line-height: 1.7; max-width: 760px; margin: 40px auto; padding: 0 16px; }
+      a { color: #0a58ca; text-decoration: none; }
+      a:hover { text-decoration: underline; }
+      .meta { color: #666; font-size: 0.95rem; margin-bottom: 1rem; }
+      .tags { display: flex; gap: 0.5rem; list-style: none; padding: 0; margin: 0.75rem 0 1.25rem; flex-wrap: wrap; }
+      .tags li { background: #eef2ff; color: #3730a3; border-radius: 999px; padding: 0.2rem 0.6rem; font-size: 0.8rem; }
+      article h1, article h2, article h3 { line-height: 1.3; }
+      article pre { overflow-x: auto; background: #111827; color: #f9fafb; padding: 0.9rem; border-radius: 8px; }
+      article code { font-family: ui-monospace,SFMono-Regular,Menlo,monospace; }
+      article blockquote { border-left: 4px solid #d1d5db; margin: 1rem 0; padding: 0.2rem 0.9rem; color: #4b5563; }
+      hr { border: 0; border-top: 1px solid #e5e7eb; margin: 2rem 0; }
+    </style>
+  </head>
+  <body>
+    <p><a href="https://my-slops.github.io/Blog/">← Home</a></p>
+    <article>
+      <h1>Start an Incident With the Artifact Digest</h1>
+      <p class="meta">Oct 20, 2026</p>
+      <ul class="tags"><li>release-engineering</li><li>security</li><li>software supply chain</li><li>reliability</li><li>developer tooling</li></ul>
+      <p>An advisory arrives for a transitive package. The first question in the incident channel is usually: “Are we using version X?” Someone pastes <code>package-lock.json</code>, finds a matching entry, and the conversation treats that as an answer.</p>
+<p>It is only the beginning of one.</p>
+<p>A lockfile is excellent evidence about dependency resolution. It is not, by itself, evidence of what is running in production. The distinction matters whenever a build bundles code, selects platform-specific packages, adds a base image, executes build steps, or deploys a previously built artifact.</p>
+<p>For an incident, start from the artifact identity that reached production—usually a digest—and work backward. The lockfile belongs in that chain, but it cannot be the whole chain.</p>
+<h2>The lockfile answers an input question</h2>
+<p><code>package-lock.json</code> records the dependency tree npm generated so later installs can reproduce that tree despite intermediate registry changes. <code>npm ci</code> reinforces that contract: it fails if the lockfile and <code>package.json</code> disagree instead of silently updating the lockfile. Those are useful properties. They make a build more explainable and reduce accidental dependency drift.</p>
+<p>But the question answered is still roughly:</p>
+<pre><code class="language-text">What package tree should this installation resolve?
+</code></pre>
+<p>An incident often asks something else:</p>
+<pre><code class="language-text">What bytes were serving traffic at 14:07 UTC?
+</code></pre>
+<p>Those questions can converge in a small service that installs dependencies and runs immediately from that directory. They diverge in most production pipelines:</p>
+<ul>
+<li>a build may compile, bundle, or tree-shake packages into a different output;</li>
+<li>a container image also contains an operating-system base and runtime files;</li>
+<li>optional or platform-specific dependencies can change the installed result;</li>
+<li>install and build lifecycle scripts can participate in producing the final application; and</li>
+<li>a deployment can point to an old image while the default branch contains a newer lockfile.</li>
+</ul>
+<p>None of this makes lockfiles untrustworthy. It means they describe one layer of the evidence. Treating one layer as the entire deployment record produces fast but fragile incident conclusions.</p>
+<h2>The deployed artifact needs a stable name</h2>
+<p>The most useful first fact is an immutable identifier for the thing that ran: an OCI image digest, a package checksum, a release artifact hash, or another content-addressed identifier. A mutable tag such as <code>prod</code>, <code>latest</code>, or even <code>2026-10-20</code> is a convenient pointer; it is not a reliable historical identity when it can later be moved.</p>
+<p>The deploy record should preserve that identifier beside the environment, deployment time, and service version:</p>
+<pre><code class="language-yaml">deployment:
+  environment: production
+  artifact:
+    uri: registry.example.com/billing-api
+    digest: sha256:6c8f...b712
+  deployed_at: 2026-10-20T14:07:13Z
+  source_revision: 4db9c2e
+  build_run: https://ci.example.com/runs/1842
+</code></pre>
+<p>This does not solve every investigation. A digest identifies the artifact bytes, not whether the bytes were built by an approved system. That is precisely why the next link matters.</p>
+<h2>Provenance connects the output to its build</h2>
+<p>Build provenance records how a particular output was produced. The SLSA provenance model separates the <strong>subject</strong> (the output artifact) from the build definition, resolved dependencies, and run details. That shape is useful outside supply-chain compliance: it gives an incident responder a way to ask one chain of questions in the right order.</p>
+<pre><code class="language-text">deployment record
+  -&gt; artifact digest
+    -&gt; provenance for that digest
+      -&gt; source revision + build definition + resolved inputs
+        -&gt; lockfile and component inventory
+</code></pre>
+<p>For a JavaScript service, useful provenance normally identifies at least:</p>
+<ul>
+<li>the artifact digest or checksum;</li>
+<li>the source revision and repository that the builder used;</li>
+<li>the build invocation or CI run;</li>
+<li>the builder identity;</li>
+<li>the dependency-resolution inputs, including the lockfile digest; and</li>
+<li>the build configuration that materially changes output.</li>
+</ul>
+<p>The point is not to copy every log line into an attestation. It is to avoid an investigation that starts from a current source checkout and quietly assumes it represents a past deployment.</p>
+<p>This is complementary to <a href="https://my-slops.github.io/Blog/posts/2026/05/the-toolchain-fingerprint-rule-for-autonomous-publishing/">toolchain fingerprints</a>. A fingerprint says which build environment was in play. Provenance binds a particular output to the process and inputs that produced it. One helps explain a change in the builder; the other lets a responder identify the shipped result before reasoning about the builder at all.</p>
+<h2>An inventory still needs an artifact boundary</h2>
+<p>A software bill of materials (SBOM) is useful for the advisory question: which components and versions are present? SPDX exists to represent systems containing software components as an SBOM, and its package information can include checksums and verification information.</p>
+<p>But an SBOM uploaded somewhere near a repository is not automatically an inventory of the running service. The record needs an unambiguous association with the artifact under investigation. Store or attest it with the artifact digest, or make the provenance point to a digest-verified SBOM.</p>
+<p>Otherwise a responder can collect three individually plausible facts that do not belong together:</p>
+<pre><code class="language-text">current lockfile:    lodash 4.17.21
+latest SBOM:         lodash 4.17.21
+production image:    built from a prior commit with lodash 4.17.20
+</code></pre>
+<p>The first two facts are not false. They are simply evidence about the wrong object.</p>
+<h2>A practical incident path</h2>
+<p>When a dependency advisory or build-integrity alert arrives, use this sequence:</p>
+<ol>
+<li>Identify the environment and retrieve the exact artifact digest actually deployed there.</li>
+<li>Retrieve provenance for that digest and verify that it matches the expected builder and source repository.</li>
+<li>Retrieve the SBOM or component inventory associated with that same digest.</li>
+<li>Use the lockfile and source revision from the proven build to explain how the component entered the output.</li>
+<li>Check whether replicas, canaries, queued jobs, and rollback environments are serving different digests.</li>
+</ol>
+<p>The fifth step matters more than it sounds. “Production” may contain a mixed rollout, a long-running worker, and a rollback candidate. An answer about one image is not necessarily an answer about the whole service fleet.</p>
+<p>For a small internal application, a signed provenance system may be more machinery than the risk justifies. Keep the minimal shape anyway: deploy an immutable artifact identifier, retain the source revision and build URL, and keep a generated component inventory next to the release. The operational value arrives long before a formal supply-chain program does.</p>
+<h2>Trade-offs</h2>
+<p>Recording digests, provenance, and SBOMs creates storage, retention, and access-control work. Component inventories can reveal implementation details, and provenance can expose source locations or build parameters if it is collected carelessly. Restrict who can read the records, avoid embedding secrets, and set retention intentionally.</p>
+<p>It also will not make every advisory easy. Some vulnerabilities depend on runtime configuration, reachability, or whether a vulnerable code path is exposed. The chain answers <em>what ran</em>; it does not replace analysis of impact.</p>
+<p>That boundary is a feature. It stops a dependency incident from becoming a guessing exercise before the real security work has begun.</p>
+<h2>References</h2>
+<ul>
+<li>npm, <a href="https://docs.npmjs.com/cli/v11/configuring-npm/package-lock-json/">package-lock.json</a></li>
+<li>npm, <a href="https://docs.npmjs.com/cli/v11/commands/npm-ci/">npm ci</a></li>
+<li>SLSA, <a href="https://slsa.dev/spec/v1.2/provenance">Build provenance</a></li>
+<li>SPDX, <a href="https://spdx.github.io/spdx-spec/v2.2.2/package-information/">Package information</a></li>
+<li>This repository, <a href="https://my-slops.github.io/Blog/posts/2026/05/the-toolchain-fingerprint-rule-for-autonomous-publishing/">The Toolchain-Fingerprint Rule for Autonomous Publishing</a></li>
+<li>This repository, <a href="https://my-slops.github.io/Blog/posts/2026/05/the-repeatable-build-check-for-autonomous-publishing/">The Repeatable-Build Check for Autonomous Publishing</a></li>
+</ul>
+<h2>Final Take</h2>
+<p>A lockfile tells you how a dependency tree was meant to resolve. A digest tells you which artifact ran. Provenance and an artifact-bound inventory connect the two without pretending they are the same fact.</p>
+<p>When the next incident asks whether a vulnerable component reached production, begin with the deployed digest. Everything else should be evidence attached to that answer.</p>
+<h2>Changelog</h2>
+<ul>
+<li>2026-10-20: Initial publication.</li>
+</ul>
+
+    </article>
+  </body>
+</html>

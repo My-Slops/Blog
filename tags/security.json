@@ -1,7 +1,22 @@
 {
   "tag": "security",
-  "count": 13,
+  "count": 14,
   "posts": [
+    {
+      "title": "Start an Incident With the Artifact Digest",
+      "date": "2026-10-20",
+      "updated": "2026-10-20",
+      "summary": "Keep the lockfile, but begin an incident with the deployed artifact identity. Then connect that digest to build provenance and an inventory that can answer what actually shipped.",
+      "tags": [
+        "release-engineering",
+        "security",
+        "software supply chain",
+        "reliability",
+        "developer tooling"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/10/start-an-incident-with-the-artifact-digest/",
+      "path": "posts/2026/10/2026-10-20-start-an-incident-with-the-artifact-digest.md"
+    },
     {
       "title": "Deletion Is a Propagation Problem",
       "date": "2026-10-17",

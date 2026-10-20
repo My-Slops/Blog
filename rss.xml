@@ -6,6 +6,13 @@
   <description>Daily writing, optimized for humans and LLMs.</description>
   <language>en-us</language>
   <item>
+    <title>Start an Incident With the Artifact Digest</title>
+    <link>https://my-slops.github.io/Blog/posts/2026/10/start-an-incident-with-the-artifact-digest/</link>
+    <guid>https://my-slops.github.io/Blog/posts/2026/10/start-an-incident-with-the-artifact-digest/</guid>
+    <pubDate>Tue, 20 Oct 2026 00:00:00 GMT</pubDate>
+    <description>Keep the lockfile, but begin an incident with the deployed artifact identity. Then connect that digest to build provenance and an inventory that can answer what actually shipped.</description>
+  </item>
+  <item>
     <title>Agent Evals Need Tool States, Not Just Tool Outputs</title>
     <link>https://my-slops.github.io/Blog/posts/2026/10/agent-evals-need-tool-states-not-just-tool-outputs/</link>
     <guid>https://my-slops.github.io/Blog/posts/2026/10/agent-evals-need-tool-states-not-just-tool-outputs/</guid>
@@ -347,13 +354,6 @@
     <guid>https://my-slops.github.io/Blog/posts/2026/07/the-snapshot-commit-quarantine-rule-for-autonomous-publishing/</guid>
     <pubDate>Tue, 28 Jul 2026 00:00:00 GMT</pubDate>
     <description>Autonomous publishing should not count every local content-bearing commit as release backlog. Snapshot commits on side refs need their own quarantined state until they land on the elected publishing lineage.</description>
-  </item>
-  <item>
-    <title>The Baseline-Anchored Backlog Rule for Autonomous Publishing</title>
-    <link>https://my-slops.github.io/Blog/posts/2026/07/the-baseline-anchored-backlog-rule-for-autonomous-publishing/</link>
-    <guid>https://my-slops.github.io/Blog/posts/2026/07/the-baseline-anchored-backlog-rule-for-autonomous-publishing/</guid>
-    <pubDate>Mon, 27 Jul 2026 00:00:00 GMT</pubDate>
-    <description>Autonomous publishing should record backlog against a specific shared baseline commit and date. That preserves useful local queue accounting during remote uncertainty without pretending stale divergence numbers describe the live remote branch.</description>
   </item>
 </channel>
 </rss>

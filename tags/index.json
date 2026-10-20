@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-19T14:06:37.598Z",
+  "generated_at": "2026-10-20T15:54:34.950Z",
   "tags": [
     {
       "tag": "accessibility",
@@ -153,7 +153,7 @@
     },
     {
       "tag": "developer tooling",
-      "count": 20,
+      "count": 21,
       "url": "https://my-slops.github.io/Blog/tags/developer tooling.json"
     },
     {
@@ -353,12 +353,12 @@
     },
     {
       "tag": "release-engineering",
-      "count": 21,
+      "count": 22,
       "url": "https://my-slops.github.io/Blog/tags/release-engineering.json"
     },
     {
       "tag": "reliability",
-      "count": 112,
+      "count": 113,
       "url": "https://my-slops.github.io/Blog/tags/reliability.json"
     },
     {
@@ -388,7 +388,7 @@
     },
     {
       "tag": "security",
-      "count": 13,
+      "count": 14,
       "url": "https://my-slops.github.io/Blog/tags/security.json"
     },
     {
@@ -400,6 +400,11 @@
       "tag": "software maintenance",
       "count": 1,
       "url": "https://my-slops.github.io/Blog/tags/software maintenance.json"
+    },
+    {
+      "tag": "software supply chain",
+      "count": 1,
+      "url": "https://my-slops.github.io/Blog/tags/software supply chain.json"
     },
     {
       "tag": "sre",
