@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-20T15:55:54.067Z",
+  "generated_at": "2026-10-21T14:31:35.582Z",
   "tags": [
     {
       "tag": "accessibility",
@@ -138,7 +138,7 @@
     },
     {
       "tag": "databases",
-      "count": 3,
+      "count": 4,
       "url": "https://my-slops.github.io/Blog/tags/databases.json"
     },
     {
@@ -148,7 +148,7 @@
     },
     {
       "tag": "deployment",
-      "count": 11,
+      "count": 12,
       "url": "https://my-slops.github.io/Blog/tags/deployment.json"
     },
     {
@@ -358,7 +358,7 @@
     },
     {
       "tag": "reliability",
-      "count": 113,
+      "count": 114,
       "url": "https://my-slops.github.io/Blog/tags/reliability.json"
     },
     {
@@ -398,7 +398,7 @@
     },
     {
       "tag": "software maintenance",
-      "count": 1,
+      "count": 2,
       "url": "https://my-slops.github.io/Blog/tags/software maintenance.json"
     },
     {
@@ -418,7 +418,7 @@
     },
     {
       "tag": "testing",
-      "count": 9,
+      "count": 10,
       "url": "https://my-slops.github.io/Blog/tags/testing.json"
     },
     {

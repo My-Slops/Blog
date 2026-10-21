@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mixed-Version Deploys Are the Real Migration Test | Blog</title>
+    <meta name="description" content="A green migration against one freshly deployed application version misses the risky interval. Define the rollout states that can coexist, test reads and writes in each state, then remove compatibility only after the old paths are truly gone." />
+    <link rel="canonical" href="https://my-slops.github.io/Blog/posts/2026/10/mixed-version-deploys-are-the-real-migration-test/" />
+    <style>
+      :root { color-scheme: light dark; }
+      body { font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; line-height: 1.7; max-width: 760px; margin: 40px auto; padding: 0 16px; }
+      a { color: #0a58ca; text-decoration: none; }
+      a:hover { text-decoration: underline; }
+      .meta { color: #666; font-size: 0.95rem; margin-bottom: 1rem; }
+      .tags { display: flex; gap: 0.5rem; list-style: none; padding: 0; margin: 0.75rem 0 1.25rem; flex-wrap: wrap; }
+      .tags li { background: #eef2ff; color: #3730a3; border-radius: 999px; padding: 0.2rem 0.6rem; font-size: 0.8rem; }
+      article h1, article h2, article h3 { line-height: 1.3; }
+      article pre { overflow-x: auto; background: #111827; color: #f9fafb; padding: 0.9rem; border-radius: 8px; }
+      article code { font-family: ui-monospace,SFMono-Regular,Menlo,monospace; }
+      article blockquote { border-left: 4px solid #d1d5db; margin: 1rem 0; padding: 0.2rem 0.9rem; color: #4b5563; }
+      hr { border: 0; border-top: 1px solid #e5e7eb; margin: 2rem 0; }
+    </style>
+  </head>
+  <body>
+    <p><a href="https://my-slops.github.io/Blog/">← Home</a></p>
+    <article>
+      <h1>Mixed-Version Deploys Are the Real Migration Test</h1>
+      <p class="meta">Oct 21, 2026</p>
+      <ul class="tags"><li>databases</li><li>deployment</li><li>reliability</li><li>testing</li><li>software maintenance</li></ul>
+      <p>The migration passes in staging. The new application starts. The new column exists. The deploy looks boring.</p>
+<p>Then an old worker claims a job written by the new web tier, or a canary serves new code while most API nodes still run the previous release. The failure is not in the migration file. It is in the version pair that the test environment never created.</p>
+<p>For a rolling deployment, the real unit of compatibility is not a schema or an application version in isolation. It is a pair: <strong>this version of code, operating against this version of data and contracts</strong>. A migration is safe only if every pair that can occur during the rollout is safe enough for the guarantees you make.</p>
+<h2>Context</h2>
+<p>It is tempting to verify a change with one clean path:</p>
+<pre><code class="language-text">old code + old schema
+        -&gt; run migration
+new code + new schema
+</code></pre>
+<p>That path demonstrates that the destination can work. It says little about the journey. Rolling deploys, canaries, queue workers, retries, and rollback all create intermediate states that a fresh environment does not model.</p>
+<p>GitLab&#39;s deployment guidance makes the problem unusually explicit: during an update, new web nodes can enqueue work that old Sidekiq workers execute, and rolling deploys can leave nodes within one group on different versions for a while. Its example also calls out the reverse hazard: an older application can still write while a new schema is already present. <a href="https://docs.gitlab.com/development/multi_version_compatibility/">Their compatibility guide</a> is worth reading because it describes these as ordinary deployment states, not exotic edge cases.</p>
+<p>That observation changes the review question. Instead of asking, “Did the migration succeed?”, ask: “Which versions can exchange data or share storage before we declare this rollout complete?”</p>
+<h2>The compatibility window is a product of deployment order</h2>
+<p>Suppose a service replaces <code>orders.state</code> with a more expressive <code>fulfillment_state</code>.</p>
+<p>The unsafe version is easy to write:</p>
+<pre><code class="language-sql">ALTER TABLE orders RENAME COLUMN state TO fulfillment_state;
+</code></pre>
+<p>The statement may execute without error. But every still-running process that reads or writes <code>state</code> now has a production-only failure mode.</p>
+<p>The safer shape is usually additive first:</p>
+<pre><code class="language-sql">ALTER TABLE orders ADD COLUMN fulfillment_state text;
+</code></pre>
+<p>Then release code that can understand both representations, backfill or dual-write according to an explicit rule, move readers to the new representation, and remove the old column only after the old code and old data paths are no longer reachable.</p>
+<p>That sequence is often called expand and contract. The name is less important than the constraint it preserves: <strong>a deployment step must not invalidate a counterpart that is still allowed to run.</strong> GitLab documents the same three phases—expand, migrate, and contract—and notes that they must be separated when zero-downtime updates need compatibility across releases.</p>
+<p>The exact order is not universal. A small service that stops all workers and accepts a maintenance window has a much smaller compatibility window. A fleet with a canary, asynchronous workers, mobile clients, and a rollback policy has a larger one. Do not copy a multi-release procedure by reflex. Derive it from the versions that can coexist in <em>your</em> system.</p>
+<h2>Test the pairs your rollout permits</h2>
+<p>A practical migration review starts with a small matrix. The entries are not necessarily all required; they are a way to make the deployment assumptions inspectable.</p>
+<table>
+<thead>
+<tr>
+<th>Code or producer</th>
+<th>Schema / consumer / data shape</th>
+<th>Question to test</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Old application</td>
+<td>Expanded schema</td>
+<td>Can old reads and writes continue after the pre-deploy change?</td>
+</tr>
+<tr>
+<td>New application</td>
+<td>Expanded schema with legacy rows</td>
+<td>Does new code interpret old data correctly before backfill finishes?</td>
+</tr>
+<tr>
+<td>Old worker or client</td>
+<td>New message or API shape</td>
+<td>Can it process work emitted by the new producer?</td>
+</tr>
+<tr>
+<td>New application</td>
+<td>Data written during the transition</td>
+<td>Are dual writes, defaults, and backfills internally consistent?</td>
+</tr>
+<tr>
+<td>Rolled-back application</td>
+<td>Data created by new code</td>
+<td>Is rollback supported, blocked, or accompanied by a recovery plan?</td>
+</tr>
+</tbody></table>
+<p>The final row deserves more attention than it usually gets. “We can roll back the deployment” is not a useful promise if the new release has already written records the previous release cannot read. There are valid alternatives: keep the reader backward-compatible, delay irreversible writes, explicitly disable rollback after a cutover, or restore from a known recovery point. What is dangerous is calling rollback safe without choosing one.</p>
+<p>This is related to <a href="https://my-slops.github.io/Blog/posts/2026/09/schema-validation-does-not-prove-a-migration-is-safe/">Schema Validation Does Not Prove a Migration Is Safe</a>, but the concern is different. That post is about a payload&#39;s meaning. The rollout matrix asks whether the systems that are simultaneously allowed to operate can still make correct decisions from the schema and messages they share.</p>
+<h2>A migration test should include old data and old executors</h2>
+<p>Most test databases begin empty and most test queues are drained by the version under test. Both defaults erase the very transition you need to examine.</p>
+<p>For the <code>fulfillment_state</code> change, a representative test has at least these fixtures:</p>
+<pre><code class="language-text">database:
+  - rows with only state
+  - rows with state and fulfillment_state agreeing
+  - rows from a failed or partial backfill
+
+executors:
+  - a previous-release worker consuming a job from the new release
+  - a new-release worker consuming a job emitted before the change
+</code></pre>
+<p>Then make the assertions behavioral. Does the old worker complete, reject visibly, or silently choose a different outcome? Does the new reader preserve the status of legacy orders? If one writer is retried during the backfill, can it overwrite a newer value?</p>
+<p>Do not rely on a schema validator to answer those questions. Validation can show that a document has a permitted shape; it cannot establish that an old process understands a new enum, or that two writers apply the same precedence rule.</p>
+<p>The same principle applies beyond tables. A renamed JSON property, a new queue argument, a cache-format change, and a changed interpretation of an environment variable can all become migration boundaries when independently deployed components exchange them. A green deployment of one service is weak evidence when another version remains a valid participant.</p>
+<h2>Separate compatibility safety from database mechanics</h2>
+<p>Compatibility tests do not replace database-specific operational checks. They answer a different question.</p>
+<p>For example, PostgreSQL documents that adding a column with a constant default can avoid updating every existing row at <code>ALTER TABLE</code> time, while a volatile default can require a lengthy update. It also notes that a new <code>NOT NULL</code> constraint checks existing data immediately. Those facts matter for lock time, load, and sequencing, but a fast DDL statement is not proof that old application code will supply the new value correctly. See the <a href="https://www.postgresql.org/docs/18/ddl-alter.html">PostgreSQL documentation on modifying tables</a>.</p>
+<p>Review both dimensions separately:</p>
+<ol>
+<li><strong>Engine safety:</strong> locks, table rewrites, backfill rate, constraint validation, replica behavior, and recovery.</li>
+<li><strong>Compatibility safety:</strong> every reader, writer, worker, client, and rollback version that can meet during the rollout.</li>
+</ol>
+<p>Conflating them leads to brittle conclusions. “The migration is online” may be true about locks while saying nothing about old workers. “The schema is backward-compatible” may be true for an <code>INSERT</code> while hiding a semantic mismatch in an API response.</p>
+<h2>Make the cutoff an observable condition</h2>
+<p>The contract phase—dropping a field, rejecting an old message shape, deleting a fallback—is a separate production change. It needs evidence that the compatibility window has closed.</p>
+<p>Useful evidence might include:</p>
+<ul>
+<li>the deployment controller reporting no old application revision remains eligible to serve;</li>
+<li>worker queues containing no jobs encoded for the old handler signature;</li>
+<li>mobile or external-client support policy reaching its announced cutoff;</li>
+<li>backfill completion being checked for correctness, not merely job completion; and</li>
+<li>a rollback decision recorded for the new data format.</li>
+</ul>
+<p>This is the migration equivalent of <a href="https://my-slops.github.io/Blog/posts/2026/09/an-api-deprecation-needs-a-removal-test/">An API Deprecation Needs a Removal Test</a>. Keeping a fallback for one release does not prove that it is safe to delete. The removal should be tested against the absence of old consumers and old data paths, not inferred from a calendar date or a successful deploy.</p>
+<p>For a modest application, this need not become a release bureaucracy. A short compatibility note beside the migration can be enough:</p>
+<pre><code class="language-text">Allowed during rollout:
+  app v42 reads old and new rows
+  app v43 writes both fields
+  workers v42 and v43 accept the old job payload
+
+Contract only after:
+  v42 is absent from web and workers
+  old-format jobs are drained or expired
+  legacy rows are verified backfilled
+  rollback to v42 is intentionally retired
+</code></pre>
+<p>The value is not the document. It is the decision that turns an accidental mixed-version period into a designed one.</p>
+<h2>Trade-offs</h2>
+<p>Supporting two representations costs code, tests, observability, and eventually cleanup work. Dual writes can introduce drift if there is no declared source of truth. A long compatibility window can also turn temporary translation logic into permanent architecture.</p>
+<p>That is a reason to bound the window and schedule the contract step, not a reason to pretend the window does not exist. For a tightly coordinated maintenance release, it may be entirely reasonable to stop the world and avoid dual compatibility. State that operational choice explicitly, test the stop and recovery path, and avoid promising rolling rollback semantics that the system does not have.</p>
+<p>The most important boundary is honesty: only test pairs that your rollout actually permits, but test all of them. Inventing impossible combinations wastes time. Omitting ordinary ones creates the kind of incident that a one-version staging deployment can never reveal.</p>
+<h2>References</h2>
+<ul>
+<li>GitLab Docs, <a href="https://docs.gitlab.com/development/multi_version_compatibility/">Backwards compatibility across updates</a></li>
+<li>GitLab Docs, <a href="https://docs.gitlab.com/development/search/advanced_search_migration_styleguide/#multi-version-compatibility">Advanced search migration style guide: multi-version compatibility</a></li>
+<li>PostgreSQL Documentation, <a href="https://www.postgresql.org/docs/18/ddl-alter.html">Modifying tables</a></li>
+<li>This repository, <a href="https://my-slops.github.io/Blog/posts/2026/09/schema-validation-does-not-prove-a-migration-is-safe/">Schema Validation Does Not Prove a Migration Is Safe</a></li>
+<li>This repository, <a href="https://my-slops.github.io/Blog/posts/2026/09/an-api-deprecation-needs-a-removal-test/">An API Deprecation Needs a Removal Test</a></li>
+</ul>
+<h2>Final Take</h2>
+<p>A migration is not finished when the newest code works against the newest schema. It is finished when the combinations your deployment can create are either compatible, deliberately prevented, or given a recovery path.</p>
+<p>Before the next rollout, write down the old and new versions that can still meet. That is the test matrix production will use whether you define it or not.</p>
+<h2>Changelog</h2>
+<ul>
+<li>2026-10-21: Initial publication.</li>
+</ul>
+
+    </article>
+  </body>
+</html>

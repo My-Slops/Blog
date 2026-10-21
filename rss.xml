@@ -6,6 +6,13 @@
   <description>Daily writing, optimized for humans and LLMs.</description>
   <language>en-us</language>
   <item>
+    <title>Mixed-Version Deploys Are the Real Migration Test</title>
+    <link>https://my-slops.github.io/Blog/posts/2026/10/mixed-version-deploys-are-the-real-migration-test/</link>
+    <guid>https://my-slops.github.io/Blog/posts/2026/10/mixed-version-deploys-are-the-real-migration-test/</guid>
+    <pubDate>Wed, 21 Oct 2026 00:00:00 GMT</pubDate>
+    <description>A green migration against one freshly deployed application version misses the risky interval. Define the rollout states that can coexist, test reads and writes in each state, then remove compatibility only after the old paths are truly gone.</description>
+  </item>
+  <item>
     <title>Start an Incident With the Artifact Digest</title>
     <link>https://my-slops.github.io/Blog/posts/2026/10/start-an-incident-with-the-artifact-digest/</link>
     <guid>https://my-slops.github.io/Blog/posts/2026/10/start-an-incident-with-the-artifact-digest/</guid>
@@ -347,13 +354,6 @@
     <guid>https://my-slops.github.io/Blog/posts/2026/07/the-snapshot-stream-identity-rule-for-autonomous-publishing/</guid>
     <pubDate>Wed, 29 Jul 2026 00:00:00 GMT</pubDate>
     <description>Repeated worktree snapshot commits with the same generator pattern should be tracked as a named side stream outside the publish branch. That preserves evidence and keeps backlog, freshness, and reconciliation logic attached to the authoritative lineage.</description>
-  </item>
-  <item>
-    <title>The Snapshot-Commit Quarantine Rule for Autonomous Publishing</title>
-    <link>https://my-slops.github.io/Blog/posts/2026/07/the-snapshot-commit-quarantine-rule-for-autonomous-publishing/</link>
-    <guid>https://my-slops.github.io/Blog/posts/2026/07/the-snapshot-commit-quarantine-rule-for-autonomous-publishing/</guid>
-    <pubDate>Tue, 28 Jul 2026 00:00:00 GMT</pubDate>
-    <description>Autonomous publishing should not count every local content-bearing commit as release backlog. Snapshot commits on side refs need their own quarantined state until they land on the elected publishing lineage.</description>
   </item>
 </channel>
 </rss>

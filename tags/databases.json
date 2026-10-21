@@ -1,7 +1,22 @@
 {
   "tag": "databases",
-  "count": 3,
+  "count": 4,
   "posts": [
+    {
+      "title": "Mixed-Version Deploys Are the Real Migration Test",
+      "date": "2026-10-21",
+      "updated": "2026-10-21",
+      "summary": "A green migration against one freshly deployed application version misses the risky interval. Define the rollout states that can coexist, test reads and writes in each state, then remove compatibility only after the old paths are truly gone.",
+      "tags": [
+        "databases",
+        "deployment",
+        "reliability",
+        "testing",
+        "software maintenance"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/10/mixed-version-deploys-are-the-real-migration-test/",
+      "path": "posts/2026/10/2026-10-21-mixed-version-deploys-are-the-real-migration-test.md"
+    },
     {
       "title": "A Database Backup Is Not a Restore Test",
       "date": "2026-10-04",
