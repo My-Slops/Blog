@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>A CI Event Is a Trust Boundary | Blog</title>
+    <meta name="description" content="A pull-request workflow and a privileged pull-request workflow may look nearly identical in YAML, but they make opposite trust decisions. Keep contributed code and privileged effects in separate planes, and treat handoffs between them as untrusted input." />
+    <link rel="canonical" href="https://my-slops.github.io/Blog/posts/2026/10/a-ci-event-is-a-trust-boundary/" />
+    <style>
+      :root { color-scheme: light dark; }
+      body { font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; line-height: 1.7; max-width: 760px; margin: 40px auto; padding: 0 16px; }
+      a { color: #0a58ca; text-decoration: none; }
+      a:hover { text-decoration: underline; }
+      .meta { color: #666; font-size: 0.95rem; margin-bottom: 1rem; }
+      .tags { display: flex; gap: 0.5rem; list-style: none; padding: 0; margin: 0.75rem 0 1.25rem; flex-wrap: wrap; }
+      .tags li { background: #eef2ff; color: #3730a3; border-radius: 999px; padding: 0.2rem 0.6rem; font-size: 0.8rem; }
+      article h1, article h2, article h3 { line-height: 1.3; }
+      article pre { overflow-x: auto; background: #111827; color: #f9fafb; padding: 0.9rem; border-radius: 8px; }
+      article code { font-family: ui-monospace,SFMono-Regular,Menlo,monospace; }
+      article blockquote { border-left: 4px solid #d1d5db; margin: 1rem 0; padding: 0.2rem 0.9rem; color: #4b5563; }
+      hr { border: 0; border-top: 1px solid #e5e7eb; margin: 2rem 0; }
+    </style>
+  </head>
+  <body>
+    <p><a href="https://my-slops.github.io/Blog/">← Home</a></p>
+    <article>
+      <h1>A CI Event Is a Trust Boundary</h1>
+      <p class="meta">Oct 22, 2026</p>
+      <ul class="tags"><li>github actions</li><li>security</li><li>automation</li><li>developer tooling</li><li>software supply chain</li></ul>
+      <p>A pull request needs an integration test that reads a private package registry. Someone changes the trigger from <code>pull_request</code> to <code>pull_request_target</code>, adds a checkout of the pull request head, and calls the same test command as before.</p>
+<p>The diff can be only a few lines. It can also let a first-time contributor&#39;s <code>package.json</code>, <code>Makefile</code>, test fixture, or build script run with repository credentials.</p>
+<p>That is not an unfortunate GitHub Actions corner case. The event name is part of the security design. It decides the relationship among the workflow definition, the code being handled, the token, the secrets, the cache, and the runner. <strong>A CI event is a trust boundary.</strong></p>
+<h2>The innocent-looking substitution</h2>
+<p>For a forked pull request, GitHub normally treats the contributor&#39;s code as untrusted. With the usual repository settings, a <code>pull_request</code> workflow has a read-only <code>GITHUB_TOKEN</code> and does not receive other secrets. GitHub&#39;s event documentation also notes that repository settings can deliberately relax those restrictions, so they are a default to understand rather than a guarantee to assume. <a href="https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows#pull_request">Events that trigger workflows</a> and <a href="https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-syntax#changing-the-permissions-for-a-forked-repository">workflow syntax</a> describe those rules.</p>
+<p><code>pull_request_target</code> solves a different problem. It runs the workflow from the base repository&#39;s default branch in an elevated trust context, which makes it useful for actions such as applying labels or posting an authenticated status. GitHub documents that it receives the base repository&#39;s token and has access to repository and organization secrets.</p>
+<p>The dangerous move is to combine that privileged context with code from the pull request:</p>
+<pre><code class="language-yaml"># Do not use this shape for untrusted pull requests.
+on: pull_request_target
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+      - run: npm test
+</code></pre>
+<p><code>actions/checkout</code> does not execute code by itself. The next command often does. <code>npm test</code> may load a script from the checkout; installation can run lifecycle scripts; a test runner can consume attacker-controlled configuration. GitHub calls this a common <strong>pwn request</strong> shape and explicitly says that privileged workflows should not check out, build, or run untrusted pull-request code. <a href="https://docs.github.com/en/actions/reference/security/securely-using-pull_request_target">Its security guide for <code>pull_request_target</code></a> is unusually direct on this point.</p>
+<p>The important review question is not, “Does this job use a secret?” It is, “Can any data controlled by this event become executable before the secret-bearing step finishes?” That includes more than an obvious <code>run: ./script.sh</code>.</p>
+<h2>Separate execution from repository effects</h2>
+<p>Most repositories need two kinds of pull-request automation. They should usually be separate jobs or workflows with a visible trust boundary between them.</p>
+<h3>Plane one: evaluate contributed code</h3>
+<p>Use the ordinary pull-request event for linting, tests, and builds of contributed code. Give it no secrets and only the permissions it needs to report its result.</p>
+<pre><code class="language-yaml">name: PR checks
+on: pull_request
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - run: npm ci
+      - run: npm test
+</code></pre>
+<p>This is not a promise that the code is harmless. It is an acknowledgement that it may be hostile, so the environment must be expendable and unable to reach credentials or production-adjacent systems. A self-hosted runner deserves particular skepticism: a read-only GitHub token does not protect network access, mounted files, Docker sockets, or credentials left on the machine.</p>
+<h3>Plane two: perform a narrow trusted effect</h3>
+<p>If the repository needs to add a label, write a comment, or update a check, use a privileged workflow that handles pull-request metadata but does not execute pull-request content.</p>
+<pre><code class="language-yaml">name: PR triage
+on:
+  pull_request_target:
+    types: [opened, reopened, synchronize]
+
+permissions:
+  pull-requests: write
+  contents: read
+
+jobs:
+  label:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Apply default label
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR: ${{ github.event.pull_request.number }}
+        run: gh pr edit &quot;$PR&quot; --add-label needs-review
+</code></pre>
+<p>The second workflow uses the base branch&#39;s reviewed workflow code and operates on an identifier from the event. It never checks out the contributor&#39;s repository, downloads its build artifact, or interpolates a title, branch name, or comment into a shell command. The distinction is more valuable than the exact YAML: <strong>privileged automation may inspect untrusted data, but it must not mistake that data for a program.</strong></p>
+<h2>Approval changes who reviewed the change, not what the runner can execute</h2>
+<p>A tempting compromise is “we only run the privileged workflow after approval.” That can be sensible for a deliberately designed human gate, but approval is not a general sanitizer for a repository checkout.</p>
+<p>Approval answers a social question: did an authorized person decide this contribution may proceed? It does not make every transitive tool invocation, dependency hook, test fixture, or generated file safe to execute with long-lived credentials. It also has a time dimension: a pull request can change after a review, and the approval needs to be bound to the reviewed commit and the exact action it authorizes.</p>
+<p>This is the same distinction behind <a href="https://my-slops.github.io/Blog/posts/2026/10/a-feature-flag-is-not-an-authorization-check/">A Feature Flag Is Not an Authorization Check</a>. A control that makes a path visible or convenient is not automatically the control that grants a particular effect. If privileged execution of contributed code is truly unavoidable, define a separate, commit-bound approval process, use isolated ephemeral compute, minimize credentials, and document why the ordinary untrusted plane cannot do the job. Treat it as an exception with an owner, not a replacement trigger copied into every workflow.</p>
+<h2>An artifact is not a safe bridge by default</h2>
+<p>Splitting workflows does not make every handoff safe. A common pattern runs tests on <code>pull_request</code>, uploads an artifact, then uses <code>workflow_run</code> to download it and post a privileged comment or publish a result. The receiving workflow can have access to secrets and a write token.</p>
+<p>The producer can also have created the artifact. GitHub explicitly warns that artifacts uploaded by another workflow must be treated as untrusted data when the source can be a forked pull request. Downloading a report is not automatically dangerous; executing it, extracting it into a privileged working directory, or trusting fields inside it to select a command can be.</p>
+<p>Use a narrow, declarative handoff instead. For example, an untrusted test can emit a fixed-format JSON result with a schema version, commit SHA, and bounded test names. The trusted workflow should validate that shape, bind the result to the expected pull request and commit, and render it as data. It should not download an archive and invoke a contributor-supplied <code>publish.sh</code> because the archive came from a job called “test.”</p>
+<pre><code class="language-text">untrusted job:
+  execute PR code
+  -&gt; produce: { schema: 1, sha: &lt;expected&gt;, passed: true, suites: [...] }
+
+trusted job:
+  verify schema, size limits, and expected SHA
+  -&gt; use fixed repository code to post a status
+</code></pre>
+<p>The boundary is about provenance <em>and</em> interpretation. A digest can show which bytes arrived. It cannot make their contents trustworthy or decide which parser, command, or destination is safe. That is a useful complement to <a href="https://my-slops.github.io/Blog/posts/2026/10/start-an-incident-with-the-artifact-digest/">Start an Incident With the Artifact Digest</a>: identify the artifact that ran, then also preserve the trust context in which it was allowed to run.</p>
+<h2>Review a workflow as a chain of authority</h2>
+<p>When a CI change introduces a new event, a secret, or a checkout reference, trace this short chain:</p>
+<ol>
+<li><strong>Who can cause this event?</strong> A maintainer push, an external contributor, a bot, a comment author, or another workflow are different principals.</li>
+<li><strong>Which workflow definition runs?</strong> Is it reviewed base-branch YAML or code supplied by the contribution?</li>
+<li><strong>What code or data enters the runner?</strong> Include repositories, artifacts, caches, dependency manifests, configuration, branch names, and comments.</li>
+<li><strong>What can it reach?</strong> List token scopes, secrets, network routes, cloud identities, shared caches, and runner-local state.</li>
+<li><strong>Where can untrusted input become an instruction?</strong> Shell interpolation, dynamic matrices, package scripts, build configuration, artifact extraction, and <code>git fetch</code> all deserve scrutiny.</li>
+<li><strong>What is the smallest trusted effect?</strong> Prefer a fixed command against an explicit identifier over a general build, deploy, or script runner.</li>
+</ol>
+<p>The chain should make accidental authority expansion awkward. A change from <code>pull_request</code> to <code>pull_request_target</code> ought to trigger the same level of review as adding a production credential, because that is often what it functionally does.</p>
+<h2>Trade-offs</h2>
+<p>Two planes add maintenance. Tests that genuinely require private dependencies or authenticated integration endpoints may need a sanitized mirror, an internal-only test path, or a tightly governed exception. Treating artifacts as untrusted means more validation code and sometimes less convenient reports.</p>
+<p>Those costs are real. So is the alternative: letting any pull request choose what runs in the same process that holds the credential for your package registry, cloud account, or repository. The right answer is not that every repository needs an elaborate security platform. It is that a trigger change deserves a threat-model question before it becomes a three-line workaround.</p>
+<h2>References</h2>
+<ul>
+<li>GitHub Docs, <a href="https://docs.github.com/en/actions/reference/security/securely-using-pull_request_target">Securely using <code>pull_request_target</code></a></li>
+<li>GitHub Docs, <a href="https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows#pull_request">Events that trigger workflows: pull requests from forks</a></li>
+<li>GitHub Docs, <a href="https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-syntax#changing-the-permissions-for-a-forked-repository">Workflow syntax: changing permissions for forked repositories</a></li>
+<li>GitHub Docs, <a href="https://docs.github.com/en/actions/concepts/security/github_token"><code>GITHUB_TOKEN</code></a></li>
+<li>This repository, <a href="https://my-slops.github.io/Blog/posts/2026/10/a-feature-flag-is-not-an-authorization-check/">A Feature Flag Is Not an Authorization Check</a></li>
+<li>This repository, <a href="https://my-slops.github.io/Blog/posts/2026/10/start-an-incident-with-the-artifact-digest/">Start an Incident With the Artifact Digest</a></li>
+</ul>
+<h2>Final Take</h2>
+<p>CI configuration is executable security policy. A trigger does not merely decide when automation runs; it changes what the automation is trusted to run beside.</p>
+<p>Keep untrusted contributions in an environment built to execute them safely. Keep privileged workflows focused on small, fixed effects. And when information crosses between those planes, validate it as untrusted input rather than promoting it because a workflow produced it.</p>
+<h2>Changelog</h2>
+<ul>
+<li>2026-10-22: Initial publication.</li>
+</ul>
+
+    </article>
+  </body>
+</html>

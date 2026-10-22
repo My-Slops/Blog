@@ -1,7 +1,22 @@
 {
   "tag": "automation",
-  "count": 4,
+  "count": 5,
   "posts": [
+    {
+      "title": "A CI Event Is a Trust Boundary",
+      "date": "2026-10-22",
+      "updated": "2026-10-22",
+      "summary": "A pull-request workflow and a privileged pull-request workflow may look nearly identical in YAML, but they make opposite trust decisions. Keep contributed code and privileged effects in separate planes, and treat handoffs between them as untrusted input.",
+      "tags": [
+        "github actions",
+        "security",
+        "automation",
+        "developer tooling",
+        "software supply chain"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/10/a-ci-event-is-a-trust-boundary/",
+      "path": "posts/2026/10/2026-10-22-a-ci-event-is-a-trust-boundary.md"
+    },
     {
       "title": "A Green Workflow Can Contain a Failed Step",
       "date": "2026-10-09",
