@@ -1,7 +1,22 @@
 {
   "tag": "distributed systems",
-  "count": 12,
+  "count": 13,
   "posts": [
+    {
+      "title": "Revocation Is a Latency Requirement",
+      "date": "2026-10-23",
+      "updated": "2026-10-23",
+      "summary": "The useful question is not whether authorization may be cached. It is how long a removed relationship, disabled account, or emergency restriction may still authorize an operation—and whether the full path can prove that bound.",
+      "tags": [
+        "security",
+        "authorization",
+        "caching",
+        "distributed systems",
+        "reliability"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/10/revocation-is-a-latency-requirement/",
+      "path": "posts/2026/10/2026-10-23-revocation-is-a-latency-requirement.md"
+    },
     {
       "title": "What \"Cancel\" Means After an Agent Starts Work",
       "date": "2026-10-15",

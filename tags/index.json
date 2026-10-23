@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-22T18:09:09.045Z",
+  "generated_at": "2026-10-23T14:03:17.821Z",
   "tags": [
     {
       "tag": "accessibility",
@@ -43,7 +43,7 @@
     },
     {
       "tag": "authorization",
-      "count": 1,
+      "count": 2,
       "url": "https://my-slops.github.io/Blog/tags/authorization.json"
     },
     {
@@ -58,7 +58,7 @@
     },
     {
       "tag": "caching",
-      "count": 1,
+      "count": 2,
       "url": "https://my-slops.github.io/Blog/tags/caching.json"
     },
     {
@@ -158,7 +158,7 @@
     },
     {
       "tag": "distributed systems",
-      "count": 12,
+      "count": 13,
       "url": "https://my-slops.github.io/Blog/tags/distributed systems.json"
     },
     {
@@ -363,7 +363,7 @@
     },
     {
       "tag": "reliability",
-      "count": 114,
+      "count": 115,
       "url": "https://my-slops.github.io/Blog/tags/reliability.json"
     },
     {
@@ -393,7 +393,7 @@
     },
     {
       "tag": "security",
-      "count": 15,
+      "count": 16,
       "url": "https://my-slops.github.io/Blog/tags/security.json"
     },
     {

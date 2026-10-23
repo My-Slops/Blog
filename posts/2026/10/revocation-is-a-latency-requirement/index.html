@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Revocation Is a Latency Requirement | Blog</title>
+    <meta name="description" content="The useful question is not whether authorization may be cached. It is how long a removed relationship, disabled account, or emergency restriction may still authorize an operation—and whether the full path can prove that bound." />
+    <link rel="canonical" href="https://my-slops.github.io/Blog/posts/2026/10/revocation-is-a-latency-requirement/" />
+    <style>
+      :root { color-scheme: light dark; }
+      body { font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; line-height: 1.7; max-width: 760px; margin: 40px auto; padding: 0 16px; }
+      a { color: #0a58ca; text-decoration: none; }
+      a:hover { text-decoration: underline; }
+      .meta { color: #666; font-size: 0.95rem; margin-bottom: 1rem; }
+      .tags { display: flex; gap: 0.5rem; list-style: none; padding: 0; margin: 0.75rem 0 1.25rem; flex-wrap: wrap; }
+      .tags li { background: #eef2ff; color: #3730a3; border-radius: 999px; padding: 0.2rem 0.6rem; font-size: 0.8rem; }
+      article h1, article h2, article h3 { line-height: 1.3; }
+      article pre { overflow-x: auto; background: #111827; color: #f9fafb; padding: 0.9rem; border-radius: 8px; }
+      article code { font-family: ui-monospace,SFMono-Regular,Menlo,monospace; }
+      article blockquote { border-left: 4px solid #d1d5db; margin: 1rem 0; padding: 0.2rem 0.9rem; color: #4b5563; }
+      hr { border: 0; border-top: 1px solid #e5e7eb; margin: 2rem 0; }
+    </style>
+  </head>
+  <body>
+    <p><a href="https://my-slops.github.io/Blog/">← Home</a></p>
+    <article>
+      <h1>Revocation Is a Latency Requirement</h1>
+      <p class="meta">Oct 23, 2026</p>
+      <ul class="tags"><li>security</li><li>authorization</li><li>caching</li><li>distributed systems</li><li>reliability</li></ul>
+      <h2>TL;DR</h2>
+<p>Removing a user from a project is not an instantaneous security property if an authorization service, a relationship replica, a decision cache, and a response cache can all remember the old answer.</p>
+<p>State the requirement in time: <em>after this kind of change is accepted, this kind of request must be denied within this long.</em> Then make the entire authorization path—writes, replicas, decision caches, enforcement points, and failure handling—meet that bound. A cache TTL is an implementation setting. A revocation deadline is a security contract.</p>
+<h2>Context</h2>
+<p>At 10:03, an administrator removes a departing contractor from the <code>payroll</code> workspace. At 10:04, the contractor&#39;s browser requests an export. The application asks an authorization service, but its local cache still has yesterday&#39;s answer:</p>
+<pre><code class="language-text">can(contractor_17, &quot;export&quot;, payroll_q3) = true
+</code></pre>
+<p>The cached answer may be internally consistent. It is also the wrong answer after the relationship changed.</p>
+<p>This failure is easy to miss because teams often ask whether authorization <em>can</em> be cached. Of course it can. The harder question is: <strong>how long may a previously permitted request remain permitted after the relevant policy or relationship changes?</strong></p>
+<p>That question is a latency requirement. It has a measurable start point, a maximum delay, a set of operations it covers, and a failure mode when the system cannot meet it.</p>
+<p>OWASP&#39;s current guidance makes the same distinction: an authorization decision is only as reliable as its policy and input data; teams should record the maximum delay before a policy or attribute change must affect decisions. For emergency revocations, it recommends a dynamic update or authoritative lookup and measuring the propagation bound. <a href="https://cheatsheetseries.owasp.org/cheatsheets/Authorization_Policy_And_Data_Distribution_Cheat_Sheet.html">Authorization Policy and Data Distribution</a></p>
+<h2>Key Points</h2>
+<h3>A complete cache key fixes identity, not time</h3>
+<p>The earlier question is still essential: a cache must not return one user&#39;s permitted representation to another user. <a href="https://my-slops.github.io/Blog/posts/2026/08/the-cache-key-is-a-privacy-boundary/">The Cache Key Is a Privacy Boundary</a> explains why the subject, tenant, resource, and other representation inputs belong in that design.</p>
+<p>But this key can be perfectly partitioned and still be stale:</p>
+<pre><code class="language-text">authz:v3:subject=contractor_17:action=export:resource=payroll_q3
+    -&gt; allow, expires in 10 minutes
+</code></pre>
+<p>The entry says <em>which</em> decision it represents. It says nothing about whether a membership revocation 30 seconds ago must supersede it. Putting a policy version or relationship revision in the key helps only if the enforcement point knows the current revision before it trusts the old entry.</p>
+<p>There are also at least three different things teams casually call an “auth cache”:</p>
+<table>
+<thead>
+<tr>
+<th>Cached thing</th>
+<th>What can become stale</th>
+<th>Useful control</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>A final permit/deny decision</td>
+<td>Subject, action, resource, policy, or relationship inputs</td>
+<td>Bind all relevant inputs and give the entry a lifetime within the revocation deadline.</td>
+</tr>
+<tr>
+<td>Policy or relationship data</td>
+<td>A role assignment, group membership, account state, or rule revision</td>
+<td>Track replication/version lag and reject data that is too old.</td>
+</tr>
+<tr>
+<td>Protected response bytes</td>
+<td>The caller is no longer entitled to data already rendered</td>
+<td>Authorize the current request before returning the bytes, or invalidate/purge within the stated bound.</td>
+</tr>
+</tbody></table>
+<p>Treating all three as a generic Redis TTL hides the trade-off that matters. A five-minute cache may be harmless for a product recommendation but unacceptable for disabling a compromised administrator account.</p>
+<h3>Start with the deadline, not a convenient TTL</h3>
+<p>A useful requirement names the trigger, scope, deadline, and enforcement point:</p>
+<pre><code class="language-text">When:     a workspace membership is removed or an account is suspended
+Scope:    reads, exports, writes, and agent-tool calls for that workspace
+Deadline: no request may be permitted more than 30 seconds after the change commits
+Proof:    exercise the production decision and cache path at the enforcement point
+</code></pre>
+<p>“Permissions update quickly” is not a requirement. Nor is “we cache checks for 30 seconds.” The first cannot be tested; the second says nothing about replica lag, missed invalidations, a browser response cache, or what happens while the policy service is unavailable.</p>
+<p>The deadline may legitimately vary. An emergency account disable may need a much tighter bound than an entitlement change that only affects a navigation item. A high-impact write can require a fresh or higher-consistency decision while a low-risk read accepts a small, documented staleness window. The important move is to make the difference intentional instead of giving every action whatever freshness the fastest cache happens to provide.</p>
+<p>OpenFGA exposes this trade-off directly: with its check cache enabled, permission changes are not reflected during the cache TTL; callers can request higher consistency, which bypasses that cache. Its documentation also cautions that bypassing a cache does not remove replication lag from an eventually consistent database. <a href="https://openfga.dev/blog/query-consistency-options-announcement">OpenFGA query consistency options</a></p>
+<h3>The whole path must fit inside the bound</h3>
+<p>Suppose a membership write commits at <code>t0</code>. Before a request can safely rely on the change, several delays may be involved:</p>
+<pre><code class="language-text">membership write
+  -&gt; policy/relationship replication
+    -&gt; local PDP update or cache invalidation
+      -&gt; enforcement-point decision
+        -&gt; any response-cache reuse
+</code></pre>
+<p>For a conservative design, the worst relevant delays across that path must fit below the revocation deadline. A 10-second decision-cache TTL does not establish a 10-second revocation bound when the relationship replica can be two minutes behind. Conversely, a fast relationship stream does not help if an edge cache can serve a previously authorized export for an hour.</p>
+<p>This is why “we sent an invalidation event” is not enough. It shows that one component attempted delivery. The property belongs at the policy enforcement point: did the real request stop receiving protected data or performing the protected operation by the promised time? OWASP recommends testing effective decisions at that point, including delayed updates and recovery—not merely observing policy delivery. <a href="https://cheatsheetseries.owasp.org/cheatsheets/Authorization_Policy_And_Data_Distribution_Cheat_Sheet.html#freshness-and-outages">Authorization Policy and Data Distribution</a></p>
+<p>For very sensitive transitions, a version fence can be clearer than hoping every cache invalidation arrives. Record the revision returned by the revocation write, and require a later authorization check to observe at least that revision before it permits the dependent operation. Google Zanzibar calls its analogous consistency token a <em>Zookie</em>; the larger lesson is not to copy its global architecture, but to make “fresh enough for this change” a first-class part of the interface. <a href="https://www.usenix.org/conference/atc19/presentation/pang">Zanzibar: Google&#39;s Consistent, Global Authorization System</a></p>
+<h3>A cached permit must not silently outlive its authority</h3>
+<p>Keep the policy decision close to the operation that releases data or causes an effect:</p>
+<pre><code class="language-ts">async function exportPayroll(request: Request) {
+  const subject = await requireSubject(request);
+
+  const decision = await policy.check({
+    subject,
+    action: &quot;payroll.export&quot;,
+    resource: { type: &quot;workspace&quot;, id: request.params.workspaceId },
+    consistency: &quot;required-for-high-impact-write&quot;,
+  });
+
+  if (!decision.permit || decision.freshUntil &lt; Date.now()) {
+    throw forbidden();
+  }
+
+  return exports.startFor(subject, request.params.workspaceId);
+}
+</code></pre>
+<p>The names are illustrative. The design question is concrete: what proves that <code>decision</code> was evaluated from inputs fresh enough for an export <em>now</em>? A generic <code>allow: true</code> does not carry that proof.</p>
+<p>The same care applies to cached response bytes. A service may cache a payroll report by document version and tenant, then authorize the current request before returning it. That preserves the performance benefit without treating a cache hit as a durable permission. If the system instead stores a per-user rendered response and returns it without a fresh check, the response cache has become an undeclared authorization engine.</p>
+<p>OWASP&#39;s output-handling guidance recommends bounding cached decision reuse to the same subject, action, resource scope, tenant, and relevant policy/input state within an approved freshness limit; a cached permit must not outlive its required revocation deadline. <a href="https://cheatsheetseries.owasp.org/cheatsheets/Authorization_Decisions_And_Output_Handling_Cheat_Sheet.html">Authorization Decisions and Output Handling</a></p>
+<h3>Outage behavior is part of the contract</h3>
+<p>Caching often enters the design to keep a policy service off the critical path. That can be reasonable, but it leaves an uncomfortable case: what happens when the system cannot determine whether its policy data is fresh enough?</p>
+<p>For an operation whose revocation deadline cannot be met with the data on hand, the conservative answer is to deny that operation or hold it for review. Serving the last known allow because it is available changes a transient availability problem into an access-control policy. It may be the right product decision for a low-risk read with an explicitly accepted grace period; it should not be an accidental default for exports, deletions, payments, or administrative changes.</p>
+<p>This is also why a cursor, session, or agent run cannot inherit an earlier permit indefinitely. <a href="https://my-slops.github.io/Blog/posts/2026/10/a-page-cursor-is-not-permission-to-keep-reading/">A Page Cursor Is Not Permission to Keep Reading</a> covers the pagination form of the problem: continuation state is not authorization. Evaluate the current action against current-enough state.</p>
+<h2>Steps / Code</h2>
+<p>Review one revocable permission path end to end:</p>
+<ol>
+<li>Choose a real change: remove group membership, suspend an account, revoke a share link, or apply an emergency restriction.</li>
+<li>Define when its clock starts. Usually this is a successfully committed authoritative write, not when an asynchronous event is eventually consumed.</li>
+<li>Declare the maximum permitted delay for each affected action class. Do not borrow the TTL from an existing cache as the answer.</li>
+<li>Inventory every stale state on the path: policy bundles, relationship replicas, local PDP data, final-decision caches, browser/CDN/application response caches, long-running exports, and agent continuation state.</li>
+<li>Decide whether each layer uses authoritative lookup, bounded TTL, version fencing, targeted invalidation, or a deliberately documented lease.</li>
+<li>During an integration test, warm every relevant cache, commit the revocation, and repeatedly perform the real protected operation through the production-like route. Assert that it denies by the deadline.</li>
+<li>Repeat with delayed events, a disconnected replica, a missed invalidation, policy-service unavailability, and recovery. Verify the enforcement point&#39;s behavior, not just logs from the update pipeline.</li>
+</ol>
+<p>Keep the test&#39;s clock and success criterion visible. A test that only asserts “the next request is denied” can pass while the system takes ten minutes, well beyond what incident response or a customer promise can tolerate.</p>
+<h2>Trade-offs</h2>
+<p>Tighter revocation deadlines cost something: more authoritative reads, lower cache hit rates, invalidation infrastructure, version propagation, and deliberate fail-closed behavior during some outages. A globally ordered consistency design may be unnecessary for a small internal tool.</p>
+<p>The opposite extreme also has a cost. A system that cannot say how long a former employee, revoked integration, or removed tenant member may retain access does not have a revocation guarantee; it has a hopeful cache configuration.</p>
+<p>Use the cheapest design that meets the consequence of a stale permit. For a reversible, low-sensitivity display, a short and measured stale window may be a sound trade. For actions that disclose sensitive data or create durable effects, make freshness an explicit part of the access decision.</p>
+<h2>References</h2>
+<ul>
+<li>OWASP Cheat Sheet Series, <a href="https://cheatsheetseries.owasp.org/cheatsheets/Authorization_Policy_And_Data_Distribution_Cheat_Sheet.html">Authorization Policy and Data Distribution</a></li>
+<li>OWASP Cheat Sheet Series, <a href="https://cheatsheetseries.owasp.org/cheatsheets/Authorization_Decisions_And_Output_Handling_Cheat_Sheet.html">Authorization Decisions and Output Handling</a></li>
+<li>OWASP Cheat Sheet Series, <a href="https://cheatsheetseries.owasp.org/cheatsheets/Web_Cache_Security_Cheat_Sheet.html">Web Cache Security</a></li>
+<li>OpenFGA, <a href="https://openfga.dev/blog/query-consistency-options-announcement">Query consistency options</a></li>
+<li>Google, <a href="https://www.usenix.org/conference/atc19/presentation/pang">Zanzibar: Google&#39;s Consistent, Global Authorization System</a></li>
+<li>This repository, <a href="https://my-slops.github.io/Blog/posts/2026/08/the-cache-key-is-a-privacy-boundary/">The Cache Key Is a Privacy Boundary</a></li>
+<li>This repository, <a href="https://my-slops.github.io/Blog/posts/2026/10/a-page-cursor-is-not-permission-to-keep-reading/">A Page Cursor Is Not Permission to Keep Reading</a></li>
+</ul>
+<h2>Final Take</h2>
+<p>Revocation is not complete when a database row changes or an invalidation is published. It is complete when the policy enforcement point stops permitting the operations that change was meant to stop, within the time your system promised.</p>
+<p>Set that time before choosing the cache. Then measure the full path against it.</p>
+<h2>Changelog</h2>
+<ul>
+<li>2026-10-23: Initial publication.</li>
+</ul>
+
+    </article>
+  </body>
+</html>
