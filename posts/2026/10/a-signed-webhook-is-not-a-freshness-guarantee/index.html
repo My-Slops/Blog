@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>A Signed Webhook Is Not a Freshness Guarantee | Blog</title>
+    <meta name="description" content="Verify webhook signatures first, but do not treat them as a clock. Preserve delivery identity, model the version or sequence that matters to the domain, and make replayed or stale events explicit before they affect current state." />
+    <link rel="canonical" href="https://my-slops.github.io/Blog/posts/2026/10/a-signed-webhook-is-not-a-freshness-guarantee/" />
+    <style>
+      :root { color-scheme: light dark; }
+      body { font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; line-height: 1.7; max-width: 760px; margin: 40px auto; padding: 0 16px; }
+      a { color: #0a58ca; text-decoration: none; }
+      a:hover { text-decoration: underline; }
+      .meta { color: #666; font-size: 0.95rem; margin-bottom: 1rem; }
+      .tags { display: flex; gap: 0.5rem; list-style: none; padding: 0; margin: 0.75rem 0 1.25rem; flex-wrap: wrap; }
+      .tags li { background: #eef2ff; color: #3730a3; border-radius: 999px; padding: 0.2rem 0.6rem; font-size: 0.8rem; }
+      article h1, article h2, article h3 { line-height: 1.3; }
+      article pre { overflow-x: auto; background: #111827; color: #f9fafb; padding: 0.9rem; border-radius: 8px; }
+      article code { font-family: ui-monospace,SFMono-Regular,Menlo,monospace; }
+      article blockquote { border-left: 4px solid #d1d5db; margin: 1rem 0; padding: 0.2rem 0.9rem; color: #4b5563; }
+      hr { border: 0; border-top: 1px solid #e5e7eb; margin: 2rem 0; }
+    </style>
+  </head>
+  <body>
+    <p><a href="https://my-slops.github.io/Blog/">← Home</a></p>
+    <article>
+      <h1>A Signed Webhook Is Not a Freshness Guarantee</h1>
+      <p class="meta">Oct 24, 2026</p>
+      <ul class="tags"><li>event systems</li><li>security</li><li>reliability</li><li>API design</li></ul>
+      <h2>TL;DR</h2>
+<p>An HMAC-valid webhook says that someone with the shared secret signed these bytes. It does not say that the delivery is new, that it arrived in causal order, or that applying it would produce the right current state.</p>
+<p>Those are separate contracts. A receiver needs an event or delivery identity for deduplication, a domain version or ordering rule where order matters, and an explicit replay policy. Otherwise a perfectly valid old delivery can move a local projection backward, re-run an effect, or be mistaken for live work.</p>
+<h2>A valid signature can still describe yesterday</h2>
+<p>Suppose a deployment service sends two signed webhooks for the same environment:</p>
+<pre><code class="language-text">14:00  deployment.succeeded  revision=2f1c
+14:04  deployment.succeeded  revision=9ad7
+</code></pre>
+<p>The receiver gets the second one first and records <code>9ad7</code> as production. The network then releases the first delivery. Its signature verifies: the producer really did sign that exact older payload. If the receiver treats verification as permission to update its projection, it now reports <code>2f1c</code> as production.</p>
+<p>Nothing forged the request. Nothing modified it. The bug is that authenticity was asked to answer a freshness question.</p>
+<p>This is common because webhook implementations often put all their attention on signature verification. That is the right first security check. GitHub&#39;s documentation says a webhook secret lets a receiver verify that a delivery came from GitHub and was not tampered with. It separately tells receivers to use the <code>X-GitHub-Delivery</code> value to protect against replay attacks, and notes that GitHub may deliver webhooks out of order. Those are different jobs. <a href="https://docs.github.com/en/webhooks/using-webhooks/validating-webhook-deliveries">GitHub&#39;s validation guidance</a> and <a href="https://docs.github.com/en/webhooks/testing-and-troubleshooting-webhooks">webhook troubleshooting guide</a> make the separation unusually visible.</p>
+<h2>Four properties, not one</h2>
+<p>Treat these questions independently when designing a consumer:</p>
+<table>
+<thead>
+<tr>
+<th>Question</th>
+<th>What answers it</th>
+<th>What it does not answer</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Did the expected producer create these bytes?</td>
+<td>Signature verification over the raw request body</td>
+<td>Whether the message is new or relevant now</td>
+</tr>
+<tr>
+<td>Have I already handled this delivery or event?</td>
+<td>Durable deduplication by a stable identity</td>
+<td>Whether a first-seen event is older than current state</td>
+</tr>
+<tr>
+<td>Does this event belong after the state I have?</td>
+<td>A domain sequence, revision, or explicit causal rule</td>
+<td>Whether the producer was authentic</td>
+</tr>
+<tr>
+<td>Is this a replay for recovery or backfill?</td>
+<td>Delivery metadata and a consumer replay policy</td>
+<td>Whether reprocessing is safe by default</td>
+</tr>
+</tbody></table>
+<p>There is useful overlap, but it is not enough to collapse the columns. A signed payload can be a duplicate. A first-seen payload can be old. A delivery can be both a legitimate replay and the wrong input for a live side effect.</p>
+<p>The same distinction matters for an attacker who can capture a legitimate request. A secret prevents them from changing the body; it does not make an old, still-valid body harmless if the receiver accepts it indefinitely. A timestamp plus a narrow acceptance window can reduce that exposure, but only when the producer signs the timestamp, clocks and tolerances are specified, and the receiver has a clear policy for delayed legitimate deliveries. It is not a substitute for durable idempotency or domain ordering.</p>
+<h2>Delivery IDs are for duplicates, not state order</h2>
+<p>A delivery ID gives a consumer a practical deduplication key. Store it with the terminal result before acknowledging the transport, so a retry can return without doing the effect again:</p>
+<pre><code class="language-text">delivery_id=8f2a
+  -&gt; signature valid
+  -&gt; applied event evt_742 for deployment prod
+
+delivery_id=8f2a (redelivery)
+  -&gt; already applied; acknowledge without repeating the effect
+</code></pre>
+<p>That prevents one form of replay. It cannot decide whether <code>evt_742</code> should supersede <code>evt_741</code>, because both IDs may be new to this receiver. It also cannot tell whether two distinct events report independent facts or competing snapshots of one object.</p>
+<p>GitHub makes this especially easy to overlook: a redelivery keeps the same <code>X-GitHub-Delivery</code> header. That is useful for recognizing the same delivery again, but it is not a global sequence number for a repository or a resource. The producer needs to provide the ordering information the domain actually requires, or the consumer needs to obtain it from an authoritative read.</p>
+<p>Use the identity at the correct layer:</p>
+<ul>
+<li><strong>Delivery identity</strong> prevents processing the same transport delivery twice.</li>
+<li><strong>Event identity</strong> lets consumers deduplicate one business occurrence across transports or retries.</li>
+<li><strong>Resource revision</strong> decides whether an event may update a current-state projection for that resource.</li>
+<li><strong>Operation identity</strong> lets a receiver reconcile an external effect whose response was lost.</li>
+</ul>
+<p>The names are less important than keeping the layers separate. <a href="https://my-slops.github.io/Blog/posts/2026/10/a-webhook-retry-must-not-become-a-new-snapshot/">A Webhook Retry Must Not Become a New Snapshot</a> covers the producer-side half: a retry should preserve one event&#39;s meaning. The receiver still has to decide how that event relates to the state it already holds.</p>
+<h2>Put the version next to the state transition</h2>
+<p>For stateful webhook contracts, an opaque resource revision is often more useful than a delivery timestamp. A timestamp may be missing, have limited precision, or describe when the producer emitted an event rather than the version of the resource it represents.</p>
+<p>For example, a producer could send:</p>
+<pre><code class="language-json">{
+  &quot;eventId&quot;: &quot;evt_742&quot;,
+  &quot;type&quot;: &quot;deployment.succeeded&quot;,
+  &quot;occurredAt&quot;: &quot;2026-10-24T14:04:18Z&quot;,
+  &quot;data&quot;: {
+    &quot;environment&quot;: &quot;production&quot;,
+    &quot;revision&quot;: 184,
+    &quot;commit&quot;: &quot;9ad7&quot;
+  }
+}
+</code></pre>
+<p>The receiver can then state a rule it can test: only replace the local production projection if <code>revision</code> is greater than the stored revision for that environment. A duplicate or an older state event becomes harmless even if it arrives late.</p>
+<pre><code class="language-ts">async function acceptDeployment(delivery: Delivery, event: DeploymentEvent) {
+  verifySignature(delivery.rawBody, delivery.signature);
+
+  await db.transaction(async (tx) =&gt; {
+    if (await tx.deliveries.exists(delivery.id)) return;
+
+    const current = await tx.environments.get(event.data.environment);
+    if (!current || event.data.revision &gt; current.deploymentRevision) {
+      await tx.environments.upsert({
+        name: event.data.environment,
+        deploymentRevision: event.data.revision,
+        commit: event.data.commit,
+      });
+    }
+
+    await tx.deliveries.insert({ id: delivery.id, eventId: event.eventId });
+  });
+}
+</code></pre>
+<p>This is illustrative, not a universal ordering algorithm. A numeric revision only works if the producer promises that it is scoped to the object and advances in the way the consumer assumes. With a sequence that can have gaps, a receiver might record the new revision but fetch the authoritative object before it exposes it. With independent fields or concurrent writers, a last-seen revision may be too coarse and the product may need merge rules instead.</p>
+<p>The important requirement is to describe the version relationship in the API contract. “We sign all webhook payloads” describes transport integrity. It does not say how a consumer can tell that <code>revision=184</code> should win over <code>revision=183</code>.</p>
+<h2>Replays need a different posture from live traffic</h2>
+<p>Replays are valuable for repair, migrations, and a newly deployed consumer. They are also a reason not to let every valid event automatically trigger a current live action.</p>
+<p>Amazon EventBridge marks replayed events with replay metadata and documents that replayed events are not necessarily delivered in their original order. Its newer replay delivery model similarly exposes whether a delivery is <code>LIVE</code> or <code>REPLAY</code>. That metadata gives consumers a chance to choose a different path: rebuild a projection, write audit history, or skip an irreversible notification. <a href="https://docs.aws.amazon.com/eventbridge/latest/userguide/eb-archive.html">EventBridge archives and replays</a> and <a href="https://docs.aws.amazon.com/eventbridge/latest/userguide/eb-custom-bus-replay.html">replayed-event delivery metadata</a> are examples of a useful contract shape.</p>
+<p>Do not use replay merely as another reason to throw old events away. Some domains need every occurrence, including the old ones: an audit pipeline, a ledger projection, or a warehouse backfill may correctly reprocess history. The consumer&#39;s purpose decides the rule:</p>
+<table>
+<thead>
+<tr>
+<th>Consumer purpose</th>
+<th>Sensible response to an old or replayed event</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Current-state cache</td>
+<td>Apply only if its version supersedes local state, or rebuild from an authoritative snapshot</td>
+</tr>
+<tr>
+<td>Append-only audit store</td>
+<td>Retain it once by event identity, preserving occurrence and receipt times</td>
+</tr>
+<tr>
+<td>External side effect</td>
+<td>Require an operation identity and an explicit replay policy; do not infer safety from a valid signature</td>
+</tr>
+<tr>
+<td>Analytics backfill</td>
+<td>Process within a declared time range and label the run as historical</td>
+</tr>
+</tbody></table>
+<p>This is also why arrival time is weak evidence of causal order. A delivery timestamp answers when the receiver saw the event, not when the source occurrence happened or which state revision it represents. <a href="https://my-slops.github.io/Blog/posts/2026/07/an-incident-timeline-needs-two-clocks/">An Incident Timeline Needs Two Clocks</a> explains why those times should survive separately.</p>
+<h2>Make the failure visible</h2>
+<p>For each webhook type that can change local state or trigger an effect, write down the answers before an outage writes them for you:</p>
+<ol>
+<li>Which exact bytes are signed, and is verification performed before parsing or side effects?</li>
+<li>What stable ID lets the consumer recognize a duplicate delivery or event, and how long is that record retained?</li>
+<li>What version, sequence, or authoritative read determines whether an event is still applicable to current state?</li>
+<li>Are gaps permitted? If so, does the consumer fetch, buffer, reconcile later, or intentionally accept a stale projection?</li>
+<li>How is a recovery replay marked, and which consumers may re-run their effects during it?</li>
+<li>What does the consumer record when it refuses an old-but-valid event? A dropped message without a reason is difficult to distinguish from a missing delivery later.</li>
+</ol>
+<p>Test the uncomfortable order: apply revision 184, then send a valid, first-seen revision 183; replay the same delivery; and replay an older range while live events continue. The desired behavior should be explicit for each consumer, not an accident of whichever request arrived last.</p>
+<h2>Trade-offs</h2>
+<p>Versions, deduplication records, and replay metadata add storage and API surface. Strict sequence handling can increase latency or cause a consumer to pause while it reconciles a gap. A timestamp window can reject legitimate delayed traffic when clocks or queues misbehave. For a low-consequence analytics event, that machinery may cost more than a slightly stale dashboard.</p>
+<p>But do not hide the trade-off behind signature verification. If a stale state update could restore an access grant, point a deployment dashboard at an old revision, or repeat a financial effect, the receiver needs a freshness policy that fits that consequence.</p>
+<h2>References</h2>
+<ul>
+<li>GitHub Docs, <a href="https://docs.github.com/en/webhooks/using-webhooks/validating-webhook-deliveries">Validating webhook deliveries</a></li>
+<li>GitHub Docs, <a href="https://docs.github.com/en/webhooks/using-webhooks/best-practices-for-using-webhooks">Best practices for using webhooks</a></li>
+<li>GitHub Docs, <a href="https://docs.github.com/en/webhooks/testing-and-troubleshooting-webhooks#webhook-deliveries-are-out-of-order">Webhook deliveries can be out of order</a></li>
+<li>Amazon EventBridge, <a href="https://docs.aws.amazon.com/eventbridge/latest/userguide/eb-archive.html">Archiving and replaying events</a></li>
+<li>Amazon EventBridge, <a href="https://docs.aws.amazon.com/eventbridge/latest/userguide/eb-custom-bus-replay.html">Telling replayed events apart</a></li>
+<li>This repository, <a href="https://my-slops.github.io/Blog/posts/2026/10/a-webhook-retry-must-not-become-a-new-snapshot/">A Webhook Retry Must Not Become a New Snapshot</a></li>
+<li>This repository, <a href="https://my-slops.github.io/Blog/posts/2026/07/an-incident-timeline-needs-two-clocks/">An Incident Timeline Needs Two Clocks</a></li>
+</ul>
+<h2>Final Take</h2>
+<p>Verify the signature. Then ask the separate question that signatures cannot answer: <em>is this event still allowed to change my view of the world?</em></p>
+<p>That answer comes from a durable identity, a version or ordering contract, and a replay policy matched to the effect. A signed event is authentic evidence. It is not a clock.</p>
+<h2>Changelog</h2>
+<ul>
+<li>2026-10-24: Initial publication.</li>
+</ul>
+
+    </article>
+  </body>
+</html>

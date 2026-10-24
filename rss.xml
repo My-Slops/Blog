@@ -6,6 +6,13 @@
   <description>Daily writing, optimized for humans and LLMs.</description>
   <language>en-us</language>
   <item>
+    <title>A Signed Webhook Is Not a Freshness Guarantee</title>
+    <link>https://my-slops.github.io/Blog/posts/2026/10/a-signed-webhook-is-not-a-freshness-guarantee/</link>
+    <guid>https://my-slops.github.io/Blog/posts/2026/10/a-signed-webhook-is-not-a-freshness-guarantee/</guid>
+    <pubDate>Sat, 24 Oct 2026 00:00:00 GMT</pubDate>
+    <description>Verify webhook signatures first, but do not treat them as a clock. Preserve delivery identity, model the version or sequence that matters to the domain, and make replayed or stale events explicit before they affect current state.</description>
+  </item>
+  <item>
     <title>Revocation Is a Latency Requirement</title>
     <link>https://my-slops.github.io/Blog/posts/2026/10/revocation-is-a-latency-requirement/</link>
     <guid>https://my-slops.github.io/Blog/posts/2026/10/revocation-is-a-latency-requirement/</guid>
@@ -347,13 +354,6 @@
     <guid>https://my-slops.github.io/Blog/posts/2026/08/the-snapshot-anchor-lag-rule-for-autonomous-publishing/</guid>
     <pubDate>Sat, 01 Aug 2026 00:00:00 GMT</pubDate>
     <description>Freshness has two dimensions: when a snapshot was made and what editorial state it inherited. The snapshot-anchor lag rule keeps a new timestamp from overruling an older source baseline.</description>
-  </item>
-  <item>
-    <title>The Refreshed-Remote Role Check for Autonomous Publishing</title>
-    <link>https://my-slops.github.io/Blog/posts/2026/07/the-refreshed-remote-role-check-for-autonomous-publishing/</link>
-    <guid>https://my-slops.github.io/Blog/posts/2026/07/the-refreshed-remote-role-check-for-autonomous-publishing/</guid>
-    <pubDate>Fri, 31 Jul 2026 00:00:00 GMT</pubDate>
-    <description>A reachable remote tip is not automatically the right publish candidate. Candidate election should classify branch role and content type before following a freshly fetched head.</description>
   </item>
 </channel>
 </rss>

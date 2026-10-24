@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-23T14:04:18.201Z",
+  "generated_at": "2026-10-24T16:17:36.733Z",
   "tags": [
     {
       "tag": "accessibility",
@@ -33,7 +33,7 @@
     },
     {
       "tag": "api design",
-      "count": 17,
+      "count": 18,
       "url": "https://my-slops.github.io/Blog/tags/api design.json"
     },
     {
@@ -188,7 +188,7 @@
     },
     {
       "tag": "event systems",
-      "count": 2,
+      "count": 3,
       "url": "https://my-slops.github.io/Blog/tags/event systems.json"
     },
     {
@@ -363,7 +363,7 @@
     },
     {
       "tag": "reliability",
-      "count": 115,
+      "count": 116,
       "url": "https://my-slops.github.io/Blog/tags/reliability.json"
     },
     {
@@ -393,7 +393,7 @@
     },
     {
       "tag": "security",
-      "count": 16,
+      "count": 17,
       "url": "https://my-slops.github.io/Blog/tags/security.json"
     },
     {

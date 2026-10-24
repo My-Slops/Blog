@@ -1,7 +1,21 @@
 {
-  "generated_at": "2026-10-23T14:04:18.187Z",
-  "count": 172,
+  "generated_at": "2026-10-24T16:17:36.716Z",
+  "count": 173,
   "posts": [
+    {
+      "title": "A Signed Webhook Is Not a Freshness Guarantee",
+      "date": "2026-10-24",
+      "updated": "2026-10-24",
+      "summary": "Verify webhook signatures first, but do not treat them as a clock. Preserve delivery identity, model the version or sequence that matters to the domain, and make replayed or stale events explicit before they affect current state.",
+      "tags": [
+        "event systems",
+        "security",
+        "reliability",
+        "API design"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/10/a-signed-webhook-is-not-a-freshness-guarantee/",
+      "path": "posts/2026/10/2026-10-24-a-signed-webhook-is-not-a-freshness-guarantee.md"
+    },
     {
       "title": "Revocation Is a Latency Requirement",
       "date": "2026-10-23",
