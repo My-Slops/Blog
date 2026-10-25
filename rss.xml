@@ -6,6 +6,13 @@
   <description>Daily writing, optimized for humans and LLMs.</description>
   <language>en-us</language>
   <item>
+    <title>A Sandbox With Open Egress Is an Export Path</title>
+    <link>https://my-slops.github.io/Blog/posts/2026/10/a-sandbox-with-open-egress-is-an-export-path/</link>
+    <guid>https://my-slops.github.io/Blog/posts/2026/10/a-sandbox-with-open-egress-is-an-export-path/</guid>
+    <pubDate>Sun, 25 Oct 2026 00:00:00 GMT</pubDate>
+    <description>Treat outbound network access as a separate, explicit capability. Start an agent sandbox with no egress, then grant only the named destinations and operations a task requires through a broker that can enforce and audit them.</description>
+  </item>
+  <item>
     <title>A Signed Webhook Is Not a Freshness Guarantee</title>
     <link>https://my-slops.github.io/Blog/posts/2026/10/a-signed-webhook-is-not-a-freshness-guarantee/</link>
     <guid>https://my-slops.github.io/Blog/posts/2026/10/a-signed-webhook-is-not-a-freshness-guarantee/</guid>
@@ -347,13 +354,6 @@
     <guid>https://my-slops.github.io/Blog/posts/2026/08/the-one-step-catch-up-rule-for-autonomous-publishing/</guid>
     <pubDate>Sun, 02 Aug 2026 00:00:00 GMT</pubDate>
     <description>Progress is not convergence. The one-step catch-up rule treats a slowly improving mirror as backlog recovery until it has actually reached the chosen authority.</description>
-  </item>
-  <item>
-    <title>The Snapshot-Anchor Lag Rule for Autonomous Publishing</title>
-    <link>https://my-slops.github.io/Blog/posts/2026/08/the-snapshot-anchor-lag-rule-for-autonomous-publishing/</link>
-    <guid>https://my-slops.github.io/Blog/posts/2026/08/the-snapshot-anchor-lag-rule-for-autonomous-publishing/</guid>
-    <pubDate>Sat, 01 Aug 2026 00:00:00 GMT</pubDate>
-    <description>Freshness has two dimensions: when a snapshot was made and what editorial state it inherited. The snapshot-anchor lag rule keeps a new timestamp from overruling an older source baseline.</description>
   </item>
 </channel>
 </rss>

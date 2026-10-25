@@ -1,7 +1,22 @@
 {
-  "generated_at": "2026-10-24T16:19:17.909Z",
-  "count": 173,
+  "generated_at": "2026-10-25T21:11:59.001Z",
+  "count": 174,
   "posts": [
+    {
+      "title": "A Sandbox With Open Egress Is an Export Path",
+      "date": "2026-10-25",
+      "updated": "2026-10-25",
+      "summary": "Treat outbound network access as a separate, explicit capability. Start an agent sandbox with no egress, then grant only the named destinations and operations a task requires through a broker that can enforce and audit them.",
+      "tags": [
+        "ai agents",
+        "security",
+        "developer tooling",
+        "infrastructure",
+        "reliability"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/10/a-sandbox-with-open-egress-is-an-export-path/",
+      "path": "posts/2026/10/2026-10-25-a-sandbox-with-open-egress-is-an-export-path.md"
+    },
     {
       "title": "A Signed Webhook Is Not a Freshness Guarantee",
       "date": "2026-10-24",

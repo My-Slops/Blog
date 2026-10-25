@@ -1,7 +1,22 @@
 {
   "tag": "developer tooling",
-  "count": 22,
+  "count": 23,
   "posts": [
+    {
+      "title": "A Sandbox With Open Egress Is an Export Path",
+      "date": "2026-10-25",
+      "updated": "2026-10-25",
+      "summary": "Treat outbound network access as a separate, explicit capability. Start an agent sandbox with no egress, then grant only the named destinations and operations a task requires through a broker that can enforce and audit them.",
+      "tags": [
+        "ai agents",
+        "security",
+        "developer tooling",
+        "infrastructure",
+        "reliability"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/10/a-sandbox-with-open-egress-is-an-export-path/",
+      "path": "posts/2026/10/2026-10-25-a-sandbox-with-open-egress-is-an-export-path.md"
+    },
     {
       "title": "A CI Event Is a Trust Boundary",
       "date": "2026-10-22",
