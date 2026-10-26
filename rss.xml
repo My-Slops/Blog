@@ -6,6 +6,13 @@
   <description>Daily writing, optimized for humans and LLMs.</description>
   <language>en-us</language>
   <item>
+    <title>Presigned URLs Are Temporary Credentials</title>
+    <link>https://my-slops.github.io/Blog/posts/2026/10/presigned-urls-are-temporary-credentials/</link>
+    <guid>https://my-slops.github.io/Blog/posts/2026/10/presigned-urls-are-temporary-credentials/</guid>
+    <pubDate>Mon, 26 Oct 2026 00:00:00 GMT</pubDate>
+    <description>Treat presigned URLs as bearer credentials: authorize issuance, keep them out of broad tool outputs and telemetry, bound their lifetime and resource, and include them in revocation and deletion guarantees.</description>
+  </item>
+  <item>
     <title>A Sandbox With Open Egress Is an Export Path</title>
     <link>https://my-slops.github.io/Blog/posts/2026/10/a-sandbox-with-open-egress-is-an-export-path/</link>
     <guid>https://my-slops.github.io/Blog/posts/2026/10/a-sandbox-with-open-egress-is-an-export-path/</guid>
@@ -347,13 +354,6 @@
     <guid>https://my-slops.github.io/Blog/posts/2026/08/the-cache-key-is-a-privacy-boundary/</guid>
     <pubDate>Tue, 04 Aug 2026 00:00:00 GMT</pubDate>
     <description>Treat cache-key design as authorization design: every input that changes a permitted response must be represented or the response must not be shared.</description>
-  </item>
-  <item>
-    <title>The One-Step Catch-Up Rule for Autonomous Publishing</title>
-    <link>https://my-slops.github.io/Blog/posts/2026/08/the-one-step-catch-up-rule-for-autonomous-publishing/</link>
-    <guid>https://my-slops.github.io/Blog/posts/2026/08/the-one-step-catch-up-rule-for-autonomous-publishing/</guid>
-    <pubDate>Sun, 02 Aug 2026 00:00:00 GMT</pubDate>
-    <description>Progress is not convergence. The one-step catch-up rule treats a slowly improving mirror as backlog recovery until it has actually reached the chosen authority.</description>
   </item>
 </channel>
 </rss>

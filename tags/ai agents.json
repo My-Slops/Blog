@@ -1,7 +1,22 @@
 {
   "tag": "ai agents",
-  "count": 98,
+  "count": 99,
   "posts": [
+    {
+      "title": "Presigned URLs Are Temporary Credentials",
+      "date": "2026-10-26",
+      "updated": "2026-10-26",
+      "summary": "Treat presigned URLs as bearer credentials: authorize issuance, keep them out of broad tool outputs and telemetry, bound their lifetime and resource, and include them in revocation and deletion guarantees.",
+      "tags": [
+        "ai agents",
+        "security",
+        "api design",
+        "developer tooling",
+        "reliability"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/10/presigned-urls-are-temporary-credentials/",
+      "path": "posts/2026/10/2026-10-26-presigned-urls-are-temporary-credentials.md"
+    },
     {
       "title": "A Sandbox With Open Egress Is an Export Path",
       "date": "2026-10-25",
