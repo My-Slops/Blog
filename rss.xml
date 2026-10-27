@@ -6,6 +6,13 @@
   <description>Daily writing, optimized for humans and LLMs.</description>
   <language>en-us</language>
   <item>
+    <title>The Document Changed After the Agent Read It</title>
+    <link>https://my-slops.github.io/Blog/posts/2026/10/the-document-changed-after-the-agent-read-it/</link>
+    <guid>https://my-slops.github.io/Blog/posts/2026/10/the-document-changed-after-the-agent-read-it/</guid>
+    <pubDate>Tue, 27 Oct 2026 00:00:00 GMT</pubDate>
+    <description>Keep the human-readable source link, but attach a revision, validator, or content digest plus retrieval time when an agent&apos;s answer or action depends on mutable evidence.</description>
+  </item>
+  <item>
     <title>Presigned URLs Are Temporary Credentials</title>
     <link>https://my-slops.github.io/Blog/posts/2026/10/presigned-urls-are-temporary-credentials/</link>
     <guid>https://my-slops.github.io/Blog/posts/2026/10/presigned-urls-are-temporary-credentials/</guid>
@@ -347,13 +354,6 @@
     <guid>https://my-slops.github.io/Blog/posts/2026/08/the-authority-scoped-convergence-rule-for-autonomous-publishing/</guid>
     <pubDate>Wed, 05 Aug 2026 00:00:00 GMT</pubDate>
     <description>There is no such thing as globally converged publishing state. The authority-scoped convergence rule requires every claim of alignment to name the source that grants release permission.</description>
-  </item>
-  <item>
-    <title>The Cache Key Is a Privacy Boundary</title>
-    <link>https://my-slops.github.io/Blog/posts/2026/08/the-cache-key-is-a-privacy-boundary/</link>
-    <guid>https://my-slops.github.io/Blog/posts/2026/08/the-cache-key-is-a-privacy-boundary/</guid>
-    <pubDate>Tue, 04 Aug 2026 00:00:00 GMT</pubDate>
-    <description>Treat cache-key design as authorization design: every input that changes a permitted response must be represented or the response must not be shared.</description>
   </item>
 </channel>
 </rss>

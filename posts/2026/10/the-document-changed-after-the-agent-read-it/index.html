@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>The Document Changed After the Agent Read It | Blog</title>
+    <meta name="description" content="Keep the human-readable source link, but attach a revision, validator, or content digest plus retrieval time when an agent&#39;s answer or action depends on mutable evidence." />
+    <link rel="canonical" href="https://my-slops.github.io/Blog/posts/2026/10/the-document-changed-after-the-agent-read-it/" />
+    <style>
+      :root { color-scheme: light dark; }
+      body { font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; line-height: 1.7; max-width: 760px; margin: 40px auto; padding: 0 16px; }
+      a { color: #0a58ca; text-decoration: none; }
+      a:hover { text-decoration: underline; }
+      .meta { color: #666; font-size: 0.95rem; margin-bottom: 1rem; }
+      .tags { display: flex; gap: 0.5rem; list-style: none; padding: 0; margin: 0.75rem 0 1.25rem; flex-wrap: wrap; }
+      .tags li { background: #eef2ff; color: #3730a3; border-radius: 999px; padding: 0.2rem 0.6rem; font-size: 0.8rem; }
+      article h1, article h2, article h3 { line-height: 1.3; }
+      article pre { overflow-x: auto; background: #111827; color: #f9fafb; padding: 0.9rem; border-radius: 8px; }
+      article code { font-family: ui-monospace,SFMono-Regular,Menlo,monospace; }
+      article blockquote { border-left: 4px solid #d1d5db; margin: 1rem 0; padding: 0.2rem 0.9rem; color: #4b5563; }
+      hr { border: 0; border-top: 1px solid #e5e7eb; margin: 2rem 0; }
+    </style>
+  </head>
+  <body>
+    <p><a href="https://my-slops.github.io/Blog/">← Home</a></p>
+    <article>
+      <h1>The Document Changed After the Agent Read It</h1>
+      <p class="meta">Oct 27, 2026</p>
+      <ul class="tags"><li>ai agents</li><li>api design</li><li>reliability</li><li>developer tooling</li><li>verification</li></ul>
+      <h2>TL;DR</h2>
+<p>An agent can cite a policy URL correctly and still leave no way to determine which policy it read. The page may be edited in place, the search index may refresh, or a repository branch may advance between the answer and the audit.</p>
+<p>For consequential answers and actions, store two things separately: a durable locator for people to open, and an identity for the representation the system actually used. That identity can be a provider revision, Git commit and path, a strong HTTP validator, or a content digest. Pair it with retrieval time and the source scope. A URL alone is a destination, not evidence provenance.</p>
+<h2>Context</h2>
+<p>An internal assistant approves a reimbursement because it retrieves this policy:</p>
+<pre><code class="language-json">{
+  &quot;sourceId&quot;: &quot;benefits-handbook&quot;,
+  &quot;url&quot;: &quot;https://intranet.example/policies/benefits&quot;,
+  &quot;excerpt&quot;: &quot;Employees may claim up to $500 for ergonomic equipment.&quot;
+}
+</code></pre>
+<p>Three weeks later, Finance changes the policy to require manager approval. A reviewer asks why the assistant approved a $450 monitor. The stored URL now displays the new rule. The assistant&#39;s citation is not fabricated, but the system cannot show the evidence that was available when it acted.</p>
+<p>That is not merely an audit inconvenience. It makes several ordinary engineering tasks ambiguous:</p>
+<ul>
+<li>Was the original decision wrong, or was it correct under a superseded policy?</li>
+<li>Did a retrieval deployment begin returning a different document under the same source ID?</li>
+<li>Should old decisions be re-evaluated after a change, and which ones?</li>
+<li>Does a citation in an agent response still support its sentence when a user opens it later?</li>
+</ul>
+<p>The problem is easy to miss because URLs and record IDs are useful. They answer <em>where did this come from?</em> They usually do not answer <em>what exact representation did the agent see?</em></p>
+<p>HTTP makes the distinction explicit. A resource can have different selected representations over time or through content negotiation, and an <code>ETag</code> is a validator for the selected representation rather than an enduring name for the resource. <a href="https://www.rfc-editor.org/rfc/rfc9110.html">RFC 9110</a> describes entity tags as opaque validators used to distinguish representations. The URI and the representation are related, but they are not interchangeable.</p>
+<h2>Key Points</h2>
+<h3>A citation needs a locator and a witness</h3>
+<p>Keep the human-readable link. It is useful for a reviewer, a user, and a correction workflow. But give an agent decision a second identifier that names or verifies the evidence it consumed.</p>
+<pre><code class="language-ts">type Evidence = {
+  sourceId: string;             // Durable product-level identity
+  locator: string;              // Where a human can go now
+  retrievedAt: string;          // When this observation was made
+  representation: {
+    kind: &quot;git_commit&quot; | &quot;provider_revision&quot; | &quot;http_etag&quot; | &quot;content_digest&quot;;
+    value: string;
+    algorithm?: &quot;sha-256&quot;;
+  };
+  excerpt: string;
+};
+</code></pre>
+<p>The exact schema is not the point. The split is. <code>locator</code> lets a human navigate. <code>representation</code> lets the system establish what it was relying on at a particular time.</p>
+<p>For a Git-backed handbook, <code>commit + path</code> is usually a better witness than the default-branch URL. For a document platform, use its immutable revision ID if it exposes one. For a service that supplies a reliable strong <code>ETag</code>, record that validator with the request context. When no native revision exists, retain an access-controlled snapshot or a digest of the retrieved normalized bytes.</p>
+<p>Do not call every string named <code>version</code> evidence identity. A deployment version, document <code>updated_at</code>, or search-index generation may be useful context, but it is only sufficient if it identifies the representation your decision actually used. A timestamp can collide, be truncated, or describe an upstream source while the retrieval layer served an older copy.</p>
+<h3>Hashes establish sameness, not meaning or permission</h3>
+<p>A content digest gives a precise answer to a narrow question: are these bytes the same as the bytes previously observed? It does not prove that the document was authoritative, that the agent interpreted it correctly, or that a reviewer may access a stored copy.</p>
+<p>That boundary is valuable. <a href="https://www.rfc-editor.org/rfc/rfc9530.html">RFC 9530</a> defines <code>Content-Digest</code> for HTTP message content and <code>Repr-Digest</code> for representation data. It also notes that digest fields alone do not provide general protection against malicious message tampering; an attacker can substitute content and a new digest unless another mechanism protects the relationship. A digest is therefore a strong <em>comparison handle</em>, not a standalone trust decision.</p>
+<p>The same warning applies to a Git object ID. It can pinpoint a file&#39;s contents in a repository history, but it does not certify that the branch was trusted, that the file was approved for this policy domain, or that the agent should have been allowed to read the file. Identity, provenance, authorization, and semantic relevance are separate checks.</p>
+<p>Do not fix mutable citations by retaining every full document in a general-purpose trace store. That can turn a reproducibility feature into a data-retention breach. The audit record needs enough evidence to answer the relevant dispute, subject to the source&#39;s classification and retention policy.</p>
+<h3>Preserve the retrieval boundary, not only the document</h3>
+<p>The document identity alone can still be incomplete. A policy assistant often receives an excerpt generated by a search service, and the answer may depend on rank, filters, chunk boundaries, and tenant-specific access rules.</p>
+<p>For a decision that needs to be reproduced, record the small set of facts that could change its evidence:</p>
+<table>
+<thead>
+<tr>
+<th>Evidence field</th>
+<th>What it resolves later</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Source and representation identity</td>
+<td>Which document revision supplied the text?</td>
+</tr>
+<tr>
+<td>Retrieval time</td>
+<td>What was known at the decision boundary?</td>
+</tr>
+<tr>
+<td>Query or task identity</td>
+<td>What was the system trying to establish?</td>
+</tr>
+<tr>
+<td>Authorized scope</td>
+<td>Which corpus and policy-filtered view were eligible?</td>
+</tr>
+<tr>
+<td>Excerpt or byte range</td>
+<td>Which part of the representation supported the claim?</td>
+</tr>
+<tr>
+<td>Retrieval/index configuration revision, when material</td>
+<td>Did a rollout alter source selection or chunking?</td>
+</tr>
+</tbody></table>
+<p>This is not a request to log raw prompts and entire private corpora. The scope record can be deliberately bounded: a corpus label, a policy version, a search configuration ID, and an opaque authorized-scope handle may be enough. The goal is to distinguish “the system read version 42 of this policy” from “the system found something at this URL once.”</p>
+<p>That precision matters especially for absence claims. <a href="https://my-slops.github.io/Blog/posts/2026/10/an-empty-search-result-is-not-evidence-that-nothing-exists/">An Empty Search Result Is Not Evidence That Nothing Exists</a> explains why a zero-result response needs coverage and freshness semantics. Positive evidence has the symmetric problem: a source ID without a representation identity cannot say what positive material the agent actually saw.</p>
+<h3>Re-evaluate by changed evidence, not by guesswork</h3>
+<p>Representation identity makes policy changes actionable. Suppose each agent decision records the document revision it used. When the policy changes, a system can identify decisions based on the old revision and choose a proportionate response:</p>
+<ul>
+<li>no action for a formatting-only edit;</li>
+<li>notify an owner for decisions still pending;</li>
+<li>re-run advice that will be shown again; or</li>
+<li>investigate already-completed actions that the changed rule may affect.</li>
+</ul>
+<p>Without that connection, teams tend to choose between two bad options: ignore a change because the old evidence is not known, or re-run every historical answer because the source URL changed. Neither is a reliable change-management policy.</p>
+<p>There is an important limit: a new revision does not automatically invalidate every earlier decision. A policy can change prospectively, and a software documentation edit may clarify behavior without changing it. The system needs a domain owner to classify material changes. Evidence identity makes the blast radius visible; it does not decide the business rule.</p>
+<h3>Make the action receipt cite the evidence it consumed</h3>
+<p>For a system that performs an external action, keep the evidence record with the operation receipt rather than only with a conversational transcript.</p>
+<pre><code class="language-json">{
+  &quot;operationId&quot;: &quot;expense-approval-7f91&quot;,
+  &quot;result&quot;: &quot;approved&quot;,
+  &quot;evidence&quot;: [{
+    &quot;sourceId&quot;: &quot;benefits-handbook&quot;,
+    &quot;locator&quot;: &quot;https://intranet.example/policies/benefits&quot;,
+    &quot;retrievedAt&quot;: &quot;2026-10-27T14:03:12Z&quot;,
+    &quot;representation&quot;: {
+      &quot;kind&quot;: &quot;provider_revision&quot;,
+      &quot;value&quot;: &quot;rev_2026_10_12_04&quot;
+    },
+    &quot;excerptRange&quot;: { &quot;start&quot;: 1840, &quot;end&quot;: 1917 }
+  }]
+}
+</code></pre>
+<p>The operation receipt should still identify the actor, authorization decision, inputs, effect status, and idempotency identity where applicable. Evidence provenance is one component of an honest receipt, not a replacement for the rest. <a href="https://my-slops.github.io/Blog/posts/2026/10/starting-a-job-is-not-the-same-as-finishing-it/">Starting a Job Is Not the Same as Finishing It</a> makes the analogous point for external effects: acceptance of work and proof of its outcome need different states.</p>
+<p>For lower-risk chat answers, the same design can be lighter. Keep the visible URL and an internal retrieval event ID that resolves to the source revision while retention permits. Do not make a model generate revision IDs from memory, and do not ask it to infer whether two source labels represent the same content. The retrieval service has the bytes and metadata; it should attach the witness deterministically.</p>
+<h2>Steps / Code</h2>
+<p>Review a retrieval-backed answer or action with these questions:</p>
+<ol>
+<li>Can a reviewer retrieve the exact representation used, or at least verify a retained copy against the recorded identity?</li>
+<li>Is the human-facing locator kept separate from the representation identity?</li>
+<li>Does the record say when the system observed the evidence and under what source scope?</li>
+<li>If the evidence is mutable, can a material revision identify decisions that relied on its earlier form?</li>
+<li>Does retention respect the data classification, deletion promise, and access policy of the source?</li>
+<li>Can an eval swap a document revision at the same URL and verify that the agent&#39;s citation, decision receipt, and re-evaluation path behave as designed?</li>
+</ol>
+<p>Start with high-impact decisions: approvals, customer commitments, security guidance, compliance answers, and automated changes. A draft-writing assistant may only need a plain source link. An agent that denies an employee benefit or changes a production setting needs a stronger answer to “based on what, exactly?”</p>
+<h2>Trade-offs</h2>
+<p>Versioned evidence costs storage, index plumbing, and schema discipline. Some upstream sources do not expose revisions. Snapshots can be expensive or legally inappropriate to retain, while an <code>ETag</code> may be weak, short-lived, or unavailable. Do not promise perfect historical replay when the source contract cannot support it.</p>
+<p>There is also a useful middle ground. Record the retrieval time, source locator, provider revision if available, and a bounded excerpt first. Add a digest or stored snapshot only where the decision&#39;s risk and retention policy justify it. The requirement is not archival maximalism. It is an explicit statement of what evidence can be reconstructed later.</p>
+<p>Finally, reproducibility is not a license to replay an old decision automatically. Current authorization, current facts, and current policy may all differ. The old evidence tells you why the prior system behaved as it did. A new action needs its own fresh evidence and access decision.</p>
+<h2>References</h2>
+<ul>
+<li>IETF, <a href="https://www.rfc-editor.org/rfc/rfc9110.html">RFC 9110: HTTP Semantics</a></li>
+<li>IETF, <a href="https://www.rfc-editor.org/rfc/rfc9530.html">RFC 9530: Digest Fields</a></li>
+<li>This repository, <a href="https://my-slops.github.io/Blog/posts/2026/10/an-empty-search-result-is-not-evidence-that-nothing-exists/">An Empty Search Result Is Not Evidence That Nothing Exists</a></li>
+<li>This repository, <a href="https://my-slops.github.io/Blog/posts/2026/10/starting-a-job-is-not-the-same-as-finishing-it/">Starting a Job Is Not the Same as Finishing It</a></li>
+</ul>
+<h2>Final Take</h2>
+<p>An agent does not need to preserve every document forever. It does need to stop treating a mutable link as a complete account of its evidence.</p>
+<p>Keep the link for humans. Keep a representation identity for systems. When an answer or action matters, record when that evidence was observed and under what retrieval scope. Then “the document changed” becomes an investigable change, not a hole in the system&#39;s memory.</p>
+<h2>Changelog</h2>
+<ul>
+<li>2026-10-27: Initial publication on evidence identity for retrieval-backed agent decisions.</li>
+</ul>
+
+    </article>
+  </body>
+</html>
