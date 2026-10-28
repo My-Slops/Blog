@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>An Artifact Digest Cannot Explain Runtime Behavior | Blog</title>
+    <meta name="description" content="Keep artifact provenance, but record the non-secret configuration sources, revisions, and rollout state that materially affect each deployment. Otherwise an incident can identify the binary and still be unable to explain its behavior." />
+    <link rel="canonical" href="https://my-slops.github.io/Blog/posts/2026/10/an-artifact-digest-cannot-explain-runtime-behavior/" />
+    <style>
+      :root { color-scheme: light dark; }
+      body { font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; line-height: 1.7; max-width: 760px; margin: 40px auto; padding: 0 16px; }
+      a { color: #0a58ca; text-decoration: none; }
+      a:hover { text-decoration: underline; }
+      .meta { color: #666; font-size: 0.95rem; margin-bottom: 1rem; }
+      .tags { display: flex; gap: 0.5rem; list-style: none; padding: 0; margin: 0.75rem 0 1.25rem; flex-wrap: wrap; }
+      .tags li { background: #eef2ff; color: #3730a3; border-radius: 999px; padding: 0.2rem 0.6rem; font-size: 0.8rem; }
+      article h1, article h2, article h3 { line-height: 1.3; }
+      article pre { overflow-x: auto; background: #111827; color: #f9fafb; padding: 0.9rem; border-radius: 8px; }
+      article code { font-family: ui-monospace,SFMono-Regular,Menlo,monospace; }
+      article blockquote { border-left: 4px solid #d1d5db; margin: 1rem 0; padding: 0.2rem 0.9rem; color: #4b5563; }
+      hr { border: 0; border-top: 1px solid #e5e7eb; margin: 2rem 0; }
+    </style>
+  </head>
+  <body>
+    <p><a href="https://my-slops.github.io/Blog/">← Home</a></p>
+    <article>
+      <h1>An Artifact Digest Cannot Explain Runtime Behavior</h1>
+      <p class="meta">Oct 28, 2026</p>
+      <ul class="tags"><li>release-engineering</li><li>reliability</li><li>operations</li><li>deployment</li><li>developer tooling</li></ul>
+      <h2>TL;DR</h2>
+<p>An artifact digest can answer a crucial incident question: <em>which bytes did this process start from?</em> It cannot, by itself, explain why those bytes allowed a new workflow, sent traffic to a different backend, rejected a request, or applied a different retention rule.</p>
+<p>Runtime behavior also depends on configuration and decisions that may change independently of the artifact: deployment parameters, mounted settings, feature-flag evaluations, policy bundles, and selected dependency endpoints. Keep build provenance for the artifact, then attach a small, non-secret runtime receipt to the deployment. It should identify the material configuration sources and their revisions, how they reached the process, and the rollout state that made them effective.</p>
+<h2>Context</h2>
+<p>An incident begins with a sudden jump in failed report exports. The service image digest has not changed since yesterday. The team concludes that the rollout cannot be involved and starts looking for a dependency outage.</p>
+<p>An hour later, someone notices that the reporting limit was raised through a ConfigMap. Half of the pods read it through environment variables and still have the old value. The other half mount it as a volume and received the new value after their local kubelet refreshed it. A feature flag also routed a small cohort to the new export path.</p>
+<p>The image digest was still useful evidence. It established that all pods began with the same executable artifact. It just did not establish that they were running under the same conditions.</p>
+<p>This is the gap between a <strong>build record</strong> and a <strong>runtime receipt</strong>. Build provenance answers how an artifact was produced. SLSA describes provenance as verifiable information about where, when, and how an artifact was produced. <a href="https://slsa.dev/spec/v1.2/provenance">SLSA provenance</a> is a strong model for that chain. Deployment investigation asks one more question: <em>what material inputs were in force when this particular replica handled traffic?</em></p>
+<p>The answer should not be a dump of every environment variable or a copy of every secret. It should be a deliberate, access-controlled identity record for the inputs that can explain a change in behavior.</p>
+<h2>Key Points</h2>
+<h3>The same artifact can honestly produce different behavior</h3>
+<p>Configuration is not a footnote to deployment. It is executable behavior selected outside the build. A payment service can use one artifact digest while its behavior varies with a region allowlist, a policy revision, an API endpoint, a concurrency limit, an experiment assignment, or a certificate bundle.</p>
+<p>This matters in both directions:</p>
+<ul>
+<li>a new artifact can behave as expected because the old configuration remains in force;</li>
+<li>an unchanged artifact can change behavior because one runtime input advances; and</li>
+<li>a fleet can be mixed even when every pod reports the same image tag or digest.</li>
+</ul>
+<p>The familiar advice to record the effective configuration at startup is valuable, but an incident also needs an identity that can be followed back to its source. <a href="https://my-slops.github.io/Blog/posts/2026/10/an-environment-variable-is-a-deployment-time-api/">An Environment Variable Is a Deployment-Time API</a> explains why configuration has callers and compatibility requirements. Here, the additional requirement is historical evidence: a responder needs to distinguish the configuration that is effective <em>now</em> from the one that was effective on an affected replica at 14:07 UTC.</p>
+<h3>Record references and revisions, not secret values</h3>
+<p>A runtime receipt should be narrow enough to be safe in an incident system and precise enough to compare two deployments. For example:</p>
+<pre><code class="language-json">{
+  &quot;deploymentId&quot;: &quot;dep_01J9C4&quot;,
+  &quot;service&quot;: &quot;reporting-api&quot;,
+  &quot;environment&quot;: &quot;production&quot;,
+  &quot;artifact&quot;: {
+    &quot;image&quot;: &quot;registry.example.com/reporting-api&quot;,
+    &quot;digest&quot;: &quot;sha256:6c8f...b712&quot;
+  },
+  &quot;runtimeInputs&quot;: [
+    {
+      &quot;kind&quot;: &quot;config_map&quot;,
+      &quot;reference&quot;: &quot;reporting-settings-v42&quot;,
+      &quot;contentDigest&quot;: &quot;sha256:14ab...e2d1&quot;,
+      &quot;delivery&quot;: &quot;pod_env_at_start&quot;
+    },
+    {
+      &quot;kind&quot;: &quot;policy_bundle&quot;,
+      &quot;reference&quot;: &quot;authorization/policy&quot;,
+      &quot;revision&quot;: &quot;git:0a21f9d&quot;
+    },
+    {
+      &quot;kind&quot;: &quot;feature_flag&quot;,
+      &quot;key&quot;: &quot;async-export-v2&quot;,
+      &quot;variant&quot;: &quot;treatment&quot;,
+      &quot;provider&quot;: &quot;flags-prod&quot;,
+      &quot;resolutionReason&quot;: &quot;TARGETING_MATCH&quot;
+    }
+  ],
+  &quot;observedAt&quot;: &quot;2026-10-28T14:07:13Z&quot;
+}
+</code></pre>
+<p>The values are illustrative. The important distinction is between a reference that helps someone find the source and a revision, variant, or digest that identifies the material input actually used.</p>
+<p>Never put raw secrets in a receipt merely to make it reproducible. A secret&#39;s version identifier, key ID, rotation epoch, or a protected opaque handle can be enough to show that two replicas used different credentials. Keep the actual secret in its secret-management boundary. Kubernetes makes the related distinction for ConfigMaps: they are intended for non-confidential data, while confidential data needs a Secret or another suitable protection. <a href="https://kubernetes.io/docs/concepts/configuration/configmap/">Its ConfigMap documentation</a> states this explicitly.</p>
+<p>Some inputs do not need recording. An HTTP connection-pool limit may be material to a latency incident but irrelevant to a tax calculation. A request ID is useful for tracing but does not define deployment behavior. Choose the fields from the failure modes the service promises to investigate, not from a wish to serialize the whole process.</p>
+<h3>Name how an input becomes effective</h3>
+<p>An input&#39;s revision alone does not settle whether a process used it. Configuration delivery has semantics.</p>
+<p>Kubernetes is a good concrete example. A ConfigMap mounted as a volume is eventually updated; the delay includes the kubelet sync period and cache propagation. A ConfigMap consumed as environment variables is not automatically updated and needs a pod restart. A <code>subPath</code> mount does not receive ConfigMap updates. Those are three different runtime contracts for a setting that may have the same ConfigMap name. <a href="https://kubernetes.io/docs/concepts/configuration/configmap/#mounted-configmaps-are-updated-automatically">Kubernetes documents the distinction</a>.</p>
+<p>That means this is incomplete:</p>
+<pre><code class="language-text">config: reporting-settings, updated at 14:00
+</code></pre>
+<p>For a behavior-changing setting, the receipt or deployment record needs enough information to make the propagation model visible:</p>
+<pre><code class="language-text">config: reporting-settings-v42
+delivery: pod_env_at_start
+effective_after: pod restart
+</code></pre>
+<p>or:</p>
+<pre><code class="language-text">config: reporting-settings
+delivery: watched_volume
+effective_after: kubelet propagation plus application reload
+</code></pre>
+<p>Neither form promises instant fleet convergence. That is exactly why the distinction belongs in the record. <a href="https://my-slops.github.io/Blog/posts/2026/10/revocation-is-a-latency-requirement/">Revocation Is a Latency Requirement</a> makes the same broader point for authorization decisions: a source-of-truth update and an enforced new decision are different events.</p>
+<h3>Feature-flag outcomes are runtime evidence, not deployment metadata</h3>
+<p>Feature flags complicate a deployment receipt because their effective value can depend on request context. Two requests handled by the same process can legitimately take different paths.</p>
+<p>Do not log every evaluation context; it may contain user identifiers or sensitive attributes. Instead retain bounded information at the decision boundary when a flag materially changes an outcome: flag key, provider, variant or value class, evaluation reason, and an opaque cohort or rule revision when the provider supplies one. OpenFeature&#39;s provider specification defines resolution details including a returned value, an optional variant, a reason such as <code>TARGETING_MATCH</code>, <code>CACHED</code>, or <code>STALE</code>, and optional flag metadata. <a href="https://openfeature.dev/specification/sections/providers/">OpenFeature&#39;s provider specification</a> is a useful portable shape for this evidence.</p>
+<p>The receipt for a deployment should state which flag provider and static configuration the process loaded. A request trace or operation record should carry the particular flag result when it changes a user-visible decision. Combining the two scopes causes trouble:</p>
+<table>
+<thead>
+<tr>
+<th>Evidence</th>
+<th>Useful question it answers</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Deployment receipt</td>
+<td>Which artifact and startup/runtime inputs could this replica use?</td>
+</tr>
+<tr>
+<td>Request or operation trace</td>
+<td>Which flag, policy, or routing decision affected this request?</td>
+</tr>
+<tr>
+<td>Audit record</td>
+<td>Who authorized a protected action and under which policy?</td>
+</tr>
+</tbody></table>
+<p>A feature flag is still not an authorization decision. <a href="https://my-slops.github.io/Blog/posts/2026/10/a-feature-flag-is-not-an-authorization-check/">A Feature Flag Is Not an Authorization Check</a> covers that boundary. Capturing a flag result makes a decision explainable; it does not make the decision permissible.</p>
+<h3>Prefer immutable named inputs for rollout-critical changes</h3>
+<p>Mutable names invite post-incident ambiguity. <code>reporting-settings</code> can name different content next week. A digest or revision gives a responder a stable comparison point. For configuration that must roll out atomically with a deployment, use a versioned input name or immutable revision and put that name in the workload specification.</p>
+<p>Kubernetes supports immutable ConfigMaps: once marked immutable, their data cannot be changed; replacing them requires deleting and recreating the object, and Kubernetes recommends recreating pods that use the old mount. <a href="https://kubernetes.io/docs/concepts/configuration/configmap/#immutable-configmaps">That mechanism</a> is not mandatory for every setting, but it illustrates a useful design: a rollout-critical configuration change should have an identity that does not silently move under a running workload.</p>
+<p>Live-reload settings are still appropriate for some operations. A rate limit, temporary endpoint failover, or emergency allowlist may need to change without a full deploy. Give those settings an explicit propagation promise, record the observed revision where it affects a request, and test the mixed-revision period. Do not pretend they are deployment constants merely because they are stored in the same configuration system.</p>
+<h2>Steps / Code</h2>
+<p>Start with a short inventory of runtime inputs that can materially change behavior:</p>
+<ol>
+<li>List artifact selection, startup configuration, policy sources, feature flags, endpoint/routing choices, and externally loaded model or rules bundles.</li>
+<li>For each one, write its stable reference, its revision or content identity, whether it is secret, and how it becomes effective.</li>
+<li>Emit a redacted deployment receipt when a replica starts or a deployment is promoted. Link it to the artifact digest, deployment ID, and environment.</li>
+<li>Add request-level evidence only for inputs whose dynamic result changes a consequential user outcome.</li>
+<li>During a rollout, compare receipts across replicas. A same-digest fleet with different input identities is a mixed runtime, not a single deployment.</li>
+<li>Test an incident query: given a time, service, and request or operation ID, can an operator recover the artifact and all material non-secret inputs without reading current configuration by accident?</li>
+</ol>
+<p>The receipt must be truthful about its boundary. A startup record cannot prove a setting that an application hot-reloads later. A per-request trace cannot prove which configuration a background job used before it was retried. Model the input at the scope where it actually becomes effective.</p>
+<h2>Trade-offs</h2>
+<p>More identity records mean more storage, access-control work, and operational vocabulary. They can also create a false sense of reproducibility: having the same image, ConfigMap digest, and flag variant may still not recreate a third-party dependency response, live database state, or a user&#39;s input.</p>
+<p>That is a reason to be precise, not to give up. A deployment receipt identifies material conditions; it does not claim to be a complete replay system. For a small service with one static configuration file, an artifact digest plus a configuration commit may be enough. For a multi-tenant agent service with dynamic policy and flags, the evidence needs to be split across deployment, request, and audit scopes.</p>
+<p>The cost is worthwhile when a behavior-changing input can advance without changing the container image. In that world, an artifact digest tells an investigator where to begin, not where to stop.</p>
+<h2>References</h2>
+<ul>
+<li>SLSA, <a href="https://slsa.dev/spec/v1.2/provenance">Provenance</a></li>
+<li>Kubernetes, <a href="https://kubernetes.io/docs/concepts/configuration/configmap/">ConfigMaps</a></li>
+<li>Kubernetes, <a href="https://kubernetes.io/docs/concepts/configuration/configmap/#mounted-configmaps-are-updated-automatically">Mounted ConfigMaps are updated automatically</a></li>
+<li>OpenFeature, <a href="https://openfeature.dev/specification/sections/providers/">Provider specification</a></li>
+<li>This repository, <a href="https://my-slops.github.io/Blog/posts/2026/10/start-an-incident-with-the-artifact-digest/">Start an Incident With the Artifact Digest</a></li>
+<li>This repository, <a href="https://my-slops.github.io/Blog/posts/2026/10/an-environment-variable-is-a-deployment-time-api/">An Environment Variable Is a Deployment-Time API</a></li>
+<li>This repository, <a href="https://my-slops.github.io/Blog/posts/2026/10/revocation-is-a-latency-requirement/">Revocation Is a Latency Requirement</a></li>
+</ul>
+<h2>Final Take</h2>
+<p>An artifact digest is necessary evidence. It is not a complete explanation of runtime behavior.</p>
+<p>Keep the digest and its build provenance. Then record the few non-secret configuration, policy, and rollout inputs that can make the same bytes act differently. When a deployment is mixed, the incident record should say so before the investigation turns into a comparison between today&#39;s settings and yesterday&#39;s outage.</p>
+<h2>Changelog</h2>
+<ul>
+<li>2026-10-28: Initial publication on recording runtime-input identity alongside artifact provenance.</li>
+</ul>
+
+    </article>
+  </body>
+</html>

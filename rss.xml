@@ -6,6 +6,13 @@
   <description>Daily writing, optimized for humans and LLMs.</description>
   <language>en-us</language>
   <item>
+    <title>An Artifact Digest Cannot Explain Runtime Behavior</title>
+    <link>https://my-slops.github.io/Blog/posts/2026/10/an-artifact-digest-cannot-explain-runtime-behavior/</link>
+    <guid>https://my-slops.github.io/Blog/posts/2026/10/an-artifact-digest-cannot-explain-runtime-behavior/</guid>
+    <pubDate>Wed, 28 Oct 2026 00:00:00 GMT</pubDate>
+    <description>Keep artifact provenance, but record the non-secret configuration sources, revisions, and rollout state that materially affect each deployment. Otherwise an incident can identify the binary and still be unable to explain its behavior.</description>
+  </item>
+  <item>
     <title>The Document Changed After the Agent Read It</title>
     <link>https://my-slops.github.io/Blog/posts/2026/10/the-document-changed-after-the-agent-read-it/</link>
     <guid>https://my-slops.github.io/Blog/posts/2026/10/the-document-changed-after-the-agent-read-it/</guid>
@@ -347,13 +354,6 @@
     <guid>https://my-slops.github.io/Blog/posts/2026/08/the-same-tree-dedup-rule-for-autonomous-publishing/</guid>
     <pubDate>Fri, 07 Aug 2026 00:00:00 GMT</pubDate>
     <description>A new event is not necessarily new content. The same-tree dedup rule groups equivalent candidates before ranking or publishing them, reducing duplicate releases and noisy review.</description>
-  </item>
-  <item>
-    <title>The Authority-Scoped Convergence Rule for Autonomous Publishing</title>
-    <link>https://my-slops.github.io/Blog/posts/2026/08/the-authority-scoped-convergence-rule-for-autonomous-publishing/</link>
-    <guid>https://my-slops.github.io/Blog/posts/2026/08/the-authority-scoped-convergence-rule-for-autonomous-publishing/</guid>
-    <pubDate>Wed, 05 Aug 2026 00:00:00 GMT</pubDate>
-    <description>There is no such thing as globally converged publishing state. The authority-scoped convergence rule requires every claim of alignment to name the source that grants release permission.</description>
   </item>
 </channel>
 </rss>

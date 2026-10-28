@@ -1,7 +1,22 @@
 {
   "tag": "reliability",
-  "count": 119,
+  "count": 120,
   "posts": [
+    {
+      "title": "An Artifact Digest Cannot Explain Runtime Behavior",
+      "date": "2026-10-28",
+      "updated": "2026-10-28",
+      "summary": "Keep artifact provenance, but record the non-secret configuration sources, revisions, and rollout state that materially affect each deployment. Otherwise an incident can identify the binary and still be unable to explain its behavior.",
+      "tags": [
+        "release-engineering",
+        "reliability",
+        "operations",
+        "deployment",
+        "developer tooling"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/10/an-artifact-digest-cannot-explain-runtime-behavior/",
+      "path": "posts/2026/10/2026-10-28-an-artifact-digest-cannot-explain-runtime-behavior.md"
+    },
     {
       "title": "The Document Changed After the Agent Read It",
       "date": "2026-10-27",
