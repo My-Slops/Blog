@@ -1,7 +1,21 @@
 {
   "tag": "reliability",
-  "count": 120,
+  "count": 121,
   "posts": [
+    {
+      "title": "Keep Request IDs Out of Metrics",
+      "date": "2026-10-29",
+      "updated": "2026-10-29",
+      "summary": "A metric label is not a convenient debug field. Give metrics small, intentional vocabularies; carry request IDs and raw errors in traces or logs; and treat a cardinality limit as a warning that a breakdown may no longer be complete.",
+      "tags": [
+        "observability",
+        "reliability",
+        "developer tooling",
+        "ai agents"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/10/keep-request-ids-out-of-metrics/",
+      "path": "posts/2026/10/2026-10-29-keep-request-ids-out-of-metrics.md"
+    },
     {
       "title": "An Artifact Digest Cannot Explain Runtime Behavior",
       "date": "2026-10-28",

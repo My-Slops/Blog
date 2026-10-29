@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Keep Request IDs Out of Metrics | Blog</title>
+    <meta name="description" content="A metric label is not a convenient debug field. Give metrics small, intentional vocabularies; carry request IDs and raw errors in traces or logs; and treat a cardinality limit as a warning that a breakdown may no longer be complete." />
+    <link rel="canonical" href="https://my-slops.github.io/Blog/posts/2026/10/keep-request-ids-out-of-metrics/" />
+    <style>
+      :root { color-scheme: light dark; }
+      body { font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; line-height: 1.7; max-width: 760px; margin: 40px auto; padding: 0 16px; }
+      a { color: #0a58ca; text-decoration: none; }
+      a:hover { text-decoration: underline; }
+      .meta { color: #666; font-size: 0.95rem; margin-bottom: 1rem; }
+      .tags { display: flex; gap: 0.5rem; list-style: none; padding: 0; margin: 0.75rem 0 1.25rem; flex-wrap: wrap; }
+      .tags li { background: #eef2ff; color: #3730a3; border-radius: 999px; padding: 0.2rem 0.6rem; font-size: 0.8rem; }
+      article h1, article h2, article h3 { line-height: 1.3; }
+      article pre { overflow-x: auto; background: #111827; color: #f9fafb; padding: 0.9rem; border-radius: 8px; }
+      article code { font-family: ui-monospace,SFMono-Regular,Menlo,monospace; }
+      article blockquote { border-left: 4px solid #d1d5db; margin: 1rem 0; padding: 0.2rem 0.9rem; color: #4b5563; }
+      hr { border: 0; border-top: 1px solid #e5e7eb; margin: 2rem 0; }
+    </style>
+  </head>
+  <body>
+    <p><a href="https://my-slops.github.io/Blog/">← Home</a></p>
+    <article>
+      <h1>Keep Request IDs Out of Metrics</h1>
+      <p class="meta">Oct 29, 2026</p>
+      <ul class="tags"><li>observability</li><li>reliability</li><li>developer tooling</li><li>ai agents</li></ul>
+      <h2>TL;DR</h2>
+<p>Metrics are for repeatedly answering a small set of operational questions. A label is an axis in that question set, not a spare column for whatever would help debug the current request.</p>
+<p><code>method</code>, <code>route</code>, and a normalized outcome can make a request metric useful. A request ID, raw URL, user ID, conversation ID, or error message usually makes it unbounded. The result is not merely a higher bill. It can consume collector memory, slow queries, obscure the aggregate an alert depends on, or push data into an overflow bucket that cannot answer the original breakdown.</p>
+<p>Keep the dimension vocabulary intentional and bounded. Put per-request evidence in traces and logs, then connect it back to the metric through exemplars or correlation rather than turning every request into its own time series.</p>
+<h2>Context</h2>
+<p>An agent service adds a counter while investigating tool failures:</p>
+<pre><code class="language-text">agent_tool_calls_total{
+  tool=&quot;calendar.search&quot;,
+  outcome=&quot;failed&quot;,
+  request_id=&quot;req_8c1…&quot;,
+  error=&quot;upstream returned 503 after 12.4 seconds&quot;
+}
+</code></pre>
+<p>The code looks useful. A dashboard can show the failing request and its exact error without another lookup.</p>
+<p>It also changes the storage model. If <code>request_id</code> changes for every call, each call produces a different label set. If the error includes a varying timeout, host name, or user-provided value, it creates more variants. The counter no longer describes a handful of repeatable operational categories; it approaches one series per event.</p>
+<p>Prometheus makes the consequence explicit: every unique combination of label key-value pairs is a new time series, and it cautions against unbounded labels such as user IDs and email addresses. <a href="https://prometheus.io/docs/concepts/data_model/">Its data model</a> also notes that changing even one label value creates a new series.</p>
+<p>That rule matters for agent systems because agent telemetry is unusually tempting to enrich. A tool invocation has a task ID, turn number, model name, target object, tenant, policy decision, raw arguments, provider error, and trace ID. Most of those can be valuable evidence. They are not all dimensions that should be aggregated indefinitely.</p>
+<h2>Key Points</h2>
+<h3>Decide what a metric can group by before emitting it</h3>
+<p>For each label, write down the question it is meant to answer and its allowed values. For a tool-call counter, a useful design might be:</p>
+<pre><code class="language-text">agent_tool_calls_total{
+  tool=&quot;calendar.search|calendar.create|docs.find&quot;,
+  outcome=&quot;success|denied|timeout|upstream_error&quot;,
+  mode=&quot;read|write&quot;
+}
+</code></pre>
+<p>That metric can answer practical questions:</p>
+<ul>
+<li>Which tool is failing?</li>
+<li>Is the failure a policy denial, a timeout, or a downstream error?</li>
+<li>Are write tools behaving differently from read tools?</li>
+</ul>
+<p>Those label sets have an understandable upper bound. Add <code>region</code> only if operations genuinely needs the regional breakdown; add <code>tenant_tier</code> only if it has a fixed, governed vocabulary. A metric can have several labels without being a problem. The problem is accepting a dimension whose values are controlled by traffic, customers, or the detailed text of failures.</p>
+<p>Prometheus&#39;s naming guidance gives the right mental model: labels differentiate characteristics of the thing being measured, and a <code>sum()</code> or <code>avg()</code> over the dimensions should normally remain meaningful. A value that identifies a single event is not a characteristic for this purpose; it is a pointer to a different evidence system.</p>
+<h3>Normalize a reason; retain the original somewhere else</h3>
+<p>This is the bad split:</p>
+<pre><code class="language-text">tool_failure_total{error=&quot;gateway timeout after 10.002s&quot;}
+tool_failure_total{error=&quot;gateway timeout after 10.118s&quot;}
+tool_failure_total{error=&quot;gateway timeout after 10.305s&quot;}
+</code></pre>
+<p>This is usually the useful one:</p>
+<pre><code class="language-text">tool_failure_total{dependency=&quot;calendar&quot;, reason=&quot;timeout&quot;}
+</code></pre>
+<p>The normalized label supports an alert and a trend. The unabridged error—along with the request ID, downstream status, retry history, and safely redacted argument context—belongs on the corresponding trace or structured log.</p>
+<p>Do not solve the problem by hashing the raw value. A hash hides the text but does not bound its cardinality; one novel error still becomes one novel label value. Bucket or classify at the metric boundary instead. If the classification is too lossy to investigate an incident, improve the trace or log record rather than adding detail back into the metric.</p>
+<p>This division also makes ownership clearer. A metric should tell an on-call engineer <em>which class of behavior changed</em>. A trace should explain <em>what happened to one representative request</em>. <a href="https://my-slops.github.io/Blog/posts/2026/08/agent-tool-calls-need-traces-not-just-logs/">Agent Tool Calls Need Traces, Not Just Logs</a> describes how that request-level evidence follows a tool call across an agent workflow.</p>
+<h3>A cardinality cap protects the process, not the dashboard&#39;s meaning</h3>
+<p>Some teams discover high cardinality only after an OpenTelemetry SDK cap is reached and assume the cap made the metric safe. It made one failure mode less catastrophic; it did not guarantee that all queries still mean what they appeared to mean.</p>
+<p>The OpenTelemetry metrics specification recommends a configurable cardinality limit, with a default of 2,000 metric points when no limit is configured. Its recent operational guidance explains the important behavior: when a stream overflows, additional measurements can be combined into an overflow point without their original measurement attributes. A total can remain accurate while a query filtered by <code>outcome=&quot;timeout&quot;</code> undercounts.</p>
+<p>That is worse than an obvious crash for many alerting paths. A dashboard can stay green-looking while the dimension that would reveal a production problem has been folded away.</p>
+<p>Monitor cardinality-limit or overflow signals from the SDK and backend. More importantly, treat the first overflow as a schema review:</p>
+<ol>
+<li>Which attribute combinations were expected to be bounded?</li>
+<li>Which input introduced unexpected values?</li>
+<li>Does the affected alert rely on a breakdown that may now be incomplete?</li>
+<li>Should a label be removed, normalized, or moved to a trace/log attribute?</li>
+</ol>
+<p>Raising the limit can be valid when the dimension is both necessary and demonstrably bounded. It is not the default repair for an unreviewed <code>user_id</code> or raw-path attribute.</p>
+<h3>Model the cross-product, not each label in isolation</h3>
+<p>Labels multiply. A route label with 30 values is harmless by itself. So are five HTTP methods, three result classes, and ten regions. Together they define up to 4,500 combinations before considering tenant, version, or a new feature variant.</p>
+<p>The upper bound need not be exact, but it should be an intentional estimate:</p>
+<pre><code class="language-text">tool (12) × outcome (6) × mode (2) × region (5) = 720 possible series
+</code></pre>
+<p>That calculation exposes a common mistake in agent telemetry. <code>agent_version</code> can be a bounded deployment attribute, but putting it on every measurement multiplies every other dimension during a rolling upgrade. If rollout comparison is needed, include it deliberately and account for concurrent versions. If it is only needed to investigate a particular request, record it on the trace instead.</p>
+<p>The same caution applies to a low-cardinality label whose values are poorly governed. <code>operation</code> is bounded only if it uses route templates or a registry. If it quietly receives <code>/accounts/42</code>, <code>/accounts/43</code>, and arbitrary search strings, it is a raw URL with a more reassuring name.</p>
+<h2>Steps / Code</h2>
+<p>Use this small review before adding a metric label:</p>
+<ol>
+<li>State the exact dashboard, alert, or capacity question that needs the dimension.</li>
+<li>List its permitted values and who controls them. If the answer is &quot;any customer&quot; or &quot;the current request,&quot; it is not a metric label without a deliberate bucketing design.</li>
+<li>Estimate the product of all label vocabularies, including temporary overlap during deploys and active feature variants.</li>
+<li>Choose a normalized failure taxonomy such as <code>timeout</code>, <code>rate_limited</code>, <code>denied</code>, <code>invalid_request</code>, and <code>upstream_error</code>; keep detailed causes in traces or structured logs.</li>
+<li>Add a test or instrumentation check that raw paths, IDs, prompts, and error strings cannot reach the metric attributes.</li>
+<li>Verify that alerts using a label breakdown have a response when that breakdown is absent, capped, or overflowed.</li>
+</ol>
+<p>For trace correlation, do not copy a trace ID into every metric point. If the telemetry stack supports exemplars, use them to attach sampled trace context to representative measurements while preserving the metric&#39;s aggregation dimensions. OpenTelemetry&#39;s metrics guidance recommends exemplars for this correlation because trace IDs as metric attributes create the very cardinality explosion they are meant to help investigate.</p>
+<h2>Trade-offs</h2>
+<p>Bounded labels make ad hoc investigation less convenient. An engineer cannot always find the one bad customer from a metrics query alone. That is an acceptable limitation when the complementary trace and log paths are searchable, retained for an appropriate window, and access-controlled.</p>
+<p>There are exceptions. A per-tenant SLO may justify a tenant dimension when the active set, aggregation temporality, resource budget, and overflow behavior are explicitly designed and monitored. The decision should start with the operational requirement, not with the fact that an SDK happens to accept the attribute. In most systems, a tenant tier, cohort, or named allowlist is a safer first dimension than every tenant ID.</p>
+<p>Metrics also cannot replace audit records. A count of <code>mode=&quot;write&quot;</code> requests is useful for detecting a trend; it is not evidence of which object changed or whether an action was authorized. Keep those facts in the system designed to retain them.</p>
+<h2>References</h2>
+<ul>
+<li>Prometheus, <a href="https://prometheus.io/docs/practices/naming/#labels">Metric and label naming</a></li>
+<li>Prometheus, <a href="https://prometheus.io/docs/concepts/data_model/">Data model</a></li>
+<li>OpenTelemetry, <a href="https://opentelemetry.io/blog/2026/cardinality-limits-in-opentelemetry/">Metric cardinality limits in OpenTelemetry</a></li>
+<li>OpenTelemetry, <a href="https://opentelemetry.io/docs/specs/otel/metrics/sdk/#cardinality-limits">Metrics SDK: cardinality limits</a></li>
+<li>OpenTelemetry, <a href="https://opentelemetry.io/docs/languages/dotnet/metrics/best-practices/">.NET metric best practices</a></li>
+<li>This repository, <a href="https://my-slops.github.io/Blog/posts/2026/08/agent-tool-calls-need-traces-not-just-logs/">Agent Tool Calls Need Traces, Not Just Logs</a></li>
+<li>This repository, <a href="https://my-slops.github.io/Blog/posts/2026/09/a-tool-error-is-an-instruction-to-your-agent/">A Tool Error Is an Instruction to Your Agent</a></li>
+</ul>
+<h2>Final Take</h2>
+<p>A metric label is a long-lived promise about the dimensions an operator can aggregate. Make that promise small enough to keep.</p>
+<p>Use labels for bounded categories that drive decisions. Use traces and logs for the request-specific evidence that explains one case. When a label value is unique to the event, putting it in a metric does not make observability richer; it moves the investigation into the most expensive and least suitable data structure.</p>
+<h2>Changelog</h2>
+<ul>
+<li>2026-10-29: Initial publication.</li>
+</ul>
+
+    </article>
+  </body>
+</html>
