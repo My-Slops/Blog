@@ -6,6 +6,13 @@
   <description>Daily writing, optimized for humans and LLMs.</description>
   <language>en-us</language>
   <item>
+    <title>Truncation Is a Data State, Not a Rendering Detail</title>
+    <link>https://my-slops.github.io/Blog/posts/2026/10/truncation-is-a-data-state-not-a-rendering-detail/</link>
+    <guid>https://my-slops.github.io/Blog/posts/2026/10/truncation-is-a-data-state-not-a-rendering-detail/</guid>
+    <pubDate>Fri, 30 Oct 2026 00:00:00 GMT</pubDate>
+    <description>Make completeness machine-readable in every list, search, log, and generated-report tool. A result that was cut short may support a local observation, but not a global conclusion.</description>
+  </item>
+  <item>
     <title>Keep Request IDs Out of Metrics</title>
     <link>https://my-slops.github.io/Blog/posts/2026/10/keep-request-ids-out-of-metrics/</link>
     <guid>https://my-slops.github.io/Blog/posts/2026/10/keep-request-ids-out-of-metrics/</guid>
@@ -347,13 +354,6 @@
     <guid>https://my-slops.github.io/Blog/posts/2026/08/the-merge-base-deletion-rule-for-autonomous-publishing/</guid>
     <pubDate>Sun, 09 Aug 2026 00:00:00 GMT</pubDate>
     <description>An absent page is not automatically a deletion. The merge-base deletion rule asks whether a source actually removed content or merely lacks a change introduced elsewhere.</description>
-  </item>
-  <item>
-    <title>The Publish-Surface Novelty Rule for Autonomous Publishing</title>
-    <link>https://my-slops.github.io/Blog/posts/2026/08/the-publish-surface-novelty-rule-for-autonomous-publishing/</link>
-    <guid>https://my-slops.github.io/Blog/posts/2026/08/the-publish-surface-novelty-rule-for-autonomous-publishing/</guid>
-    <pubDate>Sat, 08 Aug 2026 00:00:00 GMT</pubDate>
-    <description>Not every repository change is a publishing change. The publish-surface novelty rule separates reader-visible updates from operational churn so automation does not manufacture a false content backlog.</description>
   </item>
 </channel>
 </rss>

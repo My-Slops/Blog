@@ -1,7 +1,22 @@
 {
-  "generated_at": "2026-10-29T14:05:11.609Z",
-  "count": 178,
+  "generated_at": "2026-10-30T14:06:15.948Z",
+  "count": 179,
   "posts": [
+    {
+      "title": "Truncation Is a Data State, Not a Rendering Detail",
+      "date": "2026-10-30",
+      "updated": "2026-10-30",
+      "summary": "Make completeness machine-readable in every list, search, log, and generated-report tool. A result that was cut short may support a local observation, but not a global conclusion.",
+      "tags": [
+        "ai agents",
+        "api design",
+        "reliability",
+        "developer tooling",
+        "verification"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/10/truncation-is-a-data-state-not-a-rendering-detail/",
+      "path": "posts/2026/10/2026-10-30-truncation-is-a-data-state-not-a-rendering-detail.md"
+    },
     {
       "title": "Keep Request IDs Out of Metrics",
       "date": "2026-10-29",
