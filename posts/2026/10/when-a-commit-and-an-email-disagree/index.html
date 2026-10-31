@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>When a Commit and an Email Disagree | Blog</title>
+    <meta name="description" content="Avoid the dual write. Commit the business change and a durable outbox record together, then deliver asynchronously with a stable message identity, idempotent consumers, and an honest at-least-once contract." />
+    <link rel="canonical" href="https://my-slops.github.io/Blog/posts/2026/10/when-a-commit-and-an-email-disagree/" />
+    <style>
+      :root { color-scheme: light dark; }
+      body { font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; line-height: 1.7; max-width: 760px; margin: 40px auto; padding: 0 16px; }
+      a { color: #0a58ca; text-decoration: none; }
+      a:hover { text-decoration: underline; }
+      .meta { color: #666; font-size: 0.95rem; margin-bottom: 1rem; }
+      .tags { display: flex; gap: 0.5rem; list-style: none; padding: 0; margin: 0.75rem 0 1.25rem; flex-wrap: wrap; }
+      .tags li { background: #eef2ff; color: #3730a3; border-radius: 999px; padding: 0.2rem 0.6rem; font-size: 0.8rem; }
+      article h1, article h2, article h3 { line-height: 1.3; }
+      article pre { overflow-x: auto; background: #111827; color: #f9fafb; padding: 0.9rem; border-radius: 8px; }
+      article code { font-family: ui-monospace,SFMono-Regular,Menlo,monospace; }
+      article blockquote { border-left: 4px solid #d1d5db; margin: 1rem 0; padding: 0.2rem 0.9rem; color: #4b5563; }
+      hr { border: 0; border-top: 1px solid #e5e7eb; margin: 2rem 0; }
+    </style>
+  </head>
+  <body>
+    <p><a href="https://my-slops.github.io/Blog/">← Home</a></p>
+    <article>
+      <h1>When a Commit and an Email Disagree</h1>
+      <p class="meta">Oct 31, 2026</p>
+      <ul class="tags"><li>distributed systems</li><li>reliability</li><li>databases</li><li>messaging</li><li>software architecture</li></ul>
+      <h2>TL;DR</h2>
+<p>An order row and an email provider live in different durability domains. Wrapping the order insert in a database transaction does not make the email reversible, and sending the email before or after <code>COMMIT</code> merely chooses which failure window to accept.</p>
+<p>The transactional outbox changes the problem. In one local transaction, write the business state and a durable record that says an event must be delivered. A separate relay delivers that record later. This prevents the committed-order-without-event gap, but it does <strong>not</strong> make email delivery exactly once or give <code>ROLLBACK</code> the ability to unsend a message.</p>
+<p>Treat the outbox as an intent ledger. Give every message a stable identity, make downstream handling idempotent, monitor its age, and reserve compensation for a separate, explicitly authorized operation.</p>
+<h2>The failure is between two successful-looking lines</h2>
+<p>Consider a checkout handler that records an order and sends a confirmation:</p>
+<pre><code class="language-ts">await db.transaction(async (tx) =&gt; {
+  const order = await tx.orders.insert(input);
+  await email.send({ to: order.email, template: &quot;order-confirmed&quot; });
+});
+</code></pre>
+<p>The transaction is real. It just does not contain the email provider.</p>
+<p>If the provider accepts the request and the database transaction later fails, a customer can receive a confirmation for an order that does not exist. Moving the send below the commit creates the mirror image:</p>
+<pre><code class="language-ts">const order = await db.transaction((tx) =&gt; tx.orders.insert(input));
+await email.send({ to: order.email, template: &quot;order-confirmed&quot; });
+</code></pre>
+<p>Now a process crash, provider outage, or lost response after the commit can leave a real order with no confirmation. Retrying the whole request is not automatically safe either: the order might already exist, the provider might already have accepted the message, or both may be true while the caller knows neither.</p>
+<p>PostgreSQL is precise about what <code>COMMIT</code> promises: changes made by <em>the current transaction</em> become visible and durable. <a href="https://www.postgresql.org/docs/current/sql-commit.html">Its documentation</a> does not promise to roll back requests accepted by an SMTP provider, payment processor, or message broker. That distinction is obvious at the protocol boundary and surprisingly easy to erase in application code.</p>
+<p>Calling the pattern a “dual write” is useful because it keeps the problem concrete. There are two independently failing operations. A local transaction can atomically control only the resources actually participating in that transaction.</p>
+<h2>Record the obligation before attempting delivery</h2>
+<p>An outbox removes one dangerous gap by storing the notification obligation beside the business change:</p>
+<pre><code class="language-sql">begin;
+
+insert into orders (id, customer_id, status)
+values (&#39;ord_482&#39;, &#39;cus_19&#39;, &#39;confirmed&#39;);
+
+insert into outbox_messages (
+  id, topic, aggregate_id, payload, created_at
+)
+values (
+  &#39;msg_482&#39;,
+  &#39;order.confirmed&#39;,
+  &#39;ord_482&#39;,
+  &#39;{&quot;orderId&quot;:&quot;ord_482&quot;,&quot;customerId&quot;:&quot;cus_19&quot;}&#39;,
+  now()
+);
+
+commit;
+</code></pre>
+<p>After this commit, the system has one durable fact: the order exists and a specific <code>order.confirmed</code> message is owed. If the transaction aborts, neither fact exists. A relay can later claim <code>msg_482</code>, send it to a broker or email service, and keep retrying according to a bounded delivery policy.</p>
+<p>That is the transactional outbox pattern described by <a href="https://docs.aws.amazon.com/prescriptive-guidance/latest/cloud-design-patterns/transactional-outbox.html">AWS Prescriptive Guidance</a> and <a href="https://learn.microsoft.com/en-us/power-platform/architecture/reference-architectures/transactional-outbox-pattern">Microsoft’s reference architecture</a>. Both emphasize the same boundary: business data and outbox record are committed together; delivery happens asynchronously afterward.</p>
+<p>The distinction has a practical benefit beyond reliability. The initial request can return an honest state such as <code>order confirmed; notification queued</code> without waiting on an unrelated provider. It also gives operators a durable place to inspect overdue or failed work rather than reconstructing intent from application logs.</p>
+<h2>The outbox does not make the last hop atomic</h2>
+<p>The relay now has its own ambiguous interval:</p>
+<pre><code class="language-text">relay sends msg_482 → provider accepts it → relay crashes before recording success
+</code></pre>
+<p>When the relay restarts, it cannot safely infer from its missing acknowledgement that the provider did nothing. If it sends again, a downstream consumer may receive the event twice. If it never sends again, the event may have been lost. The normal outbox contract is therefore <strong>at-least-once delivery</strong>, not a general exact-once guarantee.</p>
+<p>This is not a flaw in the pattern. It is the cost of refusing to claim an atomic transaction across systems that do not share one. AWS explicitly recommends idempotent consumers because the relay can produce duplicate events; Microsoft’s guidance likewise calls out at-least-once delivery and deduplication. Give the message a stable identity and make handling it safe to repeat:</p>
+<pre><code class="language-ts">async function handleOrderConfirmed(message: OutboxMessage) {
+  await db.transaction(async (tx) =&gt; {
+    const claimed = await tx.processedMessages.insertIfAbsent({
+      id: message.id,
+      handledAt: new Date(),
+    });
+    if (!claimed) return;
+
+    await tx.receipts.insert({
+      messageId: message.id,
+      orderId: message.aggregateId,
+    });
+  });
+}
+</code></pre>
+<p>The example is illustrative, not a universal implementation. The important invariant is that recording “handled” and applying the local effect need a shared atomic boundary. For an email provider that cannot deduplicate on a caller-supplied key, the product may have to tolerate an occasional duplicate message, use provider-specific idempotency support where available, or change the user experience. An outbox cannot turn an arbitrary external API into a transactional participant.</p>
+<p>This is why retries need a stable meaning. <a href="https://my-slops.github.io/Blog/posts/2026/05/retries-need-an-identity-before-they-need-backoff/">Retries Need an Identity Before They Need Backoff</a> makes the same point for a client request: delay controls pressure; identity prevents a retry from becoming a new logical operation.</p>
+<h2>Keep the event about a committed fact</h2>
+<p>An outbox record should normally describe what the local transaction established, not a promise about a remote effect that has not happened yet.</p>
+<p>Good:</p>
+<pre><code class="language-json">{
+  &quot;id&quot;: &quot;msg_482&quot;,
+  &quot;type&quot;: &quot;order.confirmed&quot;,
+  &quot;orderId&quot;: &quot;ord_482&quot;,
+  &quot;occurredAt&quot;: &quot;2026-10-31T14:10:00Z&quot;
+}
+</code></pre>
+<p>Misleading:</p>
+<pre><code class="language-json">{
+  &quot;type&quot;: &quot;customer.email.sent&quot;,
+  &quot;orderId&quot;: &quot;ord_482&quot;
+}
+</code></pre>
+<p>The second event claims delivery before the email provider has accepted anything. A downstream audit system or agent can then make a false statement that looks perfectly structured.</p>
+<p>For agent workflows, this matters whenever an action changes local state and triggers an external follow-up: create a support case and notify the customer, approve an expense and update a vendor system, save a deployment decision and open a ticket. The tool should return the committed local outcome plus the notification state; it should not collapse <code>queued</code>, <code>sent to provider</code>, <code>provider accepted</code>, and <code>recipient received</code> into one success field.</p>
+<p>The status vocabulary depends on the product, but it should preserve the boundary between a fact the system owns and a result another system must report. That is the same discipline behind <a href="https://my-slops.github.io/Blog/posts/2026/10/what-cancel-means-after-an-agent-starts-work/">What “Cancel” Means After an Agent Starts Work</a>: stopping future orchestration is not evidence that a remote effect never occurred.</p>
+<h2>Make recovery observable, bounded, and owned</h2>
+<p>An outbox table is operational work, not a magic reliability annotation. At minimum, give each record a lifecycle such as:</p>
+<pre><code class="language-text">pending → leased → provider_accepted
+                   ↘ retry_scheduled → dead_lettered
+</code></pre>
+<p>The exact labels matter less than the invariants:</p>
+<ul>
+<li>A worker lease must expire or be recoverable after a crash.</li>
+<li>Retry eligibility needs a deadline, not only an attempt count; a five-day-old password-reset email may no longer be a useful action.</li>
+<li>Failed or expired records need an owner and an alerting path instead of an indefinitely growing <code>pending</code> table.</li>
+<li>The system needs a way to distinguish a relay backlog from a provider delay, a rejected request, and an unknown submission outcome.</li>
+<li>Deleting old records requires a retention policy that preserves the evidence needed for replay and audit without retaining sensitive payloads forever.</li>
+</ul>
+<p>Do not let “queued” become a comfortable synonym for “done.” A queue entry proves that local work is still owed. It does not prove that the recipient has acted on it, or even that the provider received it. <a href="https://my-slops.github.io/Blog/posts/2026/10/starting-a-job-is-not-the-same-as-finishing-it/">Starting a Job Is Not the Same as Finishing It</a> covers the broader operational version of this error.</p>
+<h2>When not to add an outbox</h2>
+<p>The pattern is valuable when a committed state change must reliably cause asynchronous work outside the transaction. It is not the automatic answer to every email, analytics event, or cache update.</p>
+<p>For a non-critical best-effort analytics signal, the right decision may be to accept loss and avoid the table, relay, monitoring, retention, and replay machinery. For a synchronous operation that must fail as a unit from the user’s perspective, an outbox may reveal that the product contract itself needs revision: perhaps the remote system needs to be queried or reserved before the local commit, or perhaps the workflow needs a compensating action rather than a notification pipeline.</p>
+<p>The warning sign is not “there are two network calls.” It is “we are promising that a local commit and an external consequence agree, while no component can prove that agreement.”</p>
+<h2>Final Take</h2>
+<p>The transactional outbox makes one narrow promise very well: if the database commits the business fact, it also commits the obligation to publish that fact. It does not make an email undoable, eliminate duplicate delivery, or prove the recipient saw it.</p>
+<p>That narrower promise is exactly why it is useful. Put the intent inside the transaction, make delivery repeatable and observable outside it, and do not let a successful <code>COMMIT</code> borrow guarantees from a system it never controlled.</p>
+<h2>References</h2>
+<ul>
+<li>PostgreSQL, <a href="https://www.postgresql.org/docs/current/sql-commit.html">COMMIT</a></li>
+<li>AWS Prescriptive Guidance, <a href="https://docs.aws.amazon.com/prescriptive-guidance/latest/cloud-design-patterns/transactional-outbox.html">Transactional outbox pattern</a></li>
+<li>Microsoft Learn, <a href="https://learn.microsoft.com/en-us/power-platform/architecture/reference-architectures/transactional-outbox-pattern">Implement the Transactional Outbox pattern with Dataverse</a></li>
+<li>This repository, <a href="https://my-slops.github.io/Blog/posts/2026/05/retries-need-an-identity-before-they-need-backoff/">Retries Need an Identity Before They Need Backoff</a></li>
+<li>This repository, <a href="https://my-slops.github.io/Blog/posts/2026/10/what-cancel-means-after-an-agent-starts-work/">What “Cancel” Means After an Agent Starts Work</a></li>
+</ul>
+<h2>Changelog</h2>
+<ul>
+<li>2026-10-31: Initial publication on transactional outboxes as durable notification intent rather than external-effect atomicity.</li>
+</ul>
+
+    </article>
+  </body>
+</html>

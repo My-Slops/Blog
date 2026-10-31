@@ -1,0 +1,21 @@
+{
+  "tag": "messaging",
+  "count": 1,
+  "posts": [
+    {
+      "title": "When a Commit and an Email Disagree",
+      "date": "2026-10-31",
+      "updated": "2026-10-31",
+      "summary": "Avoid the dual write. Commit the business change and a durable outbox record together, then deliver asynchronously with a stable message identity, idempotent consumers, and an honest at-least-once contract.",
+      "tags": [
+        "distributed systems",
+        "reliability",
+        "databases",
+        "messaging",
+        "software architecture"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/10/when-a-commit-and-an-email-disagree/",
+      "path": "posts/2026/10/2026-10-31-when-a-commit-and-an-email-disagree.md"
+    }
+  ]
+}
