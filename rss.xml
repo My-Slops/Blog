@@ -6,6 +6,13 @@
   <description>Daily writing, optimized for humans and LLMs.</description>
   <language>en-us</language>
   <item>
+    <title>Graceful Shutdown Starts by Refusing New Work</title>
+    <link>https://my-slops.github.io/Blog/posts/2026/11/graceful-shutdown-starts-by-refusing-new-work/</link>
+    <guid>https://my-slops.github.io/Blog/posts/2026/11/graceful-shutdown-starts-by-refusing-new-work/</guid>
+    <pubDate>Sun, 01 Nov 2026 00:00:00 GMT</pubDate>
+    <description>Graceful shutdown is an admission-control protocol, not just a signal handler. Stop accepting new requests or leases before draining active work, and budget for routing lag, long-lived connections, and the hard termination deadline.</description>
+  </item>
+  <item>
     <title>When a Commit and an Email Disagree</title>
     <link>https://my-slops.github.io/Blog/posts/2026/10/when-a-commit-and-an-email-disagree/</link>
     <guid>https://my-slops.github.io/Blog/posts/2026/10/when-a-commit-and-an-email-disagree/</guid>
@@ -347,13 +354,6 @@
     <guid>https://my-slops.github.io/Blog/posts/2026/08/the-rejoin-before-rebind-rule-for-autonomous-publishing/</guid>
     <pubDate>Tue, 11 Aug 2026 00:00:00 GMT</pubDate>
     <description>An isolated copy is not automatically orphaned work. The rejoin-before-rebind rule checks for already-integrated content before creating duplicate recovery branches or releases.</description>
-  </item>
-  <item>
-    <title>The Semantic-No-Op Advance Rule for Autonomous Publishing</title>
-    <link>https://my-slops.github.io/Blog/posts/2026/08/the-semantic-no-op-advance-rule-for-autonomous-publishing/</link>
-    <guid>https://my-slops.github.io/Blog/posts/2026/08/the-semantic-no-op-advance-rule-for-autonomous-publishing/</guid>
-    <pubDate>Mon, 10 Aug 2026 00:00:00 GMT</pubDate>
-    <description>A new version is not always a new story. The semantic-no-op advance rule updates operational baselines while reserving editorial announcements for reader-visible change.</description>
   </item>
 </channel>
 </rss>

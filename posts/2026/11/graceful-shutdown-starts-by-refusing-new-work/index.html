@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Graceful Shutdown Starts by Refusing New Work | Blog</title>
+    <meta name="description" content="Graceful shutdown is an admission-control protocol, not just a signal handler. Stop accepting new requests or leases before draining active work, and budget for routing lag, long-lived connections, and the hard termination deadline." />
+    <link rel="canonical" href="https://my-slops.github.io/Blog/posts/2026/11/graceful-shutdown-starts-by-refusing-new-work/" />
+    <style>
+      :root { color-scheme: light dark; }
+      body { font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; line-height: 1.7; max-width: 760px; margin: 40px auto; padding: 0 16px; }
+      a { color: #0a58ca; text-decoration: none; }
+      a:hover { text-decoration: underline; }
+      .meta { color: #666; font-size: 0.95rem; margin-bottom: 1rem; }
+      .tags { display: flex; gap: 0.5rem; list-style: none; padding: 0; margin: 0.75rem 0 1.25rem; flex-wrap: wrap; }
+      .tags li { background: #eef2ff; color: #3730a3; border-radius: 999px; padding: 0.2rem 0.6rem; font-size: 0.8rem; }
+      article h1, article h2, article h3 { line-height: 1.3; }
+      article pre { overflow-x: auto; background: #111827; color: #f9fafb; padding: 0.9rem; border-radius: 8px; }
+      article code { font-family: ui-monospace,SFMono-Regular,Menlo,monospace; }
+      article blockquote { border-left: 4px solid #d1d5db; margin: 1rem 0; padding: 0.2rem 0.9rem; color: #4b5563; }
+      hr { border: 0; border-top: 1px solid #e5e7eb; margin: 2rem 0; }
+    </style>
+  </head>
+  <body>
+    <p><a href="https://my-slops.github.io/Blog/">← Home</a></p>
+    <article>
+      <h1>Graceful Shutdown Starts by Refusing New Work</h1>
+      <p class="meta">Nov 1, 2026</p>
+      <ul class="tags"><li>reliability</li><li>distributed systems</li><li>infrastructure</li><li>developer tooling</li><li>software architecture</li></ul>
+      <h2>TL;DR</h2>
+<p>A process that has received a termination signal is already too late to decide whether it should take one more job. If it keeps admitting work while it waits for active requests to finish, its drain set can grow until the platform&#39;s hard deadline ends the process anyway.</p>
+<p>Treat graceful shutdown as a short admission-control protocol:</p>
+<ol>
+<li>stop accepting new work;</li>
+<li>make that fact visible to the router or queue consumer;</li>
+<li>finish, hand off, or safely abandon the work already owned; and</li>
+<li>enforce a deadline for the entire sequence.</li>
+</ol>
+<p>Closing a listener is useful, but it is not the whole protocol. Load-balancer propagation, keep-alive connections, WebSockets, background leases, and lifecycle hooks all decide whether a process still receives work after it has begun to drain.</p>
+<h2>A drain that keeps filling is not a drain</h2>
+<p>Consider a service receiving a rolling restart. Its signal handler stops the HTTP server and waits for active requests:</p>
+<pre><code class="language-ts">process.on(&quot;SIGTERM&quot;, async () =&gt; {
+  await server.close();
+  await waitForActiveRequests();
+  process.exit(0);
+});
+</code></pre>
+<p>That looks reasonable until the service sits behind a load balancer with persistent connections. A request already routed to the process may arrive after <code>SIGTERM</code>; a client may reuse an existing connection; a queue worker may claim another message between signal delivery and the next polling loop. If the handler still starts the work, the number of active operations can rise while the shutdown clock runs down.</p>
+<p>The failure is often blamed on an insufficient grace period. Sometimes the timeout really is too short. More often, the service has not defined a reliable point at which it stops becoming responsible for new work.</p>
+<p>Kubernetes makes this distinction visible. A readiness failure removes a Pod from the EndpointSlices for matching Services, but Pod termination and endpoint updates occur concurrently. A terminating endpoint is reported as not ready for compatibility; consumers that need to drain connections must understand the <code>serving</code> and <code>terminating</code> EndpointSlice conditions. <a href="https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle/">Kubernetes Pod lifecycle</a> <a href="https://kubernetes.io/docs/concepts/services-networking/endpoint-slices/">EndpointSlices</a></p>
+<p>In other words, removing a process from discovery is necessary, but it cannot be treated as proof that no more work will reach it. The process still needs a local refusal point.</p>
+<h2>Close admission before you wait</h2>
+<p>For a request-serving process, put an admission gate immediately before work becomes owned. It should reject new work once draining starts and track work that entered before that boundary:</p>
+<pre><code class="language-ts">class AdmissionGate {
+  private accepting = true;
+  private active = 0;
+
+  enter(): (() =&gt; void) | null {
+    if (!this.accepting) return null;
+    this.active += 1;
+    return () =&gt; { this.active -= 1; };
+  }
+
+  beginDrain() {
+    this.accepting = false;
+  }
+
+  get activeCount() {
+    return this.active;
+  }
+}
+
+const gate = new AdmissionGate();
+
+app.post(&quot;/exports&quot;, async (req, res) =&gt; {
+  const leave = gate.enter();
+  if (!leave) {
+    return res.status(503).set(&quot;Retry-After&quot;, &quot;5&quot;).json({
+      error: &quot;server_draining&quot;
+    });
+  }
+
+  try {
+    res.json(await createExport(req.body));
+  } finally {
+    leave();
+  }
+});
+
+process.on(&quot;SIGTERM&quot;, async () =&gt; {
+  gate.beginDrain();
+  await waitUntil(() =&gt; gate.activeCount === 0, { timeoutMs: 20_000 });
+  await server.close();
+});
+</code></pre>
+<p>This is illustrative, not a concurrency primitive to copy unchanged. In a multithreaded process, <code>enter</code> and <code>beginDrain</code> need an atomic or locked implementation. In a fleet, each replica has its own local gate and the load balancer needs its own drain behavior. The important invariant is simpler: an operation is either admitted before the drain boundary and counted, or it is refused. It must not slip into an uncounted middle state.</p>
+<p>The response to a refused request depends on the contract. A retryable, idempotent read can return a fast <code>503</code> with meaningful retry guidance. A user-visible mutation may need to return an operation ID, route the intent to a durable queue, or reject it so the client can retry against a healthy replica. Do not quietly accept a request and hope a process about to exit gets far enough to record it.</p>
+<p>This is adjacent to <a href="https://my-slops.github.io/Blog/posts/2026/10/starting-a-job-is-not-the-same-as-finishing-it/">Starting a Job Is Not the Same as Finishing It</a>, but it addresses an earlier boundary: whether this instance should start the job at all.</p>
+<h2>Queues have an admission gate too</h2>
+<p>HTTP is only one source of new work. A worker that keeps fetching messages until the process dies has the same problem, even if it has no public listener.</p>
+<p>On drain, a worker should stop claiming new messages first. The remaining policy is domain-specific:</p>
+<table>
+<thead>
+<tr>
+<th>Work already owned</th>
+<th>Possible shutdown policy</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Short, idempotent task</td>
+<td>Finish before the deadline, then acknowledge it.</td>
+</tr>
+<tr>
+<td>Durable job with a lease</td>
+<td>Finish only if the lease and remaining deadline make that safe; otherwise release or allow a deliberate handoff.</td>
+</tr>
+<tr>
+<td>Non-idempotent external effect</td>
+<td>Persist the attempt state and use a recovery protocol; do not let a second worker guess whether the first call happened.</td>
+</tr>
+<tr>
+<td>Long-running stream or session</td>
+<td>Notify it separately and give it its own bounded close path.</td>
+</tr>
+</tbody></table>
+<p>“Stop polling” is not sufficient when a consumer prefetches messages or already owns leases. Count those reservations as in-flight work. If another worker may take over after a lease expires, the handoff protocol must tolerate a delayed original worker or ensure that it cannot continue the effect after losing ownership. This is the same reason a retry needs an identity, not merely a delay; <a href="https://my-slops.github.io/Blog/posts/2026/05/retries-need-an-identity-before-they-need-backoff/">Retries Need an Identity Before They Need Backoff</a> covers that recovery boundary.</p>
+<p>The useful shutdown metric is therefore not just process uptime. Record at least the time draining began, rejected admissions, active requests, owned queue items, and how many items finished, were handed off, or were cut off by the deadline. Without those numbers, a clean exit code can hide work that was repeatedly accepted and abandoned during deploys.</p>
+<h2>The grace period is one budget, not two</h2>
+<p>One common Kubernetes pattern is a long <code>preStop</code> sleep followed by application shutdown. It can help allow routing changes to propagate, but it is easy to accidentally budget the time twice.</p>
+<p>Kubernetes documents that the Pod termination grace-period countdown begins <strong>before</strong> a <code>PreStop</code> hook runs. The hook must finish before the termination signal is sent, and both the hook and the process&#39;s normal exit consume the same overall budget. A hook that uses most of the grace period leaves the application little time to drain; a hook that hangs can lead to forced termination. <a href="https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/">Container lifecycle hooks</a></p>
+<p>Think in a single timeline:</p>
+<pre><code class="language-text">termination begins
+  → advertise not-ready / stop claiming work
+  → allow routing propagation and reject late arrivals locally
+  → finish or hand off counted work
+  → close listeners and remaining connections
+  → hard kill at the platform deadline
+</code></pre>
+<p>The durations are policy, not magic constants. They depend on connection behavior, the maximum useful request duration, lease semantics, and the platform&#39;s deadline. What matters is that their sum fits. If the platform grants 30 seconds, spending 25 seconds sleeping before signal delivery is a decision to give the process roughly five seconds to do everything else.</p>
+<p>Application-server helpers do not remove this accounting. For example, Go&#39;s <code>Server.Shutdown</code> first closes listeners and then waits for active connections to become idle, but it does not close or wait for hijacked connections such as WebSockets; those need a separate notification and close policy. <a href="https://pkg.go.dev/net/http#Server.Shutdown">Go <code>net/http</code> documentation</a> That is a precise example of the broader rule: every channel that can admit or retain work needs an explicit drain path.</p>
+<h2>Test a deploy under traffic, not only a handler in isolation</h2>
+<p>A unit test that invokes the signal handler and observes a clean exit proves very little about production drainage. The interesting failures are races across boundaries:</p>
+<pre><code class="language-text">Given: a request arrives after the instance reports itself unavailable
+When: it reaches an existing connection anyway
+Then: the local admission gate rejects it without creating an untracked job
+
+Given: a worker has prefetched three messages when drain begins
+When: the deadline leaves only one safe completion window
+Then: the other two messages have an explicit release or recovery outcome
+
+Given: a WebSocket is still open at shutdown
+When: the regular HTTP server drains
+Then: the session receives its own close signal and cannot keep the process alive forever
+
+Given: a lifecycle hook uses part of the platform grace period
+When: the application receives its termination signal
+Then: the remaining budget is sufficient for its documented drain policy
+</code></pre>
+<p>Run the test through the actual router, worker runtime, and deployment controller when possible. The question is not merely whether the process gets <code>SIGTERM</code>. It is whether each producer of new work sees the same decision to stop.</p>
+<h2>Trade-offs</h2>
+<p>Refusing work during a drain can create short retry spikes, and an aggressively conservative gate can reduce capacity during frequent deployments. Long-running work may need a dedicated worker pool, a durable operation model, or connection migration rather than a larger termination grace period.</p>
+<p>For very small services with no persistent connections and only fast, idempotent requests, closing the listener may be enough in practice. The added machinery is justified when work can survive the request, when queues prefetch, when side effects are non-idempotent, or when deployment overlap is routine.</p>
+<p>The goal is not to guarantee that no request ever sees a restart. Distributed routing has propagation delay and clients can be late. The goal is narrower and more useful: a process that has decided to leave should not keep accepting obligations it cannot reliably discharge.</p>
+<h2>References</h2>
+<ul>
+<li>Kubernetes, <a href="https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle/">Pod lifecycle: readiness and termination flow</a></li>
+<li>Kubernetes, <a href="https://kubernetes.io/docs/concepts/services-networking/endpoint-slices/">EndpointSlice conditions</a></li>
+<li>Kubernetes, <a href="https://kubernetes.io/docs/concepts/containers/container-lifecycle-hooks/">Container lifecycle hooks</a></li>
+<li>Go, <a href="https://pkg.go.dev/net/http#Server.Shutdown"><code>net/http</code> <code>Server.Shutdown</code></a></li>
+<li>This repository, <a href="https://my-slops.github.io/Blog/posts/2026/10/starting-a-job-is-not-the-same-as-finishing-it/">Starting a Job Is Not the Same as Finishing It</a></li>
+<li>This repository, <a href="https://my-slops.github.io/Blog/posts/2026/05/retries-need-an-identity-before-they-need-backoff/">Retries Need an Identity Before They Need Backoff</a></li>
+</ul>
+<h2>Final Take</h2>
+<p>Graceful shutdown is not the code that runs after a process has stopped taking responsibility. It is the policy that makes that responsibility stop growing.</p>
+<p>Close admission first. Count what remains. Spend one shared deadline on the work already owned. Everything else is cleanup.</p>
+<h2>Changelog</h2>
+<ul>
+<li>2026-11-01: Initial publication on graceful shutdown as an admission-control protocol.</li>
+</ul>
+
+    </article>
+  </body>
+</html>

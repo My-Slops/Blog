@@ -1,7 +1,22 @@
 {
   "tag": "distributed systems",
-  "count": 14,
+  "count": 15,
   "posts": [
+    {
+      "title": "Graceful Shutdown Starts by Refusing New Work",
+      "date": "2026-11-01",
+      "updated": "2026-11-01",
+      "summary": "Graceful shutdown is an admission-control protocol, not just a signal handler. Stop accepting new requests or leases before draining active work, and budget for routing lag, long-lived connections, and the hard termination deadline.",
+      "tags": [
+        "reliability",
+        "distributed systems",
+        "infrastructure",
+        "developer tooling",
+        "software architecture"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/11/graceful-shutdown-starts-by-refusing-new-work/",
+      "path": "posts/2026/11/2026-11-01-graceful-shutdown-starts-by-refusing-new-work.md"
+    },
     {
       "title": "When a Commit and an Email Disagree",
       "date": "2026-10-31",
