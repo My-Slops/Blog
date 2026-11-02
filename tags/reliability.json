@@ -1,7 +1,22 @@
 {
   "tag": "reliability",
-  "count": 124,
+  "count": 125,
   "posts": [
+    {
+      "title": "A Health Endpoint Is Not a Dependency Dashboard",
+      "date": "2026-11-02",
+      "updated": "2026-11-02",
+      "summary": "Do not turn every database, cache, or vendor failure into one Boolean health result. Use probes to express local recovery and traffic admission; expose downstream condition separately, then degrade or reject requests according to their actual dependency.",
+      "tags": [
+        "reliability",
+        "infrastructure",
+        "distributed systems",
+        "developer tooling",
+        "operations"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/11/a-health-endpoint-is-not-a-dependency-dashboard/",
+      "path": "posts/2026/11/2026-11-02-a-health-endpoint-is-not-a-dependency-dashboard.md"
+    },
     {
       "title": "Graceful Shutdown Starts by Refusing New Work",
       "date": "2026-11-01",

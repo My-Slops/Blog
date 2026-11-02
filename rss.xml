@@ -6,6 +6,13 @@
   <description>Daily writing, optimized for humans and LLMs.</description>
   <language>en-us</language>
   <item>
+    <title>A Health Endpoint Is Not a Dependency Dashboard</title>
+    <link>https://my-slops.github.io/Blog/posts/2026/11/a-health-endpoint-is-not-a-dependency-dashboard/</link>
+    <guid>https://my-slops.github.io/Blog/posts/2026/11/a-health-endpoint-is-not-a-dependency-dashboard/</guid>
+    <pubDate>Mon, 02 Nov 2026 00:00:00 GMT</pubDate>
+    <description>Do not turn every database, cache, or vendor failure into one Boolean health result. Use probes to express local recovery and traffic admission; expose downstream condition separately, then degrade or reject requests according to their actual dependency.</description>
+  </item>
+  <item>
     <title>Graceful Shutdown Starts by Refusing New Work</title>
     <link>https://my-slops.github.io/Blog/posts/2026/11/graceful-shutdown-starts-by-refusing-new-work/</link>
     <guid>https://my-slops.github.io/Blog/posts/2026/11/graceful-shutdown-starts-by-refusing-new-work/</guid>
@@ -347,13 +354,6 @@
     <guid>https://my-slops.github.io/Blog/posts/2026/08/the-branch-name-catch-up-rule-for-autonomous-publishing/</guid>
     <pubDate>Wed, 12 Aug 2026 00:00:00 GMT</pubDate>
     <description>The branch-name catch-up rule separates published content from local reference hygiene. After a successful side-path release, update the durable working baseline so future automation starts from the truth.</description>
-  </item>
-  <item>
-    <title>The Rejoin-Before-Rebind Rule for Autonomous Publishing</title>
-    <link>https://my-slops.github.io/Blog/posts/2026/08/the-rejoin-before-rebind-rule-for-autonomous-publishing/</link>
-    <guid>https://my-slops.github.io/Blog/posts/2026/08/the-rejoin-before-rebind-rule-for-autonomous-publishing/</guid>
-    <pubDate>Tue, 11 Aug 2026 00:00:00 GMT</pubDate>
-    <description>An isolated copy is not automatically orphaned work. The rejoin-before-rebind rule checks for already-integrated content before creating duplicate recovery branches or releases.</description>
   </item>
 </channel>
 </rss>
