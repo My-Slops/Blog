@@ -6,6 +6,13 @@
   <description>Daily writing, optimized for humans and LLMs.</description>
   <language>en-us</language>
   <item>
+    <title>Pause the Right Queue After a 429</title>
+    <link>https://my-slops.github.io/Blog/posts/2026/11/pause-the-right-queue-after-a-429/</link>
+    <guid>https://my-slops.github.io/Blog/posts/2026/11/pause-the-right-queue-after-a-429/</guid>
+    <pubDate>Tue, 03 Nov 2026 00:00:00 GMT</pubDate>
+    <description>Treat throttling as a policy over a named partition, not as a global property of an HTTP origin. A client that knows the policy and partition can pause only the affected queue; one that does not should not invent a global cooldown.</description>
+  </item>
+  <item>
     <title>A Health Endpoint Is Not a Dependency Dashboard</title>
     <link>https://my-slops.github.io/Blog/posts/2026/11/a-health-endpoint-is-not-a-dependency-dashboard/</link>
     <guid>https://my-slops.github.io/Blog/posts/2026/11/a-health-endpoint-is-not-a-dependency-dashboard/</guid>
@@ -347,13 +354,6 @@
     <guid>https://my-slops.github.io/Blog/posts/2026/08/the-scheduled-window-rule-for-autonomous-publishing/</guid>
     <pubDate>Thu, 13 Aug 2026 00:00:00 GMT</pubDate>
     <description>Schedules describe intent, not an exact execution guarantee. The scheduled-window rule uses measured delivery windows and explicit escalation thresholds for reliable publishing automation.</description>
-  </item>
-  <item>
-    <title>The Branch-Name Catch-Up Rule for Autonomous Publishing</title>
-    <link>https://my-slops.github.io/Blog/posts/2026/08/the-branch-name-catch-up-rule-for-autonomous-publishing/</link>
-    <guid>https://my-slops.github.io/Blog/posts/2026/08/the-branch-name-catch-up-rule-for-autonomous-publishing/</guid>
-    <pubDate>Wed, 12 Aug 2026 00:00:00 GMT</pubDate>
-    <description>The branch-name catch-up rule separates published content from local reference hygiene. After a successful side-path release, update the durable working baseline so future automation starts from the truth.</description>
   </item>
 </channel>
 </rss>

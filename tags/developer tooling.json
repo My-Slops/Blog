@@ -1,7 +1,21 @@
 {
   "tag": "developer tooling",
-  "count": 30,
+  "count": 31,
   "posts": [
+    {
+      "title": "Pause the Right Queue After a 429",
+      "date": "2026-11-03",
+      "updated": "2026-11-03",
+      "summary": "Treat throttling as a policy over a named partition, not as a global property of an HTTP origin. A client that knows the policy and partition can pause only the affected queue; one that does not should not invent a global cooldown.",
+      "tags": [
+        "api design",
+        "reliability",
+        "distributed systems",
+        "developer tooling"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/11/pause-the-right-queue-after-a-429/",
+      "path": "posts/2026/11/2026-11-03-pause-the-right-queue-after-a-429.md"
+    },
     {
       "title": "A Health Endpoint Is Not a Dependency Dashboard",
       "date": "2026-11-02",

@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Pause the Right Queue After a 429 | Blog</title>
+    <meta name="description" content="Treat throttling as a policy over a named partition, not as a global property of an HTTP origin. A client that knows the policy and partition can pause only the affected queue; one that does not should not invent a global cooldown." />
+    <link rel="canonical" href="https://my-slops.github.io/Blog/posts/2026/11/pause-the-right-queue-after-a-429/" />
+    <style>
+      :root { color-scheme: light dark; }
+      body { font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; line-height: 1.7; max-width: 760px; margin: 40px auto; padding: 0 16px; }
+      a { color: #0a58ca; text-decoration: none; }
+      a:hover { text-decoration: underline; }
+      .meta { color: #666; font-size: 0.95rem; margin-bottom: 1rem; }
+      .tags { display: flex; gap: 0.5rem; list-style: none; padding: 0; margin: 0.75rem 0 1.25rem; flex-wrap: wrap; }
+      .tags li { background: #eef2ff; color: #3730a3; border-radius: 999px; padding: 0.2rem 0.6rem; font-size: 0.8rem; }
+      article h1, article h2, article h3 { line-height: 1.3; }
+      article pre { overflow-x: auto; background: #111827; color: #f9fafb; padding: 0.9rem; border-radius: 8px; }
+      article code { font-family: ui-monospace,SFMono-Regular,Menlo,monospace; }
+      article blockquote { border-left: 4px solid #d1d5db; margin: 1rem 0; padding: 0.2rem 0.9rem; color: #4b5563; }
+      hr { border: 0; border-top: 1px solid #e5e7eb; margin: 2rem 0; }
+    </style>
+  </head>
+  <body>
+    <p><a href="https://my-slops.github.io/Blog/">← Home</a></p>
+    <article>
+      <h1>Pause the Right Queue After a 429</h1>
+      <p class="meta">Nov 3, 2026</p>
+      <ul class="tags"><li>api design</li><li>reliability</li><li>distributed systems</li><li>developer tooling</li></ul>
+      <h2>TL;DR</h2>
+<p>A <code>429 Too Many Requests</code> tells a client that the rejected request should slow down. It does not, by itself, tell the client whether that delay belongs to one user, one tenant, one API credential, one endpoint, or every request the client happens to send.</p>
+<p>That distinction changes what a shared SDK, job runner, or agent should pause. If a tenant-specific quota is exhausted, pausing the whole process unnecessarily starves unrelated tenants. If a provider-wide capacity limit is exhausted, retrying every other tenant immediately turns one rejection into a coordinated retry storm.</p>
+<p>Treat a limit as a policy over a <strong>partition</strong>. Document or return enough information for the client to associate future work with that partition. If it cannot know the partition safely, it should delay the failed operation and avoid inventing a global cooldown.</p>
+<h2>One rejected request can describe very different queues</h2>
+<p>Consider an import service that uses one client process to submit work for many customer organizations:</p>
+<pre><code class="language-text">tenant acme       → POST /imports → 429 Retry-After: 30
+tenant northstar  → POST /imports → ?
+tenant orbit      → GET  /imports → ?
+</code></pre>
+<p>The common SDK reaction is a single <code>pausedUntil</code> timestamp keyed by API host. That is simple, and it is often wrong.</p>
+<p>If the service limits imports per tenant, pausing <code>northstar</code> protects nothing. It only turns Acme&#39;s burst into a thirty-second outage for the other customers. If the service instead limits all import creation because its worker pool is full, allowing Northstar and Orbit to continue submitting imports can make recovery slower. A third policy might limit only the <code>POST /imports</code> route while leaving status reads deliberately available.</p>
+<p>The response code cannot resolve that ambiguity. <a href="https://www.rfc-editor.org/rfc/rfc6585.html#section-4">RFC 6585</a> defines <code>429</code> as too many requests in a period of time, but explicitly leaves both user identification and counting scope to the origin server. It gives per-resource, whole-server, and credential-based counting as possible choices.</p>
+<p><code>Retry-After</code> adds a time boundary, not an ownership boundary. It answers “when may I try this again?” It does not answer “which other work shares this answer?”</p>
+<h2>The scheduler key should match the server&#39;s partition</h2>
+<p>For a client with concurrent work, the useful state is not:</p>
+<pre><code class="language-ts">pausedUntilByOrigin.set(&quot;https://api.example&quot;, now + 30_000);
+</code></pre>
+<p>It is closer to this illustrative model:</p>
+<pre><code class="language-ts">type Throttle = {
+  policy: &quot;import-create&quot; | &quot;catalog-read&quot; | &quot;provider-capacity&quot;;
+  partition: string; // opaque, non-sensitive identifier or documented derivation
+  retryAfterMs: number;
+};
+
+function throttleKey(limit: Throttle) {
+  return `${limit.policy}:${limit.partition}`;
+}
+
+function mayStart(job: { policy: Throttle[&quot;policy&quot;]; partition: string }, now: number) {
+  const resumeAt = pausedUntil.get(`${job.policy}:${job.partition}`) ?? 0;
+  return now &gt;= resumeAt;
+}
+</code></pre>
+<p>The exact data shape is application policy, not a universal HTTP API. The invariant is what matters: work can be held together only when the client knows it consumes the same quota.</p>
+<p>For example, a service could define these partitions:</p>
+<table>
+<thead>
+<tr>
+<th>Policy</th>
+<th>Partition</th>
+<th>Client action after exhaustion</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Import creation</td>
+<td>tenant ID</td>
+<td>Pause new imports for that tenant; keep other tenants moving.</td>
+</tr>
+<tr>
+<td>Search requests</td>
+<td>API credential</td>
+<td>Pause searches using that credential, even if they represent different end users.</td>
+</tr>
+<tr>
+<td>Expensive export</td>
+<td>tenant ID + export route</td>
+<td>Hold exports only; allow cancellation and status reads.</td>
+</tr>
+<tr>
+<td>Emergency capacity shedding</td>
+<td>provider-wide</td>
+<td>Slow or reject all work in the documented class.</td>
+</tr>
+</tbody></table>
+<p>The policy name is not cosmetic. It prevents a client from treating a per-tenant import budget and a global overload signal as the same queue merely because they were both expressed as <code>429</code>.</p>
+<p>This is the missing half of <a href="https://my-slops.github.io/Blog/posts/2026/07/rate-limits-need-a-budget-the-client-can-see/">Rate Limits Need a Budget the Client Can See</a>. A visible remaining budget lets a client schedule before rejection. A visible or documented partition tells it which pending jobs that budget applies to.</p>
+<h2>HTTP can carry a partition, but it is not a promise of universal behavior</h2>
+<p>The IETF HTTPAPI working group&#39;s RateLimit header-fields document is still an Internet-Draft as of this post. Its current design makes the distinction explicit: a quota policy can include a <code>pk</code> partition-key parameter, and a <code>RateLimit</code> value describes availability for a particular partition. It describes partitions such as per user, per application, per method, per resource, or a combination. <a href="https://datatracker.ietf.org/doc/draft-ietf-httpapi-ratelimit-headers/">RateLimit header fields for HTTP, draft-11</a></p>
+<p>An illustrative response might look like this:</p>
+<pre><code class="language-http">HTTP/1.1 429 Too Many Requests
+Retry-After: 30
+RateLimit: &quot;import-create&quot;;r=0;t=30;pk=:YWNtZS1pbXBvcnRz:
+Content-Type: application/problem+json
+
+{
+  &quot;type&quot;: &quot;https://api.example/problems/quota-exceeded&quot;,
+  &quot;violated_policies&quot;: [&quot;import-create&quot;]
+}
+</code></pre>
+<p>Do not treat that example as permission to expose an account ID, an authorization token, or an infrastructure counter in a header. The draft warns against sensitive partition keys and recommends documenting how a client can predict a key for a future request. An opaque value can be enough when the client needs only equality: “does this pending job belong to the same paused partition?”</p>
+<p>It is also reasonable not to expose a key. A public API may not want a caller to infer how capacity is shared. In that case, document the decision rule at the API level: for example, “all requests using one project credential share the write quota,” or “a 429 from export creation affects only that project’s exports.” A response body following <a href="https://www.rfc-editor.org/rfc/rfc9457.html">RFC 9457 problem details</a> can carry a stable, documented problem type and safe application-specific fields when headers alone are not enough.</p>
+<p>The important constraint is honesty. Do not present a partition label as an authorization claim or a reservation. The draft says available quota is a hint, not a service-level guarantee; another caller sharing the partition can consume it before the next request arrives, and the server may reduce limits under saturation.</p>
+<h2>Unknown scope calls for a narrower client reaction</h2>
+<p>An HTTP library that knows nothing but <code>429</code> and <code>Retry-After</code> cannot correctly infer the quota topology. Its safest default is local:</p>
+<ol>
+<li>mark the failed request or its documented retry identity as delayed;</li>
+<li>honor the delay only while the operation&#39;s own deadline still makes retry useful;</li>
+<li>do not change unrelated queues without an API contract that connects them; and</li>
+<li>keep server enforcement as the final authority even when local scheduling predicts capacity.</li>
+</ol>
+<p>That last point matters for agents and batch workers. A broad “pause all tools from this provider” response can be a useful emergency policy, but it should be a deliberate orchestration decision, not a conclusion manufactured from one tenant&#39;s <code>429</code>. Conversely, a client that continues every other request after a known global throttle is ignoring evidence it already has.</p>
+<p>The retry should also preserve the original work identity. A delay is not permission to create a second import, charge, or email when the first request&#39;s outcome is uncertain. <a href="https://my-slops.github.io/Blog/posts/2026/05/retries-need-an-identity-before-they-need-backoff/">Retries Need an Identity Before They Need Backoff</a> covers that separate recovery boundary.</p>
+<h2>Test the pause boundary with two workloads</h2>
+<p>Most rate-limit tests send one sequence of requests and assert a <code>429</code>. That proves the server can reject. It does not prove that the client controls the right work after it does.</p>
+<p>Add paired cases:</p>
+<pre><code class="language-text">Given: Acme and Northstar have independent import quotas
+When: Acme receives 429 with a 30-second retry delay
+Then: Acme&#39;s next import is delayed
+And: Northstar&#39;s import can start immediately
+
+Given: all imports share a provider-capacity quota
+When: Acme receives 429 with a 30-second retry delay
+Then: new imports for both tenants are held
+And: status reads and cancellations follow their separately documented policy
+
+Given: a queued import belongs to the paused partition
+When: its original deadline expires before the retry time
+Then: it records an explicit expired or deferred outcome instead of retrying late
+</code></pre>
+<p>These tests force the system to name the unit of control. They also reveal accidental global variables in SDKs: a single static cooldown is a policy, even when it began life as a convenience.</p>
+<h2>Trade-offs</h2>
+<p>Partition-aware scheduling adds state, API documentation, and compatibility work. A client may have to handle missing, stale, or changing rate-limit fields, particularly when a gateway and an origin enforce different policies. The RateLimit draft itself says clients must not assume a future response will repeat the same fields, and that a positive remaining value does not guarantee a later request succeeds.</p>
+<p>For a small single-tenant integration, one cooldown per credential may be exactly the right design. The extra partition machinery earns its cost when one process multiplexes unrelated tenants, routes, priority classes, or credential pools—and when unnecessarily pausing one of them has a visible cost.</p>
+<p>The goal is not to make a client outsmart the server. It is to keep the client from adding an avoidable outage of its own.</p>
+<h2>References</h2>
+<ul>
+<li>IETF, <a href="https://www.rfc-editor.org/rfc/rfc6585.html#section-4">RFC 6585 §4: 429 Too Many Requests</a></li>
+<li>IETF HTTPAPI, <a href="https://datatracker.ietf.org/doc/draft-ietf-httpapi-ratelimit-headers/">RateLimit header fields for HTTP, draft-11</a> — Internet-Draft, not a published RFC as of 2026-11-03</li>
+<li>IETF, <a href="https://www.rfc-editor.org/rfc/rfc9457.html">RFC 9457: Problem Details for HTTP APIs</a></li>
+<li>This repository, <a href="https://my-slops.github.io/Blog/posts/2026/07/rate-limits-need-a-budget-the-client-can-see/">Rate Limits Need a Budget the Client Can See</a></li>
+<li>This repository, <a href="https://my-slops.github.io/Blog/posts/2026/05/retries-need-an-identity-before-they-need-backoff/">Retries Need an Identity Before They Need Backoff</a></li>
+</ul>
+<h2>Final Take</h2>
+<p>When a client receives a rate-limit response, the question is not merely when to retry. It is which work has actually been told to wait.</p>
+<p>Make that partition visible or documentable. Then pause the right queue—not every queue that shares a hostname.</p>
+<h2>Changelog</h2>
+<ul>
+<li>2026-11-03: Initial publication on quota partitions and client-side throttling scope.</li>
+</ul>
+
+    </article>
+  </body>
+</html>
