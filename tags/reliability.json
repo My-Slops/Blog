@@ -1,7 +1,21 @@
 {
   "tag": "reliability",
-  "count": 126,
+  "count": 127,
   "posts": [
+    {
+      "title": "A Lease Expiry Does Not Stop the Old Worker",
+      "date": "2026-11-07",
+      "updated": "2026-11-07",
+      "summary": "Treat a distributed lease as a coordination signal, not a physical stop button. When a stale worker could still mutate shared state, send a monotonically increasing fencing token to the protected resource and make that resource reject superseded owners.",
+      "tags": [
+        "distributed systems",
+        "reliability",
+        "software architecture",
+        "developer tooling"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/11/a-lease-expiry-does-not-stop-the-old-worker/",
+      "path": "posts/2026/11/2026-11-07-a-lease-expiry-does-not-stop-the-old-worker.md"
+    },
     {
       "title": "Pause the Right Queue After a 429",
       "date": "2026-11-03",
