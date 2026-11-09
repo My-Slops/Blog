@@ -1,7 +1,21 @@
 {
-  "generated_at": "2026-11-07T17:34:33.595Z",
-  "count": 184,
+  "generated_at": "2026-11-09T03:56:58.762Z",
+  "count": 185,
   "posts": [
+    {
+      "title": "Daily Schedules Have Two Different Meanings",
+      "date": "2026-11-08",
+      "updated": "2026-11-08",
+      "summary": "Do not hide a scheduling decision inside a cron string or a duration. Separate elapsed-time cadence from wall-clock intent, retain the IANA time zone for civil schedules, and make daylight-saving gap and overlap behavior explicit and testable.",
+      "tags": [
+        "distributed systems",
+        "reliability",
+        "developer tooling",
+        "scheduling"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/11/daily-schedules-have-two-different-meanings/",
+      "path": "posts/2026/11/2026-11-08-daily-schedules-have-two-different-meanings.md"
+    },
     {
       "title": "A Lease Expiry Does Not Stop the Old Worker",
       "date": "2026-11-07",

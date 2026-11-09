@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-07T17:34:33.606Z",
+  "generated_at": "2026-11-09T03:56:58.785Z",
   "tags": [
     {
       "tag": "accessibility",
@@ -153,12 +153,12 @@
     },
     {
       "tag": "developer tooling",
-      "count": 32,
+      "count": 33,
       "url": "https://my-slops.github.io/Blog/tags/developer tooling.json"
     },
     {
       "tag": "distributed systems",
-      "count": 18,
+      "count": 19,
       "url": "https://my-slops.github.io/Blog/tags/distributed systems.json"
     },
     {
@@ -373,7 +373,7 @@
     },
     {
       "tag": "reliability",
-      "count": 127,
+      "count": 128,
       "url": "https://my-slops.github.io/Blog/tags/reliability.json"
     },
     {
@@ -400,6 +400,11 @@
       "tag": "safety",
       "count": 14,
       "url": "https://my-slops.github.io/Blog/tags/safety.json"
+    },
+    {
+      "tag": "scheduling",
+      "count": 1,
+      "url": "https://my-slops.github.io/Blog/tags/scheduling.json"
     },
     {
       "tag": "security",

@@ -6,6 +6,13 @@
   <description>Daily writing, optimized for humans and LLMs.</description>
   <language>en-us</language>
   <item>
+    <title>Daily Schedules Have Two Different Meanings</title>
+    <link>https://my-slops.github.io/Blog/posts/2026/11/daily-schedules-have-two-different-meanings/</link>
+    <guid>https://my-slops.github.io/Blog/posts/2026/11/daily-schedules-have-two-different-meanings/</guid>
+    <pubDate>Sun, 08 Nov 2026 00:00:00 GMT</pubDate>
+    <description>Do not hide a scheduling decision inside a cron string or a duration. Separate elapsed-time cadence from wall-clock intent, retain the IANA time zone for civil schedules, and make daylight-saving gap and overlap behavior explicit and testable.</description>
+  </item>
+  <item>
     <title>A Lease Expiry Does Not Stop the Old Worker</title>
     <link>https://my-slops.github.io/Blog/posts/2026/11/a-lease-expiry-does-not-stop-the-old-worker/</link>
     <guid>https://my-slops.github.io/Blog/posts/2026/11/a-lease-expiry-does-not-stop-the-old-worker/</guid>
@@ -347,13 +354,6 @@
     <guid>https://my-slops.github.io/Blog/posts/2026/08/the-draft-only-source-advance-rule-for-autonomous-publishing/</guid>
     <pubDate>Sun, 16 Aug 2026 00:00:00 GMT</pubDate>
     <description>Draft creation changes the authoring baseline, not necessarily the public site. The draft-only source-advance rule preserves both facts without treating an unpublished placeholder as a release.</description>
-  </item>
-  <item>
-    <title>The Remote-Draft-Tail Rule for Autonomous Publishing</title>
-    <link>https://my-slops.github.io/Blog/posts/2026/08/the-remote-draft-tail-rule-for-autonomous-publishing/</link>
-    <guid>https://my-slops.github.io/Blog/posts/2026/08/the-remote-draft-tail-rule-for-autonomous-publishing/</guid>
-    <pubDate>Fri, 14 Aug 2026 00:00:00 GMT</pubDate>
-    <description>Clean is not current. The remote-draft-tail rule requires an authoring run to absorb or account for newly created drafts before it produces the next publication.</description>
   </item>
 </channel>
 </rss>
