@@ -1,7 +1,22 @@
 {
   "tag": "reliability",
-  "count": 128,
+  "count": 129,
   "posts": [
+    {
+      "title": "What Exactly Did Your Webhook Signature Verify?",
+      "date": "2026-11-09",
+      "updated": "2026-11-09",
+      "summary": "Verify the exact signature base before JSON parsing, logging middleware, or proxy transformations can reinterpret it. Then parse and validate the verified bytes as a separate step; an object that looks the same is not necessarily the message that was signed.",
+      "tags": [
+        "security",
+        "event systems",
+        "API design",
+        "reliability",
+        "developer tooling"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/11/what-exactly-did-your-webhook-signature-verify/",
+      "path": "posts/2026/11/2026-11-09-what-exactly-did-your-webhook-signature-verify.md"
+    },
     {
       "title": "Daily Schedules Have Two Different Meanings",
       "date": "2026-11-08",
