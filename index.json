@@ -1,7 +1,22 @@
 {
-  "generated_at": "2026-11-09T15:05:35.839Z",
-  "count": 186,
+  "generated_at": "2026-11-10T21:34:33.501Z",
+  "count": 187,
   "posts": [
+    {
+      "title": "Replaying a Dead-Letter Queue Is a New Production Change",
+      "date": "2026-11-10",
+      "updated": "2026-11-10",
+      "summary": "A dead-letter replay is not a harmless undo of past failures. Repair the cause, select a bounded set, verify that current consumers can interpret old work, and observe redelivery as a new production change.",
+      "tags": [
+        "reliability",
+        "distributed systems",
+        "operations",
+        "event systems",
+        "software architecture"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/11/replaying-a-dead-letter-queue-is-a-new-production-change/",
+      "path": "posts/2026/11/2026-11-10-replaying-a-dead-letter-queue-is-a-new-production-change.md"
+    },
     {
       "title": "What Exactly Did Your Webhook Signature Verify?",
       "date": "2026-11-09",

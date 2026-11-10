@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Replaying a Dead-Letter Queue Is a New Production Change | Blog</title>
+    <meta name="description" content="A dead-letter replay is not a harmless undo of past failures. Repair the cause, select a bounded set, verify that current consumers can interpret old work, and observe redelivery as a new production change." />
+    <link rel="canonical" href="https://my-slops.github.io/Blog/posts/2026/11/replaying-a-dead-letter-queue-is-a-new-production-change/" />
+    <style>
+      :root { color-scheme: light dark; }
+      body { font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; line-height: 1.7; max-width: 760px; margin: 40px auto; padding: 0 16px; }
+      a { color: #0a58ca; text-decoration: none; }
+      a:hover { text-decoration: underline; }
+      .meta { color: #666; font-size: 0.95rem; margin-bottom: 1rem; }
+      .tags { display: flex; gap: 0.5rem; list-style: none; padding: 0; margin: 0.75rem 0 1.25rem; flex-wrap: wrap; }
+      .tags li { background: #eef2ff; color: #3730a3; border-radius: 999px; padding: 0.2rem 0.6rem; font-size: 0.8rem; }
+      article h1, article h2, article h3 { line-height: 1.3; }
+      article pre { overflow-x: auto; background: #111827; color: #f9fafb; padding: 0.9rem; border-radius: 8px; }
+      article code { font-family: ui-monospace,SFMono-Regular,Menlo,monospace; }
+      article blockquote { border-left: 4px solid #d1d5db; margin: 1rem 0; padding: 0.2rem 0.9rem; color: #4b5563; }
+      hr { border: 0; border-top: 1px solid #e5e7eb; margin: 2rem 0; }
+    </style>
+  </head>
+  <body>
+    <p><a href="https://my-slops.github.io/Blog/">← Home</a></p>
+    <article>
+      <h1>Replaying a Dead-Letter Queue Is a New Production Change</h1>
+      <p class="meta">Nov 10, 2026</p>
+      <ul class="tags"><li>reliability</li><li>distributed systems</li><li>operations</li><li>event systems</li><li>software architecture</li></ul>
+      <h2>TL;DR</h2>
+<p>A dead-letter queue preserves work that the normal consumer could not finish. Moving that work back into a live queue does not restore the past. It starts a new delivery campaign against today&#39;s code, data, permissions, and downstream systems.</p>
+<p>Treat replay like a small production change: identify the failure class, repair it, choose a bounded population, prove old messages remain interpretable, control the delivery rate, and watch the resulting effects. A button labelled “redrive” is not evidence that retrying every stored message is safe.</p>
+<h2>The failure may be old; the effect will be new</h2>
+<p>Imagine an invoice consumer that dead-letters messages because its tax service is unavailable. Four hours later, the service recovers and an operator moves 80,000 messages back to the source queue.</p>
+<p>Some of those invoices may now be cancelled. Some customers may have changed tax jurisdictions. A deployment may have changed the event schema or the meaning of a field. The original consumer might even have completed an external effect before it crashed and failed to acknowledge the message.</p>
+<p>The queue cannot decide which of those facts matters. It knows only that a message was not successfully removed under an earlier set of conditions.</p>
+<p>This is why a dead-letter queue is useful storage but not an operations plan. <a href="https://my-slops.github.io/Blog/posts/2026/07/background-work-needs-a-named-owner/">Background Work Needs a Named Owner</a> makes the ownership point: an abandoned message needs someone who can inspect its history and choose a next action. Replay makes that choice consequential again.</p>
+<p>Amazon SQS exposes the distinction plainly. Its redrive operation moves messages asynchronously, can target the original or a custom queue, and lets an operator limit the move rate. AWS recommends beginning with a low rate and increasing it while observing the destination; it also says an in-progress task can leave already-moved messages at the destination when cancelled. <a href="https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/sqs-configure-dead-letter-queue-redrive.html">Amazon SQS redrive documentation</a> Those are deployment-shaped controls, not a guarantee that the original work is safe to repeat.</p>
+<h2>Repair first; do not use replay as diagnosis</h2>
+<p>The tempting workflow is “the DLQ is nonempty, so redrive it.” That confuses a symptom with a failure class.</p>
+<p>Before moving anything, establish at least one of these explanations:</p>
+<table>
+<thead>
+<tr>
+<th>Failure class</th>
+<th>A replay can be reasonable after</th>
+<th>A replay is unsafe when</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Transient dependency failure</td>
+<td>The dependency and its credentials are demonstrably healthy.</td>
+<td>The same saturation, rate limit, or outage is still present.</td>
+</tr>
+<tr>
+<td>Consumer defect</td>
+<td>The deployed fix accepts the old payload and has been exercised on representative messages.</td>
+<td>The fix only handles new producers or silently changes the business meaning.</td>
+</tr>
+<tr>
+<td>Invalid or poisoned input</td>
+<td>A repaired consumer can deliberately reject, transform, or route the bad record.</td>
+<td>The message will fail identically and consume capacity again.</td>
+</tr>
+<tr>
+<td>Unknown outcome after an external call</td>
+<td>A durable idempotency or reconciliation path can determine the prior effect.</td>
+<td>Replaying may charge, email, provision, or delete twice.</td>
+</tr>
+</tbody></table>
+<p>This is not a demand for perfect certainty. It is a demand not to turn “we have not looked” into “please repeat all side effects.” When the reason is unknown, pull a representative sample with its receive history, consumer version, error class, and correlation identifiers. If no useful classification emerges, quarantine the population and investigate; a bulk replay only changes where the uncertainty is expressed.</p>
+<p>The boundary is especially sharp for third-party effects. A consumer timeout says that the consumer did not receive a satisfactory response. It does not establish that the payment provider, email API, or deployment service did nothing. <a href="https://my-slops.github.io/Blog/posts/2026/10/what-cancel-means-after-an-agent-starts-work/">What “Cancel” Means After an Agent Starts Work</a> explores the same gap for cancellation: local control flow cannot prove the remote outcome. A replay needs the same operation identity and reconciliation story as an ordinary retry.</p>
+<h2>Old messages need a compatibility contract</h2>
+<p>A repair can make a consumer correct for messages produced today and still make it wrong for messages produced last week. The question is not merely whether JSON parses. It is whether the event still means what the current handler thinks it means.</p>
+<p>Keep enough metadata with the message or its envelope to answer:</p>
+<pre><code class="language-ts">type ReplayCandidate = {
+  messageId: string;
+  eventType: &quot;invoice.requested&quot;;
+  schemaVersion: 3;
+  occurredAt: string;
+  failedAt: string;
+  failureCode: string;
+  effectKey: string;
+  sourceConsumerVersion?: string;
+};
+</code></pre>
+<p><code>schemaVersion</code> is not just a decoder hint. It tells the replay tool which migrations and fixtures to exercise. <code>occurredAt</code> and <code>failedAt</code> distinguish the business time from the time the system became stuck. <code>effectKey</code> gives a receiver a chance to make an old delivery converge with a prior accepted effect rather than act twice.</p>
+<p>Do not assume a FIFO label solves this. In SQS, a redrive task processes the dead-letter queue from its oldest received messages, but redriven messages can interleave with messages newly sent to the destination. It also assigns redriven messages a new message ID and enqueue time. <a href="https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/sqs-configure-dead-letter-queue-redrive.html">AWS’s SQS redrive behavior</a> describes one implementation, but the larger lesson applies everywhere: queue order is delivery behavior, not a replacement for domain-level versioning and idempotency.</p>
+<p>For a business process that truly requires ordering, choose a deliberate recovery plan. Pause new work for one partition, replay a bounded range through a compatibility consumer, then reopen admission. If availability matters more, allow interleaving but make the handler safe for stale and duplicate events. A replay tool cannot infer which trade-off the product intended.</p>
+<h2>Make the replay observable and reversible in scope</h2>
+<p>Bulk redrive is often the wrong first move. The safer unit is a named replay run with a fixed selection and an explicit stop condition.</p>
+<pre><code class="language-text">replay_id=dlq-replay-2026-11-10-tax-outage
+selection=failure_code=UPSTREAM_503 and failed_at between 09:00 and 10:30 UTC
+destination=invoice-retry-canary
+rate=5 messages/second
+stop_if=duplicate_effects &gt; 0 or error_rate &gt; 1%
+owner=payments-oncall
+</code></pre>
+<p>This is not bureaucracy for its own sake. It gives an incident reviewer a meaningful question to answer: did this particular recovery run make the intended population converge? It also lets an operator stop a small blast radius without treating the entire DLQ as one indivisible object.</p>
+<p>Use a canary destination or consumer mode when the platform allows it. Validate parsing, deduplication, authorization, and downstream capacity with a sample first. Then increase the rate only while the signals support it. The important signals are not merely queue depth and successful receives. Count terminal business effects, duplicate suppressions, validation rejections, retry scheduling, and messages that return to the DLQ.</p>
+<p>The receiver needs a stable effect identity because platform delivery identities may change. This follows the same principle as <a href="https://my-slops.github.io/Blog/posts/2026/11/a-lease-expiry-does-not-stop-the-old-worker/">A Lease Expiry Does Not Stop the Old Worker</a>: coordination metadata can recover ownership, but the resource being changed must still defend itself from a stale actor. A queue&#39;s new delivery attempt is not permission for the database or provider to accept a duplicate business operation.</p>
+<h2>Keep the dead-letter record until recovery is proved</h2>
+<p>Do not erase the only evidence of why work failed just because a replay has started. Preserve, at least for the retention period that fits the system&#39;s data policy:</p>
+<ul>
+<li>the immutable replay selection or a defensible query that reconstructs it;</li>
+<li>the old payload&#39;s schema or representation identity, subject to appropriate secret handling;</li>
+<li>the triggering error and consumer version;</li>
+<li>the new run identity, destination, rate, and operator or automation authority; and</li>
+<li>per-message terminal outcomes, including “unknown” where a remote effect cannot yet be reconciled.</li>
+</ul>
+<p>Retention itself can be a trap. For standard SQS queues, a message keeps its original enqueue timestamp when moved to a DLQ, and the age metric reflects when it entered the DLQ rather than when it was first sent. A DLQ with a shorter retention period can therefore lose the message earlier than an operator expects. <a href="https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/sqs-dead-letter-queues.html">AWS’s DLQ retention guidance</a> recommends making DLQ retention longer than the source queue&#39;s. The exact semantics are provider-specific, but the operational rule is general: know which clock drives expiry before relying on a backlog for later recovery.</p>
+<p>There are cases where immediate replay is appropriate: a narrow, idempotent job failed during a verified five-minute provider outage; its payload format is stable; and a small canary produces no surprise effects. The point is not to make recovery ceremonious. It is to give it a success criterion stronger than “messages left the DLQ.”</p>
+<h2>References</h2>
+<ul>
+<li>AWS, <a href="https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/sqs-configure-dead-letter-queue-redrive.html">Configuring dead-letter queue redrive in Amazon SQS</a></li>
+<li>AWS, <a href="https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/sqs-dead-letter-queues.html">Using dead-letter queues in Amazon SQS</a></li>
+<li>This repository, <a href="https://my-slops.github.io/Blog/posts/2026/07/background-work-needs-a-named-owner/">Background Work Needs a Named Owner</a></li>
+<li>This repository, <a href="https://my-slops.github.io/Blog/posts/2026/10/what-cancel-means-after-an-agent-starts-work/">What “Cancel” Means After an Agent Starts Work</a></li>
+<li>This repository, <a href="https://my-slops.github.io/Blog/posts/2026/11/a-lease-expiry-does-not-stop-the-old-worker/">A Lease Expiry Does Not Stop the Old Worker</a></li>
+</ul>
+<h2>Final Take</h2>
+<p>Dead-lettering is evidence that a previous delivery campaign did not finish. Replaying is a decision to begin another one.</p>
+<p>Make that decision with a repaired cause, a bounded population, compatibility checks, a controlled rate, and a receipt for the effects. Then a DLQ becomes a recovery tool rather than a place where unresolved work waits until someone presses the largest button available.</p>
+<h2>Changelog</h2>
+<ul>
+<li>2026-11-10: Initial publication on treating DLQ replay as a scoped production change.</li>
+</ul>
+
+    </article>
+  </body>
+</html>
