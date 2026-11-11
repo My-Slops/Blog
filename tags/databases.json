@@ -1,7 +1,22 @@
 {
   "tag": "databases",
-  "count": 5,
+  "count": 6,
   "posts": [
+    {
+      "title": "The First Row May Not Be the First Fact",
+      "date": "2026-11-11",
+      "updated": "2026-11-11",
+      "summary": "A larger auto-incrementing ID does not prove that its row committed later or represents a later business event. Decide which order a feature needs, then encode and enforce that order instead of inferring it from a primary key.",
+      "tags": [
+        "databases",
+        "distributed systems",
+        "reliability",
+        "API design",
+        "software architecture"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/11/the-first-row-may-not-be-the-first-fact/",
+      "path": "posts/2026/11/2026-11-11-the-first-row-may-not-be-the-first-fact.md"
+    },
     {
       "title": "When a Commit and an Email Disagree",
       "date": "2026-10-31",

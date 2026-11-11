@@ -46,12 +46,12 @@ insert → id = 41
                                  insert → id = 42
                                  commit
 
-select id from invoices
+select id from invoices order by id
 → 42
 
 commit
 
-select id from invoices
+select id from invoices order by id
 → 41, 42
 </code></pre>
 <p>Nothing has gone wrong. A sequence hands out values without holding a transaction open behind every other writer. PostgreSQL documents that <code>nextval</code> values are not reclaimed after an abort, and that sequence state changes are not rolled back with the transaction. That is a concurrency trade-off, not a defect. <a href="https://www.postgresql.org/docs/current/functions-sequence.html">PostgreSQL sequence functions</a></p>
