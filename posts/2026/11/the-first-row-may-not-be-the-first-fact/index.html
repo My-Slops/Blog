@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>The First Row May Not Be the First Fact | Blog</title>
+    <meta name="description" content="A larger auto-incrementing ID does not prove that its row committed later or represents a later business event. Decide which order a feature needs, then encode and enforce that order instead of inferring it from a primary key." />
+    <link rel="canonical" href="https://my-slops.github.io/Blog/posts/2026/11/the-first-row-may-not-be-the-first-fact/" />
+    <style>
+      :root { color-scheme: light dark; }
+      body { font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; line-height: 1.7; max-width: 760px; margin: 40px auto; padding: 0 16px; }
+      a { color: #0a58ca; text-decoration: none; }
+      a:hover { text-decoration: underline; }
+      .meta { color: #666; font-size: 0.95rem; margin-bottom: 1rem; }
+      .tags { display: flex; gap: 0.5rem; list-style: none; padding: 0; margin: 0.75rem 0 1.25rem; flex-wrap: wrap; }
+      .tags li { background: #eef2ff; color: #3730a3; border-radius: 999px; padding: 0.2rem 0.6rem; font-size: 0.8rem; }
+      article h1, article h2, article h3 { line-height: 1.3; }
+      article pre { overflow-x: auto; background: #111827; color: #f9fafb; padding: 0.9rem; border-radius: 8px; }
+      article code { font-family: ui-monospace,SFMono-Regular,Menlo,monospace; }
+      article blockquote { border-left: 4px solid #d1d5db; margin: 1rem 0; padding: 0.2rem 0.9rem; color: #4b5563; }
+      hr { border: 0; border-top: 1px solid #e5e7eb; margin: 2rem 0; }
+    </style>
+  </head>
+  <body>
+    <p><a href="https://my-slops.github.io/Blog/">← Home</a></p>
+    <article>
+      <h1>The First Row May Not Be the First Fact</h1>
+      <p class="meta">Nov 11, 2026</p>
+      <ul class="tags"><li>databases</li><li>distributed systems</li><li>reliability</li><li>API design</li><li>software architecture</li></ul>
+      <h2>TL;DR</h2>
+<p>An auto-incrementing primary key is excellent at giving a row an identity. It is usually a bad way to infer what happened first.</p>
+<p>With concurrent transactions, one request can reserve ID <code>41</code>, pause before committing, and another can reserve and commit ID <code>42</code>. A reader can observe <code>42</code> first and then later observe <code>41</code>. A cursor that records <code>42</code> as its high-water mark has now skipped a committed row.</p>
+<p>Do not ask one number to answer several different questions. Decide whether a feature needs stable identity, commit visibility, per-object version order, business-event time, or a global append order. Then make that particular relationship part of the data model and its write path.</p>
+<h2>An ID can be allocated before its fact exists</h2>
+<p>Consider an ordinary PostgreSQL table:</p>
+<pre><code class="language-sql">create table invoices (
+  id bigint generated always as identity primary key,
+  account_id uuid not null,
+  status text not null
+);
+</code></pre>
+<p>Two transactions run at about the same time:</p>
+<pre><code class="language-text">transaction A                    transaction B
+-------------                    -------------
+insert → id = 41
+                                 insert → id = 42
+                                 commit
+
+select id from invoices
+→ 42
+
+commit
+
+select id from invoices
+→ 41, 42
+</code></pre>
+<p>Nothing has gone wrong. A sequence hands out values without holding a transaction open behind every other writer. PostgreSQL documents that <code>nextval</code> values are not reclaimed after an abort, and that sequence state changes are not rolled back with the transaction. That is a concurrency trade-off, not a defect. <a href="https://www.postgresql.org/docs/current/functions-sequence.html">PostgreSQL sequence functions</a></p>
+<p>The uncomfortable consequence is that a primary-key number describes allocation, not the moment the row became a visible committed fact. <code>id = 42</code> can be visible while <code>id = 41</code> still belongs only to an uncommitted transaction. If A later rolls back, <code>41</code> may never become a row at all.</p>
+<p>This matters most when an implementation quietly turns an ID into a stream position:</p>
+<pre><code class="language-sql">select *
+from invoices
+where id &gt; :last_seen_id
+order by id;
+</code></pre>
+<p>If a polling client sees <code>42</code>, stores <code>last_seen_id = 42</code>, and A commits afterward, the row with ID <code>41</code> no longer qualifies. The cursor did not merely tolerate a gap. It made a claim about order that the write path never promised.</p>
+<p><code>COMMIT</code> is the boundary at which a transaction&#39;s changes become visible and durable to other sessions. An identity value being allocated earlier is not that boundary. <a href="https://www.postgresql.org/docs/current/sql-commit.html">PostgreSQL COMMIT documentation</a></p>
+<h2>“First” has several legitimate meanings</h2>
+<p>The error is not using an ID. The error is leaving the word <em>first</em> undefined.</p>
+<table>
+<thead>
+<tr>
+<th>If the feature means…</th>
+<th>It needs…</th>
+<th>An autogenerated ID provides it?</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>“Is this the same row?”</td>
+<td>Stable identity</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>“Which change belongs after the current version of this account?”</td>
+<td>A per-account serialized revision</td>
+<td>No</td>
+</tr>
+<tr>
+<td>“Which business event happened earlier?”</td>
+<td>A domain event time plus a rule for ties and corrections</td>
+<td>No</td>
+</tr>
+<tr>
+<td>“Which writes became visible to readers first?”</td>
+<td>A committed-publication contract</td>
+<td>No</td>
+</tr>
+<tr>
+<td>“What is the next item in one append-only log?”</td>
+<td>A log owner that serializes appends</td>
+<td>No</td>
+</tr>
+</tbody></table>
+<p>Some uses of <code>ORDER BY id</code> remain completely sensible. It can give an administrative table a deterministic presentation order. It can be a convenient implementation detail for a one-time scan inside a stable snapshot. It can partition an export after the exporter has deliberately established a safe boundary.</p>
+<p>But those are weaker claims than “this row was created later,” “clients will see every row after this cursor,” or “this event supersedes the previous one.” As soon as the product relies on one of those claims, the order must be stated and protected.</p>
+<p>The same distinction appears at an API boundary. <a href="https://my-slops.github.io/Blog/posts/2026/10/a-signed-webhook-is-not-a-freshness-guarantee/">A Signed Webhook Is Not a Freshness Guarantee</a> argues that a delivery ID and an authenticated payload do not establish a resource&#39;s current version. A local database ID has the same limitation: identity is not an ordering contract just because it is numeric.</p>
+<h2>Put ordering where contention is acceptable</h2>
+<p>For a stateful aggregate, the usual requirement is not a global order across every invoice. It is a total order for one account, document, or workflow. Put a revision on that aggregate and allocate it in the same transaction that records the new fact.</p>
+<pre><code class="language-sql">begin;
+
+update accounts
+set next_invoice_revision = next_invoice_revision + 1
+where id = :account_id
+returning next_invoice_revision;
+
+-- Suppose this returns 18.
+insert into invoice_events (account_id, revision, kind, payload)
+values (:account_id, 18, &#39;invoice_issued&#39;, :payload);
+
+commit;
+</code></pre>
+<p>The account row is now the serialization point. Concurrent writers for the same account contend on that update, so only one can receive revision 18. A uniqueness constraint makes the promise durable rather than conventional:</p>
+<pre><code class="language-sql">alter table invoice_events
+  add constraint invoice_events_account_revision_key
+  unique (account_id, revision);
+</code></pre>
+<p>That design has a real cost: unrelated accounts proceed concurrently, but writers for one account may wait. That is exactly the cost the feature was already asking someone to pay. Pretending the global primary-key sequence supplied a per-account order only hides the contention until a reader observes the wrong result.</p>
+<p>If writers need optimistic concurrency instead, expose the current revision in the API and require it on an update:</p>
+<pre><code class="language-sql">update invoices
+set status = &#39;paid&#39;, revision = revision + 1
+where id = :invoice_id
+  and revision = :expected_revision;
+</code></pre>
+<p>Zero rows updated means the caller wrote against an older state and must reread, merge, or deliberately reject the change. It is not a reason to overwrite with the numerically larger primary key.</p>
+<p>PostgreSQL&#39;s Serializable isolation can protect broader invariants, but it is not a shortcut for skipping the contract. It can abort a transaction when concurrent work cannot be represented as a serial execution, and callers must retry the whole transaction after a serialization failure. <a href="https://www.postgresql.org/docs/current/transaction-iso.html">PostgreSQL transaction isolation</a> The application still has to say which rows participate in the invariant and how a retry preserves the original intent.</p>
+<h2>Cursors need a publication rule, not a hopeful high-water mark</h2>
+<p>The broken <code>id &gt; last_seen_id</code> query is tempting because it is cheap and looks monotonic in a development database. It becomes dangerous when a consumer treats its returned maximum as evidence that no smaller ID can appear later.</p>
+<p>There are several honest designs, and they are not interchangeable:</p>
+<ul>
+<li>A change feed can be owned by a database or log system that publishes a committed position and lets consumers resume from that position.</li>
+<li>A transactional outbox can record a business change and its publication obligation together; its relay then gives downstream consumers a separately defined delivery contract. <a href="https://my-slops.github.io/Blog/posts/2026/10/when-a-commit-and-an-email-disagree/">When a Commit and an Email Disagree</a> covers why that local atomic boundary is useful but does not make external delivery exactly once.</li>
+<li>A snapshot export can record a deliberate cutoff and reconcile changes after that cutoff, rather than treating an incidental maximum ID as a watermark.</li>
+<li>A small product may choose an explicit time overlap—re-read a recent window and deduplicate by row identity—when delayed visibility is acceptable and the duplicate policy is clear.</li>
+</ul>
+<p>The last option is not elegant, but it can be correct. It trades extra reads and durable deduplication for a simpler ingestion path. What is not correct is calling it an ordered cursor while silently relying on sequence allocation to settle a commit-order question.</p>
+<h2>Do not replace one ambiguous clock with another</h2>
+<p>A common reaction is to sort by <code>created_at</code> instead. That only works after defining what the timestamp means.</p>
+<p>Was it set by the client, application server, or database? Does it mean the business occurrence, the start of the write, or the commit&#39;s visibility? What happens when two rows have the same precision, a client clock is wrong, or a late correction describes an earlier real-world event?</p>
+<p>Timestamps are often valuable data. They are not an automatic total order. Store the time that the domain actually needs, preserve a stable row or event identity for ties, and add a version or publication position when the consumer must decide what comes next.</p>
+<p>This is especially important for agent and workflow tools. A tool that says “return items after ID 900” is communicating an ordering guarantee whether its authors intended one or not. If the back end cannot guarantee a complete continuation from that cursor, expose a different contract: a snapshot token, a committed change cursor, an operation status, or an explicitly lossy recent window. A precise limitation is much kinder to a caller than a numerical field that looks authoritative.</p>
+<h2>Test the late lower ID</h2>
+<p>Ordering bugs survive ordinary tests because one test process usually inserts and commits in sequence. Add the interleaving that production will eventually create:</p>
+<pre><code class="language-text">Given: transaction A has inserted a row and received ID 41, but not committed
+And: transaction B inserts ID 42 and commits
+When: a cursor consumer records 42 as its high-water mark
+And: transaction A commits
+Then: the consumer must still receive row 41, or the API must document that it may not
+</code></pre>
+<p>Repeat it with a rollback in A, concurrent writers for one aggregate, and a reader that loses its response and retries. Those cases make the hidden question visible: is the number an identity, a version, or a delivery position?</p>
+<h2>Trade-offs</h2>
+<p>Explicit ordering is not free. Per-aggregate revisions create hot rows for exceptionally busy aggregates. A globally serialized log limits throughput or requires a specialized system. Change feeds and outboxes add retention, monitoring, and recovery work. Snapshot tokens can pin resources or complicate expiry. Overlap-and-deduplicate costs reads and storage.</p>
+<p>For a screen that merely shows recent records, none of that may be worth it. A primary-key sort can be good enough when it is advertised as a display choice rather than a completeness guarantee.</p>
+<p>My preference is to pay for the narrowest ordering rule that protects a real user-visible promise. Per-document collaboration needs a different rule from a financial ledger, and both differ from an operations dashboard. The data model should reveal that choice.</p>
+<h2>References</h2>
+<ul>
+<li>PostgreSQL, <a href="https://www.postgresql.org/docs/current/functions-sequence.html">Sequence Manipulation Functions</a></li>
+<li>PostgreSQL, <a href="https://www.postgresql.org/docs/current/sql-commit.html">COMMIT</a></li>
+<li>PostgreSQL, <a href="https://www.postgresql.org/docs/current/transaction-iso.html">Transaction Isolation</a></li>
+<li>This repository, <a href="https://my-slops.github.io/Blog/posts/2026/10/a-signed-webhook-is-not-a-freshness-guarantee/">A Signed Webhook Is Not a Freshness Guarantee</a></li>
+<li>This repository, <a href="https://my-slops.github.io/Blog/posts/2026/10/when-a-commit-and-an-email-disagree/">When a Commit and an Email Disagree</a></li>
+</ul>
+<h2>Final Take</h2>
+<p>An identity column answers <em>which row is this?</em> It does not automatically answer <em>what happened first?</em></p>
+<p>When that second question matters, name the order, put its serialization point where the write can enforce it, and test the late lower ID. A number that merely looks like a timeline is not a timeline.</p>
+<h2>Changelog</h2>
+<ul>
+<li>2026-11-11: Initial publication on sequence allocation versus visible and business order.</li>
+</ul>
+
+    </article>
+  </body>
+</html>
