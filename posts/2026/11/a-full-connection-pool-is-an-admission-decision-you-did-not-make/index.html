@@ -1,0 +1,189 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>A Full Connection Pool Is an Admission Decision You Did Not Make | Blog</title>
+    <meta name="description" content="When a database pool fills, its checkout queue quietly becomes an application scheduler. It usually knows nothing about request deadlines, tenants, route cost, or whether the caller still cares. Bound and classify database-bound work before the pool instead." />
+    <link rel="canonical" href="https://my-slops.github.io/Blog/posts/2026/11/a-full-connection-pool-is-an-admission-decision-you-did-not-make/" />
+    <style>
+      :root { color-scheme: light dark; }
+      body { font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; line-height: 1.7; max-width: 760px; margin: 40px auto; padding: 0 16px; }
+      a { color: #0a58ca; text-decoration: none; }
+      a:hover { text-decoration: underline; }
+      .meta { color: #666; font-size: 0.95rem; margin-bottom: 1rem; }
+      .tags { display: flex; gap: 0.5rem; list-style: none; padding: 0; margin: 0.75rem 0 1.25rem; flex-wrap: wrap; }
+      .tags li { background: #eef2ff; color: #3730a3; border-radius: 999px; padding: 0.2rem 0.6rem; font-size: 0.8rem; }
+      article h1, article h2, article h3 { line-height: 1.3; }
+      article pre { overflow-x: auto; background: #111827; color: #f9fafb; padding: 0.9rem; border-radius: 8px; }
+      article code { font-family: ui-monospace,SFMono-Regular,Menlo,monospace; }
+      article blockquote { border-left: 4px solid #d1d5db; margin: 1rem 0; padding: 0.2rem 0.9rem; color: #4b5563; }
+      hr { border: 0; border-top: 1px solid #e5e7eb; margin: 2rem 0; }
+    </style>
+  </head>
+  <body>
+    <p><a href="https://my-slops.github.io/Blog/">← Home</a></p>
+    <article>
+      <h1>A Full Connection Pool Is an Admission Decision You Did Not Make</h1>
+      <p class="meta">Nov 12, 2026</p>
+      <ul class="tags"><li>databases</li><li>reliability</li><li>software architecture</li><li>API design</li><li>operations</li></ul>
+      <h2>TL;DR</h2>
+<p>A connection pool answers a narrow resource question: how many database connections may this process hold at once? It does not answer the application question that arrives under load: which work should wait, which work should be rejected, and which work has stopped being worth doing?</p>
+<p>When every connection is busy, many pools make callers wait until a connection returns or a checkout timeout expires. That is useful protection for the database. It also means the pool has become a scheduler—usually one that cannot see a request&#39;s deadline, tenant, route cost, retry class, or business priority.</p>
+<p>Put a deliberate admission boundary before database checkout. Give expensive work a bounded queue or an immediate rejection, reserve capacity for work that must remain available, propagate a real deadline, and observe waiting separately from query execution. The pool should enforce the connection budget, not accidentally define the product&#39;s overload policy.</p>
+<h2>The invisible queue is still a queue</h2>
+<p>An API has a pool of 20 PostgreSQL connections. A burst of report exports starts 20 slow queries. Then a customer tries to cancel one of those exports, an operator opens the incident dashboard, and the normal order API receives a request to create an order.</p>
+<p>All three requests can be healthy application code. If each reaches <code>pool.query()</code> and the pool is exhausted, they can be placed in the same undifferentiated waiting room:</p>
+<pre><code class="language-text">report export  ─┐
+report export  ─┼─&gt; connection-pool waiters ─&gt; any returned connection
+cancel export  ─┤
+order create   ─┤
+incident read  ─┘
+</code></pre>
+<p>The database is protected from a forty-first connection, which matters. PostgreSQL has a finite <code>max_connections</code> setting, and increasing it also increases resources such as shared memory allocated by the server. <a href="https://www.postgresql.org/docs/current/runtime-config-connection.html">PostgreSQL&#39;s connection settings</a> make that limit explicit.</p>
+<p>But the service has made several policy choices without writing them down:</p>
+<ul>
+<li>an export and a cancellation share the same waiting policy;</li>
+<li>a request that will miss its user-visible deadline may occupy a place in line anyway;</li>
+<li>a noisy tenant can occupy the waiters that an unrelated tenant needs; and</li>
+<li>a retry can create more waiting work even when the system has no capacity to make it useful.</li>
+</ul>
+<p>That is admission control by accident. The pool&#39;s queue is real even if it does not appear in a product design.</p>
+<p>Node-postgres is a concrete example, not an exception. Its <code>Pool</code> has a maximum client count, and its documentation warns that unreleased clients can leave future checkouts waiting forever. Its configuration separately exposes a connection timeout for making a new client. <a href="https://node-postgres.com/features/pooling">node-postgres pooling</a> <a href="https://node-postgres.com/apis/pool">Pool API</a>  JDBC pools commonly have a similar shape: HikariCP&#39;s <code>maximumPoolSize</code> caps its total connections and <code>getConnection()</code> waits up to <code>connectionTimeout</code> once the pool is full. <a href="https://github.com/brettwooldridge/HikariCP#configuration-knobs-baby">HikariCP configuration</a></p>
+<p>Those are sensible library semantics. They are not an API priority policy.</p>
+<h2>A pool knows connections, not intent</h2>
+<p>The tempting response to saturation is to increase <code>max</code>. That sometimes helps: a pool can be too small for a database that still has useful capacity. It is not a general cure.</p>
+<p>In a multi-instance service, the database sees the sum of every process&#39;s pool maximum, plus workers, migrations, operator sessions, and other services. The node-postgres sizing guide specifically cautions that a fixed per-process maximum must be considered across instances and leaves headroom for management access and scaling. <a href="https://node-postgres.com/guides/pool-sizing">node-postgres pool sizing</a></p>
+<p>More importantly, a larger pool does not tell a system whether it should run another export while orders are delayed. It can turn application queueing into more concurrent database work, which may increase lock contention, I/O pressure, or tail latency. A connection is a transport resource; it is not a unit of business importance.</p>
+<p>The missing information is usually available before checkout:</p>
+<table>
+<thead>
+<tr>
+<th>Work class</th>
+<th>What the application knows</th>
+<th>A reasonable overload policy</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Checkout or payment write</td>
+<td>A user is waiting and a duplicate or delayed response has a cost.</td>
+<td>Reserve a small, bounded share; reject early when it cannot meet a deadline.</td>
+</tr>
+<tr>
+<td>Interactive read</td>
+<td>The response may be useful after a short wait, but not after several seconds.</td>
+<td>Small queue with a short deadline; degrade to a cached or partial response when honest.</td>
+</tr>
+<tr>
+<td>Report export</td>
+<td>It is expensive and can continue asynchronously.</td>
+<td>Put it in a durable job queue with per-tenant limits; return an operation ID.</td>
+</tr>
+<tr>
+<td>Cancellation or status lookup</td>
+<td>It may be needed to stop or understand the work that caused load.</td>
+<td>Keep a separate, small budget so it is not trapped behind the work it controls.</td>
+</tr>
+</tbody></table>
+<p>There is no universal partition or set of numbers. The point is to make the choice where the request still has its meaning. Once it has become an anonymous pool waiter, the pool cannot recover that context.</p>
+<h2>Rejecting before checkout is often kinder</h2>
+<p>Suppose an HTTP endpoint has a 1.5-second response objective. It spends 900 ms waiting for a connection, acquires one, and starts a query that normally takes 800 ms. Even if the client disconnects at 1.5 seconds, the query may already be using database capacity for a response nobody will receive. Whether a particular driver cancels that query depends on its cancellation and disconnect behavior; a pool timeout alone does not make that decision.</p>
+<p>The useful policy is to decide before asking for a connection whether this request still has a realistic budget. Here is illustrative TypeScript, deliberately separate from any pool library:</p>
+<pre><code class="language-ts">type Permit = { release(): void };
+
+class CapacityGate {
+  constructor(private available: number) {}
+
+  tryEnter(): Permit | null {
+    if (this.available === 0) return null;
+    this.available -= 1;
+    let released = false;
+    return {
+      release: () =&gt; {
+        if (!released) {
+          released = true;
+          this.available += 1;
+        }
+      },
+    };
+  }
+}
+
+const interactiveDb = new CapacityGate(12);
+const exportsDb = new CapacityGate(2);
+
+async function getOrder(orderId: string, deadlineMs: number) {
+  const permit = interactiveDb.tryEnter();
+  if (!permit) return { status: 503, retryAfterSeconds: 1 };
+
+  try {
+    if (Date.now() &gt;= deadlineMs) return { status: 504 };
+    // Acquire from the shared pool and run a query with the remaining deadline.
+    return { status: 200, body: await readOrder(orderId, deadlineMs) };
+  } finally {
+    permit.release();
+  }
+}
+</code></pre>
+<p>This is not a recommendation to build an in-memory semaphore and call the problem solved. With multiple replicas, each gate needs a deliberately chosen local share, and important global quotas may need a queue or coordinator with durable state. The example shows the placement of the decision: it happens before an expensive request becomes an interchangeable connection waiter.</p>
+<p>For an asynchronous export, the better boundary is often earlier still. Accept a job only after its tenant has an available queued or running-work allowance; otherwise return a documented limit response. A worker should acquire its database budget when it is actually ready to execute, rather than making thousands of accepted jobs all wait on the same database pool.</p>
+<h2>Keep the three limits separate</h2>
+<p>It helps to name three limits that are frequently compressed into one pool setting:</p>
+<ol>
+<li><strong>Connection limit:</strong> how many server connections this process may hold. This is the pool&#39;s job.</li>
+<li><strong>Execution limit:</strong> how many database-bound operations of a particular class may run at once. This protects latency and contention.</li>
+<li><strong>Admission limit:</strong> how much waiting work the system is willing to promise. This protects memory, deadlines, and user expectations.</li>
+</ol>
+<p>These values may coincide in a small service, but they express different promises. A pool of 20 does not imply that 20 reports should run at once, that 500 waiting requests are acceptable, or that every route should receive equal access to those connections.</p>
+<p>The same distinction explains why a healthy-looking pool metric can be misleading. <code>active = 20</code> might mean the database is producing useful work at its chosen concurrency. Or it might mean every connection is stuck behind one slow statement while a queue of urgent cancellations grows upstream. Track at least:</p>
+<ul>
+<li>pool checkout wait duration and timeout count;</li>
+<li>query or transaction duration after checkout;</li>
+<li>rejected and queued work, labelled by route or work class;</li>
+<li>queue age and deadline expiry; and</li>
+<li>capacity consumed per tenant or priority class when those partitions matter.</li>
+</ul>
+<p>Pool exhaustion says that a scarce resource is busy. It does not identify whether the problem is a slow query, a leaked checkout, a hot tenant, a request spike, or a concurrency policy that has no business shape. The <a href="https://my-slops.github.io/Blog/posts/2026/11/a-health-endpoint-is-not-a-dependency-dashboard/">health-endpoint discussion</a> makes a related point: one Boolean should not silently drive unrelated recovery actions. One pool metric should not silently choose unrelated work&#39;s fate.</p>
+<h2>Do not overcorrect into elaborate scheduling</h2>
+<p>Many applications do not need a fleet-wide fair scheduler. A small internal service with a handful of equally important requests can use one modest pool and a short checkout timeout quite successfully. Adding route-specific queues can create starvation bugs, surprising failure modes, and operational work that exceeds the value of the distinction.</p>
+<p>Likewise, a connection-pool wait can be an entirely reasonable backpressure signal when the caller owns a bounded amount of work and treats failure as a cue to slow down. The problem begins when an unbounded or user-facing request stream treats that wait as an invisible holding area.</p>
+<p>Start with the narrowest explicit policy that protects a real promise. Reserve a path for cancellation if exports can consume the pool. Make reporting asynchronous before it competes with checkout. Bound a queue before a retry storm fills it. Give interactive requests a deadline that includes waiting, not only query execution.</p>
+<h2>Test overload as a routing decision</h2>
+<p>Most pool tests assert that a checked-out client is returned. Keep that test, then add the questions the pool cannot answer:</p>
+<pre><code class="language-text">Given: all export permits and database connections are occupied
+When: a cancellation request arrives
+Then: it uses its reserved path or receives a fast, explicit failure
+
+Given: a request has 200 ms of deadline remaining
+When: the database budget is unavailable
+Then: it is rejected before starting work that cannot finish usefully
+
+Given: tenant A fills its report allowance
+When: tenant B requests an interactive read
+Then: B&#39;s request is not queued behind A&#39;s reports
+
+Given: a pool checkout is still waiting when an HTTP client disconnects
+When: the connection later becomes available
+Then: the application proves whether it starts, cancels, or deliberately reconciles the work
+</code></pre>
+<p>The last case matters because it exposes a missing ownership decision. A client disappearing does not tell the server whether the operation should stop; <a href="https://my-slops.github.io/Blog/posts/2026/10/what-cancel-means-after-an-agent-starts-work/">What “Cancel” Means After an Agent Starts Work</a> explores that boundary in more detail. But a service should at least be able to say who decides—not leave it to a queue inside a resource helper.</p>
+<h2>References</h2>
+<ul>
+<li>PostgreSQL, <a href="https://www.postgresql.org/docs/current/runtime-config-connection.html">Connections and Authentication</a></li>
+<li>node-postgres, <a href="https://node-postgres.com/features/pooling">Pooling</a> and <a href="https://node-postgres.com/apis/pool">Pool API</a></li>
+<li>node-postgres, <a href="https://node-postgres.com/guides/pool-sizing">Pool Sizing</a></li>
+<li>HikariCP, <a href="https://github.com/brettwooldridge/HikariCP#configuration-knobs-baby">Configuration</a></li>
+<li>This repository, <a href="https://my-slops.github.io/Blog/posts/2026/11/a-health-endpoint-is-not-a-dependency-dashboard/">A Health Endpoint Is Not a Dependency Dashboard</a></li>
+<li>This repository, <a href="https://my-slops.github.io/Blog/posts/2026/10/what-cancel-means-after-an-agent-starts-work/">What “Cancel” Means After an Agent Starts Work</a></li>
+</ul>
+<h2>Final Take</h2>
+<p>A connection pool is a resource guard, not a fair scheduler and not an overload policy.</p>
+<p>If a full pool is the first place the system decides who must wait, it has already discarded the information needed to make a good decision. Admit, bound, prioritize, or reject work while it still has a deadline and a purpose; let the pool do the smaller job it is actually built for.</p>
+<h2>Changelog</h2>
+<ul>
+<li>2026-11-12: Initial publication on connection pools and explicit admission policy.</li>
+</ul>
+
+    </article>
+  </body>
+</html>

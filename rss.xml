@@ -6,6 +6,13 @@
   <description>Daily writing, optimized for humans and LLMs.</description>
   <language>en-us</language>
   <item>
+    <title>A Full Connection Pool Is an Admission Decision You Did Not Make</title>
+    <link>https://my-slops.github.io/Blog/posts/2026/11/a-full-connection-pool-is-an-admission-decision-you-did-not-make/</link>
+    <guid>https://my-slops.github.io/Blog/posts/2026/11/a-full-connection-pool-is-an-admission-decision-you-did-not-make/</guid>
+    <pubDate>Thu, 12 Nov 2026 00:00:00 GMT</pubDate>
+    <description>When a database pool fills, its checkout queue quietly becomes an application scheduler. It usually knows nothing about request deadlines, tenants, route cost, or whether the caller still cares. Bound and classify database-bound work before the pool instead.</description>
+  </item>
+  <item>
     <title>The First Row May Not Be the First Fact</title>
     <link>https://my-slops.github.io/Blog/posts/2026/11/the-first-row-may-not-be-the-first-fact/</link>
     <guid>https://my-slops.github.io/Blog/posts/2026/11/the-first-row-may-not-be-the-first-fact/</guid>
@@ -347,13 +354,6 @@
     <guid>https://my-slops.github.io/Blog/posts/2026/09/prompt-caching-makes-prompt-layout-a-production-interface/</guid>
     <pubDate>Sat, 05 Sep 2026 00:00:00 GMT</pubDate>
     <description>A prompt cache reuses an exact rendered prefix, not an abstract idea of a similar prompt. Structure stable context deliberately, put volatile work at the tail, and measure cache changes like any other production interface change.</description>
-  </item>
-  <item>
-    <title>Agent Tool Calls Need Traces, Not Just Logs</title>
-    <link>https://my-slops.github.io/Blog/posts/2026/08/agent-tool-calls-need-traces-not-just-logs/</link>
-    <guid>https://my-slops.github.io/Blog/posts/2026/08/agent-tool-calls-need-traces-not-just-logs/</guid>
-    <pubDate>Wed, 26 Aug 2026 00:00:00 GMT</pubDate>
-    <description>Tool logs answer what ran. A trace answers which agent decision caused it, what it waited on, and whether the failure belongs to the model, orchestration, or downstream service.</description>
   </item>
 </channel>
 </rss>

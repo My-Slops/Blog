@@ -1,7 +1,22 @@
 {
   "tag": "api design",
-  "count": 24,
+  "count": 25,
   "posts": [
+    {
+      "title": "A Full Connection Pool Is an Admission Decision You Did Not Make",
+      "date": "2026-11-12",
+      "updated": "2026-11-12",
+      "summary": "When a database pool fills, its checkout queue quietly becomes an application scheduler. It usually knows nothing about request deadlines, tenants, route cost, or whether the caller still cares. Bound and classify database-bound work before the pool instead.",
+      "tags": [
+        "databases",
+        "reliability",
+        "software architecture",
+        "API design",
+        "operations"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/11/a-full-connection-pool-is-an-admission-decision-you-did-not-make/",
+      "path": "posts/2026/11/2026-11-12-a-full-connection-pool-is-an-admission-decision-you-did-not-make.md"
+    },
     {
       "title": "The First Row May Not Be the First Fact",
       "date": "2026-11-11",
