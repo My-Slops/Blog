@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Parallel Workers Can Overtake the Oldest Job | Blog</title>
+    <meta name="description" content="FOR UPDATE SKIP LOCKED is a practical way for concurrent workers to claim different rows without waiting on each other. It also lets later jobs pass a locked earlier job, so FIFO order, fairness, and recovery need an explicit design outside the locking clause." />
+    <link rel="canonical" href="https://my-slops.github.io/Blog/posts/2026/11/parallel-workers-can-overtake-the-oldest-job/" />
+    <style>
+      :root { color-scheme: light dark; }
+      body { font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; line-height: 1.7; max-width: 760px; margin: 40px auto; padding: 0 16px; }
+      a { color: #0a58ca; text-decoration: none; }
+      a:hover { text-decoration: underline; }
+      .meta { color: #666; font-size: 0.95rem; margin-bottom: 1rem; }
+      .tags { display: flex; gap: 0.5rem; list-style: none; padding: 0; margin: 0.75rem 0 1.25rem; flex-wrap: wrap; }
+      .tags li { background: #eef2ff; color: #3730a3; border-radius: 999px; padding: 0.2rem 0.6rem; font-size: 0.8rem; }
+      article h1, article h2, article h3 { line-height: 1.3; }
+      article pre { overflow-x: auto; background: #111827; color: #f9fafb; padding: 0.9rem; border-radius: 8px; }
+      article code { font-family: ui-monospace,SFMono-Regular,Menlo,monospace; }
+      article blockquote { border-left: 4px solid #d1d5db; margin: 1rem 0; padding: 0.2rem 0.9rem; color: #4b5563; }
+      hr { border: 0; border-top: 1px solid #e5e7eb; margin: 2rem 0; }
+    </style>
+  </head>
+  <body>
+    <p><a href="https://my-slops.github.io/Blog/">← Home</a></p>
+    <article>
+      <h1>Parallel Workers Can Overtake the Oldest Job</h1>
+      <p class="meta">Nov 13, 2026</p>
+      <ul class="tags"><li>databases</li><li>queues</li><li>distributed systems</li><li>reliability</li><li>software architecture</li></ul>
+      <h2>TL;DR</h2>
+<p><code>FOR UPDATE SKIP LOCKED</code> is a useful building block for a database-backed work queue. Several workers can look for ready jobs at the same time; instead of waiting on a job another worker has claimed, each worker can move on to another row.</p>
+<p>That progress comes from an intentional relaxation: a job that was ready first can be overtaken while it is locked. PostgreSQL explicitly describes <code>SKIP LOCKED</code> as producing an inconsistent view and positions it for queue-like tables, not general-purpose reads. <a href="https://www.postgresql.org/docs/current/sql-select.html">Its <code>SELECT</code> documentation</a> is unusually clear on this point.</p>
+<p>Use the trade when independent jobs can safely run out of order. Do not mistake <code>ORDER BY created_at</code> for a fairness guarantee. A durable queue needs an explicit claim lease, recovery path, ordering scope, and measurements for jobs that are repeatedly skipped or never finish.</p>
+<h2>The fast queue is not necessarily a FIFO queue</h2>
+<p>Consider three ready jobs, ordered by creation time:</p>
+<pre><code class="language-text">09:00  invoice-17     worker A has claimed it
+09:01  invoice-18     ready
+09:02  invoice-19     ready
+</code></pre>
+<p>Worker B asks for the oldest ready job:</p>
+<pre><code class="language-sql">select id
+from jobs
+where state = &#39;ready&#39;
+order by created_at, id
+for update skip locked
+limit 1;
+</code></pre>
+<p>It does not wait for <code>invoice-17</code>. It skips that locked row and receives <code>invoice-18</code>. A third worker can receive <code>invoice-19</code>. That is the point: workers do useful work instead of forming a lock-wait chain behind a slow claim.</p>
+<p>But <code>created_at</code> now describes the preferred candidate among rows immediately claimable by this transaction. It does not describe a promise that no later job will run first.</p>
+<p>The distinction gets lost because the query visibly contains <code>ORDER BY created_at</code>. PostgreSQL recommends an <code>ORDER BY</code> with <code>LIMIT</code> when a query needs a deterministic subset, but its locking documentation separately says that <code>SKIP LOCKED</code> skips rows that cannot be locked immediately and produces an inconsistent view. The order is real; so is the exception to it.</p>
+<p>For independent image transformations or cache refreshes, that exception is normally excellent. If an older refresh is slow, later unrelated work can proceed. For jobs that modify one customer&#39;s balance, reserve inventory, or apply events for one aggregate, the exception may violate the product&#39;s actual ordering rule.</p>
+<h2>Claim briefly, then do work outside the lock</h2>
+<p>The most consequential mistake is holding the database transaction open while performing the job. A network call, PDF render, or slow provider response then keeps the row locked for the entire execution. Other workers skip it, and the system may appear healthy because throughput continues around the stuck work.</p>
+<p>Prefer a short transaction that turns a ready row into an owned, recoverable claim:</p>
+<pre><code class="language-sql">begin;
+
+with next_job as (
+  select id
+  from jobs
+  where state = &#39;ready&#39;
+    and run_after &lt;= now()
+  order by priority desc, run_after, id
+  for update skip locked
+  limit 1
+)
+update jobs
+set state = &#39;running&#39;,
+    claimed_by = :worker_id,
+    claim_token = :claim_token,
+    claim_expires_at = now() + interval &#39;5 minutes&#39;,
+    attempt_count = attempt_count + 1
+where id in (select id from next_job)
+returning id, payload, claim_token;
+
+commit;
+</code></pre>
+<p>The worker performs the external effect after the commit. When it writes the outcome, it should require the same claim token:</p>
+<pre><code class="language-sql">update jobs
+set state = &#39;completed&#39;, completed_at = now()
+where id = :job_id
+  and state = &#39;running&#39;
+  and claim_token = :claim_token;
+</code></pre>
+<p>This is not a complete job system. It is a boundary between <strong>claiming a job</strong> and <strong>doing a job</strong>. PostgreSQL row locks last until the transaction ends, so keeping the claim transaction short reduces contention and makes the recovery state visible to other workers. <a href="https://www.postgresql.org/docs/current/explicit-locking.html">PostgreSQL&#39;s locking documentation</a> also notes that a <code>FOR UPDATE</code> lock prevents concurrent lockers, modifiers, and deleters of that row until the transaction ends.</p>
+<p>The claim token matters after a recovery worker decides that an expired claim is eligible again. A late original worker must not be able to mark a job complete after another worker has reclaimed it. The same stale-worker problem appears in <a href="https://my-slops.github.io/Blog/posts/2026/11/a-lease-expiry-does-not-stop-the-old-worker/">A Lease Expiry Does Not Stop the Old Worker</a>: recovering coordination does not revoke a process that is still running.</p>
+<h2>“Ready” and “runnable now” are different states</h2>
+<p>Many queues have only a boolean-shaped model: pending versus done. That makes skipped or abandoned work hard to explain.</p>
+<p>At minimum, distinguish these questions:</p>
+<table>
+<thead>
+<tr>
+<th>Field or state</th>
+<th>Question it answers</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>state = &#39;ready&#39;</code></td>
+<td>Has the system accepted this job for future work?</td>
+</tr>
+<tr>
+<td><code>run_after</code></td>
+<td>Is this job eligible to be claimed now?</td>
+</tr>
+<tr>
+<td><code>claimed_by</code> and <code>claim_token</code></td>
+<td>Which worker currently owns this attempt?</td>
+</tr>
+<tr>
+<td><code>claim_expires_at</code></td>
+<td>When may recovery consider the ownership stale?</td>
+</tr>
+<tr>
+<td><code>attempt_count</code> and <code>last_error</code></td>
+<td>Is automatic retry still safe or useful?</td>
+</tr>
+<tr>
+<td><code>priority</code> or partition key</td>
+<td>Which work may overtake which other work?</td>
+</tr>
+</tbody></table>
+<p>These are product decisions, not fields required by PostgreSQL. A queue for welcome emails may allow a later customer&#39;s email to run first. A queue for a single account&#39;s ledger may need an account partition and a sequence check that prevent it. A global <code>created_at</code> column cannot represent both policies.</p>
+<p>There is a useful middle ground between a single globally serialized worker and unbounded parallelism: make the ordering scope match the business entity. For example, claims can be parallel across accounts while a unique running slot or monotonically checked version protects the order within one account. That preserves the concurrency that <code>SKIP LOCKED</code> provides without claiming global FIFO when the product only needs local order.</p>
+<h2>A skipped row is an operational signal</h2>
+<p><code>SKIP LOCKED</code> removes lock waiting from the worker&#39;s critical path. It does not tell an operator why a row was locked, whether the owner is alive, or whether the effect was already performed.</p>
+<p>Treat these as queue health signals, not edge cases:</p>
+<ul>
+<li>age of the oldest <code>ready</code> job, by priority and partition;</li>
+<li>age and count of <code>running</code> jobs past their claim expiry;</li>
+<li>claim attempts and terminal outcomes for each job class;</li>
+<li>jobs recovered after an expired claim; and</li>
+<li>the difference between a queue with no claimable rows and one with many ready rows that no worker can complete.</li>
+</ul>
+<p>Those distinctions matter during an incident. A worker can report successful polls while the oldest high-priority job is stranded behind a long-running claim. “Consumers are active” is weaker evidence than “the intended work is reaching a terminal state.” The same evidence gap is central to <a href="https://my-slops.github.io/Blog/posts/2026/09/a-log-line-cannot-prove-a-message-was-processed/">A Log Line Cannot Prove a Message Was Processed</a>.</p>
+<p>Recovery should be a state transition with an audit trail, not a blind <code>update jobs set state = &#39;ready&#39;</code>. Record why a claim was considered expired, increment or preserve the attempt count deliberately, and ensure that the job&#39;s downstream effect can tolerate a duplicate or be reconciled. <a href="https://my-slops.github.io/Blog/posts/2026/11/replaying-a-dead-letter-queue-is-a-new-production-change/">Replaying a Dead-Letter Queue Is a New Production Change</a> covers the larger rule: old work becomes a new production change when it is attempted again.</p>
+<h2>When waiting is the honest behavior</h2>
+<p><code>SKIP LOCKED</code> is not automatically the safer option. Waiting is often right when a later operation must not pass an earlier one.</p>
+<p>Suppose a job represents sequence number 42 for one account and 43 cannot be applied until 42 succeeds. Letting a worker skip 42 and apply 43 does not make the system more available; it creates invalid state that has to be repaired later. In that case, claim by partition, block that partition behind its predecessor, or use a different queue whose ordering contract is explicit.</p>
+<p>Likewise, a database table is not always the right broker. A high-volume workload may need fan-out, long retention, independent consumer groups, or scheduling semantics that a purpose-built queue provides more directly. A database-backed queue is attractive when transactional insertion, operational simplicity, and modest throughput matter more than those features.</p>
+<p>The question is not whether workers should ever overtake each other. It is which work is independent enough to permit it, and how the system will prove that a skipped or expired job has not been forgotten.</p>
+<h2>Test the overtake deliberately</h2>
+<p>Queue tests often verify only that two workers do not process the same row. Add the behaviors that make the ordering trade visible:</p>
+<pre><code class="language-text">Given: worker A has claimed the oldest job and has not finished
+When: worker B claims work using SKIP LOCKED
+Then: B receives a later independent job, not a lock wait
+
+Given: two jobs belong to the same ordered account
+When: the first is claimed but not completed
+Then: the second cannot produce its effect before the first
+
+Given: a worker dies after the claim transaction commits
+When: claim_expires_at passes and recovery runs
+Then: a new claim has a new token and the old worker cannot complete it
+
+Given: a job exceeds its retry policy
+When: recovery sees the expired claim
+Then: the job moves to a visible terminal or review state, not silently back to ready
+</code></pre>
+<p>The first test proves the throughput benefit. The other three prove that the benefit did not become an undocumented ordering, ownership, or retry policy.</p>
+<h2>References</h2>
+<ul>
+<li>PostgreSQL, <a href="https://www.postgresql.org/docs/current/sql-select.html">SELECT: the locking clause</a></li>
+<li>PostgreSQL, <a href="https://www.postgresql.org/docs/current/explicit-locking.html">Explicit locking</a></li>
+<li>This repository, <a href="https://my-slops.github.io/Blog/posts/2026/11/a-lease-expiry-does-not-stop-the-old-worker/">A Lease Expiry Does Not Stop the Old Worker</a></li>
+<li>This repository, <a href="https://my-slops.github.io/Blog/posts/2026/09/a-log-line-cannot-prove-a-message-was-processed/">A Log Line Cannot Prove a Message Was Processed</a></li>
+<li>This repository, <a href="https://my-slops.github.io/Blog/posts/2026/11/replaying-a-dead-letter-queue-is-a-new-production-change/">Replaying a Dead-Letter Queue Is a New Production Change</a></li>
+</ul>
+<h2>Final Take</h2>
+<p><code>SKIP LOCKED</code> is valuable because it lets independent work avoid each other&#39;s lock waits. That is a throughput decision, not a fairness algorithm.</p>
+<p>Adopt it when overtaking is safe. Then make ownership, expiry, recovery, priority, and any required ordering visible in the job model. If the queue needs FIFO for a particular entity, encode that entity&#39;s rule; <code>ORDER BY created_at</code> cannot enforce it once workers are allowed to skip.</p>
+<h2>Changelog</h2>
+<ul>
+<li>2026-11-13: Initial publication on queue ordering and <code>SKIP LOCKED</code> claim semantics.</li>
+</ul>
+
+    </article>
+  </body>
+</html>

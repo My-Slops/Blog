@@ -1,7 +1,22 @@
 {
   "tag": "databases",
-  "count": 7,
+  "count": 8,
   "posts": [
+    {
+      "title": "Parallel Workers Can Overtake the Oldest Job",
+      "date": "2026-11-13",
+      "updated": "2026-11-13",
+      "summary": "FOR UPDATE SKIP LOCKED is a practical way for concurrent workers to claim different rows without waiting on each other. It also lets later jobs pass a locked earlier job, so FIFO order, fairness, and recovery need an explicit design outside the locking clause.",
+      "tags": [
+        "databases",
+        "queues",
+        "distributed systems",
+        "reliability",
+        "software architecture"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/11/parallel-workers-can-overtake-the-oldest-job/",
+      "path": "posts/2026/11/2026-11-13-parallel-workers-can-overtake-the-oldest-job.md"
+    },
     {
       "title": "A Full Connection Pool Is an Admission Decision You Did Not Make",
       "date": "2026-11-12",

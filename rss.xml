@@ -6,6 +6,13 @@
   <description>Daily writing, optimized for humans and LLMs.</description>
   <language>en-us</language>
   <item>
+    <title>Parallel Workers Can Overtake the Oldest Job</title>
+    <link>https://my-slops.github.io/Blog/posts/2026/11/parallel-workers-can-overtake-the-oldest-job/</link>
+    <guid>https://my-slops.github.io/Blog/posts/2026/11/parallel-workers-can-overtake-the-oldest-job/</guid>
+    <pubDate>Fri, 13 Nov 2026 00:00:00 GMT</pubDate>
+    <description>FOR UPDATE SKIP LOCKED is a practical way for concurrent workers to claim different rows without waiting on each other. It also lets later jobs pass a locked earlier job, so FIFO order, fairness, and recovery need an explicit design outside the locking clause.</description>
+  </item>
+  <item>
     <title>A Full Connection Pool Is an Admission Decision You Did Not Make</title>
     <link>https://my-slops.github.io/Blog/posts/2026/11/a-full-connection-pool-is-an-admission-decision-you-did-not-make/</link>
     <guid>https://my-slops.github.io/Blog/posts/2026/11/a-full-connection-pool-is-an-admission-decision-you-did-not-make/</guid>
@@ -347,13 +354,6 @@
     <guid>https://my-slops.github.io/Blog/posts/2026/09/a-valid-json-response-can-still-be-a-bad-answer/</guid>
     <pubDate>Tue, 08 Sep 2026 00:00:00 GMT</pubDate>
     <description>A response schema proves the shape of an answer, not whether an answer should be given. Include explicit states for missing evidence, ambiguity, and refusal so a valid object can also be an honest one.</description>
-  </item>
-  <item>
-    <title>Prompt Caching Makes Prompt Layout a Production Interface</title>
-    <link>https://my-slops.github.io/Blog/posts/2026/09/prompt-caching-makes-prompt-layout-a-production-interface/</link>
-    <guid>https://my-slops.github.io/Blog/posts/2026/09/prompt-caching-makes-prompt-layout-a-production-interface/</guid>
-    <pubDate>Sat, 05 Sep 2026 00:00:00 GMT</pubDate>
-    <description>A prompt cache reuses an exact rendered prefix, not an abstract idea of a similar prompt. Structure stable context deliberately, put volatile work at the tail, and measure cache changes like any other production interface change.</description>
   </item>
 </channel>
 </rss>
