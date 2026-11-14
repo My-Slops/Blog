@@ -1,7 +1,22 @@
 {
   "tag": "reliability",
-  "count": 133,
+  "count": 134,
   "posts": [
+    {
+      "title": "Your Read Replica Did Not See the Save Yet",
+      "date": "2026-11-14",
+      "updated": "2026-11-14",
+      "summary": "A commit on the primary and visibility on a read replica are different events. Return the committed view, route follow-up reads deliberately, or wait for a replica to reach a named consistency point when the product promises read-your-writes.",
+      "tags": [
+        "databases",
+        "distributed systems",
+        "reliability",
+        "API design",
+        "software architecture"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/11/your-read-replica-did-not-see-the-save-yet/",
+      "path": "posts/2026/11/2026-11-14-daily-entry.md"
+    },
     {
       "title": "Parallel Workers Can Overtake the Oldest Job",
       "date": "2026-11-13",

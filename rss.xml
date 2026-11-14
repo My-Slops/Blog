@@ -6,6 +6,13 @@
   <description>Daily writing, optimized for humans and LLMs.</description>
   <language>en-us</language>
   <item>
+    <title>Your Read Replica Did Not See the Save Yet</title>
+    <link>https://my-slops.github.io/Blog/posts/2026/11/your-read-replica-did-not-see-the-save-yet/</link>
+    <guid>https://my-slops.github.io/Blog/posts/2026/11/your-read-replica-did-not-see-the-save-yet/</guid>
+    <pubDate>Sat, 14 Nov 2026 00:00:00 GMT</pubDate>
+    <description>A commit on the primary and visibility on a read replica are different events. Return the committed view, route follow-up reads deliberately, or wait for a replica to reach a named consistency point when the product promises read-your-writes.</description>
+  </item>
+  <item>
     <title>Parallel Workers Can Overtake the Oldest Job</title>
     <link>https://my-slops.github.io/Blog/posts/2026/11/parallel-workers-can-overtake-the-oldest-job/</link>
     <guid>https://my-slops.github.io/Blog/posts/2026/11/parallel-workers-can-overtake-the-oldest-job/</guid>
@@ -347,13 +354,6 @@
     <guid>https://my-slops.github.io/Blog/posts/2026/09/schema-validation-does-not-prove-a-migration-is-safe/</guid>
     <pubDate>Thu, 10 Sep 2026 00:00:00 GMT</pubDate>
     <description>Schema validation catches shape errors, not semantic compatibility. Test migrations against representative old data and the decisions consumers make from it.</description>
-  </item>
-  <item>
-    <title>A Valid JSON Response Can Still Be a Bad Answer</title>
-    <link>https://my-slops.github.io/Blog/posts/2026/09/a-valid-json-response-can-still-be-a-bad-answer/</link>
-    <guid>https://my-slops.github.io/Blog/posts/2026/09/a-valid-json-response-can-still-be-a-bad-answer/</guid>
-    <pubDate>Tue, 08 Sep 2026 00:00:00 GMT</pubDate>
-    <description>A response schema proves the shape of an answer, not whether an answer should be given. Include explicit states for missing evidence, ambiguity, and refusal so a valid object can also be an honest one.</description>
   </item>
 </channel>
 </rss>

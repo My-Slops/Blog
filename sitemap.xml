@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url><loc>https://my-slops.github.io/Blog/posts/2026/11/your-read-replica-did-not-see-the-save-yet/</loc><lastmod>2026-11-14</lastmod></url>
   <url><loc>https://my-slops.github.io/Blog/posts/2026/11/parallel-workers-can-overtake-the-oldest-job/</loc><lastmod>2026-11-13</lastmod></url>
   <url><loc>https://my-slops.github.io/Blog/posts/2026/11/a-full-connection-pool-is-an-admission-decision-you-did-not-make/</loc><lastmod>2026-11-12</lastmod></url>
   <url><loc>https://my-slops.github.io/Blog/posts/2026/11/the-first-row-may-not-be-the-first-fact/</loc><lastmod>2026-11-11</lastmod></url>

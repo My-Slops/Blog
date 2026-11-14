@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Your Read Replica Did Not See the Save Yet | Blog</title>
+    <meta name="description" content="A commit on the primary and visibility on a read replica are different events. Return the committed view, route follow-up reads deliberately, or wait for a replica to reach a named consistency point when the product promises read-your-writes." />
+    <link rel="canonical" href="https://my-slops.github.io/Blog/posts/2026/11/your-read-replica-did-not-see-the-save-yet/" />
+    <style>
+      :root { color-scheme: light dark; }
+      body { font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; line-height: 1.7; max-width: 760px; margin: 40px auto; padding: 0 16px; }
+      a { color: #0a58ca; text-decoration: none; }
+      a:hover { text-decoration: underline; }
+      .meta { color: #666; font-size: 0.95rem; margin-bottom: 1rem; }
+      .tags { display: flex; gap: 0.5rem; list-style: none; padding: 0; margin: 0.75rem 0 1.25rem; flex-wrap: wrap; }
+      .tags li { background: #eef2ff; color: #3730a3; border-radius: 999px; padding: 0.2rem 0.6rem; font-size: 0.8rem; }
+      article h1, article h2, article h3 { line-height: 1.3; }
+      article pre { overflow-x: auto; background: #111827; color: #f9fafb; padding: 0.9rem; border-radius: 8px; }
+      article code { font-family: ui-monospace,SFMono-Regular,Menlo,monospace; }
+      article blockquote { border-left: 4px solid #d1d5db; margin: 1rem 0; padding: 0.2rem 0.9rem; color: #4b5563; }
+      hr { border: 0; border-top: 1px solid #e5e7eb; margin: 2rem 0; }
+    </style>
+  </head>
+  <body>
+    <p><a href="https://my-slops.github.io/Blog/">← Home</a></p>
+    <article>
+      <h1>Your Read Replica Did Not See the Save Yet</h1>
+      <p class="meta">Nov 14, 2026</p>
+      <ul class="tags"><li>databases</li><li>distributed systems</li><li>reliability</li><li>API design</li><li>software architecture</li></ul>
+      <h2>TL;DR</h2>
+<p>An API can commit a change, return <code>200 OK</code>, and immediately send the caller to a read replica that still shows the previous value. Nothing necessarily failed. The write is durable on the primary; the replica has simply not replayed it yet.</p>
+<p>That gap becomes a product bug when a person saves a setting, refreshes the page, and sees the old setting—or when a control plane accepts a permission change and then makes its next decision from an older copy. A replica-lag chart may reveal the cause, but it does not define what the caller is entitled to see.</p>
+<p>Choose the contract at the API boundary: return the committed representation, temporarily route follow-up reads to the writer, require a replica to reach a known consistency point, or explicitly allow stale reads. PostgreSQL makes the mechanism visible: streaming replication is asynchronous by default, and its <code>remote_apply</code> option exists precisely because remote receipt and remote visibility are different guarantees. <a href="https://www.postgresql.org/docs/current/warm-standby.html">Its standby documentation</a> is a useful concrete reference even when the production database is not PostgreSQL.</p>
+<h2>The redirect that contradicts the save</h2>
+<p>An administrator changes an organization setting from <code>billing_contact = old@example.test</code> to <code>new@example.test</code>:</p>
+<pre><code class="language-text">PATCH /organizations/acme
+→ primary commits the new contact
+→ API returns 200
+→ browser navigates to GET /organizations/acme
+→ router selects a read replica
+→ replica still returns old@example.test
+</code></pre>
+<p>The obvious explanation to the administrator is that the save failed. They may submit the form again, open a support ticket, or make a second change against a screen that no longer represents current state. The system may eventually converge without any database error, but the interaction has already broken its promise.</p>
+<p>This is not an argument against read replicas. They are useful when a workload can accept a slightly older view in exchange for read capacity or geographic placement. The mistake is letting a routing decision silently choose the consistency model for an interaction that never agreed to one.</p>
+<p>PostgreSQL&#39;s streaming replication documents the underlying shape directly: it is asynchronous by default, so there is a delay between a primary commit and the change becoming visible on a standby. A hot standby can serve read-only queries while it continuously replays the primary&#39;s write-ahead log. <a href="https://www.postgresql.org/docs/current/warm-standby.html">PostgreSQL&#39;s log-shipping documentation</a> also distinguishes a standby receiving WAL from replaying it. Received is not visible.</p>
+<h2>“Low lag” is not a read-your-writes contract</h2>
+<p>Teams often respond with a replica-lag alert or a short delay after a write. Both can be useful operationally. Neither answers the caller&#39;s actual question: <em>will the replica selected for this read include my commit?</em></p>
+<p>A lag measurement is an observation over a replica and a point in time. The next request may be routed to a different replica, a network interruption may delay replay after the measurement, and a quiet primary can make time-based lag appear healthy even when there is no evidence about a particular write. Sleeping for 500 ms is therefore a probability statement, not a consistency guarantee.</p>
+<p>The stronger question is causal: does this read include at least the write that produced this response? PostgreSQL exposes one building block for answering it. <code>pg_last_wal_replay_lsn()</code> reports the last WAL location replayed by a standby; its recovery functions distinguish WAL received from WAL replayed. <a href="https://www.postgresql.org/docs/current/functions-admin.html">PostgreSQL&#39;s administration functions</a> describe both values. A system that uses a position token can wait for the chosen replica to replay the required position before allowing the dependent read.</p>
+<p>That is an implementation technique, not a universal API feature. Managed database services, proxies, and non-PostgreSQL engines expose different tokens—or none. The product requirement comes first; use the strongest mechanism the actual storage and routing path can support.</p>
+<h2>Pick the promise before adding replicas</h2>
+<p>There are several honest contracts. They have different costs and fit different interactions.</p>
+<table>
+<thead>
+<tr>
+<th>Contract</th>
+<th>What the caller can rely on</th>
+<th>Typical implementation</th>
+<th>Cost / boundary</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Return the committed representation</td>
+<td>The response itself shows the saved value.</td>
+<td>Include the canonical updated resource in the write response.</td>
+<td>Does not make a later independent read fresh.</td>
+</tr>
+<tr>
+<td>Read from the writer for a session window</td>
+<td>A follow-up read uses the same authoritative store.</td>
+<td>Route a user, resource, or request chain to the primary after a write.</td>
+<td>Increases primary load; a fixed window can expire before a slow replica catches up.</td>
+</tr>
+<tr>
+<td>Wait for a named replica position</td>
+<td>A chosen replica has replayed at least the required write before serving the read.</td>
+<td>Carry a commit/consistency token and wait or fall back to the writer.</td>
+<td>Adds latency and needs token plumbing and a timeout policy.</td>
+</tr>
+<tr>
+<td>Stale reads are allowed</td>
+<td>The result may lag behind recent writes.</td>
+<td>Route normally to replicas and label or design the UI accordingly.</td>
+<td>Not suitable when an immediate read drives a conflicting action or safety decision.</td>
+</tr>
+</tbody></table>
+<p>For a settings form, returning the committed representation often removes the first surprising read entirely. For a page that must be refreshed, routing that resource&#39;s immediate follow-up reads to the writer can be simpler than propagating a token through every API call. For a low-latency read-heavy system with a strict per-request guarantee, a consistency token may be worth the complexity.</p>
+<p>None of these should be inferred from a database topology diagram. “We have replicas” describes capacity and availability machinery. It does not answer whether a user who just changed a shipping address may immediately obtain the new address from a different endpoint.</p>
+<h2>A write response can carry an obligation</h2>
+<p>When a response creates a state that later calls depend on, treat its consistency information as part of the API contract. Conceptually, a write may return both the updated representation and an opaque marker:</p>
+<pre><code class="language-json">{
+  &quot;organization&quot;: {
+    &quot;id&quot;: &quot;acme&quot;,
+    &quot;billingContact&quot;: &quot;new@example.test&quot;,
+    &quot;revision&quot;: 28
+  },
+  &quot;consistency&quot;: {
+    &quot;scope&quot;: &quot;organization:acme&quot;,
+    &quot;token&quot;: &quot;opaque-storage-position&quot;
+  }
+}
+</code></pre>
+<p>The caller can present that marker on a dependent read. The serving layer either finds a replica that has reached the marker, waits within the caller&#39;s deadline, routes to the primary, or returns an explicit response that it cannot satisfy the requested consistency now.</p>
+<p>Do not substitute an autogenerated row ID, a timestamp, or a token the server cannot actually enforce. As <a href="https://my-slops.github.io/Blog/posts/2026/11/the-first-row-may-not-be-the-first-fact/">The First Row May Not Be the First Fact</a> explains, identity allocation does not establish commit order. A client-generated time says even less about what a replica has replayed. The marker must refer to a storage or application boundary that the chosen reader can compare against.</p>
+<p>The token also needs a scope. A replica position can establish that one primary&#39;s history includes a commit; it does not make a cache entry fresh, prove an external search index has updated, or guarantee that a different service has consumed an event. If an endpoint combines several stores, its read-your-writes contract must name which of them it covers.</p>
+<h2>Synchronous replication changes one boundary, not every boundary</h2>
+<p>PostgreSQL&#39;s synchronous replication has a useful but often overstated option. With a configured synchronous standby, <code>synchronous_commit = remote_apply</code> waits until that standby reports that it replayed the transaction, making the commit visible to queries there. The documentation notes that this can enable causal consistency for simple load-balancing cases. <a href="https://www.postgresql.org/docs/current/warm-standby.html">PostgreSQL&#39;s standby documentation</a> also makes clear that this adds waiting and that synchronous standbys must be selected and connected.</p>
+<p>That can be an excellent trade for a small set of writes whose immediate remote visibility matters. It is not a blanket guarantee for every read path:</p>
+<ul>
+<li>a request may be routed to a different asynchronous replica;</li>
+<li>a cache or search index can still be behind the database;</li>
+<li>the synchronous standby can be unavailable, changing the latency or availability trade-off; and</li>
+<li>writes that do not wait for remote apply do not acquire the promise by association.</li>
+</ul>
+<p>This is why “turn on synchronous replication” is not a complete answer to a user-visible freshness requirement. It is a database-level mechanism that helps only when the routing and failure policy preserve the same boundary.</p>
+<h2>Authorization and control-plane reads deserve special suspicion</h2>
+<p>Some stale reads are merely confusing. Others are security or operational failures.</p>
+<p>If an administrator revokes a credential and the next authorization check reads a stale replica, the system may continue accepting the credential beyond the promised revocation window. If a deploy controller reads an old desired state after acknowledging a rollback, it can launch work that the operator believes has been cancelled. These paths need an explicit maximum staleness and a failure policy, not an undocumented preference for cheaper reads.</p>
+<p><a href="https://my-slops.github.io/Blog/posts/2026/10/revocation-is-a-latency-requirement/">Revocation Is a Latency Requirement</a> makes the broader point: “updates quickly” is not testable until the system says which readers must observe the change and by when. Read replicas are one common reason that vague promise becomes false.</p>
+<p>For these decisions, my preference is conservative: read from the authority, or fail closed when the authoritative state cannot be obtained within the required window. Serving a stale product catalog is often acceptable. Serving a stale permission decision usually is not.</p>
+<h2>Test the disagreement, not just replication health</h2>
+<p>An integration test that writes to a primary and later observes the change from a replica proves only eventual convergence. Add cases that make the contract observable:</p>
+<pre><code class="language-text">Given: a settings write has committed on the primary
+And: the selected replica has not replayed it
+When: the client performs its dependent read
+Then: it receives the committed response, a writer-routed read,
+      or an explicit consistency failure according to the contract
+
+Given: a read carries a consistency token
+When: no eligible replica reaches that token before the deadline
+Then: the service follows its documented fallback or failure policy
+      and never returns an older state as though it were current
+
+Given: a permission revocation is acknowledged
+When: the authorization path cannot read authority within its freshness limit
+Then: it denies or visibly errors according to the security policy
+</code></pre>
+<p>Also measure the consequences of the policy: primary fallback rate, wait time for token-gated reads, replica-position lag, and consistency failures by endpoint. A single average replica-lag graph cannot tell whether the paths with strict promises are satisfying them.</p>
+<h2>Trade-offs</h2>
+<p>Strict read-your-writes costs something. Writer affinity concentrates reads. Position waits consume latency budget and can reduce availability when a replica is unhealthy. Synchronous replication can increase commit latency and lock contention; PostgreSQL explicitly warns that incautious use can reduce application performance. A system that needs cross-region, multi-store causal consistency may require more architecture than a routing rule.</p>
+<p>Do not pay that cost everywhere by reflex. A feed, aggregate dashboard, or analytics view can often state that it is eventually consistent and remain useful. The important distinction is that it is a declared product property, not an accident of which connection pool handled the request.</p>
+<h2>References</h2>
+<ul>
+<li>PostgreSQL, <a href="https://www.postgresql.org/docs/current/warm-standby.html">Log-Shipping Standby Servers</a></li>
+<li>PostgreSQL, <a href="https://www.postgresql.org/docs/current/functions-admin.html">System Administration Functions</a></li>
+<li>PostgreSQL, <a href="https://www.postgresql.org/docs/current/runtime-config-replication.html">Replication Configuration</a></li>
+<li>This repository, <a href="https://my-slops.github.io/Blog/posts/2026/11/the-first-row-may-not-be-the-first-fact/">The First Row May Not Be the First Fact</a></li>
+<li>This repository, <a href="https://my-slops.github.io/Blog/posts/2026/10/revocation-is-a-latency-requirement/">Revocation Is a Latency Requirement</a></li>
+</ul>
+<h2>Final Take</h2>
+<p>A successful write says what the authoritative writer accepted. It does not, by itself, promise what an arbitrary replica will show one request later.</p>
+<p>If a user or downstream action depends on seeing the change, make that relationship explicit: return the committed state, route the dependent read deliberately, or wait for a reader that can prove it has caught up. Replica lag is an operational metric. Read-your-writes is a contract.</p>
+<h2>Changelog</h2>
+<ul>
+<li>2026-11-14: Initial publication on replica visibility and read-your-writes guarantees.</li>
+</ul>
+
+    </article>
+  </body>
+</html>
