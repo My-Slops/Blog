@@ -1,7 +1,21 @@
 {
   "tag": "distributed systems",
-  "count": 23,
+  "count": 24,
   "posts": [
+    {
+      "title": "Idempotency Keys Expire Before Your Retries Do",
+      "date": "2026-11-15",
+      "updated": "2026-11-15",
+      "summary": "A deduplication record with a TTL is a time-bounded retry guarantee, not permanent exactly-once behavior. Publish the window, bind each key to its request, and require late callers to reconcile an operation rather than repeat an uncertain side effect.",
+      "tags": [
+        "api design",
+        "reliability",
+        "distributed systems",
+        "software architecture"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/11/idempotency-keys-expire-before-your-retries-do/",
+      "path": "posts/2026/11/2026-11-15-idempotency-keys-expire-before-your-retries-do.md"
+    },
     {
       "title": "Your Read Replica Did Not See the Save Yet",
       "date": "2026-11-14",

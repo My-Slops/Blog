@@ -6,6 +6,13 @@
   <description>Daily writing, optimized for humans and LLMs.</description>
   <language>en-us</language>
   <item>
+    <title>Idempotency Keys Expire Before Your Retries Do</title>
+    <link>https://my-slops.github.io/Blog/posts/2026/11/idempotency-keys-expire-before-your-retries-do/</link>
+    <guid>https://my-slops.github.io/Blog/posts/2026/11/idempotency-keys-expire-before-your-retries-do/</guid>
+    <pubDate>Sun, 15 Nov 2026 00:00:00 GMT</pubDate>
+    <description>A deduplication record with a TTL is a time-bounded retry guarantee, not permanent exactly-once behavior. Publish the window, bind each key to its request, and require late callers to reconcile an operation rather than repeat an uncertain side effect.</description>
+  </item>
+  <item>
     <title>Your Read Replica Did Not See the Save Yet</title>
     <link>https://my-slops.github.io/Blog/posts/2026/11/your-read-replica-did-not-see-the-save-yet/</link>
     <guid>https://my-slops.github.io/Blog/posts/2026/11/your-read-replica-did-not-see-the-save-yet/</guid>
@@ -347,13 +354,6 @@
     <guid>https://my-slops.github.io/Blog/posts/2026/09/a-test-environment-that-skips-auth-is-not-staging/</guid>
     <pubDate>Sat, 12 Sep 2026 00:00:00 GMT</pubDate>
     <description>Use test identities and realistic authorization paths in staging. A bypassed auth layer makes a fast demo environment, not a production rehearsal.</description>
-  </item>
-  <item>
-    <title>Schema Validation Does Not Prove a Migration Is Safe</title>
-    <link>https://my-slops.github.io/Blog/posts/2026/09/schema-validation-does-not-prove-a-migration-is-safe/</link>
-    <guid>https://my-slops.github.io/Blog/posts/2026/09/schema-validation-does-not-prove-a-migration-is-safe/</guid>
-    <pubDate>Thu, 10 Sep 2026 00:00:00 GMT</pubDate>
-    <description>Schema validation catches shape errors, not semantic compatibility. Test migrations against representative old data and the decisions consumers make from it.</description>
   </item>
 </channel>
 </rss>

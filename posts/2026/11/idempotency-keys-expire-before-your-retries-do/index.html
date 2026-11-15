@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Idempotency Keys Expire Before Your Retries Do | Blog</title>
+    <meta name="description" content="A deduplication record with a TTL is a time-bounded retry guarantee, not permanent exactly-once behavior. Publish the window, bind each key to its request, and require late callers to reconcile an operation rather than repeat an uncertain side effect." />
+    <link rel="canonical" href="https://my-slops.github.io/Blog/posts/2026/11/idempotency-keys-expire-before-your-retries-do/" />
+    <style>
+      :root { color-scheme: light dark; }
+      body { font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; line-height: 1.7; max-width: 760px; margin: 40px auto; padding: 0 16px; }
+      a { color: #0a58ca; text-decoration: none; }
+      a:hover { text-decoration: underline; }
+      .meta { color: #666; font-size: 0.95rem; margin-bottom: 1rem; }
+      .tags { display: flex; gap: 0.5rem; list-style: none; padding: 0; margin: 0.75rem 0 1.25rem; flex-wrap: wrap; }
+      .tags li { background: #eef2ff; color: #3730a3; border-radius: 999px; padding: 0.2rem 0.6rem; font-size: 0.8rem; }
+      article h1, article h2, article h3 { line-height: 1.3; }
+      article pre { overflow-x: auto; background: #111827; color: #f9fafb; padding: 0.9rem; border-radius: 8px; }
+      article code { font-family: ui-monospace,SFMono-Regular,Menlo,monospace; }
+      article blockquote { border-left: 4px solid #d1d5db; margin: 1rem 0; padding: 0.2rem 0.9rem; color: #4b5563; }
+      hr { border: 0; border-top: 1px solid #e5e7eb; margin: 2rem 0; }
+    </style>
+  </head>
+  <body>
+    <p><a href="https://my-slops.github.io/Blog/">← Home</a></p>
+    <article>
+      <h1>Idempotency Keys Expire Before Your Retries Do</h1>
+      <p class="meta">Nov 15, 2026</p>
+      <ul class="tags"><li>api design</li><li>reliability</li><li>distributed systems</li><li>software architecture</li></ul>
+      <h2>TL;DR</h2>
+<p>An idempotency key is not a permanent promise that an operation can happen only once. It is a promise that lasts only as long as the server retains the record that recognizes the key.</p>
+<p>That distinction matters when a mobile client wakes after a long offline period, a queue is paused during an incident, or a human retries a request from an old support ticket. If the server has deleted the idempotency record, the same key may be indistinguishable from a new request. Replaying it can create a second charge, shipment, or account change.</p>
+<p>Treat key retention as part of the endpoint contract. Publish how long a retry is safe, bind a key to one scoped request, and give callers a durable way to inspect the original operation when the retry window has passed. A key TTL is a garbage-collection policy with product consequences.</p>
+<h2>The retry that arrived after the server forgot it</h2>
+<p>Suppose a client asks to create a shipment:</p>
+<pre><code class="language-http">POST /shipments
+Idempotency-Key: &quot;ship_7d1a&quot;
+
+{ &quot;orderId&quot;: &quot;ord_481&quot;, &quot;service&quot;: &quot;express&quot; }
+</code></pre>
+<p>The API stores a record for <code>ship_7d1a</code>, creates the shipment, and returns a response. The response is lost on the way back to the client. For the next several hours, a retry can find that record and return the original result.</p>
+<p>Now change only the timing:</p>
+<pre><code class="language-text">Monday 09:00   server creates shipment; client loses the response
+Monday 09:05   client&#39;s device goes offline
+Tuesday 15:00  retention task deletes old idempotency records
+Thursday 09:00 device reconnects and retries ship_7d1a
+</code></pre>
+<p>At Thursday&#39;s request, the key is well formed, but it no longer identifies anything in the server&#39;s deduplication table. Processing it as a new request is not necessarily an implementation bug. It is what a short-lived idempotency layer means unless another invariant prevents the second shipment.</p>
+<p>Stripe documents this boundary explicitly for its API v1: it may remove a key after it is at least 24 hours old, and reuse after pruning generates a new request. It also compares parameters while the original record exists, so a same-key request with different parameters fails rather than quietly becoming a different operation. <a href="https://docs.stripe.com/api/idempotent_requests">Stripe&#39;s idempotent-request documentation</a> is unusually clear about both halves of the contract.</p>
+<p>The IETF&#39;s <code>Idempotency-Key</code> work is still an Internet-Draft as of this post, not an RFC. Its current text makes the same design point: a resource may expire keys to permit deletion, and should publish that expiration policy. <a href="https://datatracker.ietf.org/doc/draft-ietf-httpapi-idempotency-key-header/">draft-ietf-httpapi-idempotency-key-header-08, §2.3</a> Treat that as useful implementation guidance, not as a universal behavior clients can assume.</p>
+<h2>A key record answers a time-bounded question</h2>
+<p>It helps to separate two questions that are often collapsed into one database row:</p>
+<table>
+<thead>
+<tr>
+<th>Question</th>
+<th>A short-lived idempotency record can answer it?</th>
+<th>A durable business record can answer it?</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>“Did I already receive this retry?”</td>
+<td>Yes, during its retention window.</td>
+<td>Sometimes, if the operation is linked to it.</td>
+</tr>
+<tr>
+<td>“What did that request return?”</td>
+<td>Yes, if the response was stored.</td>
+<td>Not necessarily.</td>
+</tr>
+<tr>
+<td>“Is it still safe to repeat this uncertain side effect three days later?”</td>
+<td>No, once the record is gone.</td>
+<td>Only if a domain invariant or operation history answers it.</td>
+</tr>
+<tr>
+<td>“Has order <code>ord_481</code> already received its one permitted express shipment?”</td>
+<td>No; the key is transport identity.</td>
+<td>Yes, if that is a real business rule and the model enforces it.</td>
+</tr>
+</tbody></table>
+<p>The last row is the important counterexample to “just retain keys forever.” If an order may have at most one active shipment of a particular kind, that fact should be protected by a transactional domain constraint or a durable command record. A cache of HTTP responses is the wrong place to encode it.</p>
+<p>Conversely, not every <code>POST</code> needs permanent deduplication. An endpoint that creates a draft preview may reasonably promise safe retries for an hour and allow a later deliberate resubmission. The problem is not a finite TTL. The problem is a TTL that silently decides the semantic boundary for a costly or irreversible action.</p>
+<p>This extends <a href="https://my-slops.github.io/Blog/posts/2026/05/retries-need-an-identity-before-they-need-backoff/">Retries Need an Identity Before They Need Backoff</a>. A stable identity prevents a timeout from immediately becoming a second side effect. Its retention policy determines how long that protection remains true.</p>
+<h2>Publish three different lifetimes</h2>
+<p>An endpoint that accepts idempotency keys should make at least three durations visible in its design and documentation:</p>
+<ol>
+<li><strong>Retry-safety window:</strong> how long the server will recognize the key and return or reconcile the original attempt.</li>
+<li><strong>Operation-history window:</strong> how long a caller can look up the resulting operation or resource.</li>
+<li><strong>Business uniqueness window:</strong> how long the underlying action must remain impossible or require an explicit replacement.</li>
+</ol>
+<p>These numbers may be equal in a small system. Usually they should not be.</p>
+<p>For example, an import API might retain raw idempotency responses for 24 hours, retain an operation record for 90 days, and make a particular source-file digest ineligible for import again until a user explicitly creates a new import revision. The first is retry machinery; the other two are product policy.</p>
+<p>The API needs a recovery path for the gap between the first and second windows. One reasonable shape is to accept both a client-generated command ID and a short-lived idempotency key:</p>
+<pre><code class="language-http">POST /imports
+Idempotency-Key: &quot;retry_35d0&quot;
+
+{
+  &quot;commandId&quot;: &quot;cmd_01K9Q1...&quot;,
+  &quot;sourceDigest&quot;: &quot;sha256:...&quot;
+}
+</code></pre>
+<p>During the retry-safety window, the key can replay the original result efficiently. Afterward, the client should ask for <code>GET /commands/cmd_01K9Q1...</code> or search an authorized operation history before it tries to create another import. The command ID belongs to the logical intent; the HTTP key belongs to a delivery attempt of that intent.</p>
+<p>This is especially useful for <a href="https://my-slops.github.io/Blog/posts/2026/10/starting-a-job-is-not-the-same-as-finishing-it/">long-running work</a>. A response may be lost after the server has durably accepted the work but before the job finishes. The right recovery is to discover the existing operation, not to wait until a dedupe TTL expires and submit the work again.</p>
+<h2>Bind the key to more than a random string</h2>
+<p>Retention is not the only boundary. A bare UUID can collide across tenants, endpoints, or user intent if the surrounding scope is vague. Store enough context to detect misuse:</p>
+<pre><code class="language-ts">type IdempotencyRecord = {
+  actorScope: string;       // e.g. tenant + credential, not a raw secret
+  operation: &quot;shipment.create&quot;;
+  key: string;
+  requestFingerprint: string;
+  state: &quot;in_progress&quot; | &quot;completed&quot; | &quot;failed&quot;;
+  operationId: string;
+  responseStatus?: number;
+  responseBody?: unknown;
+  replayUntil: string;
+};
+</code></pre>
+<p>The illustrative record does not prescribe a storage engine. It makes two requirements visible:</p>
+<ul>
+<li>A retry must match the same actor scope and operation, not merely the same header value.</li>
+<li>A key reuse with a different meaningful payload should be rejected while the record exists, rather than returning an unrelated old result or executing a new request.</li>
+</ul>
+<p>The Internet-Draft permits a request fingerprint for precisely this kind of check and suggests that a request reusing a key with a different payload receive <code>422 Unprocessable Content</code>. It also distinguishes a completed retry from a concurrent duplicate, for which <code>409 Conflict</code> is appropriate guidance. <a href="https://datatracker.ietf.org/doc/draft-ietf-httpapi-idempotency-key-header/">§§2.4–2.7</a> Again, those are draft recommendations, not behavior a generic client may invent.</p>
+<p>Do not hash whatever happened to arrive on the wire and call it a fingerprint without deciding which fields are meaningful. JSON object member order, trace headers, a server-selected default, and an omitted field may or may not represent the same command in your API. Normalize the command at the boundary, then bind the key to the canonical form. Otherwise an innocent client-library change can look like a conflicting reuse—or a material change can slip through as equivalent.</p>
+<h2>Cleanup must not race the operation</h2>
+<p>An idempotency table needs more than a TTL index. Its state transition must be coordinated with the effect it claims to protect.</p>
+<p>The unsafe shape is: check for a row, call an external system, then insert the completed row. Two concurrent requests can both miss the row and both make the external call. A cleanup task can also remove an in-progress marker if timestamps are chosen poorly.</p>
+<p>The safer pattern is to reserve the key atomically before initiating work, record a durable operation identity, and make duplicate requests observe that reservation:</p>
+<pre><code class="language-text">transaction:
+  insert (scope, operation, key, fingerprint, state = in_progress)
+  on conflict: read existing record and follow duplicate policy
+  create durable operation cmd_01K9Q1...
+  commit
+
+worker:
+  performs the operation using cmd_01K9Q1... as its own stable identity
+  records terminal result against the same operation
+</code></pre>
+<p>An external side effect still cannot be made magically atomic with a local database transaction. The worker needs its own recovery design—often an outbox, a provider-level idempotency mechanism, or a reconciliation job. <a href="https://my-slops.github.io/Blog/posts/2026/10/when-a-commit-and-an-email-disagree/">When a Commit and an Email Disagree</a> covers that boundary. The point here is narrower: the HTTP dedupe record must not disappear while it is the only evidence that the operation exists.</p>
+<p>Retention cleanup should therefore delete only terminal records whose replay window has ended, and it should be observable. Track deletion lag, records that outlive the target window, late duplicate attempts, and the outcome of requests whose keys are outside the documented window. A growing count of late retries is not merely cache churn; it may mean your offline client, queue, or incident-recovery procedure has a longer lifetime than the API assumed.</p>
+<h2>Do not promise exactly once when you only retained a cache</h2>
+<p>“Exactly once” is usually too strong for an HTTP idempotency feature. A server can deduplicate a request while it remembers the key and still face an unknown outcome after a crash, an external provider retry, or a late request after retention. Calling the endpoint exactly once gives readers the wrong recovery plan.</p>
+<p>Use a narrower, testable promise instead:</p>
+<blockquote>
+<p>Repeating the same request with the same key and canonical payload within 24 hours returns or reconciles the original operation. After 24 hours, the client must query the command status before creating new work.</p>
+</blockquote>
+<p>That contract tells a caller what to do after a timeout, what not to do after a week, and where to look for the authoritative history. It also makes a storage-cost discussion honest. Keeping every response forever may be expensive, sensitive, and unnecessary. Keeping no durable operation history for irreversible work is cheap only until the first ambiguous recovery.</p>
+<h2>Test the late replay, not only the immediate retry</h2>
+<p>Most idempotency tests cover the easy case: send the same request twice before the first response is forgotten. Add cases that cross the policy boundaries:</p>
+<pre><code class="language-text">Given: a command succeeded but the caller lost the response
+When: the same key retries inside the replay window
+Then: the server returns or reconciles the original operation
+
+Given: the replay window has ended but command history remains
+When: the caller recovers with its command ID
+Then: it can discover the original outcome without creating new work
+
+Given: an old key arrives after both records have expired
+When: the side effect would be unsafe to repeat
+Then: the API rejects the blind replay or requires an explicit new command
+
+Given: two requests use one key with different canonical payloads
+When: the second arrives within the replay window
+Then: it receives a conflict response and no second operation starts
+</code></pre>
+<p>The third case is a product decision, not a universal HTTP rule. Some endpoints can accept a new request after expiry. The test exists to force the owner to say which endpoints may do that, and which must expose a longer-lived command or business uniqueness check.</p>
+<h2>Trade-offs</h2>
+<p>Longer replay windows consume storage and can retain response data that no longer belongs in a hot operational table. Fingerprints need canonicalization and must not become a new place to store sensitive request bodies carelessly. Durable command history adds a resource to secure, paginate, and eventually expire.</p>
+<p>Those costs are real. They are often lower than the cost of treating the key&#39;s deletion as an invisible authorization to repeat an irreversible action.</p>
+<p>For a low-value, naturally repeatable operation, a short documented window may be ideal. For payment, fulfillment, permission, provisioning, or expensive agent actions, my preference is to separate cheap short-term replay from durable recovery. Let the idempotency cache do its narrow job well; let an operation record or domain invariant carry the longer promise.</p>
+<h2>References</h2>
+<ul>
+<li>Stripe, <a href="https://docs.stripe.com/api/idempotent_requests">Idempotent requests</a></li>
+<li>IETF HTTPAPI Working Group, <a href="https://datatracker.ietf.org/doc/draft-ietf-httpapi-idempotency-key-header/">The Idempotency-Key HTTP Header Field, draft-08</a> — Internet-Draft, work in progress as of 2026-11-15</li>
+<li>This repository, <a href="https://my-slops.github.io/Blog/posts/2026/05/retries-need-an-identity-before-they-need-backoff/">Retries Need an Identity Before They Need Backoff</a></li>
+<li>This repository, <a href="https://my-slops.github.io/Blog/posts/2026/10/starting-a-job-is-not-the-same-as-finishing-it/">Starting a Job Is Not the Same as Finishing It</a></li>
+<li>This repository, <a href="https://my-slops.github.io/Blog/posts/2026/10/when-a-commit-and-an-email-disagree/">When a Commit and an Email Disagree</a></li>
+</ul>
+<h2>Final Take</h2>
+<p>An idempotency key identifies a retry only while the system remembers the association. Deleting that association is not routine housekeeping; it changes which side effects a late request is allowed to create.</p>
+<p>Publish the replay window. Bind the key to one canonical command. And when a caller is too late to replay safely, give it a durable way to learn what already happened instead of asking it to gamble on another <code>POST</code>.</p>
+<h2>Changelog</h2>
+<ul>
+<li>2026-11-15: Initial publication on idempotency-record retention and late retries.</li>
+</ul>
+
+    </article>
+  </body>
+</html>
