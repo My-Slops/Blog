@@ -1,0 +1,198 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>A 200 From a Multipart Upload May Still Be a Failure | Blog</title>
+    <meta name="description" content="A multipart upload is not complete when its HTTP status line says 200. On S3, the final body can still be an error after the initial success header, so application state must advance only after the completion result is parsed and its integrity contract is understood." />
+    <link rel="canonical" href="https://my-slops.github.io/Blog/posts/2026/11/a-200-from-a-multipart-upload-may-still-be-a-failure/" />
+    <style>
+      :root { color-scheme: light dark; }
+      body { font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; line-height: 1.7; max-width: 760px; margin: 40px auto; padding: 0 16px; }
+      a { color: #0a58ca; text-decoration: none; }
+      a:hover { text-decoration: underline; }
+      .meta { color: #666; font-size: 0.95rem; margin-bottom: 1rem; }
+      .tags { display: flex; gap: 0.5rem; list-style: none; padding: 0; margin: 0.75rem 0 1.25rem; flex-wrap: wrap; }
+      .tags li { background: #eef2ff; color: #3730a3; border-radius: 999px; padding: 0.2rem 0.6rem; font-size: 0.8rem; }
+      article h1, article h2, article h3 { line-height: 1.3; }
+      article pre { overflow-x: auto; background: #111827; color: #f9fafb; padding: 0.9rem; border-radius: 8px; }
+      article code { font-family: ui-monospace,SFMono-Regular,Menlo,monospace; }
+      article blockquote { border-left: 4px solid #d1d5db; margin: 1rem 0; padding: 0.2rem 0.9rem; color: #4b5563; }
+      hr { border: 0; border-top: 1px solid #e5e7eb; margin: 2rem 0; }
+    </style>
+  </head>
+  <body>
+    <p><a href="https://my-slops.github.io/Blog/">← Home</a></p>
+    <article>
+      <h1>A 200 From a Multipart Upload May Still Be a Failure</h1>
+      <p class="meta">Nov 16, 2026</p>
+      <ul class="tags"><li>storage</li><li>API design</li><li>reliability</li><li>distributed systems</li><li>developer tooling</li></ul>
+      <h2>TL;DR</h2>
+<p>For Amazon S3&#39;s <code>CompleteMultipartUpload</code>, an HTTP <code>200 OK</code> is not always the completion result. S3 can send the response headers while it is still assembling the object, then place an XML <code>&lt;Error&gt;</code> in the body if that work fails. A client that decides &quot;the file exists&quot; after reading only the status line can mark an upload ready when no completed object exists.</p>
+<p>Treat multipart completion as a terminal protocol result, not a successful transport handshake. Prefer an AWS SDK that parses the body and surfaces an embedded error. If an application calls the API directly, it must consume and parse the entire body before it writes a database attachment, emits an &quot;upload complete&quot; event, or exposes the object to another user.</p>
+<p>The larger lesson applies beyond S3: a response can acknowledge that a service has begun processing without proving the effect your application cares about. Make the local state transition follow the provider&#39;s real completion boundary.</p>
+<h2>Headers can arrive before the answer</h2>
+<p>Multipart upload is deliberately split into stages. A client creates an upload, sends independently retriable parts, and asks S3 to assemble a chosen list of parts. The last request is not merely a small metadata update: S3 has to validate the supplied part list and create the combined object.</p>
+<p>That creates an unusual wire-level behavior for <code>CompleteMultipartUpload</code>. AWS documents that, after S3 begins processing the request, it sends a <code>200 OK</code> header and may send whitespace while work continues. The operation can then fail; the same <code>200 OK</code> response body can contain an <code>&lt;Error&gt;</code> element rather than a <code>CompleteMultipartUploadResult</code>. <a href="https://docs.aws.amazon.com/AmazonS3/latest/API/API_CompleteMultipartUpload.html">AWS&#39;s API reference shows the embedded-error response</a>. Its Boto3 reference makes the operational consequence explicit: a direct caller must parse the response contents, while AWS SDKs detect this condition and apply their normal error handling. <a href="https://docs.aws.amazon.com/boto3/latest/reference/services/s3/client/complete_multipart_upload.html">Boto3 <code>complete_multipart_upload</code></a></p>
+<p>So this implementation is wrong even though its status check is conventional:</p>
+<pre><code class="language-ts">const response = await rawHttp.completeMultipartUpload(request);
+
+if (response.status === 200) {
+  await db.file.update({
+    where: { id: fileId },
+    data: { state: &quot;ready&quot;, objectKey },
+  });
+}
+</code></pre>
+<p>It treats a preliminary signal as a terminal result. If the body later says <code>InternalError</code>, the database now contains a ready file that the object store never completed. Downstream image processing, virus scanning, or a download request will discover the discrepancy later, far from the actual failure.</p>
+<p>The important distinction is not that HTTP status codes are generally untrustworthy. They are normally the right first branch. It is that this documented operation has a completion protocol whose result is carried in more than the status line. A generic HTTP wrapper is not automatically a correct S3 multipart client.</p>
+<h2>Let the provider client finish the protocol</h2>
+<p>The easiest safe design is usually to use a maintained AWS SDK and await its completion operation. The SDK knows that this API can encode a late failure in a nominally successful HTTP response and turns that condition into its normal error path.</p>
+<pre><code class="language-ts">import {
+  CompleteMultipartUploadCommand,
+  S3Client,
+} from &quot;@aws-sdk/client-s3&quot;;
+
+const result = await s3.send(new CompleteMultipartUploadCommand({
+  Bucket: bucket,
+  Key: objectKey,
+  UploadId: uploadId,
+  MultipartUpload: { Parts: completedParts },
+}));
+
+// Reached only after the SDK accepted the final protocol result.
+await markUploadReady({
+  fileId,
+  objectKey,
+  versionId: result.VersionId,
+  etag: result.ETag,
+});
+</code></pre>
+<p>This is illustrative TypeScript, not a complete upload service. In particular, <code>completedParts</code> must come from the acknowledged part uploads for this upload ID, and <code>markUploadReady</code> needs its own authorization and transactional design. But its ordering matters: no application-visible state advances merely because the HTTP headers arrived.</p>
+<p>If a product has a good reason to call S3&#39;s REST API directly, its client needs the equivalent rule:</p>
+<pre><code class="language-text">send CompleteMultipartUpload
+  → receive HTTP status and stream body
+  → consume the complete body
+  → parse XML
+  → if root is Error: apply retry or reconciliation policy
+  → if root is CompleteMultipartUploadResult: record the returned identity
+  → only then transition the local upload to ready
+</code></pre>
+<p>Do not add a second <code>HEAD</code> request just to compensate for a client that ignored the completion body. Once a successful completion result has been parsed, an extra existence check is usually redundant. Conversely, a <code>HEAD</code> after an ambiguous or interrupted request is a reconciliation step, not proof that the original completion call succeeded: a reused key, a concurrent writer, or an earlier object at that key can make existence too weak an answer.</p>
+<p>That last caveat is why an object key should be an immutable upload attempt or content identity when possible. A stable key such as <code>uploads/{fileId}/{uploadAttemptId}</code> gives reconciliation a specific object to inspect. Writing every attempt to a mutable <code>uploads/{fileId}/current</code> key leaves a timeout recovery path unable to tell which attempt produced what it found.</p>
+<h2>Completion and integrity are separate promises</h2>
+<p>Even a successful <code>CompleteMultipartUpload</code> result does not mean every integrity question has been answered in the way an application assumes.</p>
+<p>An S3 ETag identifies the created object, but AWS describes it as opaque and says it may or may not be an MD5 digest. For a multipart object, it is especially unsafe to treat the ETag as a portable checksum contract. <a href="https://docs.aws.amazon.com/AmazonS3/latest/API/API_CompleteMultipartUpload.html">The <code>CompleteMultipartUpload</code> API reference</a> documents both points.</p>
+<p>If an application needs to establish that the stored bytes are the bytes it intended to retain, choose and record an actual checksum contract at upload initiation. AWS supports checksum algorithms and distinguishes full-object from composite checksum behavior for multipart uploads. For a full-object checksum, S3 validates the supplied value during completion and fails the request with <code>BadDigest</code> if it does not match; it stores the verified checksum with the object. <a href="https://docs.aws.amazon.com/AmazonS3/latest/userguide/checking-object-integrity-upload.html">AWS&#39;s object-integrity guide</a></p>
+<p>These are different questions:</p>
+<table>
+<thead>
+<tr>
+<th>Question</th>
+<th>Evidence that answers it</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Did S3 finish this multipart operation?</td>
+<td>A parsed <code>CompleteMultipartUploadResult</code>, not only HTTP 200.</td>
+</tr>
+<tr>
+<td>Which object did that operation create?</td>
+<td>The returned bucket, key, version identifier where applicable, and object metadata.</td>
+</tr>
+<tr>
+<td>Did the intended full content arrive intact?</td>
+<td>A checksum policy that was actually configured and validated, not a guessed interpretation of ETag.</td>
+</tr>
+<tr>
+<td>Is the file acceptable to the product?</td>
+<td>Application validation: size, media decoding, malware scan, ownership, and policy.</td>
+</tr>
+</tbody></table>
+<p>The final row is intentionally outside S3&#39;s protocol. A checksum proves a byte relationship, not that a PDF is safe to display or that an uploaded CSV belongs to the account claiming it. Do not combine those lifecycle transitions into one vague <code>uploaded = true</code> bit.</p>
+<h2>Give uploads states that match failure recovery</h2>
+<p>An upload record becomes much easier to operate when it represents the stages it actually crosses:</p>
+<pre><code class="language-ts">type UploadState =
+  | &quot;initiated&quot;
+  | &quot;receiving_parts&quot;
+  | &quot;completion_requested&quot;
+  | &quot;completed&quot;
+  | &quot;validating&quot;
+  | &quot;ready&quot;
+  | &quot;failed&quot;
+  | &quot;needs_reconciliation&quot;;
+
+type UploadRecord = {
+  id: string;
+  accountId: string;
+  objectKey: string;
+  uploadId: string;
+  attemptId: string;
+  state: UploadState;
+  completionRequestId?: string;
+  versionId?: string;
+  checksum?: { algorithm: string; value: string };
+  failureCode?: string;
+};
+</code></pre>
+<p>The names are optional; the distinctions are not. <code>completion_requested</code> means a process has crossed a boundary whose outcome it may not learn immediately. <code>completed</code> means the storage provider&#39;s terminal result was accepted. <code>ready</code> means the application has performed whatever product-level validation is required. A crash between those states is a recovery case, not a reason to guess that the original caller&#39;s timeout means failure.</p>
+<p>For example, an upload service could use this sequence:</p>
+<ol>
+<li>Create a database record with an immutable object key and upload ID.</li>
+<li>Receive and persist the acknowledged part metadata needed for completion.</li>
+<li>Change the record to <code>completion_requested</code> before sending the final request.</li>
+<li>Await the SDK result or fully parsed direct response.</li>
+<li>Record the provider result and move to <code>completed</code> in one local transaction.</li>
+<li>Run product validation, then move to <code>ready</code> and publish the attachment.</li>
+</ol>
+<p>There is no global transaction across a database and S3. A crash after step 3 can leave the service unsure whether S3 completed the object; a crash after step 5 can leave a completed object not yet published. The point of the states is to make those cases discoverable. A reconciliation worker can inspect a bounded set of <code>completion_requested</code> records and decide whether to retry, query the expected immutable object, abort a still-open multipart upload, or ask for review.</p>
+<p>This is closely related to <a href="https://my-slops.github.io/Blog/posts/2026/10/when-a-commit-and-an-email-disagree/">When a Commit and an Email Disagree</a>: one system cannot infer a second system&#39;s final effect from its own local write. Here, even the storage protocol&#39;s early header is not enough evidence. The application needs a durable record of the intended effect and the provider&#39;s actual terminal result.</p>
+<h2>Do not leak incomplete uploads into the product</h2>
+<p>It is tempting to write the attachment row as soon as the browser has sent its final part. That makes a UI feel fast, and for most requests the last step will succeed. It also lets a failed completion masquerade as a real file.</p>
+<p>Keep the provisional object private and inaccessible through normal attachment reads until its record is <code>ready</code>. This is more than a user-experience detail. A file that is referenced before completion can be indexed, scanned, transformed, billed, or shared by independent workers. Each worker now needs to rediscover the same half-finished condition.</p>
+<p>The counterargument is valid for products that need immediate stream processing or collaborative upload progress. In that design, expose a deliberately provisional resource with explicit permissions and a state that consumers must honor. Do not call it an attachment, final export, or immutable evidence until it has crossed the completion boundary. The right model may be &quot;a pending upload users can resume,&quot; not &quot;a file that happens to be unreliable for a few seconds.&quot;</p>
+<p>Incomplete multipart uploads also have operational cost. AWS notes that uploaded parts keep incurring storage charges until the upload is completed or aborted. <a href="https://docs.aws.amazon.com/AmazonS3/latest/userguide/mpuoverview.html">Multipart upload overview</a> Reconciliation therefore needs both correctness and cleanup: alert on old <code>completion_requested</code> records, expire abandoned client uploads on a documented schedule, and use an abort policy consistent with any user-resume promise.</p>
+<h2>Test the response your HTTP helper hides</h2>
+<p>An upload test that only mocks a happy SDK result will not prove that application state waits for completion. Include the protocol boundary explicitly:</p>
+<pre><code class="language-text">Given: the completion endpoint sends HTTP 200 then an XML Error body
+When: the multipart operation is finalized
+Then: the application records a failure or reconciliation state
+And: no attachment is visible
+
+Given: an SDK reports a completion error after the final part upload
+When: the API handler returns to the caller
+Then: it does not create a ready attachment row
+
+Given: the process dies after marking completion_requested
+When: recovery runs
+Then: it reconciles the recorded immutable key and upload ID
+And: it never blindly creates a second visible attachment
+
+Given: a checksum requirement is configured for an upload
+When: the supplied full-object checksum does not match
+Then: the object never reaches ready state
+</code></pre>
+<p>Also test the source of truth your own stack uses. A browser upload library, a reverse proxy, a custom fetch wrapper, and an SDK may each expose completion differently. The article&#39;s precise <code>200</code> behavior is specific to S3&#39;s multipart-completion API; other storage providers have different contracts. The general test is portable: what exact result proves the object your product intends to expose was created and accepted?</p>
+<h2>Trade-offs</h2>
+<p>More states mean more recovery code and more ways to observe a stuck upload. Checksums consume CPU or require client support. Immutable object keys can make retention and cleanup less tidy than overwriting one familiar key. A provisional/private phase may delay availability by a scan or validation job.</p>
+<p>Those costs are justified when a file becomes customer-visible, feeds a security-sensitive pipeline, or triggers expensive downstream work. For an internal scratch upload that can be safely retried and discarded, a simpler model may be enough—provided it still lets the system distinguish a successful completion from an unparsed HTTP response.</p>
+<p>My preference is to make the product&#39;s visibility promise later than the storage protocol&#39;s ambiguous boundaries. The user can see an upload is in progress. Other systems should see a file only when the application can state what it knows about its completion, identity, and integrity.</p>
+<h2>References</h2>
+<ul>
+<li>Amazon S3, <a href="https://docs.aws.amazon.com/AmazonS3/latest/API/API_CompleteMultipartUpload.html">CompleteMultipartUpload API reference</a></li>
+<li>Boto3, <a href="https://docs.aws.amazon.com/boto3/latest/reference/services/s3/client/complete_multipart_upload.html"><code>complete_multipart_upload</code></a></li>
+<li>Amazon S3, <a href="https://docs.aws.amazon.com/AmazonS3/latest/userguide/checking-object-integrity-upload.html">Checking object integrity for data uploads</a></li>
+<li>Amazon S3, <a href="https://docs.aws.amazon.com/AmazonS3/latest/userguide/mpuoverview.html">Multipart upload overview</a></li>
+<li>This repository, <a href="https://my-slops.github.io/Blog/posts/2026/10/when-a-commit-and-an-email-disagree/">When a Commit and an Email Disagree</a></li>
+</ul>
+<h2>Final Take</h2>
+<p><code>200 OK</code> can mean that a provider has accepted the next stage of work, not that the work has ended successfully. S3&#39;s multipart-completion response makes that distinction unusually visible.</p>
+<p>Parse the terminal result. Keep the upload provisional until it passes the integrity and product checks that matter. And make crashes at that boundary recoverable from a durable record, not from optimism about a status line.</p>
+<h2>Changelog</h2>
+<ul>
+<li>2026-11-16: Initial publication on multipart-completion response semantics and upload lifecycle boundaries.</li>
+</ul>
+
+    </article>
+  </body>
+</html>

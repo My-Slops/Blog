@@ -1,7 +1,22 @@
 {
   "tag": "distributed systems",
-  "count": 24,
+  "count": 25,
   "posts": [
+    {
+      "title": "A 200 From a Multipart Upload May Still Be a Failure",
+      "date": "2026-11-16",
+      "updated": "2026-11-16",
+      "summary": "A multipart upload is not complete when its HTTP status line says 200. On S3, the final body can still be an error after the initial success header, so application state must advance only after the completion result is parsed and its integrity contract is understood.",
+      "tags": [
+        "storage",
+        "API design",
+        "reliability",
+        "distributed systems",
+        "developer tooling"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/11/a-200-from-a-multipart-upload-may-still-be-a-failure/",
+      "path": "posts/2026/11/2026-11-16-a-200-from-a-multipart-upload-may-still-be-a-failure.md"
+    },
     {
       "title": "Idempotency Keys Expire Before Your Retries Do",
       "date": "2026-11-15",
