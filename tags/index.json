@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-16T15:09:13.633Z",
+  "generated_at": "2026-11-22T01:28:08.069Z",
   "tags": [
     {
       "tag": "accessibility",
@@ -43,7 +43,7 @@
     },
     {
       "tag": "authorization",
-      "count": 2,
+      "count": 3,
       "url": "https://my-slops.github.io/Blog/tags/authorization.json"
     },
     {
@@ -133,12 +133,12 @@
     },
     {
       "tag": "data modeling",
-      "count": 2,
+      "count": 3,
       "url": "https://my-slops.github.io/Blog/tags/data modeling.json"
     },
     {
       "tag": "databases",
-      "count": 9,
+      "count": 10,
       "url": "https://my-slops.github.io/Blog/tags/databases.json"
     },
     {
@@ -408,7 +408,7 @@
     },
     {
       "tag": "security",
-      "count": 20,
+      "count": 21,
       "url": "https://my-slops.github.io/Blog/tags/security.json"
     },
     {
@@ -418,7 +418,7 @@
     },
     {
       "tag": "software engineering",
-      "count": 3,
+      "count": 4,
       "url": "https://my-slops.github.io/Blog/tags/software engineering.json"
     },
     {

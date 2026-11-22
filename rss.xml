@@ -6,6 +6,13 @@
   <description>Daily writing, optimized for humans and LLMs.</description>
   <language>en-us</language>
   <item>
+    <title>A Foreign Key Does Not Keep Data in the Right Tenant</title>
+    <link>https://my-slops.github.io/Blog/posts/2026/11/a-foreign-key-does-not-keep-data-in-the-right-tenant/</link>
+    <guid>https://my-slops.github.io/Blog/posts/2026/11/a-foreign-key-does-not-keep-data-in-the-right-tenant/</guid>
+    <pubDate>Sat, 21 Nov 2026 00:00:00 GMT</pubDate>
+    <description>Use foreign keys to keep tenant-owned records internally consistent, but make authorization scope part of every object lookup and write predicate. A valid relationship can still be a cross-tenant data leak.</description>
+  </item>
+  <item>
     <title>A 200 From a Multipart Upload May Still Be a Failure</title>
     <link>https://my-slops.github.io/Blog/posts/2026/11/a-200-from-a-multipart-upload-may-still-be-a-failure/</link>
     <guid>https://my-slops.github.io/Blog/posts/2026/11/a-200-from-a-multipart-upload-may-still-be-a-failure/</guid>
@@ -347,13 +354,6 @@
     <guid>https://my-slops.github.io/Blog/posts/2026/09/retry-queues-need-deadlines-not-just-attempt-counts/</guid>
     <pubDate>Mon, 14 Sep 2026 00:00:00 GMT</pubDate>
     <description>Attach an expiry to retryable work. The deadline protects systems from turning a temporary dependency failure into stale, surprising side effects.</description>
-  </item>
-  <item>
-    <title>A Log Line Cannot Prove a Message Was Processed</title>
-    <link>https://my-slops.github.io/Blog/posts/2026/09/a-log-line-cannot-prove-a-message-was-processed/</link>
-    <guid>https://my-slops.github.io/Blog/posts/2026/09/a-log-line-cannot-prove-a-message-was-processed/</guid>
-    <pubDate>Sun, 13 Sep 2026 00:00:00 GMT</pubDate>
-    <description>Define processing by its durable effect and acknowledgement boundary, not by an optimistic log line emitted at the start of a handler.</description>
   </item>
 </channel>
 </rss>

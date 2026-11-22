@@ -1,0 +1,198 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>A Foreign Key Does Not Keep Data in the Right Tenant | Blog</title>
+    <meta name="description" content="Use foreign keys to keep tenant-owned records internally consistent, but make authorization scope part of every object lookup and write predicate. A valid relationship can still be a cross-tenant data leak." />
+    <link rel="canonical" href="https://my-slops.github.io/Blog/posts/2026/11/a-foreign-key-does-not-keep-data-in-the-right-tenant/" />
+    <style>
+      :root { color-scheme: light dark; }
+      body { font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; line-height: 1.7; max-width: 760px; margin: 40px auto; padding: 0 16px; }
+      a { color: #0a58ca; text-decoration: none; }
+      a:hover { text-decoration: underline; }
+      .meta { color: #666; font-size: 0.95rem; margin-bottom: 1rem; }
+      .tags { display: flex; gap: 0.5rem; list-style: none; padding: 0; margin: 0.75rem 0 1.25rem; flex-wrap: wrap; }
+      .tags li { background: #eef2ff; color: #3730a3; border-radius: 999px; padding: 0.2rem 0.6rem; font-size: 0.8rem; }
+      article h1, article h2, article h3 { line-height: 1.3; }
+      article pre { overflow-x: auto; background: #111827; color: #f9fafb; padding: 0.9rem; border-radius: 8px; }
+      article code { font-family: ui-monospace,SFMono-Regular,Menlo,monospace; }
+      article blockquote { border-left: 4px solid #d1d5db; margin: 1rem 0; padding: 0.2rem 0.9rem; color: #4b5563; }
+      hr { border: 0; border-top: 1px solid #e5e7eb; margin: 2rem 0; }
+    </style>
+  </head>
+  <body>
+    <p><a href="https://my-slops.github.io/Blog/">← Home</a></p>
+    <article>
+      <h1>A Foreign Key Does Not Keep Data in the Right Tenant</h1>
+      <p class="meta">Nov 21, 2026</p>
+      <ul class="tags"><li>security</li><li>databases</li><li>data modeling</li><li>authorization</li><li>software engineering</li></ul>
+      <h2>TL;DR</h2>
+<p>A foreign key answers a storage question: does the referenced row exist, and does this relationship satisfy the schema? It does not answer an access question: may this authenticated principal read, change, export, or attach that row?</p>
+<p>That distinction is easy to lose in a multi-tenant application. A <code>document.project_id</code> foreign key can be perfectly valid while a handler has loaded the document by an attacker-controlled ID from another tenant. The database has protected referential integrity; the application has still leaked the document.</p>
+<p>Keep the two jobs separate:</p>
+<ol>
+<li>use constraints to prevent contradictory tenant relationships in stored data;</li>
+<li>resolve a caller&#39;s authorized tenant or resource scope before loading an object; and</li>
+<li>keep that scope in every read and write predicate, including background paths.</li>
+</ol>
+<p>Row-level security can make the third rule harder to forget, but it does not turn a foreign key into authorization. It also has its own bypass and deployment rules.</p>
+<h2>A valid row can belong to the wrong request</h2>
+<p>Imagine a project-management product with two tenants. A document belongs to a project; a project belongs to a tenant.</p>
+<pre><code class="language-text">document d_42 → project p_red → tenant acme
+document d_77 → project p_blue → tenant globex
+</code></pre>
+<p>The schema has all the ordinary constraints:</p>
+<pre><code class="language-sql">create table tenants (
+  id uuid primary key
+);
+
+create table projects (
+  id uuid primary key,
+  tenant_id uuid not null references tenants(id),
+  unique (id, tenant_id)
+);
+
+create table documents (
+  id uuid primary key,
+  tenant_id uuid not null references tenants(id),
+  project_id uuid not null,
+  foreign key (project_id, tenant_id)
+    references projects (id, tenant_id)
+);
+</code></pre>
+<p>The composite foreign key is useful. It prevents a document from claiming tenant <code>globex</code> while pointing at a project stored under <code>acme</code>. It keeps a redundant tenant column honest enough to make partitioning, indexing, retention, and scoped queries practical.</p>
+<p>Now consider an authenticated Acme member calling this handler:</p>
+<pre><code class="language-ts">const document = await db.document.findUnique({
+  where: { id: request.params.documentId },
+});
+
+if (!document) return reply.code(404).send();
+
+return reply.send(document);
+</code></pre>
+<p>The query can return <code>d_77</code> without violating any constraint. <code>d_77</code> still has a real project, its project still has a real tenant, and both keys match. The fault is not corrupt data. The fault is that the query asks for <em>a document with this ID</em>, while the product promised <em>a document with this ID that this caller may read</em>.</p>
+<p>OWASP classifies this family of mistake as insecure direct object reference: an object reference plus a missing object-level authorization check. Its recommended structural pattern is to look up an object through a dataset already related to the current user, rather than from the whole table. <a href="https://cheatsheetseries.owasp.org/cheatsheets/Insecure_Direct_Object_Reference_Prevention_Cheat_Sheet.html">OWASP&#39;s IDOR prevention guidance</a></p>
+<p>An unguessable UUID makes blind enumeration less convenient. It does not repair this query. IDs appear in links, logs, browser history, exports, support tickets, and integration payloads; more importantly, access control must remain correct once a caller knows a valid ID.</p>
+<h2>Make the authorization scope reach the query</h2>
+<p>The safe query is not defined by a particular ORM method. It is defined by the fact that the lookup is constrained by authority established before the lookup.</p>
+<p>For a product where a session belongs to exactly one active tenant, that can look like this:</p>
+<pre><code class="language-ts">const subject = await requireAuthenticatedSubject(request);
+const tenant = await requireActiveTenantMembership(subject, request);
+
+const document = await db.document.findFirst({
+  where: {
+    id: request.params.documentId,
+    tenantId: tenant.id,
+  },
+});
+
+if (!document) return reply.code(404).send();
+return reply.send(document);
+</code></pre>
+<p>The exact <code>404</code> versus <code>403</code> policy is product-specific. Many systems intentionally return <code>404</code> when an object is outside the caller&#39;s visible scope, so the response does not become an existence oracle. What matters here is earlier: the broad lookup never happens.</p>
+<p>Some systems have a more interesting access model. A consultant may belong to several tenants; a document may be shared to a partner; an administrator may have an audited cross-tenant role. In that case, do not lie to the model with a single <code>tenant_id = session.tenant_id</code> check. Query through the actual grant or membership relation:</p>
+<pre><code class="language-ts">const document = await db.document.findFirst({
+  where: {
+    id: request.params.documentId,
+    project: {
+      tenant: {
+        memberships: {
+          some: { userId: subject.id, status: &quot;active&quot; },
+        },
+      },
+    },
+  },
+});
+</code></pre>
+<p>That example is illustrative: a real policy may also inspect an action, a project role, a legal hold, or a purpose-specific grant. The important design choice is that ownership and access are distinct relations. A document can be owned by one tenant and visible to a carefully defined set of principals. Adding <code>tenant_id</code> to a table does not express that second relation by itself.</p>
+<p>This is the database analogue of <a href="https://my-slops.github.io/Blog/posts/2026/10/a-feature-flag-is-not-an-authorization-check/">not treating a feature flag as an authorization check</a>. A foreign key, like a flag, can be useful input to a policy. Neither is the policy decision.</p>
+<h2>Constraints still do important work</h2>
+<p>It would be a mistake to take the wrong lesson and remove tenant information from constraints. Authorization bugs are easier to detect and contain when the database refuses impossible ownership shapes.</p>
+<p>Suppose an API creates a document from both a <code>projectId</code> in the URL and a <code>tenantId</code> copied from a request body. With only independent foreign keys, it can store a document whose tenant and project disagree. A later correct-looking filter on <code>documents.tenant_id</code> may expose it under Globex even though its project navigation points to Acme.</p>
+<p>The composite constraint above rejects that contradiction at write time. Another design can omit the duplicate tenant column and always derive tenant ownership through <code>project_id</code>; that reduces denormalization but can make the most important queries and indexes less direct. Either choice can be sound. The invariant must be explicit:</p>
+<pre><code class="language-text">If a document has tenant T, its project belongs to T.
+</code></pre>
+<p>The foreign key enforces that <em>stored-data</em> invariant. The access rule is different:</p>
+<pre><code class="language-text">The request&#39;s principal may perform action A on this document now.
+</code></pre>
+<p>It depends on a principal, an action, dynamic membership, and sometimes request context. A database constraint cannot infer that rule from two stored IDs. OWASP&#39;s multi-tenant guidance makes the same separation: establish tenant context early, treat opaque identifiers as defense in depth rather than access control, and apply authorization checks to tenant-scoped operations. <a href="https://cheatsheetseries.owasp.org/cheatsheets/Multi_Tenant_Security_Cheat_Sheet.html">OWASP Multi-Tenant Security Cheat Sheet</a></p>
+<h2>Writes need the same scope</h2>
+<p>Teams often scope the read used to render an edit form, then lose the scope on the update endpoint or asynchronous worker. That turns a correct screen into a partial defense.</p>
+<p>This update has the same problem as the first lookup:</p>
+<pre><code class="language-ts">await db.document.update({
+  where: { id: request.params.documentId },
+  data: { title: request.body.title },
+});
+</code></pre>
+<p>Prefer an update whose predicate carries the permitted scope, then distinguish &quot;not updated&quot; from other failures deliberately:</p>
+<pre><code class="language-ts">const result = await db.document.updateMany({
+  where: {
+    id: request.params.documentId,
+    tenantId: tenant.id,
+  },
+  data: { title: request.body.title },
+});
+
+if (result.count !== 1) return reply.code(404).send();
+</code></pre>
+<p>An ORM&#39;s APIs differ, and a business policy may require a separate permission query or optimistic-concurrency condition. Do not copy <code>updateMany</code> as a universal recipe. Preserve the property that matters: the authorization boundary and mutation predicate agree about which row is eligible to change.</p>
+<p>Apply the same question to less obvious paths:</p>
+<ul>
+<li>an export worker loading <code>documentId</code> from a queue;</li>
+<li>a webhook handler resolving an external reference;</li>
+<li>an object-storage download endpoint turning a key into a file record;</li>
+<li>a search indexer reading rows after a tenant&#39;s membership changed; and</li>
+<li>an administrative repair script.</li>
+</ul>
+<p>Background work often has a service identity with broad database access. That can be appropriate, but it means the job payload must carry an explicit, validated scope or the worker must reconstruct one from durable policy data. &quot;The web request checked it earlier&quot; is not a durable authorization contract for a job that may run hours later.</p>
+<h2>Row-level security is a backstop, not a shortcut</h2>
+<p>PostgreSQL row-level security (RLS) can enforce a per-row predicate for normal <code>SELECT</code>, <code>INSERT</code>, <code>UPDATE</code>, and <code>DELETE</code> access after it is enabled. With RLS enabled and no applicable policy, PostgreSQL uses default deny. <a href="https://www.postgresql.org/docs/current/ddl-rowsecurity.html">PostgreSQL row-security documentation</a></p>
+<p>That makes RLS a strong defense-in-depth option for an application that can reliably set a trusted tenant or subject context for each transaction. It can protect a newly added query path from a missing <code>tenant_id</code> predicate.</p>
+<p>But RLS is neither automatic nor universal:</p>
+<ul>
+<li>table owners normally bypass it unless it is forced, and superusers and <code>BYPASSRLS</code> roles bypass it;</li>
+<li>policies are table-specific, so a protected <code>documents</code> table does not automatically protect every joined table, view, function, or storage metadata table; and</li>
+<li>PostgreSQL documents that referential-integrity checks bypass RLS so constraints can maintain data integrity.</li>
+</ul>
+<p>Those facts are not a defect. They show the different responsibilities clearly. Referential integrity has to answer whether a relationship is valid even when a row-security policy hides a row; authorization has to answer what a particular principal may do. Treat an RLS policy, the connection role, the mechanism that supplies tenant context, and migration/worker identities as one tested system—not as a switch that makes application authorization disappear.</p>
+<h2>Test the boundary with a real second tenant</h2>
+<p>An authorization test with a single tenant can only prove that the happy path works. Create a second tenant and use real object IDs from both sides:</p>
+<pre><code class="language-text">Given: member A belongs to Acme and document G belongs to Globex
+When: member A requests, edits, exports, and deletes G by its valid ID
+Then: each operation is denied or returns the product&#39;s indistinguishable-not-found response
+And: no document read, mutation, or queued export is produced for G
+And: any denial audit record contains no document content
+
+Given: a document is created for project P under tenant Acme
+When: the caller supplies tenant Globex
+Then: the write is rejected by application validation or the composite foreign key
+
+Given: a job retries after A&#39;s membership is removed
+When: the job resolves its target
+Then: it re-evaluates the documented authority model rather than assuming the old request remains valid
+</code></pre>
+<p>The last case deserves a product decision. Some jobs are intentionally authorized at submission time and must finish despite later membership changes; others must honor revocation before delivery. The test should assert the chosen rule. It should never silently fall back to &quot;the ID was valid.&quot;</p>
+<h2>Trade-offs</h2>
+<p>Scoping every query can feel repetitive. Complex sharing rules can make joins slower and query code harder to read. RLS adds policy migrations, role discipline, and a new failure mode when a privileged maintenance path unexpectedly sees no rows. Denormalizing <code>tenant_id</code> onto child tables adds an invariant that must be maintained.</p>
+<p>Those costs buy something concrete: an object ID ceases to be an implicit bearer credential. The alternative centralizes trust in human memory—every present and future query author must remember an invisible tenant filter—and that is a poor security boundary.</p>
+<p>For a single-tenant product, none of this machinery is necessary. For a multi-tenant product with public identifiers, internal tools, queues, or agent-accessible APIs, I would make authorized scope a first-class input at the data-access layer. Use constraints to reject impossible data, use policy to decide access, and let neither masquerade as the other.</p>
+<h2>References</h2>
+<ul>
+<li>OWASP Cheat Sheet Series, <a href="https://cheatsheetseries.owasp.org/cheatsheets/Insecure_Direct_Object_Reference_Prevention_Cheat_Sheet.html">Insecure Direct Object Reference Prevention</a></li>
+<li>OWASP Cheat Sheet Series, <a href="https://cheatsheetseries.owasp.org/cheatsheets/Multi_Tenant_Security_Cheat_Sheet.html">Multi-Tenant Security</a></li>
+<li>PostgreSQL, <a href="https://www.postgresql.org/docs/current/ddl-rowsecurity.html">Row Security Policies</a></li>
+<li>This repository, <a href="https://my-slops.github.io/Blog/posts/2026/10/a-feature-flag-is-not-an-authorization-check/">A Feature Flag Is Not an Authorization Check</a></li>
+<li>This repository, <a href="https://my-slops.github.io/Blog/posts/2026/08/the-cache-key-is-a-privacy-boundary/">The Cache Key Is a Privacy Boundary</a></li>
+</ul>
+<h2>Final Take</h2>
+<p>Foreign keys preserve the shape of data. They do not carry the authority of the person who supplied an ID.</p>
+<p>In a multi-tenant system, query and mutate through an authorized scope, and use database constraints to ensure that the rows inside that scope cannot contradict each other. A relation can be valid, indexed, and perfectly consistent—and still belong to someone else.</p>
+<h2>Changelog</h2>
+<ul>
+<li>2026-11-21: Initial publication on tenant-scoped data access and referential integrity.</li>
+</ul>
+
+    </article>
+  </body>
+</html>

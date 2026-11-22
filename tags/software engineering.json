@@ -1,7 +1,22 @@
 {
   "tag": "software engineering",
-  "count": 3,
+  "count": 4,
   "posts": [
+    {
+      "title": "A Foreign Key Does Not Keep Data in the Right Tenant",
+      "date": "2026-11-21",
+      "updated": "2026-11-21",
+      "summary": "Use foreign keys to keep tenant-owned records internally consistent, but make authorization scope part of every object lookup and write predicate. A valid relationship can still be a cross-tenant data leak.",
+      "tags": [
+        "security",
+        "databases",
+        "data modeling",
+        "authorization",
+        "software engineering"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/11/a-foreign-key-does-not-keep-data-in-the-right-tenant/",
+      "path": "posts/2026/11/2026-11-21-a-foreign-key-does-not-keep-data-in-the-right-tenant.md"
+    },
     {
       "title": "Test the Invariant, Not the Happy Path",
       "date": "2026-09-30",
