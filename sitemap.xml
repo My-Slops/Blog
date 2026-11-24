@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url><loc>https://my-slops.github.io/Blog/posts/2026/11/the-riskiest-part-of-a-migration-may-be-waiting-for-its-lock/</loc><lastmod>2026-11-24</lastmod></url>
   <url><loc>https://my-slops.github.io/Blog/posts/2026/11/a-foreign-key-does-not-keep-data-in-the-right-tenant/</loc><lastmod>2026-11-21</lastmod></url>
   <url><loc>https://my-slops.github.io/Blog/posts/2026/11/a-200-from-a-multipart-upload-may-still-be-a-failure/</loc><lastmod>2026-11-16</lastmod></url>
   <url><loc>https://my-slops.github.io/Blog/posts/2026/11/idempotency-keys-expire-before-your-retries-do/</loc><lastmod>2026-11-15</lastmod></url>

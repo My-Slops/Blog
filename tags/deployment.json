@@ -1,7 +1,22 @@
 {
   "tag": "deployment",
-  "count": 13,
+  "count": 14,
   "posts": [
+    {
+      "title": "The Riskiest Part of a Migration May Be Waiting for Its Lock",
+      "date": "2026-11-24",
+      "updated": "2026-11-24",
+      "summary": "For PostgreSQL migrations, the dangerous interval can be the wait for a table lock rather than the DDL execution itself. Use a migration-scoped lock timeout, diagnose blockers, and retry only an operation whose safety and compatibility story you understand.",
+      "tags": [
+        "databases",
+        "deployment",
+        "reliability",
+        "operations",
+        "software engineering"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/11/the-riskiest-part-of-a-migration-may-be-waiting-for-its-lock/",
+      "path": "posts/2026/11/2026-11-24-the-riskiest-part-of-a-migration-may-be-waiting-for-its-lock.md"
+    },
     {
       "title": "An Artifact Digest Cannot Explain Runtime Behavior",
       "date": "2026-10-28",

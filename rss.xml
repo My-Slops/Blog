@@ -6,6 +6,13 @@
   <description>Daily writing, optimized for humans and LLMs.</description>
   <language>en-us</language>
   <item>
+    <title>The Riskiest Part of a Migration May Be Waiting for Its Lock</title>
+    <link>https://my-slops.github.io/Blog/posts/2026/11/the-riskiest-part-of-a-migration-may-be-waiting-for-its-lock/</link>
+    <guid>https://my-slops.github.io/Blog/posts/2026/11/the-riskiest-part-of-a-migration-may-be-waiting-for-its-lock/</guid>
+    <pubDate>Tue, 24 Nov 2026 00:00:00 GMT</pubDate>
+    <description>For PostgreSQL migrations, the dangerous interval can be the wait for a table lock rather than the DDL execution itself. Use a migration-scoped lock timeout, diagnose blockers, and retry only an operation whose safety and compatibility story you understand.</description>
+  </item>
+  <item>
     <title>A Foreign Key Does Not Keep Data in the Right Tenant</title>
     <link>https://my-slops.github.io/Blog/posts/2026/11/a-foreign-key-does-not-keep-data-in-the-right-tenant/</link>
     <guid>https://my-slops.github.io/Blog/posts/2026/11/a-foreign-key-does-not-keep-data-in-the-right-tenant/</guid>
@@ -347,13 +354,6 @@
     <guid>https://my-slops.github.io/Blog/posts/2026/09/a-feature-flag-does-not-undo-an-irrevocable-change/</guid>
     <pubDate>Thu, 17 Sep 2026 00:00:00 GMT</pubDate>
     <description>Use flags to limit exposure, but design a compensating action for every irreversible side effect. A toggle is not a rollback plan.</description>
-  </item>
-  <item>
-    <title>Retry Queues Need Deadlines, Not Just Attempt Counts</title>
-    <link>https://my-slops.github.io/Blog/posts/2026/09/retry-queues-need-deadlines-not-just-attempt-counts/</link>
-    <guid>https://my-slops.github.io/Blog/posts/2026/09/retry-queues-need-deadlines-not-just-attempt-counts/</guid>
-    <pubDate>Mon, 14 Sep 2026 00:00:00 GMT</pubDate>
-    <description>Attach an expiry to retryable work. The deadline protects systems from turning a temporary dependency failure into stale, surprising side effects.</description>
   </item>
 </channel>
 </rss>

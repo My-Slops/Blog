@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>The Riskiest Part of a Migration May Be Waiting for Its Lock | Blog</title>
+    <meta name="description" content="For PostgreSQL migrations, the dangerous interval can be the wait for a table lock rather than the DDL execution itself. Use a migration-scoped lock timeout, diagnose blockers, and retry only an operation whose safety and compatibility story you understand." />
+    <link rel="canonical" href="https://my-slops.github.io/Blog/posts/2026/11/the-riskiest-part-of-a-migration-may-be-waiting-for-its-lock/" />
+    <style>
+      :root { color-scheme: light dark; }
+      body { font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; line-height: 1.7; max-width: 760px; margin: 40px auto; padding: 0 16px; }
+      a { color: #0a58ca; text-decoration: none; }
+      a:hover { text-decoration: underline; }
+      .meta { color: #666; font-size: 0.95rem; margin-bottom: 1rem; }
+      .tags { display: flex; gap: 0.5rem; list-style: none; padding: 0; margin: 0.75rem 0 1.25rem; flex-wrap: wrap; }
+      .tags li { background: #eef2ff; color: #3730a3; border-radius: 999px; padding: 0.2rem 0.6rem; font-size: 0.8rem; }
+      article h1, article h2, article h3 { line-height: 1.3; }
+      article pre { overflow-x: auto; background: #111827; color: #f9fafb; padding: 0.9rem; border-radius: 8px; }
+      article code { font-family: ui-monospace,SFMono-Regular,Menlo,monospace; }
+      article blockquote { border-left: 4px solid #d1d5db; margin: 1rem 0; padding: 0.2rem 0.9rem; color: #4b5563; }
+      hr { border: 0; border-top: 1px solid #e5e7eb; margin: 2rem 0; }
+    </style>
+  </head>
+  <body>
+    <p><a href="https://my-slops.github.io/Blog/">← Home</a></p>
+    <article>
+      <h1>The Riskiest Part of a Migration May Be Waiting for Its Lock</h1>
+      <p class="meta">Nov 24, 2026</p>
+      <ul class="tags"><li>databases</li><li>deployment</li><li>reliability</li><li>operations</li><li>software engineering</li></ul>
+      <h2>TL;DR</h2>
+<p>A migration can take milliseconds after it receives the lock it needs and still be unsafe to run without a plan. Under live traffic, the consequential interval may be the time spent <em>waiting</em> for that lock.</p>
+<p>In PostgreSQL, an ordinary <code>SELECT</code> takes an <code>ACCESS SHARE</code> lock, and many <code>ALTER TABLE</code> variants require <code>ACCESS EXCLUSIVE</code>. Those modes conflict. A report left inside a transaction, an application request that calls a remote service before committing, or an idle session that has not finished its transaction can make a seemingly tiny DDL change wait indefinitely. <a href="https://www.postgresql.org/docs/current/explicit-locking.html">PostgreSQL&#39;s locking documentation</a> describes both lock modes and their conflict.</p>
+<p>Treat lock acquisition as its own deployment operation:</p>
+<ol>
+<li>know the strongest lock the change needs;</li>
+<li>bound how long the migration may wait to acquire it;</li>
+<li>make a timeout a visible, non-destructive outcome; and</li>
+<li>inspect the blocker before choosing whether and when to retry.</li>
+</ol>
+<p>The objective is not “never let a migration fail.” It is “never turn an unbounded wait into an accidental production outage.”</p>
+<h2>A quick DDL statement can have a long prelude</h2>
+<p>Imagine a deployment that adds a nullable column to a busy <code>invoices</code> table. In an empty staging database, the statement completes so quickly that it barely registers:</p>
+<pre><code class="language-sql">ALTER TABLE invoices ADD COLUMN review_note text;
+</code></pre>
+<p>It is tempting to classify that as an online change. But <code>ALTER TABLE</code> does not have one universal lock behavior. PostgreSQL says that the lock level varies by subcommand and that <code>ACCESS EXCLUSIVE</code> is used unless a particular form documents otherwise. <code>ACCESS EXCLUSIVE</code> conflicts with every table lock mode; an ordinary read uses <code>ACCESS SHARE</code>. <a href="https://www.postgresql.org/docs/current/sql-altertable.html">The <code>ALTER TABLE</code> reference</a> and <a href="https://www.postgresql.org/docs/current/explicit-locking.html">lock-mode table</a> are the authority here, not a migration checklist copied from another engine or PostgreSQL release.</p>
+<p>Now add a request that begins a transaction, reads invoices, calls an external fraud provider, and waits 90 seconds for a response before it commits. The read can leave a conflicting table lock held until that transaction ends. The DDL waits.</p>
+<p>That wait is not harmless simply because the DDL has not started changing the table. A pending schema change can become part of a larger lock dependency: application requests slow down, connection-pool capacity is consumed by sessions waiting on work, and the team sees timeouts far away from the migration command. The incident is often described as “the migration was slow,” even when the schema operation itself was fast.</p>
+<p>The useful planning question is therefore not only:</p>
+<blockquote>
+<p>How long does this DDL execute?</p>
+</blockquote>
+<p>It is also:</p>
+<blockquote>
+<p>What can already be holding a conflicting lock, and what does our service do while this request waits?</p>
+</blockquote>
+<h2>Make the wait budget explicit</h2>
+<p>For a migration that is safe to abandon before it changes anything, set a short, migration-scoped lock timeout. For example:</p>
+<pre><code class="language-sql">BEGIN;
+SET LOCAL lock_timeout = &#39;3s&#39;;
+SET LOCAL statement_timeout = &#39;45s&#39;;
+
+ALTER TABLE invoices ADD COLUMN review_note text;
+
+COMMIT;
+</code></pre>
+<p><code>lock_timeout</code> applies while a statement waits to acquire a lock; <code>statement_timeout</code> limits the broader time from command arrival until completion. PostgreSQL recommends against setting either globally because different sessions have different needs. <a href="https://www.postgresql.org/docs/current/runtime-config-client.html#RUNTIME-CONFIG-CLIENT-STATEMENT">Its configuration reference</a> also notes that a <code>lock_timeout</code> at least as large as <code>statement_timeout</code> adds no protection: the statement timeout fires first.</p>
+<p>The numbers above are examples, not a prescription. A three-second tolerance may be sensible for a high-traffic table if the deployment can retry later. A controlled maintenance window may allow a longer wait. What matters is that the chosen budget reflects a decision about user-facing latency and not a default of “wait forever.”</p>
+<p>A lock timeout is not evidence that the migration is bad. It says this attempt could not acquire the required boundary without exceeding its allowed disruption budget. That is often the correct result. The migration transaction aborts; no partial DDL from that transaction is committed; the deploy should report the failure clearly and stop before it treats the schema as changed.</p>
+<p>Do not convert that outcome into a blind retry loop. If a long transaction blocks every attempt, automatic retries merely create repeating deployment noise. If a migration has application-level side effects outside the database, a retry may need a more specific idempotency and recovery design. First identify the condition that caused the wait.</p>
+<h2>Find the session that is actually blocking you</h2>
+<p>PostgreSQL exposes waiting and held locks through <code>pg_locks</code>, which can be joined to <code>pg_stat_activity</code>. A row with <code>granted = false</code> represents a process waiting to acquire a lock. <a href="https://www.postgresql.org/docs/current/view-pg-locks.html">The <code>pg_locks</code> reference</a> documents both the <code>granted</code> field and the join to activity information.</p>
+<p>For an on-call investigation, <code>pg_blocking_pids</code> is usually a clearer starting point than trying to reconstruct a blocking graph from lock modes by hand:</p>
+<pre><code class="language-sql">SELECT
+  waiting.pid AS waiting_pid,
+  waiting.application_name AS waiting_application,
+  waiting.query AS waiting_query,
+  blocker.pid AS blocker_pid,
+  blocker.usename AS blocker_user,
+  blocker.application_name AS blocker_application,
+  blocker.state AS blocker_state,
+  blocker.xact_start AS blocker_transaction_started,
+  blocker.query AS blocker_query
+FROM pg_stat_activity AS waiting
+CROSS JOIN LATERAL unnest(pg_blocking_pids(waiting.pid)) AS b(blocker_pid)
+JOIN pg_stat_activity AS blocker ON blocker.pid = b.blocker_pid
+WHERE waiting.wait_event_type = &#39;Lock&#39;;
+</code></pre>
+<p>The function reports sessions that hold a conflicting lock <em>or</em> are ahead in the lock wait queue. <a href="https://www.postgresql.org/docs/current/functions-info.html">PostgreSQL&#39;s system-information functions</a> make that distinction explicit. That detail matters: the session immediately preventing progress may itself be waiting. Canceling the most visible statement without understanding the chain can leave the real cause intact.</p>
+<p>The safe response depends on the blocker:</p>
+<table>
+<thead>
+<tr>
+<th>Blocker</th>
+<th>First response</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>An application request with an unexpectedly long transaction</td>
+<td>Find why work crossed the transaction boundary; do not casually terminate a request that may be mid-effect.</td>
+</tr>
+<tr>
+<td>A reporting or maintenance query</td>
+<td>Ask whether it can finish, be canceled safely, or use a replica or different scheduling window.</td>
+</tr>
+<tr>
+<td>A session <code>idle in transaction</code></td>
+<td>Investigate the owning client and its rollback/connection-pool behavior; it may also be retaining old row versions.</td>
+</tr>
+<tr>
+<td>Another deployment or migration</td>
+<td>Coordinate a single change order; concurrent deployers are a release-control failure, not a lock-tuning problem.</td>
+</tr>
+<tr>
+<td>A prepared transaction</td>
+<td>Escalate carefully. It can outlive its original client and holds locks until it is committed or rolled back.</td>
+</tr>
+</tbody></table>
+<p>PostgreSQL also provides <code>idle_in_transaction_session_timeout</code> specifically to terminate sessions left idle inside an open transaction. Its documentation explains that these sessions can hold locks and can keep vacuum from removing tuples that might still be visible to them. That is useful hygiene, but it is not permission to set a universal timeout without checking how pooled clients recover from an unexpected connection close. <a href="https://www.postgresql.org/docs/current/runtime-config-client.html#RUNTIME-CONFIG-CLIENT-STATEMENT">PostgreSQL configuration documentation</a></p>
+<h2>Separate the lock plan from the compatibility plan</h2>
+<p>Lock safety and rollout compatibility are related, but they are not substitutes for one another.</p>
+<p>A change can obtain its lock immediately and still be unsafe because an old worker does not understand the new schema. It can also be perfectly compatible across old and new application versions yet be risky because it needs an <code>ACCESS EXCLUSIVE</code> lock at an uncontrolled time. The archive&#39;s earlier article, <a href="https://my-slops.github.io/Blog/posts/2026/10/mixed-version-deploys-are-the-real-migration-test/">Mixed-Version Deploys Are the Real Migration Test</a>, covers the former question: which versions can coexist and exchange data safely. This article concerns a different question: what happens while the database tries to establish the DDL boundary at all.</p>
+<p>Review both before release:</p>
+<table>
+<thead>
+<tr>
+<th>Question</th>
+<th>Evidence to obtain</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Which lock mode can this exact subcommand require?</td>
+<td>The documentation for the deployed PostgreSQL version and migration form.</td>
+</tr>
+<tr>
+<td>How long may it wait under live traffic?</td>
+<td>A migration-local <code>lock_timeout</code> chosen for this table and deployment policy.</td>
+</tr>
+<tr>
+<td>What will report a timeout?</td>
+<td>A deploy result, alert, or runbook signal—not a hidden retry.</td>
+</tr>
+<tr>
+<td>What sessions could be blockers?</td>
+<td>A tested diagnostic query and enough activity metadata to identify the owner.</td>
+</tr>
+<tr>
+<td>Can old code, jobs, and rollback coexist with the changed schema?</td>
+<td>A compatibility matrix and representative transition tests.</td>
+</tr>
+</tbody></table>
+<p>For a simple additive change, that review is short. For a rewrite, large backfill, constraint validation, or contract step, it should be more thorough. “It ran quickly on a copy of production” is useful evidence, but it has not exercised the lock holder that happens to be alive during the actual deploy.</p>
+<h2>Test the unhappy acquisition path</h2>
+<p>Most migration tests prove only that the database accepts the statement. Add a small integration test—or at least a runbook rehearsal—for the condition that matters operationally:</p>
+<pre><code class="language-text">Given: one session is holding a transaction that has read the target table
+And: the migration has a bounded lock timeout
+When: the migration requests a conflicting table lock
+Then: it fails before the disruption budget is spent
+And: its transaction leaves no partial schema change
+And: the deploy surfaces the blocked relation and retry decision
+</code></pre>
+<p>The test should use the lock mode required by the real migration. Do not assume every <code>ALTER TABLE</code> behaves alike, and do not simulate a blocking <code>SELECT</code> outside a transaction when the production risk is a long-running transaction that retains its lock.</p>
+<p>There is an important boundary here. A timeout protects availability; it does not make a large operation cheap. A migration may acquire a lock promptly and then spend a long time rewriting data, validating a constraint, or increasing I/O. PostgreSQL&#39;s documentation for the specific DDL variant remains the starting point for assessing that work. A good release plan may need a staged backfill, an additive schema phase, a maintenance window, or a different feature design.</p>
+<h2>Trade-offs</h2>
+<p>A short lock timeout increases the chance that a legitimate migration must be rescheduled. That is intentional friction: it favors current production traffic over forcing the database to wait until a convenient-looking moment that may never arrive.</p>
+<p>Longer timeouts can be appropriate when the caller has made a clear maintenance promise and the team has a recovery plan. They are dangerous when treated as a substitute for understanding long-lived transactions. Likewise, terminating blockers can be necessary in an incident, but it is an operational action with application-level consequences—not a routine migration primitive.</p>
+<p>The recommendation is not to make every schema change a ceremony. It is to make the most failure-prone hidden phase visible: lock acquisition. Once that wait has a budget, a diagnostic path, and a deliberate retry policy, a small DDL statement can remain small in production too.</p>
+<h2>References</h2>
+<ul>
+<li>PostgreSQL, <a href="https://www.postgresql.org/docs/current/explicit-locking.html">Explicit Locking</a></li>
+<li>PostgreSQL, <a href="https://www.postgresql.org/docs/current/sql-altertable.html"><code>ALTER TABLE</code></a></li>
+<li>PostgreSQL, <a href="https://www.postgresql.org/docs/current/runtime-config-client.html#RUNTIME-CONFIG-CLIENT-STATEMENT">Client Connection Defaults: timeouts</a></li>
+<li>PostgreSQL, <a href="https://www.postgresql.org/docs/current/view-pg-locks.html"><code>pg_locks</code></a></li>
+<li>PostgreSQL, <a href="https://www.postgresql.org/docs/current/functions-info.html">System Information Functions: <code>pg_blocking_pids</code></a></li>
+<li>This repository, <a href="https://my-slops.github.io/Blog/posts/2026/10/mixed-version-deploys-are-the-real-migration-test/">Mixed-Version Deploys Are the Real Migration Test</a></li>
+</ul>
+<h2>Final Take</h2>
+<p>The most important moment in a production migration may occur before the schema changes at all. It is the moment the database asks existing work to make room.</p>
+<p>Budget that request, observe who declined it, and retry only after you understand why. A migration that gives up safely is often healthier than one that waits until the rest of the system gives up first.</p>
+<h2>Changelog</h2>
+<ul>
+<li>2026-11-24: Initial publication.</li>
+</ul>
+
+    </article>
+  </body>
+</html>
