@@ -6,6 +6,13 @@
   <description>Daily writing, optimized for humans and LLMs.</description>
   <language>en-us</language>
   <item>
+    <title>The Trust Boundary Behind X-Forwarded-For</title>
+    <link>https://my-slops.github.io/Blog/posts/2026/11/the-trust-boundary-behind-x-forwarded-for/</link>
+    <guid>https://my-slops.github.io/Blog/posts/2026/11/the-trust-boundary-behind-x-forwarded-for/</guid>
+    <pubDate>Wed, 25 Nov 2026 00:00:00 GMT</pubDate>
+    <description>Treat X-Forwarded-For, X-Forwarded-Host, X-Forwarded-Proto, and Forwarded as untrusted request input until a known edge has removed or replaced them. Trust named proxy ranges or identities, not a hopeful hop count, and test the direct-to-origin path.</description>
+  </item>
+  <item>
     <title>The Riskiest Part of a Migration May Be Waiting for Its Lock</title>
     <link>https://my-slops.github.io/Blog/posts/2026/11/the-riskiest-part-of-a-migration-may-be-waiting-for-its-lock/</link>
     <guid>https://my-slops.github.io/Blog/posts/2026/11/the-riskiest-part-of-a-migration-may-be-waiting-for-its-lock/</guid>
@@ -347,13 +354,6 @@
     <guid>https://my-slops.github.io/Blog/posts/2026/09/a-tool-error-is-an-instruction-to-your-agent/</guid>
     <pubDate>Mon, 21 Sep 2026 00:00:00 GMT</pubDate>
     <description>Tool errors are part of an agent&apos;s control loop. Return a bounded, typed recovery signal so the agent can distinguish a repairable request from a policy denial, a rate limit, and an action whose completion is unknown.</description>
-  </item>
-  <item>
-    <title>A Feature Flag Does Not Undo an Irrevocable Change</title>
-    <link>https://my-slops.github.io/Blog/posts/2026/09/a-feature-flag-does-not-undo-an-irrevocable-change/</link>
-    <guid>https://my-slops.github.io/Blog/posts/2026/09/a-feature-flag-does-not-undo-an-irrevocable-change/</guid>
-    <pubDate>Thu, 17 Sep 2026 00:00:00 GMT</pubDate>
-    <description>Use flags to limit exposure, but design a compensating action for every irreversible side effect. A toggle is not a rollback plan.</description>
   </item>
 </channel>
 </rss>

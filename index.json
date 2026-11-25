@@ -1,7 +1,22 @@
 {
-  "generated_at": "2026-11-24T16:12:51.841Z",
-  "count": 195,
+  "generated_at": "2026-11-25T15:01:51.920Z",
+  "count": 196,
   "posts": [
+    {
+      "title": "The Trust Boundary Behind X-Forwarded-For",
+      "date": "2026-11-25",
+      "updated": "2026-11-25",
+      "summary": "Treat X-Forwarded-For, X-Forwarded-Host, X-Forwarded-Proto, and Forwarded as untrusted request input until a known edge has removed or replaced them. Trust named proxy ranges or identities, not a hopeful hop count, and test the direct-to-origin path.",
+      "tags": [
+        "security",
+        "infrastructure",
+        "api design",
+        "reliability",
+        "developer tooling"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/11/the-trust-boundary-behind-x-forwarded-for/",
+      "path": "posts/2026/11/2026-11-25-the-trust-boundary-behind-x-forwarded-for.md"
+    },
     {
       "title": "The Riskiest Part of a Migration May Be Waiting for Its Lock",
       "date": "2026-11-24",

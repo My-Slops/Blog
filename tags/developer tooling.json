@@ -1,7 +1,22 @@
 {
   "tag": "developer tooling",
-  "count": 35,
+  "count": 36,
   "posts": [
+    {
+      "title": "The Trust Boundary Behind X-Forwarded-For",
+      "date": "2026-11-25",
+      "updated": "2026-11-25",
+      "summary": "Treat X-Forwarded-For, X-Forwarded-Host, X-Forwarded-Proto, and Forwarded as untrusted request input until a known edge has removed or replaced them. Trust named proxy ranges or identities, not a hopeful hop count, and test the direct-to-origin path.",
+      "tags": [
+        "security",
+        "infrastructure",
+        "api design",
+        "reliability",
+        "developer tooling"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/11/the-trust-boundary-behind-x-forwarded-for/",
+      "path": "posts/2026/11/2026-11-25-the-trust-boundary-behind-x-forwarded-for.md"
+    },
     {
       "title": "A 200 From a Multipart Upload May Still Be a Failure",
       "date": "2026-11-16",

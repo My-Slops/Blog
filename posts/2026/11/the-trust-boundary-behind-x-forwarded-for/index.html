@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>The Trust Boundary Behind X-Forwarded-For | Blog</title>
+    <meta name="description" content="Treat X-Forwarded-For, X-Forwarded-Host, X-Forwarded-Proto, and Forwarded as untrusted request input until a known edge has removed or replaced them. Trust named proxy ranges or identities, not a hopeful hop count, and test the direct-to-origin path." />
+    <link rel="canonical" href="https://my-slops.github.io/Blog/posts/2026/11/the-trust-boundary-behind-x-forwarded-for/" />
+    <style>
+      :root { color-scheme: light dark; }
+      body { font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; line-height: 1.7; max-width: 760px; margin: 40px auto; padding: 0 16px; }
+      a { color: #0a58ca; text-decoration: none; }
+      a:hover { text-decoration: underline; }
+      .meta { color: #666; font-size: 0.95rem; margin-bottom: 1rem; }
+      .tags { display: flex; gap: 0.5rem; list-style: none; padding: 0; margin: 0.75rem 0 1.25rem; flex-wrap: wrap; }
+      .tags li { background: #eef2ff; color: #3730a3; border-radius: 999px; padding: 0.2rem 0.6rem; font-size: 0.8rem; }
+      article h1, article h2, article h3 { line-height: 1.3; }
+      article pre { overflow-x: auto; background: #111827; color: #f9fafb; padding: 0.9rem; border-radius: 8px; }
+      article code { font-family: ui-monospace,SFMono-Regular,Menlo,monospace; }
+      article blockquote { border-left: 4px solid #d1d5db; margin: 1rem 0; padding: 0.2rem 0.9rem; color: #4b5563; }
+      hr { border: 0; border-top: 1px solid #e5e7eb; margin: 2rem 0; }
+    </style>
+  </head>
+  <body>
+    <p><a href="https://my-slops.github.io/Blog/">← Home</a></p>
+    <article>
+      <h1>The Trust Boundary Behind X-Forwarded-For</h1>
+      <p class="meta">Nov 25, 2026</p>
+      <ul class="tags"><li>security</li><li>infrastructure</li><li>api design</li><li>reliability</li><li>developer tooling</li></ul>
+      <h2>TL;DR</h2>
+<p><code>X-Forwarded-For</code> is not the client&#39;s IP address. It is a request header that may contain a client-supplied claim, a proxy-supplied claim, or both. The same is true of <code>X-Forwarded-Host</code>, <code>X-Forwarded-Proto</code>, and the standardized <code>Forwarded</code> header.</p>
+<p>They become useful when an application can identify the last trusted proxy that delivered the request, that proxy has removed or replaced untrusted incoming values, and the application cannot be reached through a shorter untrusted path. Until then, they are ordinary attacker-controlled input.</p>
+<p>That distinction matters beyond logging. A framework&#39;s “trust proxy” setting can change which address rate limiting uses, whether an IP allowlist admits a request, what host a password-reset link contains, and whether code believes the original connection was HTTPS. Configure this as a trust boundary with an owner and a test—not as a convenience switch that makes local development look right.</p>
+<h2>A header cannot prove who put it there</h2>
+<p>An application often sits behind a CDN, load balancer, ingress, or service mesh. At the application socket, the peer is therefore a proxy rather than the browser. Forwarding headers exist to carry details that the proxy connection obscures:</p>
+<pre><code class="language-http">X-Forwarded-For: 203.0.113.24
+X-Forwarded-Host: app.example.com
+X-Forwarded-Proto: https
+</code></pre>
+<p>The standardized alternative puts related values into one field:</p>
+<pre><code class="language-http">Forwarded: for=203.0.113.24;host=app.example.com;proto=https
+</code></pre>
+<p><a href="https://www.rfc-editor.org/rfc/rfc7239.html">RFC 7239</a> defines <code>Forwarded</code> precisely for information that proxying changes or hides. It also makes an easily missed point: the field is optional, can be added or removed by proxies, and carries sensitive information. Standard syntax makes parsing and interoperability better. It does not make the values authentic.</p>
+<p>Consider a path where two proxies append their socket peer to an existing list:</p>
+<pre><code class="language-text">browser sends:       X-Forwarded-For: 198.51.100.77
+CDN adds:             X-Forwarded-For: 198.51.100.77, 203.0.113.24
+load balancer adds:   X-Forwarded-For: 198.51.100.77, 203.0.113.24, 192.0.2.12
+application sees:     X-Forwarded-For: 198.51.100.77, 203.0.113.24, 192.0.2.12
+</code></pre>
+<p>If <code>198.51.100.77</code> came from the browser, it is not evidence about the browser. Choosing the leftmost address because it “looks like the original client” turns a string chosen by the caller into a security input. Choosing the rightmost address is not generally correct either: in this example it names the CDN, not the browser.</p>
+<p>The application can use the chain only after it knows which entries were added by infrastructure it trusts. The real question is not <em>which position is the client?</em> It is <em>which hop is authorized to make an assertion that this service will act on?</em></p>
+<h2>The last trusted proxy must take responsibility for the header</h2>
+<p>A safe boundary normally has three properties:</p>
+<ol>
+<li>The origin accepts application traffic only from known proxy networks, identities, or a protected private path.</li>
+<li>At that boundary, the proxy removes untrusted forwarding headers or overwrites them with the representation the application expects.</li>
+<li>The application trusts the forwarding metadata only when its transport peer is that proxy or another specifically named internal hop.</li>
+</ol>
+<p>The first property is easy to omit. An origin that is reachable directly from the Internet has two paths:</p>
+<pre><code class="language-text">browser → edge proxy → application
+attacker ─────────────────→ application
+</code></pre>
+<p>The edge may correctly sanitize <code>X-Forwarded-For</code>; the direct path bypasses that work. <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/X-Forwarded-For">MDN&#39;s X-Forwarded-For guidance</a> is explicit: if the server remains directly reachable, no part of the header can safely support a security-sensitive use. A firewall rule, private listener, mutual TLS boundary, or platform-level origin restriction is therefore part of the header policy, not a separate hardening task.</p>
+<p>The second property means “append” is not automatically safe. A trusted edge can append to a chain only if downstream selection skips the proxy&#39;s known addresses from the right and stops at the first untrusted one. In a simpler topology, the edge can discard a caller&#39;s value and set a single canonical client-address header. Either design can work; mixing their assumptions cannot.</p>
+<p>The third property makes the configuration auditable. In Nginx, the <code>ngx_http_realip_module</code> requires an explicit <code>set_real_ip_from</code> list before it replaces a client address from a configured header. Its optional recursive mode walks the chain from the closest side until it reaches a non-trusted address. <a href="https://nginx.org/en/docs/http/ngx_http_realip_module.html">Nginx documents both the trusted-address list and that selection behavior</a>. That is the useful model even when Nginx is not the application server: trust a concrete ingress boundary, then derive a value using a documented rule.</p>
+<h2>A number of proxy hops is usually a deployment guess</h2>
+<p>Many frameworks offer a hop-count setting because a fixed deployment can make it convenient. It is a brittle security policy when traffic has paths of different lengths.</p>
+<p>Imagine a service that usually receives this path:</p>
+<pre><code class="language-text">client → CDN → load balancer → application
+</code></pre>
+<p>Someone configures the application to trust two hops. A health-check network, internal VPN, preview environment, or alternate listener may reach the same application through only one proxy. Now a client on that shorter route can occupy a position the application expected infrastructure to occupy and supply a forged earlier address.</p>
+<p>Express calls out exactly this failure mode in its <a href="https://expressjs.com/en/guide/behind-proxies/">proxy configuration guide</a>: a numeric <code>trust proxy</code> value is unsafe when different paths have different lengths. Its boolean form has an even sharper requirement: the final trusted reverse proxy must remove or overwrite all <code>X-Forwarded-*</code> headers, or callers can supply any value. When trust is enabled, Express uses the forwarded host and protocol for <code>req.hostname</code> and <code>req.protocol</code>, not merely <code>req.ip</code>.</p>
+<p>Prefer a stable proxy identity or IP/CIDR allowlist over a hop count whenever the network has multiple routes. Treat that allowlist as deployment configuration with an owner: a newly added ingress, changed CDN range, or temporary debugging listener can change the meaning of a request without a line of application code moving.</p>
+<p>This illustrative Express configuration is only safe if those ranges exclusively contain the proxies that can connect to the app. The example ranges are placeholders, not an allowlist to copy:</p>
+<pre><code class="language-ts">app.set(&quot;trust proxy&quot;, [
+  &quot;198.51.100.0/24&quot;,   // Replace with the actual ingress network.
+  &quot;2001:db8:1234::/48&quot; // Replace with the actual ingress network.
+]);
+</code></pre>
+<p>Do not use <code>true</code> just because one environment has a proxy. Do not trust all private address ranges merely because the current cluster happens to use them. An internal network is still a network with other workloads, future routes, and configuration mistakes.</p>
+<h2>One setting can alter several security decisions</h2>
+<p>Forwarded metadata tends to spread because framework request helpers make it convenient. Inventory every consumer before changing the trust configuration:</p>
+<table>
+<thead>
+<tr>
+<th>Derived value</th>
+<th>Common use</th>
+<th>What spoofing can change</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>client address</td>
+<td>rate limits, abuse controls, IP allowlists, audit events</td>
+<td>a caller can evade a per-IP limit, claim an allowed address, or poison attribution</td>
+</tr>
+<tr>
+<td>original scheme</td>
+<td>secure-cookie logic, redirect construction, canonical URLs</td>
+<td>a caller can make HTTPS-only logic behave as though the request arrived over another scheme</td>
+</tr>
+<tr>
+<td>original host</td>
+<td>absolute links, callback URLs, tenant routing</td>
+<td>a caller can cause a generated URL or selected tenant to use an unexpected host</td>
+</tr>
+<tr>
+<td>proxy chain</td>
+<td>diagnostics and fraud signals</td>
+<td>analysts can make a request appear to have taken a path it did not take</td>
+</tr>
+</tbody></table>
+<p>IP-based controls have a separate limitation: even a correctly derived address is a network-location signal, not a durable human or account identity. NATs, mobile networks, privacy relays, and corporate egress can make many users share an address or make one user change addresses quickly. That is a reason to keep authentication and authorization bound to principals. It is not a reason to leave an IP throttle spoofable.</p>
+<p>The same specificity matters for audit logs. Record both the immediate transport peer and the derived client value, along with the proxy-policy version or ingress identity when it is practical. Otherwise an investigation cannot distinguish “the edge reported this client” from “the application trusted a value that the caller supplied.” A convenient <code>request.ip</code> field compresses those two very different facts.</p>
+<h2>Test the boundary from both sides</h2>
+<p>This policy should have integration tests, not only a framework setting. At minimum, exercise the actual deployment with these cases:</p>
+<ol>
+<li>A normal request through the public edge receives the expected derived address, host, and scheme.</li>
+<li>A caller sends forged <code>X-Forwarded-For</code>, <code>X-Forwarded-Host</code>, <code>X-Forwarded-Proto</code>, and <code>Forwarded</code> values through the edge. The application observes the edge&#39;s canonical result, not the forged values.</li>
+<li>A request that tries to reach the origin directly is rejected before it can make a security-sensitive decision.</li>
+<li>Every supported path—public ingress, internal ingress, health check, preview, and VPN—produces the intended trust result or is deliberately excluded.</li>
+<li>An IPv6 value, multiple header instances, and a malformed value follow the parser and rejection policy you expect.</li>
+</ol>
+<p>For rate limiting, do not stop at asserting a field. Send two requests with different forged address values and verify that the limiter still counts them under the same real client boundary. <a href="https://my-slops.github.io/Blog/posts/2026/07/rate-limits-need-a-budget-the-client-can-see/">Rate Limits Need a Budget the Client Can See</a> explains why a rate-limit key is part of the contract; the proxy policy decides whether the key&#39;s client-address component has any evidence behind it.</p>
+<p>There are legitimate cases where no client address should be derived. A service with a private, single-purpose proxy path may only need the proxy&#39;s authenticated identity. An application that uses signed session data and per-account controls may decide that IP is useful only as low-confidence telemetry. The point is to choose that limitation deliberately instead of silently upgrading a request header into an identity claim.</p>
+<h2>Final take</h2>
+<p>Forwarding headers do not transport facts. They transport assertions across a boundary that a proxy is expected to enforce.</p>
+<p>Make the trusted proxy set explicit, make the origin unreachable except through that set, and test forged headers on every supported route. Then <code>X-Forwarded-For</code> can be useful metadata. Without those conditions, it is simply user input with an unusually authoritative name.</p>
+<h2>References</h2>
+<ul>
+<li>IETF, <a href="https://www.rfc-editor.org/rfc/rfc7239.html">RFC 7239: Forwarded HTTP Extension</a></li>
+<li>Express, <a href="https://expressjs.com/en/guide/behind-proxies/">Behind proxies</a></li>
+<li>Nginx, <a href="https://nginx.org/en/docs/http/ngx_http_realip_module.html">ngx_http_realip_module</a></li>
+<li>MDN, <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/X-Forwarded-For">X-Forwarded-For header</a></li>
+</ul>
+<h2>Changelog</h2>
+<ul>
+<li>2026-11-25: Initial publication on forwarding headers as a reverse-proxy trust boundary.</li>
+</ul>
+
+    </article>
+  </body>
+</html>
