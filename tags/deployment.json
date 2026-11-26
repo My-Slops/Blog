@@ -1,7 +1,22 @@
 {
   "tag": "deployment",
-  "count": 14,
+  "count": 15,
   "posts": [
+    {
+      "title": "What a PodDisruptionBudget Actually Protects",
+      "date": "2026-11-26",
+      "updated": "2026-11-26",
+      "summary": "Treat a PodDisruptionBudget as a coordination contract for voluntary evictions: choose it from the workload's real recovery and quorum needs, observe its available-disruption state, and build availability separately through placement, capacity, and resource policy.",
+      "tags": [
+        "kubernetes",
+        "reliability",
+        "infrastructure",
+        "deployment",
+        "operations"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/11/what-a-poddisruptionbudget-actually-protects/",
+      "path": "posts/2026/11/2026-11-26-what-a-poddisruptionbudget-actually-protects.md"
+    },
     {
       "title": "The Riskiest Part of a Migration May Be Waiting for Its Lock",
       "date": "2026-11-24",

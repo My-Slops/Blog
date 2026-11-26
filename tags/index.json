@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-25T15:03:06.666Z",
+  "generated_at": "2026-11-26T18:12:42.081Z",
   "tags": [
     {
       "tag": "accessibility",
@@ -148,7 +148,7 @@
     },
     {
       "tag": "deployment",
-      "count": 14,
+      "count": 15,
       "url": "https://my-slops.github.io/Blog/tags/deployment.json"
     },
     {
@@ -263,13 +263,18 @@
     },
     {
       "tag": "infrastructure",
-      "count": 4,
+      "count": 5,
       "url": "https://my-slops.github.io/Blog/tags/infrastructure.json"
     },
     {
       "tag": "knowledge work",
       "count": 4,
       "url": "https://my-slops.github.io/Blog/tags/knowledge work.json"
+    },
+    {
+      "tag": "kubernetes",
+      "count": 1,
+      "url": "https://my-slops.github.io/Blog/tags/kubernetes.json"
     },
     {
       "tag": "llm reliability",
@@ -313,7 +318,7 @@
     },
     {
       "tag": "operations",
-      "count": 26,
+      "count": 27,
       "url": "https://my-slops.github.io/Blog/tags/operations.json"
     },
     {
@@ -373,7 +378,7 @@
     },
     {
       "tag": "reliability",
-      "count": 138,
+      "count": 139,
       "url": "https://my-slops.github.io/Blog/tags/reliability.json"
     },
     {

@@ -6,6 +6,13 @@
   <description>Daily writing, optimized for humans and LLMs.</description>
   <language>en-us</language>
   <item>
+    <title>What a PodDisruptionBudget Actually Protects</title>
+    <link>https://my-slops.github.io/Blog/posts/2026/11/what-a-poddisruptionbudget-actually-protects/</link>
+    <guid>https://my-slops.github.io/Blog/posts/2026/11/what-a-poddisruptionbudget-actually-protects/</guid>
+    <pubDate>Thu, 26 Nov 2026 00:00:00 GMT</pubDate>
+    <description>Treat a PodDisruptionBudget as a coordination contract for voluntary evictions: choose it from the workload&apos;s real recovery and quorum needs, observe its available-disruption state, and build availability separately through placement, capacity, and resource policy.</description>
+  </item>
+  <item>
     <title>The Trust Boundary Behind X-Forwarded-For</title>
     <link>https://my-slops.github.io/Blog/posts/2026/11/the-trust-boundary-behind-x-forwarded-for/</link>
     <guid>https://my-slops.github.io/Blog/posts/2026/11/the-trust-boundary-behind-x-forwarded-for/</guid>
@@ -347,13 +354,6 @@
     <guid>https://my-slops.github.io/Blog/posts/2026/09/test-data-is-production-configuration/</guid>
     <pubDate>Thu, 24 Sep 2026 00:00:00 GMT</pubDate>
     <description>Version, review, and deliberately compose test data. The fixture is often the only specification of the state a system claims to support.</description>
-  </item>
-  <item>
-    <title>A Tool Error Is an Instruction to Your Agent</title>
-    <link>https://my-slops.github.io/Blog/posts/2026/09/a-tool-error-is-an-instruction-to-your-agent/</link>
-    <guid>https://my-slops.github.io/Blog/posts/2026/09/a-tool-error-is-an-instruction-to-your-agent/</guid>
-    <pubDate>Mon, 21 Sep 2026 00:00:00 GMT</pubDate>
-    <description>Tool errors are part of an agent&apos;s control loop. Return a bounded, typed recovery signal so the agent can distinguish a repairable request from a policy denial, a rate limit, and an action whose completion is unknown.</description>
   </item>
 </channel>
 </rss>

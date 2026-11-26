@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>What a PodDisruptionBudget Actually Protects | Blog</title>
+    <meta name="description" content="Treat a PodDisruptionBudget as a coordination contract for voluntary evictions: choose it from the workload&#39;s real recovery and quorum needs, observe its available-disruption state, and build availability separately through placement, capacity, and resource policy." />
+    <link rel="canonical" href="https://my-slops.github.io/Blog/posts/2026/11/what-a-poddisruptionbudget-actually-protects/" />
+    <style>
+      :root { color-scheme: light dark; }
+      body { font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; line-height: 1.7; max-width: 760px; margin: 40px auto; padding: 0 16px; }
+      a { color: #0a58ca; text-decoration: none; }
+      a:hover { text-decoration: underline; }
+      .meta { color: #666; font-size: 0.95rem; margin-bottom: 1rem; }
+      .tags { display: flex; gap: 0.5rem; list-style: none; padding: 0; margin: 0.75rem 0 1.25rem; flex-wrap: wrap; }
+      .tags li { background: #eef2ff; color: #3730a3; border-radius: 999px; padding: 0.2rem 0.6rem; font-size: 0.8rem; }
+      article h1, article h2, article h3 { line-height: 1.3; }
+      article pre { overflow-x: auto; background: #111827; color: #f9fafb; padding: 0.9rem; border-radius: 8px; }
+      article code { font-family: ui-monospace,SFMono-Regular,Menlo,monospace; }
+      article blockquote { border-left: 4px solid #d1d5db; margin: 1rem 0; padding: 0.2rem 0.9rem; color: #4b5563; }
+      hr { border: 0; border-top: 1px solid #e5e7eb; margin: 2rem 0; }
+    </style>
+  </head>
+  <body>
+    <p><a href="https://my-slops.github.io/Blog/">← Home</a></p>
+    <article>
+      <h1>What a PodDisruptionBudget Actually Protects</h1>
+      <p class="meta">Nov 26, 2026</p>
+      <ul class="tags"><li>kubernetes</li><li>reliability</li><li>infrastructure</li><li>deployment</li><li>operations</li></ul>
+      <h2>TL;DR</h2>
+<p>A Kubernetes <code>PodDisruptionBudget</code> (PDB) does not promise that a workload will stay available. It limits a particular class of <em>voluntary eviction</em> so that planned operations such as a node drain do not take more ready Pods than the application says it can lose at once.</p>
+<p>That is useful, but narrower than many dashboards and runbooks imply. A node failure, resource-pressure eviction, an application rollout, a direct Pod deletion, or too little cluster capacity can still put the workload below the number in its budget. Those events also change whether a later drain is permitted.</p>
+<p>Treat the PDB as a coordination contract between the application owner and the system doing an eviction. Build actual availability with replicas placed across independent failure domains, enough spare capacity to replace one, credible readiness, and an application that can tolerate a process disappearing. Then test a drain while the workload is already degraded—not only when every replica is green.</p>
+<h2>The budget applies to a path, not to every way a Pod can disappear</h2>
+<p>Suppose an API has three replicas and can continue serving with two. This budget expresses one sensible constraint:</p>
+<pre><code class="language-yaml">apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: checkout-api
+spec:
+  maxUnavailable: 1
+  selector:
+    matchLabels:
+      app: checkout-api
+</code></pre>
+<p>When an actor uses the Kubernetes eviction API, the disruption controller can allow one ready Pod to be evicted and refuse a second one until replacement capacity becomes healthy. <code>kubectl drain</code> normally uses that API, which is why a PDB is valuable during a planned node upgrade or scale-down.</p>
+<p>The important qualifier is <em>when an actor uses the eviction API</em>. Kubernetes explicitly distinguishes voluntary disruptions from involuntary ones, and warns that not every voluntary action is constrained by a PDB. Deleting a Pod or Deployment directly can bypass it. A Deployment or StatefulSet rolling out a new Pod template also counts unavailable Pods toward the budget, but its controller is not throttled by the PDB in the way a drain is. <a href="https://kubernetes.io/docs/concepts/workloads/pods/disruptions/">Kubernetes&#39; disruption documentation</a> makes both boundaries explicit.</p>
+<p>This is not a defect. Kubernetes cannot turn a local eviction check into a global availability guarantee. A node can disappear, a kernel can panic, or an operator can apply a destructive change. A PDB is deliberately a cooperation mechanism for actors that ask permission to evict; it is not a force field around matching Pods.</p>
+<h2>A healthy replica and a protected replica are different things</h2>
+<p>The PDB controller currently counts a Pod as healthy when its <code>Ready</code> condition is <code>True</code>. Its status exposes the calculation:</p>
+<pre><code class="language-text">currentHealthy:       3
+desiredHealthy:       2
+disruptionsAllowed:   1
+</code></pre>
+<p>For the three-replica example, this means a voluntary eviction is permitted <em>now</em>. It does not mean two replicas will remain able to satisfy a user-visible request under every failure. <code>Ready</code> is an application-defined routing signal. It can be too optimistic, too pessimistic, or simply unrelated to a dependency needed by one particular operation.</p>
+<p>More importantly, the calculation starts from the current state. If a separate incident has already made one replica unready, the same budget generally reports zero allowed disruptions. A node drain that used to be routine now stalls—not because the PDB caused the incident, but because it refuses to spend capacity the workload no longer has.</p>
+<p>That is a useful refusal. It turns “we are about to make an already degraded service worse” into an observable scheduling problem. It is not useful if a team reads <code>minAvailable: 2</code> as proof that two replicas are available. The object declares the minimum it will cooperate to preserve during eligible evictions; its status reports a momentary controller view of readiness.</p>
+<p>Inspect the status during maintenance rather than only the manifest in Git:</p>
+<pre><code class="language-sh">kubectl get pdb checkout-api
+kubectl get pdb checkout-api -o yaml
+kubectl get pods -l app=checkout-api -o wide
+</code></pre>
+<p><code>ALLOWED DISRUPTIONS=0</code> is not automatically an error. It can be the correct state when the workload is already at its availability floor. But it should alter the plan: restore capacity, add a node, defer maintenance, or explicitly accept a wider outage. Repeatedly retrying the drain changes none of those conditions.</p>
+<h2>Failures still spend the capacity a drain needs</h2>
+<p>The most expensive misunderstanding is treating a PDB as a replacement for failure-domain design.</p>
+<p>Imagine all three Pods above happen to land on the same node. The PDB can politely serialize a planned eviction from that node. It cannot keep the node&#39;s failure from removing all three at once. The same issue appears when replicas share one zone, one overloaded autoscaling pool, one fragile dependency, or one shortage of schedulable capacity.</p>
+<p>Kubernetes documents this limitation directly: a PDB cannot guarantee that its specified number of Pods will always be up, because a node hosting a Pod can fail while the workload is already at the budget&#39;s minimum. The documentation recommends replication and, for stronger availability, spreading replicas across racks or zones with anti-affinity or topology-aware placement. <a href="https://kubernetes.io/docs/tasks/run-application/configure-pdb/">The PDB task guide</a> is unusually clear here.</p>
+<p>Resource pressure is another important counterexample. When the kubelet evicts Pods to reclaim memory, disk, inode, or process-ID resources, it does not respect a PDB or the Pod&#39;s normal <code>terminationGracePeriodSeconds</code>. A hard node-pressure eviction can use no grace period at all. <a href="https://kubernetes.io/docs/concepts/scheduling-eviction/node-pressure-eviction/">Kubernetes&#39; node-pressure eviction documentation</a> describes that behavior because preserving node stability takes priority over the coordination policy for a planned drain.</p>
+<p>So the availability design must answer questions the PDB cannot:</p>
+<ul>
+<li>Can a replacement Pod schedule when one node is drained or lost, or is the cluster already full?</li>
+<li>Are replicas placed so that the failure domain the service claims to survive does not contain all of them?</li>
+<li>Do resource requests reflect normal and burst usage well enough to avoid avoidable node pressure?</li>
+<li>Does <code>Ready</code> mean the replica can serve the traffic counted in the availability claim?</li>
+<li>Does the application handle a process loss without duplicating or abandoning work it owns?</li>
+</ul>
+<p>Those are different controls with different owners. A PDB is strongest when it makes their gaps visible during a planned operation rather than concealing them.</p>
+<h2>Zero is a maintenance policy, not a high-availability setting</h2>
+<p>An understandable reaction to risk is this:</p>
+<pre><code class="language-yaml">spec:
+  maxUnavailable: 0
+</code></pre>
+<p>For a single-replica stateful service, that can be an honest request: do not evict this Pod without talking to the application owner. Kubernetes explicitly presents that as a coordination option, with the expectation that an operator will arrange downtime and remove or adjust the budget when the work is ready.</p>
+<p>It is not a way to upgrade a single instance into a highly available service. With no replacement, no quorum, and no independent failure domain, there is no availability reserve for the PDB to preserve. The immediate operational consequence is more concrete: a <code>kubectl drain</code> targeting that Pod cannot complete through normal eviction while the zero-disruption policy applies.</p>
+<p>The same trade-off exists at larger scale. A budget that permits no voluntary loss while the cluster has no spare placement capacity can turn a routine node upgrade into a blocked drain. Kubernetes&#39; own drain example reaches exactly that state: the first eviction succeeds, its replacement remains Pending because the cluster is full, and the next eviction is refused. <a href="https://kubernetes.io/docs/concepts/workloads/pods/disruptions/">The disruption guide&#39;s walkthrough</a> is worth reading as a capacity-planning example, not merely an explanation of PDB syntax.</p>
+<p>My preference is to choose a budget from a failure calculation and make the resulting maintenance behavior explicit. A three-member quorum system may accept <code>maxUnavailable: 1</code>; a frontend with ten replicas may need a percentage chosen from its actual load headroom. Neither number is a generic best practice. It is a statement about what work the system can still do while a replacement starts.</p>
+<h2>Decide what an unhealthy Pod should do to a drain</h2>
+<p>An unhealthy Pod adds one more policy choice. By default, a running Pod that is not ready is protected from eviction when the application is already disrupted. The rationale is reasonable: leaving it alone gives it a chance to recover. The operational downside is that a CrashLooping Pod can block node maintenance precisely when operators most want to remove it.</p>
+<p>Current Kubernetes supports <code>unhealthyPodEvictionPolicy</code> on a PDB. <code>IfHealthyBudget</code> is the default; <code>AlwaysAllow</code> permits eviction of running, unhealthy Pods even when the healthy budget is not met. The field is stable, but the correct value is still a product decision:</p>
+<pre><code class="language-yaml">spec:
+  maxUnavailable: 1
+  unhealthyPodEvictionPolicy: AlwaysAllow
+  selector:
+    matchLabels:
+      app: checkout-api
+</code></pre>
+<p><code>AlwaysAllow</code> can free a blocked drain from a Pod that will not recover. It can also remove a Pod that might have become useful before a replacement is ready. Use it only after deciding whether the application prefers recovery opportunity or maintenance progress in that failure mode. <a href="https://kubernetes.io/docs/tasks/run-application/configure-pdb/#unhealthy-pod-eviction-policy">Kubernetes documents both policies and their implications</a>.</p>
+<p>Do not let this setting become a way to hide an unhealthy deployment. Alert on sustained <code>disruptionsAllowed: 0</code>, unready replicas, Pending replacements, and node-drain duration. The point is to make the conflict between safety and progress visible early enough to resolve it deliberately.</p>
+<h2>Test the state you will drain from</h2>
+<p>A validation that only drains a node while every replica is ready proves the easiest case. Exercise the boundary conditions in a non-production cluster that resembles the real placement and capacity model:</p>
+<pre><code class="language-text">Given: a workload with the intended replica count and PDB
+And: one selected Pod is deliberately unready or unavailable
+When: a node holding another selected Pod is drained through the eviction API
+Then: the drain is blocked or progresses exactly as the stated policy expects
+And: the runbook identifies the safe operator action
+</code></pre>
+<p>Also test a replacement that cannot schedule, a slow startup, and a node-loss simulation if the platform offers one. Inspect whether replicas were genuinely spread across the failure domain the service claims to survive. A PDB selector that matches the right labels does not prove any of that.</p>
+<p>There are workloads for which no PDB is appropriate. A restartable batch Job may be better served by its Job controller creating a replacement. A best-effort internal service may accept a temporary interruption rather than block cluster maintenance. Conversely, a quorum store can need both a PDB and a carefully designed operational procedure. The deciding question is not “does this workload have Pods?” It is “which planned eviction is safe, given the recovery behavior and capacity we actually have?”</p>
+<h2>Final Take</h2>
+<p>A PodDisruptionBudget is a small but valuable promise: an eligible eviction must not spend more ready capacity than the workload has declared it can spare.</p>
+<p>Keep that promise narrow. Pair it with replica placement, capacity headroom, resource discipline, meaningful readiness, and a tested drain procedure. Then a blocked eviction is not surprising Kubernetes behavior; it is evidence that the system has reached the availability boundary it claimed to protect.</p>
+<h2>References</h2>
+<ul>
+<li>Kubernetes, <a href="https://kubernetes.io/docs/concepts/workloads/pods/disruptions/">Disruptions</a></li>
+<li>Kubernetes, <a href="https://kubernetes.io/docs/tasks/run-application/configure-pdb/">Specifying a Disruption Budget for your Application</a></li>
+<li>Kubernetes, <a href="https://kubernetes.io/docs/concepts/scheduling-eviction/node-pressure-eviction/">Node-pressure eviction</a></li>
+<li>This repository, <a href="https://my-slops.github.io/Blog/posts/2026/11/graceful-shutdown-starts-by-refusing-new-work/">Graceful Shutdown Starts by Refusing New Work</a></li>
+<li>This repository, <a href="https://my-slops.github.io/Blog/posts/2026/11/a-health-endpoint-is-not-a-dependency-dashboard/">A Health Endpoint Is Not a Dependency Dashboard</a></li>
+</ul>
+<h2>Changelog</h2>
+<ul>
+<li>2026-11-26: Initial publication on PodDisruptionBudgets as voluntary-eviction coordination rather than availability guarantees.</li>
+</ul>
+
+    </article>
+  </body>
+</html>

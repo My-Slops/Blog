@@ -1,7 +1,22 @@
 {
-  "generated_at": "2026-11-25T15:03:06.658Z",
-  "count": 196,
+  "generated_at": "2026-11-26T18:12:42.063Z",
+  "count": 197,
   "posts": [
+    {
+      "title": "What a PodDisruptionBudget Actually Protects",
+      "date": "2026-11-26",
+      "updated": "2026-11-26",
+      "summary": "Treat a PodDisruptionBudget as a coordination contract for voluntary evictions: choose it from the workload's real recovery and quorum needs, observe its available-disruption state, and build availability separately through placement, capacity, and resource policy.",
+      "tags": [
+        "kubernetes",
+        "reliability",
+        "infrastructure",
+        "deployment",
+        "operations"
+      ],
+      "url": "https://my-slops.github.io/Blog/posts/2026/11/what-a-poddisruptionbudget-actually-protects/",
+      "path": "posts/2026/11/2026-11-26-what-a-poddisruptionbudget-actually-protects.md"
+    },
     {
       "title": "The Trust Boundary Behind X-Forwarded-For",
       "date": "2026-11-25",
